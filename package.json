@@ -1,0 +1,55 @@
+{
+  "name": "event-registration-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "backend":   "npm run start:dev -w backend",
+    "frontend":  "npm run dev -w frontend",
+    "dev":       "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"bgBlue.bold,bgCyan.bold\" --kill-others-on-fail \"npm run backend\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+  "overrides": {
+    "lodash": "4.18.1",
+    "js-yaml": "4.2.0",
+    "ajv": "8.20.0",
+    "glob": "10.5.0",
+    "picomatch": "4.0.4",
+    "postcss": "8.5.15",
+    "qs": "6.15.2",
+    "tmp": "0.2.7",
+    "file-type": "21.3.4",
+    "multer": "2.1.1",
+    "@nestjs/swagger": {
+      "lodash": "4.18.1",
+      "js-yaml": "4.2.0"
+    },
+    "@nestjs/platform-express": {
+      "multer": "2.1.1",
+      "express": {
+        "qs": "6.15.2"
+      }
+    },
+    "@nestjs/common": {
+      "file-type": "21.3.4"
+    },
+    "inquirer": {
+      "lodash": "4.18.1",
+      "external-editor": {
+        "tmp": "0.2.7"
+      }
+    },
+    "@angular-devkit/core": {
+      "ajv": "8.20.0",
+      "picomatch": "4.0.4"
+    },
+    "next": {
+      "postcss": "8.5.15"
+    }
+  }
+}
