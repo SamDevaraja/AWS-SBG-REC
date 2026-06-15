@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X, Clock, MapPin, ArrowRight, CalendarDays } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEvents } from "@/modules/cloud-enthusiasts/shared/hooks/useCloudEnthusiasts";
 import { Event } from "@/modules/cloud-enthusiasts/shared/types";
 
@@ -44,6 +44,7 @@ const MONTHS = [
 
 export default function CalendarCard() {
   const router = useRouter();
+  const pathname = usePathname();
   const today = new Date();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -285,7 +286,8 @@ export default function CalendarCard() {
                         key={evt.event_id}
                         onClick={() => {
                           closeModal();
-                          router.push(`/events/${evt.event_id}`);
+                          const basePath = pathname.startsWith('/crew') ? '/crew/events' : pathname.startsWith('/core') ? '/core/events' : '/events';
+                          router.push(`${basePath}/${evt.event_id || (evt as any).id}`);
                         }}
                         className={`flex items-start gap-3.5 w-full text-left rounded-[14px] px-4 py-3.5 transition-all duration-300 cursor-pointer ${isHighlighted
                             ? "bg-white border border-brand-orange/40 shadow-md shadow-brand-orange/5 translate-x-1"

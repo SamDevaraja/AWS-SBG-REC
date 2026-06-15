@@ -201,6 +201,57 @@ export class EventsService {
       throw new NotFoundException(`Event with ID "${id}" not found`);
     }
 
+    if (dto.agenda !== undefined) {
+      await this.prisma.eventAgenda.deleteMany({ where: { eventId: id } });
+      if (dto.agenda && dto.agenda.length > 0) {
+        await this.prisma.eventAgenda.createMany({
+          data: dto.agenda.map((item) => ({
+            eventId: id,
+            title: item.title,
+            speaker: item.speaker,
+            startTime: item.startTime,
+            endTime: item.endTime,
+          })),
+        });
+      }
+    }
+
+    if (dto.speakers !== undefined) {
+      await this.prisma.eventSpeaker.deleteMany({ where: { eventId: id } });
+      if (dto.speakers && dto.speakers.length > 0) {
+        await this.prisma.eventSpeaker.createMany({
+          data: dto.speakers.map((item) => ({
+            eventId: id,
+            name: item.name,
+            role: item.role,
+            organization: item.organization,
+            bio: item.bio,
+            photo: item.photo,
+          })),
+        });
+      }
+    }
+
+    if (dto.formFields !== undefined) {
+      await this.prisma.formField.deleteMany({ where: { eventId: id } });
+      if (dto.formFields && dto.formFields.length > 0) {
+        await Promise.all(
+          dto.formFields.map((field, index) =>
+            this.prisma.formField.create({
+              data: {
+                eventId: id,
+                label: field.label,
+                type: field.type,
+                isRequired: field.isRequired ?? false,
+                fieldOrder: field.fieldOrder ?? index,
+                ...(field.options !== undefined && { options: field.options as any }),
+              },
+            }),
+          ),
+        );
+      }
+    }
+
     return this.prisma.event.update({
       where: { id },
       data: {

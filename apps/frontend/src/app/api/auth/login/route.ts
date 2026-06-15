@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
+    console.log(`[API Login] Received request: email="${email}", password="${password}"`);
 
     if (!email || !password) {
       return NextResponse.json(

@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-const PUBLIC_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password', '/verify'];
+const PUBLIC_ROUTES = ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/verify', '/crew', '/core'];
 
 function getHomeForRole(role: string): string {
   if (role === 'core') return '/core/dashboard';
@@ -37,32 +37,38 @@ export function clearSessionCache() {
 /**
  * AuthWrapper — lightweight global auth guard.
  *
- * Uses router.replace() instead of window.location.replace() for all redirects
- * so they are instant client-side navigations rather than full page reloads.
- * Session parsing result is module-level cached to avoid repeated JSON.parse.
+ * Uses router.replace() for instant client-side navigations.
+ * Session parsing is module-level cached. The spinner only shows
+ * on the very first mount (SSR -> client hydration), not on
+ * subsequent client-side navigations.
  */
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [status, setStatus] = useState<'loading' | 'allowed' | 'redirecting'>('loading');
+  const [ready, setReady] = useState(false);
   const checkedRef = useRef<string>('');
+  const initialCheckDone = useRef(false);
 
   useEffect(() => {
-    // Skip if we already checked this exact path (e.g. during Strict Mode double-invoke)
-    if (checkedRef.current === pathname) return;
-    checkedRef.current = pathname;
+    // Determine if the current route is public
+    // We treat /core and /crew strictly as exact matches so we don't accidentally expose /core/dashboard
+    const isPublicRoute = PUBLIC_ROUTES.some(r => {
+      if (r === '/core' || r === '/crew') {
+        return pathname === r;
+      }
+      return pathname === r || pathname.startsWith(r + '/');
+    });
 
-    const isPublicRoute = PUBLIC_ROUTES.some(r => pathname === r || pathname.startsWith(r + '/'));
     const session = getSession();
 
     if (!session) {
       if (!isPublicRoute) {
-        setStatus('redirecting');
-        // Reset the ref so the destination path will be checked fresh
         checkedRef.current = '';
         router.replace('/login');
-      } else {
-        setStatus('allowed');
+      }
+      if (!initialCheckDone.current) {
+        initialCheckDone.current = true;
+        setReady(true);
       }
       return;
     }
@@ -70,40 +76,47 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { role } = session;
 
     if (isPublicRoute) {
-      setStatus('redirecting');
-      // Reset the ref so the destination path will be checked fresh
       checkedRef.current = '';
       router.replace(getHomeForRole(role));
+      if (!initialCheckDone.current) {
+        initialCheckDone.current = true;
+        setReady(true);
+      }
       return;
     }
 
     const isCorePath = pathname.startsWith('/core');
     const isCrewPath = pathname.startsWith('/crew');
+    const isEnthusiastPath = pathname.startsWith('/events');
 
-    if (isCorePath && role !== 'core') {
-      setStatus('redirecting');
+    if (
+      (isCorePath && role !== 'core') ||
+      (isCrewPath && role !== 'crew') ||
+      (isEnthusiastPath && role !== 'enthusiasts')
+    ) {
       checkedRef.current = '';
       router.replace(getHomeForRole(role));
+      if (!initialCheckDone.current) {
+        initialCheckDone.current = true;
+        setReady(true);
+      }
       return;
     }
 
-    if (isCrewPath && role !== 'crew') {
-      setStatus('redirecting');
-      checkedRef.current = '';
-      router.replace(getHomeForRole(role));
-      return;
+    if (!initialCheckDone.current) {
+      initialCheckDone.current = true;
     }
-
-    setStatus('allowed');
+    setReady(true);
   }, [pathname, router]);
 
-  if (status !== 'allowed') {
+  // Show spinner only during initial hydration, not on navigations
+  if (!ready) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-[#1A222D] z-50">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-[3px] border-[#FF9900] border-t-transparent rounded-full animate-spin" />
-          <div className="text-[10px] uppercase tracking-widest font-bold text-[#68717A] font-mono">
-            {status === 'redirecting' ? 'Redirecting...' : 'Authenticating...'}
+          <div suppressHydrationWarning className="text-[10px] uppercase tracking-widest font-bold text-[#68717A] font-mono">
+            Authenticating...
           </div>
         </div>
       </div>

@@ -251,7 +251,7 @@ export interface CreateEventDto {
   formFields?: CreateFormFieldDto[];
 }
 
-export type UpdateEventDto = Partial<Omit<CreateEventDto, 'agenda' | 'speakers' | 'formFields'>>;
+export type UpdateEventDto = Partial<CreateEventDto>;
 
 export interface CreateAgendaDto {
   title: string;

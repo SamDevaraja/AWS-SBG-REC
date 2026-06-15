@@ -322,7 +322,7 @@ export function useCrewDashboard() {
   return useQuery({
     queryKey: ['crew', 'dashboard'],
     queryFn: () => api.fetchCrewDashboard(),
-    staleTime: 5 * 1000, // refresh stats slightly more frequently
+    staleTime: 2 * 1000, // refresh stats slightly more frequently
   });
 }
 

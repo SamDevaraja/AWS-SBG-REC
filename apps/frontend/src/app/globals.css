@@ -1,3 +1,4 @@
+@import url('https://cdn.jsdelivr.net/npm/amazon-fonts@1.0.1/fonts/stylesheet.css');
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;600;700&display=swap');
 @import 'tailwindcss';
 
@@ -64,7 +65,7 @@
 
   /* Typography */
   --font-sans:
-    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'Amazon Ember', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
     Arial, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
@@ -142,10 +143,10 @@
 
   --radius-24: 24px;
 
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Amazon Ember', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-inter: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Amazon Ember', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-inter: 'Amazon Ember', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   --font-weight-medium: 600;
   --font-weight-semibold: 700;
@@ -160,41 +161,50 @@
 }
 
 /* ─── Global Class Overrides for Hardcoded Color Utilities using Attribute Selectors to bypass parser limitations ─── */
-[class*="bg-[#232F3E]"] {
+[class~="bg-[#232F3E]"] {
   background-color: var(--primary) !important;
 }
-[class*="text-[#232F3E]"] {
+[class~="text-[#232F3E]"] {
   color: var(--primary) !important;
 }
-[class*="border-[#232F3E]"] {
+[class~="border-[#232F3E]"] {
   border-color: var(--primary) !important;
 }
-[class*="focus:ring-[#232F3E]/20"]:focus {
+[class~="border-[#232F3E]/20"] {
+  border-color: color-mix(in srgb, var(--primary) 20%, transparent) !important;
+}
+[class~="focus:ring-[#232F3E]/20"]:focus {
   --tw-ring-color: rgba(35, 47, 62, 0.2) !important;
 }
-[class*="focus:border-[#232F3E]"]:focus {
+[class~="focus:border-[#232F3E]"]:focus {
   border-color: var(--primary) !important;
 }
-[class*="bg-[#232F3E]/10"] {
-  background-color: rgba(35, 47, 62, 0.1) !important;
+[class~="bg-[#232F3E]/5"] {
+  background-color: color-mix(in srgb, var(--primary) 5%, transparent) !important;
 }
-[class*="bg-[#232F3E]/30"] {
-  background-color: rgba(35, 47, 62, 0.3) !important;
+[class~="bg-[#232F3E]/10"] {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent) !important;
+}
+[class~="hover:bg-[#232F3E]/15"]:hover {
+  background-color: color-mix(in srgb, var(--primary) 15%, transparent) !important;
+}
+[class~="bg-[#232F3E]/30"] {
+  background-color: color-mix(in srgb, var(--primary) 30%, transparent) !important;
 }
 
-[class*="bg-[#0073BB]"] {
+[class~="bg-[#0073BB]"] {
   background-color: var(--accent) !important;
 }
-[class*="text-[#0073BB]"] {
+[class~="text-[#0073BB]"] {
   color: var(--accent) !important;
 }
-[class*="border-[#0073BB]"] {
+[class~="border-[#0073BB]"] {
   border-color: var(--accent) !important;
 }
-[class*="focus:ring-[#0073BB]/20"]:focus {
+[class~="focus:ring-[#0073BB]/20"]:focus {
   --tw-ring-color: rgba(35, 47, 62, 0.2) !important;
 }
-[class*="focus:border-[#0073BB]"]:focus {
+[class~="focus:border-[#0073BB]"]:focus {
   border-color: var(--accent) !important;
 }
 
@@ -405,21 +415,16 @@ img {
 }
 
 .premium-glow-container {
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.15)) !important;
-  will-change: transform, box-shadow, border-color;
-  transition:
-    transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 400ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 400ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out, border-color 300ms ease-out !important;
 }
 
 .premium-glow-container:hover {
   transform: translateY(-4px) !important;
-  border-color: rgba(255, 153, 0, 0.25) !important;
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.14), rgba(35, 47, 62, 0.2)) !important;
+  border-color: transparent !important;
   box-shadow:
-    0 12px 24px rgba(255, 153, 0, 0.12),
-    0 8px 16px rgba(35, 47, 62, 0.08) !important;
+    -12px 6px 24px rgba(255, 105, 180, 0.45),
+    12px 6px 24px rgba(168, 85, 247, 0.45),
+    0 8px 16px rgba(15, 23, 42, 0.08) !important;
 }
 
 /* Content-visibility: auto — skip rendering off-screen event cards */
@@ -805,4 +810,129 @@ img {
   }
 }
 
+/* ── Landing Page Additions ── */
 
+/* ── AWS-style gradient background ── */
+.aws-grad-bg {
+  background: linear-gradient(135deg,
+    #e8eaf6 0%, #e3f2fd 25%,
+    #e8eaf6 50%, #fce4ec 75%,
+    #e8eaf6 100%);
+  background-size: 400% 400%;
+  animation: bgShift 12s ease infinite;
+}
+
+/* ── Moving gradient text ── */
+.grad-text {
+  background: linear-gradient(90deg, #1e2d3d, #FF9900, #0073BB, #1e2d3d);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradShift 5s ease infinite;
+}
+.grad-text-static {
+  background: linear-gradient(135deg, #FF9900, #E68900);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Shimmer ── */
+.shimmer {
+  background: linear-gradient(90deg,#f0ece8 25%,#e5e0db 50%,#f0ece8 75%);
+  background-size: 300px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Typewriter cursor ── */
+.tw-cursor::after {
+  content:'|';
+  animation: blink .8s step-end infinite;
+  color: #FF9900;
+  font-weight:300;
+}
+
+/* ── Marquee ── */
+.marquee-track { animation: marquee 30s linear infinite; }
+.marquee-track:hover { animation-play-state: paused; }
+
+/* ── Keyframes ── */
+@keyframes bgShift    { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+@keyframes gradShift  { 0%,100%{background-position:0% center} 50%{background-position:100% center} }
+@keyframes shimmer    { 0%{background-position:-300px 0} 100%{background-position:300px 0} }
+@keyframes marquee    { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+@keyframes blink      { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes floatB     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes pulseRing  { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(2.2);opacity:0} }
+@keyframes pulseDot   { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.2)} }
+@keyframes spinSlow   { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes drawBar    { from{width:0} to{width:var(--bar-w,100%)} }
+@keyframes scanLine   { 0%{left:-100%} 100%{left:200%} }
+@keyframes orbit      { from{transform:rotate(0deg) translateX(28px) rotate(0deg)} to{transform:rotate(360deg) translateX(28px) rotate(-360deg)} }
+@keyframes bounceIn   { 0%{transform:scale(.6) translateY(30px);opacity:0} 60%{transform:scale(1.06) translateY(-6px)} 100%{transform:scale(1) translateY(0);opacity:1} }
+@keyframes blob       { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-30px) scale(1.06)} 66%{transform:translate(-25px,35px) scale(.95)} }
+@keyframes glowRotate { 0%   { background-position: 0%   50%; } 50%  { background-position: 100% 50%; } 100% { background-position: 0%   50%; } }
+
+/* ── Prevent fixed header cutoff on landing page sections ── */
+#home, #about, #events, #gallery, #reviews, #team, #community {
+  scroll-margin-top: 100px !important;
+}
+
+/* ── Theme Alignment Overrides for Landing Page ── */
+
+/* Explicitly bind landing page sections to font-sans */
+#home, #about, #events, #gallery, #reviews, #team, #community, .landing-nav, footer,
+#home *, #about *, #events *, #gallery *, #reviews *, #team *, #community *, .landing-nav *, footer * {
+  font-family: var(--font-sans) !important;
+}
+
+/* Align heading colors with --primary and --font-weight-bold */
+#home h1, #home h2, #home h3, #home h4,
+#about h1, #about h2, #about h3, #about h4,
+#events h1, #events h2, #events h3, #events h4,
+#gallery h1, #gallery h2, #gallery h3,
+#reviews h2, #reviews h3,
+#team h1, #team h2, #team h3,
+#community h1, #community h2, #community h3,
+.landing-nav span, footer div,
+.grad-text-static {
+  color: var(--primary) !important;
+}
+
+/* Align description text colors to --secondary */
+#home p, #about p, #events p, #gallery p, #reviews p, #team p, #community p, footer p,
+#home li, #about li, #events li, #gallery li, #reviews li, #team li, #community li {
+  color: var(--secondary) !important;
+}
+
+/* Color overrides mapping exact hex/rgb styles case-insensitively */
+[style*="color:#232F3E" i], [style*="color: #232F3E" i], [style*="color:rgb(35, 47, 62)"], [style*="color: rgb(35, 47, 62)"],
+[style*="color:#1e2d3d" i], [style*="color: #1e2d3d" i], [style*="color:rgb(30, 45, 61)"], [style*="color: rgb(30, 45, 61)"],
+[style*="color:#1d2939" i], [style*="color: #1d2939" i], [style*="color:rgb(29, 41, 57)"], [style*="color: rgb(29, 41, 57)"] {
+  color: var(--primary) !important;
+}
+
+[style*="color:#4b5563" i], [style*="color: #4b5563" i], [style*="color:rgb(75, 85, 99)"], [style*="color: rgb(75, 85, 99)"] {
+  color: var(--secondary) !important;
+}
+
+/* Boldness adjustments mapping to theme weights */
+h1, h2, h3, h4,
+[style*="font-weight: 900" i], [style*="font-weight:900" i],
+[style*="font-weight: 800" i], [style*="font-weight:800" i],
+[style*="fontWeight: 900" i], [style*="fontWeight:900" i],
+[style*="fontWeight: 800" i], [style*="fontWeight:800" i] {
+  font-weight: var(--font-weight-bold) !important;
+}
+
+[style*="font-weight: 700" i], [style*="font-weight:700" i],
+[style*="fontWeight: 700" i], [style*="fontWeight:700" i] {
+  font-weight: var(--font-weight-semibold) !important;
+}
+
+[style*="font-weight: 600" i], [style*="font-weight:600" i],
+[style*="fontWeight: 600" i], [style*="fontWeight:600" i] {
+  font-weight: var(--font-weight-medium) !important;
+}

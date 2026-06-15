@@ -98,7 +98,8 @@ export async function POST(
     }
 
     // 4. Return formatted data as expected by frontend apiService.ts
-    const ticket = backendData.ticket;
+    const responseData = backendData.data || {};
+    const ticket = responseData.ticket;
     if (!ticket) {
       console.error("Backend did not return a ticket:", backendData);
       // Proceed gracefully to display Registration successful
@@ -108,14 +109,14 @@ export async function POST(
       success: true,
       data: {
         registration: {
-          id: backendData.id,
-          userId: backendData.userId,
-          eventId: backendData.eventId,
-          status: backendData.status,
-          emailSent: backendData.emailSent,
-          createdAt: backendData.createdAt,
-          updatedAt: backendData.updatedAt,
-          responses: backendData.responses,
+          id: responseData.id,
+          userId: responseData.userId,
+          eventId: responseData.eventId,
+          status: responseData.status,
+          emailSent: responseData.emailSent,
+          createdAt: responseData.createdAt,
+          updatedAt: responseData.updatedAt,
+          responses: responseData.responses,
         },
         ticket: ticket ? {
           id: ticket.id,

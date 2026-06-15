@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import CoreSidebarShell from '@/app/core/CoreSidebarShell';
-import CrewSidebarShell from '@/app/crew/CrewSidebarShell';
+import CoreSidebarShell from '@/app/core/(admin)/CoreSidebarShell';
+import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
 export default function CertificationsLayout({ children }: { children: React.ReactNode }) {
@@ -13,13 +13,21 @@ export default function CertificationsLayout({ children }: { children: React.Rea
     setMounted(true);
     try {
       const raw = localStorage.getItem('aws_sgb_rec_user');
+      console.log('CertificationsLayout: raw user from localStorage =', raw);
       if (raw) {
         const user = JSON.parse(raw);
         const userRole = (user?.role ?? '').toLowerCase().trim();
+        console.log('CertificationsLayout: parsed userRole =', userRole);
         setRole(userRole);
+      } else {
+        console.log('CertificationsLayout: no user in localStorage');
       }
-    } catch { /* ignore */ }
+    } catch (e) {
+      console.error('CertificationsLayout: error reading localStorage', e);
+    }
   }, []);
+
+  console.log('CertificationsLayout render: role =', role, 'mounted =', mounted);
 
   if (!mounted) {
     return (
@@ -30,11 +38,14 @@ export default function CertificationsLayout({ children }: { children: React.Rea
   }
 
   if (role === 'core') {
+    console.log('CertificationsLayout: rendering CoreSidebarShell');
     return <CoreSidebarShell>{children}</CoreSidebarShell>;
   }
   if (role === 'crew') {
+    console.log('CertificationsLayout: rendering CrewSidebarShell');
     return <CrewSidebarShell>{children}</CrewSidebarShell>;
   }
   // Default to attendee/events shell
+  console.log('CertificationsLayout: rendering default EventsSidebarShell');
   return <EventsSidebarShell>{children}</EventsSidebarShell>;
 }

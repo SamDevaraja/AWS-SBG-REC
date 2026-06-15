@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   // ── Build settings ──────────────────────────────────────────────────────────
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
+  transpilePackages: ['framer-motion'],
 
   // ── Performance: Enable gzip/brotli response compression ────────────────────
   compress: true,
@@ -20,6 +21,15 @@ const nextConfig: NextConfig = {
   // ── Turbopack dev server root ───────────────────────────────────────────────
   turbopack: {
     root: path.join(__dirname, '..', '..'),
+  },
+
+  // ── Optimize heavy package imports (tree-shake barrel exports) ──────────────
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'recharts',
+      '@tanstack/react-query',
+    ],
   },
 
   devIndicators: false,
@@ -42,14 +52,18 @@ const nextConfig: NextConfig = {
 
   // ── HTTP Headers ─────────────────────────────────────────────────────────────
   async headers() {
+    const isDev = process.env.NODE_ENV === 'development';
     return [
       {
-        // Cache static assets aggressively (JS/CSS/images from /_next/static)
+        // In production: cache static assets aggressively (1 year, immutable).
+        // In development: no caching so HMR/updated chunks are always fetched fresh.
         source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: isDev
+              ? 'no-store, no-cache, must-revalidate'
+              : 'public, max-age=31536000, immutable',
           },
         ],
       },
@@ -73,6 +87,32 @@ const nextConfig: NextConfig = {
         { source: '/uploads/:path*', destination: `${backendUrl}/uploads/:path*` },
       ]
     };
+  },
+
+  // ── Redirects for legacy/missing top-level routes ───────────────────────────
+  async redirects() {
+    return [
+      {
+        source: '/tickets',
+        destination: '/core/tickets',
+        permanent: false,
+      },
+      {
+        source: '/analytics',
+        destination: '/core/analytics',
+        permanent: false,
+      },
+      {
+        source: '/registrations',
+        destination: '/core/registrations',
+        permanent: false,
+      },
+      {
+        source: '/events/create',
+        destination: '/core/events/create',
+        permanent: false,
+      },
+    ];
   },
 };
 

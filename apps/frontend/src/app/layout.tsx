@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import Providers from "@/modules/cloud-enthusiasts/shared/components/Providers";
 import { AuthWrapper } from "@/components/AuthWrapper";
@@ -11,6 +12,16 @@ export const metadata: Metadata = {
   },
 };
 
+function LayoutSpinner() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-[#1A222D] z-50">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-[3px] border-[#FF9900] border-t-transparent rounded-full animate-spin" />
+      </div>
+    </div>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,7 +32,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col cloud-mesh-bg antialiased">
         <Providers>
           <AuthWrapper>
-            {children}
+            <Suspense fallback={<LayoutSpinner />}>
+              {children}
+            </Suspense>
           </AuthWrapper>
         </Providers>
       </body>

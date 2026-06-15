@@ -1,0 +1,171 @@
+export interface Review {
+  name: string;
+  role: string;
+  initials: string;
+  stars: number;
+  color: string;
+  badge?: string;
+  tag: string;
+  verified: boolean;
+  featured: boolean;
+  text: string;
+  event?: string;
+}
+
+export const REVIEWS: Review[] = [
+  // ── FEATURED REVIEW ──
+  {
+    name: "Thirunavukarasu",
+    role: "3rd Year · R&A Department",
+    initials: "TN",
+    stars: 5,
+    color: "#FF9900",
+    badge: "AWS Cloud Practitioner",
+    tag: "Roadmaps + Quiz Arena",
+    verified: true,
+    featured: true,
+    text: "I joined AWS SBG REC with zero cloud knowledge and no idea where to start. The structured roadmaps changed everything for me — they laid out exactly what to learn, in what order, and why. I followed the Cloud Practitioner roadmap step by step and cleared my exam on the first attempt. The Quiz Arena made revision addictive — competing with my batchmates on the leaderboard pushed me to study harder than I ever would have alone. If you are serious about AWS, the roadmaps here are the best starting point.",
+    event: "Cloud Practitioner Bootcamp · 2025",
+  },
+  // ── GRID REVIEWS (11 more cards) ──
+  {
+    name: "Sam Devaraj",
+    role: "2nd Year · CSE Department",
+    initials: "SD",
+    stars: 5,
+    color: "#0073BB",
+    badge: "Quiz Champion",
+    tag: "Quiz Arena",
+    verified: true,
+    featured: false,
+    text: "The Quiz Arena is genuinely the best feature of this platform. The questions are exactly at the level of the real AWS exams — not too easy, not impossible. I scored in the top 3 on the weekly leaderboard twice and that confidence carried into my actual certification exam. Highly recommend to anyone preparing for AWS certifications.",
+  },
+  {
+    name: "Neil Daniel",
+    role: "2nd Year · CSE Department",
+    initials: "ND",
+    stars: 5,
+    color: "#7C3AED",
+    badge: "Hackathon Finalist",
+    tag: "Workshops + Projects",
+    verified: true,
+    featured: false,
+    text: "The hands-on workshops are what set AWS SBG REC apart from every other college club. We actually deployed real applications on AWS — S3 buckets, Lambda functions, API Gateway — not just theory slides. The Cloud Jam hackathon was the highlight of my second year. Our team built a serverless attendance system that is now being used by our department.",
+  },
+  {
+    name: "Prathakshanaa",
+    role: "3rd Year · CSE Department",
+    initials: "PR",
+    stars: 5,
+    color: "#FF9900",
+    badge: "Community Lead",
+    tag: "Learning Paths + Community",
+    verified: true,
+    featured: false,
+    text: "The learning paths gave me a clear direction when I had none. I started with the Beginner Cloud path and within three months I was leading a study group of 12 students. The community here is incredibly supportive — seniors always share resources, mock exam tips and interview experiences. I got my internship offer partly because of the projects I built following the DevOps learning path.",
+  },
+  {
+    name: "Thirunavukarasu",
+    role: "3rd Year · R&A Department",
+    initials: "TN",
+    stars: 5,
+    color: "#FF9900",
+    badge: "AWS Certified",
+    tag: "Quiz Arena",
+    verified: true,
+    featured: false,
+    text: "The weekly quiz streaks kept me consistent. I studied for 20 minutes every day just to maintain my streak and by the end of the month I had covered the entire CLF-C02 syllabus without even realising it. Gamified learning actually works — this is proof.",
+  },
+  {
+    name: "Sam Devaraj",
+    role: "2nd Year · CSE Department",
+    initials: "SD",
+    stars: 5,
+    color: "#0073BB",
+    badge: "Project Builder",
+    tag: "Hands-On Projects",
+    verified: true,
+    featured: false,
+    text: "Built my first cloud application here — a real-time chat app using AWS AppSync and DynamoDB. The mentors guided us through every architecture decision. Now I have something concrete to show in every interview. The projects section of this platform is underrated.",
+  },
+  {
+    name: "Neil Daniel",
+    role: "2nd Year · CSE Department",
+    initials: "ND",
+    stars: 5,
+    color: "#7C3AED",
+    badge: "Bedrock Explorer",
+    tag: "AI/ML Workshop",
+    verified: true,
+    featured: false,
+    text: "The Generative AI workshop on Amazon Bedrock was the most exciting session I have attended in college. We built a RAG-based chatbot in a single afternoon. The instructor broke down concepts that I thought were way beyond my level and made them completely accessible. More workshops like this please.",
+  },
+  {
+    name: "Prathakshanaa",
+    role: "3rd Year · CSE Department",
+    initials: "PR",
+    stars: 5,
+    color: "#FF9900",
+    badge: "Roadmap Graduate",
+    tag: "Roadmaps",
+    verified: true,
+    featured: false,
+    text: "The roadmaps are the most underrated resource on this platform. Each roadmap tells you exactly what AWS services to learn, in what sequence, with which resources. I followed the Solutions Architect roadmap and it prepared me better than any paid course I tried. The visual layout makes it easy to track progress too.",
+  },
+  {
+    name: "Sam Devaraj",
+    role: "2nd Year · CSE Department",
+    initials: "SD",
+    stars: 5,
+    color: "#0073BB",
+    badge: "Community Member",
+    tag: "Events",
+    verified: true,
+    featured: false,
+    text: "Attended the re:Invent watch party organised by the club and it was genuinely inspiring. Watching real AWS announcements and discussing them with peers who are equally excited about cloud made me feel connected to something bigger than just our college. The energy in that room was electric.",
+  },
+  {
+    name: "Neil Daniel",
+    role: "2nd Year · CSE Department",
+    initials: "ND",
+    stars: 5,
+    color: "#16A34A",
+    badge: "DevOps Track",
+    tag: "Learning Resources",
+    verified: true,
+    featured: false,
+    text: "The curated learning resources saved me so much time. Instead of spending hours searching for good AWS content online, everything I needed was already organised by topic and difficulty level. The DevOps track in particular is excellent — covers CodePipeline, CodeDeploy and CloudFormation in a practical way.",
+  },
+  {
+    name: "Prathakshanaa",
+    role: "3rd Year · CSE Department",
+    initials: "PR",
+    stars: 5,
+    color: "#FF9900",
+    badge: "Mentor",
+    tag: "Mentorship",
+    verified: true,
+    featured: false,
+    text: "The mentorship culture here is something I have not found anywhere else on campus. Senior students genuinely invest time in helping juniors — reviewing projects, sharing study materials and giving honest feedback. I now mentor 2nd year students myself and it is the most rewarding thing I do.",
+  },
+  {
+    name: "Thirunavukarasu",
+    role: "3rd Year · R&A Department",
+    initials: "TN",
+    stars: 5,
+    color: "#0073BB",
+    badge: "Security Track",
+    tag: "Certification Prep",
+    verified: true,
+    featured: false,
+    text: "The mock exam practice sets are incredibly accurate. I took 8 mock exams through the platform before my Cloud Practitioner exam and the actual exam felt familiar because of it. The explanations for wrong answers are detailed and helped me understand concepts deeply, not just memorise answers.",
+  },
+];
+
+export const BUBBLES = [
+  { name: "Thirunavukarasu", role: "R&A · 3rd Year", initials: "TN", color: "#FF9900", quote: "Roadmaps made everything clear!", stars: 5 },
+  { name: "Sam Devaraj", role: "CSE · 2nd Year", initials: "SD", color: "#0073BB", quote: "Quiz Arena is addictive.", stars: 5 },
+  { name: "Neil Daniel", role: "CSE · 2nd Year", initials: "ND", color: "#7C3AED", quote: "Built real projects on AWS!", stars: 5 },
+  { name: "Prathakshanaa", role: "CSE · 3rd Year", initials: "PR", color: "#FF9900", quote: "Best community on campus.", stars: 5 },
+  { name: "Thirunavukarasu", role: "R&A · 3rd Year", initials: "TN", color: "#16A34A", quote: "Cleared CLF-C02 first try!", stars: 5 },
+];

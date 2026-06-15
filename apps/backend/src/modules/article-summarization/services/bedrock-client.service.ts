@@ -18,6 +18,7 @@ export class BedrockClientService {
   private readonly logger = new Logger(BedrockClientService.name);
   private readonly client: BedrockRuntimeClient | null;
   private readonly modelId: string | null;
+  private isAvailable = true;
 
   constructor(private readonly configService: ConfigService) {
     const region = this.getOptionalConfig(ENV_KEYS.AWS_REGION);
@@ -59,13 +60,13 @@ export class BedrockClientService {
   }
 
   isConfigured(): boolean {
-    return this.client !== null && this.modelId !== null;
+    return this.client !== null && this.modelId !== null && this.isAvailable;
   }
 
   async invokeClaudeHaiku(prompt: string): Promise<string> {
-    if (!this.client || !this.modelId) {
+    if (!this.client || !this.modelId || !this.isAvailable) {
       throw new Error(
-        'Bedrock summarization is not configured. Set AWS_REGION and BEDROCK_MODEL_ID.',
+        'Bedrock summarization is not configured or unavailable. Set AWS_REGION and BEDROCK_MODEL_ID and ensure credentials are valid.',
       );
     }
 
@@ -107,10 +108,22 @@ export class BedrockClientService {
 
       return summary;
     } catch (error) {
-      this.logger.error(
-        `Bedrock invocation failed: ${this.formatError(error)}`,
-        error instanceof Error ? error.stack : undefined,
-      );
+      const errorMsg = this.formatError(error);
+      const isCredsError =
+        errorMsg.includes('Could not load credentials') ||
+        (error && (error as any).name === 'CredentialsProviderError');
+
+      if (isCredsError) {
+        this.isAvailable = false;
+        this.logger.error(
+          `Bedrock client disabled: Credentials loading failed. Bedrock calls will be skipped. Error: ${errorMsg}`,
+        );
+      } else {
+        this.logger.error(
+          `Bedrock invocation failed: ${errorMsg}`,
+          error instanceof Error ? error.stack : undefined,
+        );
+      }
 
       throw error;
     }

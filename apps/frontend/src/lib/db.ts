@@ -8,27 +8,36 @@ if (!databaseUrl) {
   throw new Error('DATABASE_URL is not defined in the environment variables.');
 }
 
-/**
- * Tuned connection pool for maximum throughput and reliability:
- * - max: 10 concurrent connections (safe for a single-node PG instance)
- * - idleTimeoutMillis: release idle connections after 30s
- * - connectionTimeoutMillis: fail fast if PG is unreachable (5s timeout)
- * - statement_timeout: kill runaway queries after 10s
- */
-export const pool = new Pool({
-  connectionString: databaseUrl,
-  max: 10,
-  idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 5_000,
-});
+// Reuse connection pool in development to prevent leaks across HMR reloads
+const globalForDb = globalThis as unknown as {
+  pool: pg.Pool | undefined;
+};
 
-// Warm up the pool on module load (establishes the first connection eagerly)
-pool.connect().then((client) => {
-  client.release();
-  console.log('✅ PostgreSQL pool warmed up — connection established.');
-}).catch((err) => {
-  console.error('⚠️  PostgreSQL pool warm-up failed:', err.message);
-});
+let isNew = false;
+export const pool = (() => {
+  if (globalForDb.pool) return globalForDb.pool;
+  isNew = true;
+  return new Pool({
+    connectionString: databaseUrl,
+    max: 10,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 5_000,
+  });
+})();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForDb.pool = pool;
+}
+
+if (isNew) {
+  // Warm up the pool on module load (establishes the first connection eagerly)
+  pool.connect().then((client) => {
+    client.release();
+    console.log('✅ PostgreSQL pool warmed up — connection established.');
+  }).catch((err) => {
+    console.error('⚠️  PostgreSQL pool warm-up failed:', err.message);
+  });
+}
 
 /**
  * Template literal tag for parameterized SQL queries.

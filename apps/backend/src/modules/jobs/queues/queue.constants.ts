@@ -14,7 +14,7 @@ export const QUEUE_DEFAULT_JOB_OPTIONS = {
   attempts: 3,
   backoff: {
     type: 'exponential' as const,
-    delay: 5000,
+    delay: 2000,
   },
   removeOnComplete: {
     age: 24 * 60 * 60,

@@ -3,23 +3,33 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
+/**
+ * Singleton QueryClient — best-of-both config merged from the two providers.
+ *
+ * Performance config:
+ * - staleTime: 5min  — data considered fresh, no background refetch within window
+ * - gcTime:   30min  — inactive query results kept in memory for 30min
+ * - retry: 1         — retry failed queries once instead of the default 3 times
+ * - retryDelay: 800ms — fast retry on transient errors
+ * - refetchOnWindowFocus: false — avoid noisy refetches on tab switch
+ * - refetchOnReconnect: true  — refetch when network comes back
+ * - mutations: retry: 0 — never retry mutations (registration, login)
+ */
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Data stays fresh for 5 minutes — no refetch within that window
             staleTime: 5 * 60 * 1000,
-            // Keep unused data in cache for 30 minutes (e.g. when navigating away)
             gcTime: 30 * 60 * 1000,
-            // Don't refetch just because the user switched browser tabs
-            refetchOnWindowFocus: false,
-            // Don't refetch when remounting a component that already has fresh data
-            refetchOnMount: false,
-            // Only retry once on network error (default 3 causes long waits)
             retry: 1,
-            retryDelay: 1000,
+            retryDelay: 800,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: true,
+          },
+          mutations: {
+            retry: 0,
           },
         },
       }),

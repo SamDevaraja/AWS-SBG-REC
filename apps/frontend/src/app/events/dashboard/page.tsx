@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import HeroBanner from "@/components/HeroBanner";
 import StatsCard from "@/components/StatsCard";
-import CalendarCard from "@/components/CalendarCard";
 import UpcomingEvent from "@/components/UpcomingEvent";
 import Announcements from "@/components/Announcements";
 import LeaderboardTable from "@/components/LeaderboardTable";
 import GlassCard from "@/components/GlassCard";
 import { useTickets, useEvents } from "@/modules/cloud-enthusiasts/shared/hooks/useCloudEnthusiasts";
-import { motion } from "framer-motion";
+import {
+  DynamicHeroBanner,
+  DynamicCalendarCard,
+} from "@/components/dynamic";
 
 function AwsEventBridgeIcon({ className }: { className?: string }) {
   return (
@@ -31,16 +32,6 @@ function AwsTrustedAdvisorIcon({ className }: { className?: string }) {
   );
 }
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-};
-
 export default function Home() {
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const { data: tickets = [] } = useTickets();
@@ -50,14 +41,9 @@ export default function Home() {
   const upcomingCount = events.filter(e => new Date(e.start_datetime) >= today).length;
   return (
     <div className="p-5 md:p-8 max-w-[1600px] w-full mx-auto">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="flex flex-col gap-8 w-full"
-      >
+      <div className="flex flex-col gap-8 w-full">
         {/* 1. Welcome Hero Banner */}
-        <HeroBanner onViewLeaderboardClick={() => setLeaderboardOpen(true)} />
+        <DynamicHeroBanner onViewLeaderboardClick={() => setLeaderboardOpen(true)} />
 
         {/* 2. Statistics Section (3 columns) */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
@@ -85,7 +71,7 @@ export default function Home() {
             delay={0.1}
             style={{ background: "rgba(255, 255, 255, 0.92)" }}
           />
-          <CalendarCard />
+          <DynamicCalendarCard />
         </section>
 
         {/* 3. Content Section (Upcoming Event | Announcements) */}
@@ -104,7 +90,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </motion.div>
+      </div>
       {leaderboardOpen && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setLeaderboardOpen(false)} />

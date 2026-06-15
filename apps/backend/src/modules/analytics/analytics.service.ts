@@ -83,12 +83,12 @@ export class AnalyticsService {
       this.prisma.attendanceLog.count({ where: { eventId } }),
       // Raw SQL to group by date, not full timestamp
       this.prisma.$queryRaw<{ date: string; count: number }[]>`
-        SELECT DATE("registrationDate") as date, COUNT(*)::int as count
-        FROM "Registration"
-        WHERE "eventId" = ${eventId}
-          AND "registrationDate" >= ${thirtyDaysAgo}
-          AND "status" != 'CANCELLED'
-        GROUP BY DATE("registrationDate")
+        SELECT DATE("registration_date") as date, COUNT(*)::int as count
+        FROM "registrations"
+        WHERE "event_id" = ${eventId}
+          AND "registration_date" >= ${thirtyDaysAgo}
+          AND "registration_status" != 'CANCELLED'
+        GROUP BY DATE("registration_date")
         ORDER BY date ASC
       `,
     ]);
@@ -145,13 +145,22 @@ export class AnalyticsService {
 
     // Raw SQL with DATE() correctly groups by calendar day, not exact timestamp
     const rows = await this.prisma.$queryRaw<{ date: string; count: number }[]>`
-      SELECT DATE("registrationDate") as date, COUNT(*)::int as count
-      FROM "Registration"
-      WHERE "registrationDate" >= ${thirtyDaysAgo}
-        AND "status" != 'CANCELLED'
-      GROUP BY DATE("registrationDate")
+      SELECT DATE("registration_date") as date, COUNT(*)::int as count
+      FROM "registrations"
+      WHERE "registration_date" >= ${thirtyDaysAgo}
+        AND "registration_status" != 'CANCELLED'
+      GROUP BY DATE("registration_date")
       ORDER BY date ASC
     `;
+
+    const formatDateKey = (dateVal: any): string => {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal).split('T')[0];
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
     // Pre-fill all 30 days with 0 so gaps show correctly in charts
     const dateMap = new Map<string, number>();
@@ -159,9 +168,9 @@ export class AnalyticsService {
     for (let i = 29; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      dateMap.set(d.toISOString().split('T')[0], 0);
+      dateMap.set(formatDateKey(d), 0);
     }
-    rows.forEach((r) => dateMap.set(String(r.date).split('T')[0], Number(r.count)));
+    rows.forEach((r) => dateMap.set(formatDateKey(r.date), Number(r.count)));
 
     return Array.from(dateMap.entries()).map(([date, count]) => ({ date, count }));
   }
@@ -178,14 +187,23 @@ export class AnalyticsService {
       ORDER BY date ASC
     `;
 
+    const formatDateKey = (dateVal: any): string => {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal).split('T')[0];
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     const dateMap = new Map<string, number>();
     const today = new Date();
     for (let i = 29; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      dateMap.set(d.toISOString().split('T')[0], 0);
+      dateMap.set(formatDateKey(d), 0);
     }
-    rows.forEach((r) => dateMap.set(String(r.date).split('T')[0], Number(r.count)));
+    rows.forEach((r) => dateMap.set(formatDateKey(r.date), Number(r.count)));
 
     return Array.from(dateMap.entries()).map(([date, count]) => ({ date, count }));
   }

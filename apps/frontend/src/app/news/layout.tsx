@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import CoreSidebarShell from '@/app/core/CoreSidebarShell';
-import CrewSidebarShell from '@/app/crew/CrewSidebarShell';
+import CoreSidebarShell from '@/app/core/(admin)/CoreSidebarShell';
+import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
 export default function NewsLayout({ children }: { children: React.ReactNode }) {

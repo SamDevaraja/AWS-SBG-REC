@@ -167,23 +167,28 @@ export default function RegisterPage() {
           }
           // Store ticket details in client storage to show in Tickets
           const localTickets: LocalTicket[] = JSON.parse(localStorage.getItem(STORAGE_KEYS.TICKETS) || '[]');
-          const ticketObj: LocalTicket = {
-            ticketId: data.ticket.ticket_id,
-            regId: data.registration.registration_id,
-            eventId: eventId,
-            eventTitle: event.title,
-            date: new Date(event.start_datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            time: new Date(event.start_datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            name: formData.fullName,
-            email: formData.email,
-          };
-          
-          if (!localTickets.some((t: LocalTicket) => t.ticketId === data.ticket.ticket_id)) {
-            localTickets.push(ticketObj);
-            localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(localTickets));
+          if (data.ticket) {
+            const ticketObj: LocalTicket = {
+              ticketId: data.ticket.ticket_id,
+              regId: data.registration?.registration_id || '',
+              eventId: eventId,
+              eventTitle: event.title,
+              date: new Date(event.start_datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              time: new Date(event.start_datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+              name: formData.fullName,
+              email: formData.email,
+            };
+            
+            if (!localTickets.some((t: LocalTicket) => t.ticketId === data.ticket.ticket_id)) {
+              localTickets.push(ticketObj);
+              localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(localTickets));
+            }
           }
 
-          let redirectUrl = `/events/${eventId}/register/success?ticketId=${data.ticket.ticket_id}&regId=${data.registration.registration_id}`;
+          let redirectUrl = `/events/${eventId}/register/success?regId=${data.registration?.registration_id || ''}`;
+          if (data.ticket?.ticket_id) {
+            redirectUrl += `&ticketId=${data.ticket.ticket_id}`;
+          }
           if (data.warning) {
             redirectUrl += `&warning=${encodeURIComponent(data.warning)}`;
           }

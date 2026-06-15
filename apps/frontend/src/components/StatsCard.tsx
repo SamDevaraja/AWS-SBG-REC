@@ -18,6 +18,7 @@ interface StatsCardProps {
   delay?: number;
   style?: React.CSSProperties;
   iconLabel?: string;
+  isLucide?: boolean;
 }
 
 export default function StatsCard({
@@ -33,24 +34,32 @@ export default function StatsCard({
   delay = 0,
   style,
   iconLabel,
+  isLucide = false,
 }: StatsCardProps) {
   const [iconHovered, setIconHovered] = useState(false);
 
   const CardContent = () => (
     <div className="flex items-center justify-between">
-      <div className="flex flex-col gap-1 min-w-0">
+      <div className="flex flex-col gap-0.5 min-w-0">
         <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">
           {label}
         </span>
-        <span className="text-3xl font-semibold text-foreground font-display tracking-tight mt-1">
+        <span className="text-2xl font-semibold text-foreground font-display tracking-tight">
           {value}
         </span>
-        <span className="text-xs font-semibold text-foreground/50 mt-1 flex items-center gap-1.5 truncate">
+        <span className="text-[11px] font-semibold text-foreground/50 flex items-center gap-1.5 truncate">
           {subtext}
         </span>
       </div>
 
-      {bareIcon ? (
+      {isLucide ? (
+        <div className={cn(
+          "w-12 h-12 rounded-xl flex items-center justify-center shadow-sm shrink-0",
+          iconBgClass || "bg-brand-orange/10"
+        )}>
+          <Icon className={cn("w-6 h-6", iconClass || "text-brand-orange")} />
+        </div>
+      ) : bareIcon ? (
         <div
           className="relative"
           onMouseEnter={() => setIconHovered(true)}
@@ -77,7 +86,7 @@ export default function StatsCard({
   if (onClick) {
     return (
       <div className="block w-full">
-        <GlassCard onClick={onClick} delay={delay} style={style} className="border border-white/30 cursor-pointer">
+        <GlassCard onClick={onClick} delay={delay} style={style} className="!p-5 border border-white/30 cursor-pointer">
           <CardContent />
         </GlassCard>
       </div>
@@ -87,7 +96,7 @@ export default function StatsCard({
   if (href) {
     return (
       <Link href={href} className="block w-full">
-        <GlassCard delay={delay} style={style} className="border border-white/30 cursor-pointer">
+        <GlassCard delay={delay} style={style} className="!p-5 border border-white/30 cursor-pointer">
           <CardContent />
         </GlassCard>
       </Link>
@@ -95,7 +104,7 @@ export default function StatsCard({
   }
 
   return (
-    <GlassCard delay={delay} style={style} hoverEffect={false} className="border border-white/20 select-none">
+    <GlassCard delay={delay} style={style} hoverEffect={false} className="!p-5 border border-white/20 select-none">
       <CardContent />
     </GlassCard>
   );

@@ -121,12 +121,12 @@ export default function SidebarLayout({
       >
 
 
-        {/* Inline Top-Left Back Button (hidden on root home/dashboard views, main nav pages, and event details page) */}
-        {pathname && pathname !== homeHref && pathname !== '/certifications' && pathname !== '/events' && !pathname.startsWith('/news') && !(/^\/events\/[^/]+\/?$/.test(pathname) && !pathname.startsWith('/events/dashboard')) && (
-          <div className="w-full max-w-screen-xl mx-auto px-5 sm:px-6 lg:px-8 pt-6 pb-2 shrink-0">
+        {/* Inline Top-Left Back Button (hidden on root home/dashboard views, and main nav pages) */}
+        {pathname && pathname !== homeHref && pathname !== '/certifications' && pathname !== '/events' && !pathname.startsWith('/news') && (
+          <div style={{ width: '100%', padding: '24px 24px 0' }} className="shrink-0">
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors bg-white hover:bg-slate-50 border border-slate-200/80 rounded-lg px-3 py-1.5 shadow-sm cursor-pointer group"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-white/90 hover:text-white transition-colors bg-[#131b2e] hover:bg-[#1a243d] rounded-lg px-3 py-1.5 shadow-sm cursor-pointer group"
             >
               <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
               <span>Back</span>
@@ -136,10 +136,7 @@ export default function SidebarLayout({
         <div className="flex-1">
           {children}
         </div>
-        <footer
-          className="w-full h-16 shrink-0 mt-auto"
-          style={{ background: "var(--sidebar-bg, #131b2e)" }}
-        />
+
       </main>
     </div>
   );

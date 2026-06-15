@@ -59,6 +59,8 @@ export default function Sidebar({
 
   const sidebarVisible = isMobile ? isMobileOpen : true;
 
+  console.log('Sidebar render: navItems length =', navItems?.length, 'items =', navItems?.map(item => item.label));
+
   return (
     <>
       {/* Mobile hamburger */}

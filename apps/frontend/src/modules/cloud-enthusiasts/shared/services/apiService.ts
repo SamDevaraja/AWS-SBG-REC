@@ -18,7 +18,7 @@ function mapBackendEventToFrontend(e: any): Event {
     category: e.category || '',
     short_description: e.shortDescription || '',
     full_description: e.description || '',
-    banner_url: e.posterImage || '/default-event-poster.jpg',
+    banner_url: e.posterImage || '/default-event-poster.png',
     venue: e.venue || '',
     mode: e.mode || '',
     max_capacity: e.capacity || 0,
@@ -160,11 +160,27 @@ export const apiService = {
   },
 
   async getMyTickets(): Promise<Ticket[]> {
-    const res = await fetch('/api/tickets');
-    if (!res.ok) throw new Error('Failed to fetch tickets');
-    const data = await res.json();
-    const rawTickets = data.data || [];
-    return Array.isArray(rawTickets) ? rawTickets.map(mapBackendTicketToFrontend) : [];
+    try {
+      // For attendees, we rely on local storage because we don't have a session-based backend endpoint
+      const rawTickets = localStorage.getItem('aws_sgb_rec_tickets');
+      const localTickets = rawTickets ? JSON.parse(rawTickets) : [];
+      return localTickets.map((t: any) => ({
+        ticket_id: t.ticketId,
+        registration_id: t.regId,
+        event_id: t.eventId,
+        ticket_status: 'Ticket Available',
+        ticket_code: t.ticketId.split('-')[0].toUpperCase(),
+        event_title: t.eventTitle,
+        event_date: t.date,
+        event_time: t.time,
+        user_name: t.name,
+        user_email: t.email,
+        qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${t.ticketId}`,
+      }));
+    } catch (error) {
+      console.error('Failed to parse local tickets:', error);
+      return [];
+    }
   },
 
   async getTicketVerification(ticketId: string): Promise<{

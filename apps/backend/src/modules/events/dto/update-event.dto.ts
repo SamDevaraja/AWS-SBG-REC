@@ -1,6 +1,4 @@
-import { PartialType, OmitType } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/swagger';
 import { CreateEventDto } from './create-event.dto';
 
-export class UpdateEventDto extends PartialType(
-  OmitType(CreateEventDto, ['agenda', 'speakers', 'formFields'] as const),
-) {}
+export class UpdateEventDto extends PartialType(CreateEventDto) {}
