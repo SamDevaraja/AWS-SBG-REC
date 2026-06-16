@@ -363,7 +363,7 @@ export default function EventsPage() {
         </div>
 
         {/* Search & Filters */}
-        <div className="border border-slate-200/60 bg-white rounded-xl shadow-sm p-4">
+        <div className="border border-slate-200 bg-white rounded-xl shadow-sm p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             {/* Search */}
             <div className="relative flex-1">
@@ -483,7 +483,7 @@ export default function EventsPage() {
               return (
                 <div
                   key={event.id}
-                  className="border border-slate-200/60 bg-white rounded-xl overflow-hidden hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:border-slate-300/60 transition-all duration-200 group flex flex-col"
+                  className="border border-slate-200 bg-white rounded-xl overflow-hidden hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:border-slate-300 transition-all duration-200 group flex flex-col"
                 >
                   {/* Poster */}
                   <div className="bg-slate-900 h-40 flex items-center justify-center relative overflow-hidden">
@@ -555,7 +555,7 @@ export default function EventsPage() {
           </div>
         ) : (
           /* List View */
-          <div className="border border-slate-200/60 bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="border border-slate-200 bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
