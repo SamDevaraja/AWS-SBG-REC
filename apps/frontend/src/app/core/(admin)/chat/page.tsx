@@ -792,8 +792,8 @@ export default function CoreChatPage() {
         .admin-chat-container {
           display: flex;
           flex-direction: column;
-          height: calc(100vh - 60px);
-          padding: 0 24px 24px;
+          height: calc(100vh - 56px);
+          padding: 28px 28px 24px;
           color: ${A.text};
           font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
           box-sizing: border-box;
@@ -876,44 +876,49 @@ export default function CoreChatPage() {
       {/* Custom Subheader inside layout wrapper */}
       <header
         style={{
-          background: "rgba(255, 255, 255, 0.65)",
+          background: "rgba(255, 255, 255, 0.72)",
           backdropFilter: "blur(20px)",
           border: `1px solid ${A.border}`,
-          padding: "12px 24px",
+          padding: "10px 20px",
           display: "flex",
           alignItems: "center",
-          gap: 16,
+          justifyContent: "space-between",
+          gap: 12,
           flexWrap: "wrap",
-          borderRadius: 14,
+          borderRadius: 12,
+          marginBottom: 16,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${A.accent}, #8b5cf6)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: "bold" }}>🛡️</div>
+        {/* Brand */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${A.accent}, #8b5cf6)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: "bold", fontSize: 15 }}>🛡️</div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700 }}>Chat Administration</div>
-            <div style={{ fontSize: 9, color: A.muted }}>AWS Club Operations</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: A.text }}>Chat Administration</div>
+            <div style={{ fontSize: 9, color: A.muted, letterSpacing: "0.03em" }}>AWS Club Operations</div>
           </div>
         </div>
 
-        {/* View Navigation */}
-        <div style={{ display: "flex", gap: 6, background: "rgba(0,0,0,0.04)", padding: 4, borderRadius: 9999 }}>
+        {/* View Navigation — centred */}
+        <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.04)", padding: "3px 4px", borderRadius: 9999 }}>
           <button onClick={() => setActiveView("queries")} className={`tab-btn ${activeView === "queries" ? "active-admin" : "inactive"}`}>📋 Unhandled Queries & KB</button>
           <button onClick={() => setActiveView("crew_chats")} className={`tab-btn ${activeView === "crew_chats" ? "active-admin" : "inactive"}`}>💬 Crew General & E2EE Chat</button>
           <button onClick={() => setActiveView("manage_users")} className={`tab-btn ${activeView === "manage_users" ? "active-admin" : "inactive"}`}>👤 Manage Members</button>
         </div>
 
-        {/* Real-time stats */}
-        {activeView === "queries" && (
-          <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
-            <StatPill label="Live" value={stats?.live} color={A.warning} />
-            <StatPill label="Resolved" value={stats?.resolved} color={A.success} />
-            <StatPill label="KB Docs" value={stats?.kb_docs} color={A.accent} />
-          </div>
-        )}
+        {/* Real-time stats — right-anchored, always reserve space */}
+        <div style={{ display: "flex", gap: 8, flexShrink: 0, minWidth: 220, justifyContent: "flex-end" }}>
+          {activeView === "queries" ? (
+            <>
+              <StatPill label="Live" value={stats?.live} color={A.warning} />
+              <StatPill label="Resolved" value={stats?.resolved} color={A.success} />
+              <StatPill label="KB Docs" value={stats?.kb_docs} color={A.accent} />
+            </>
+          ) : null}
+        </div>
       </header>
 
       {/* Main panel body */}
-      <div style={{ flex: 1, padding: "16px 0 0", minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {activeView === "crew_chats" ? (
           <div
             style={{
