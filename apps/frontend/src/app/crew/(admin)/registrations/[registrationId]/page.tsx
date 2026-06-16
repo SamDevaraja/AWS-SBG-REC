@@ -59,7 +59,7 @@ function InfoRow({
   label,
   value,
 }: {
-  icon: React.ElementType;
+  icon: React.ComponentType<any>;
   label: string;
   value: string | undefined | null;
 }) {

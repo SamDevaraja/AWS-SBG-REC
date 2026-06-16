@@ -396,6 +396,9 @@ export default function EventsPage() {
                 className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/10 focus:border-[#232F3E] transition-all duration-200 text-slate-700 cursor-pointer"
               >
                 <option value="">All Categories</option>
+                <option value="Business">Business</option>
+                <option value="Health">Health</option>
+                <option value="Technology">Technology</option>
                 <option value="Workshop">Workshop</option>
                 <option value="Bootcamp">Bootcamp</option>
                 <option value="AI/ML">AI/ML</option>

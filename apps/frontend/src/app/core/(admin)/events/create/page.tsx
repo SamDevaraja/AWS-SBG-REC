@@ -241,6 +241,9 @@ function BasicInfoStep({
               className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
             >
               <option value="">Select category</option>
+              <option value="Business">Business</option>
+              <option value="Health">Health</option>
+              <option value="Technology">Technology</option>
               <option value="Workshop">Workshop</option>
               <option value="Bootcamp">Bootcamp</option>
               <option value="AI/ML">AI/ML</option>

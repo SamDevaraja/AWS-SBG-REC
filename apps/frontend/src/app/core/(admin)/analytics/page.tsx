@@ -197,7 +197,7 @@ function TrendModal({
   open: boolean;
   onClose: () => void;
   title: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<any>;
   color: string;
   iconBg: string;
   data: { date: string; count: number }[];
@@ -347,7 +347,7 @@ function Card({
 }: {
   children: React.ReactNode;
   title: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<any>;
   iconColor?: string;
   iconBg?: string;
   noPad?: boolean;

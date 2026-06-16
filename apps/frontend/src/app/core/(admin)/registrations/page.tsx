@@ -113,7 +113,7 @@ function Avatar({ name }: { name: string }) {
 /* ─── Stat Card ──────────────────────────────────────────────────────── */
 function StatCard({
   label, value, icon: Icon, accent,
-}: { label: string; value: number | string; icon: React.ElementType; accent: string }) {
+}: { label: string; value: number | string; icon: React.ComponentType<any>; accent: string }) {
   return (
     <div
       style={{

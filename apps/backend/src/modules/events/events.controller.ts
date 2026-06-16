@@ -20,6 +20,7 @@ import { PaginationDto } from '@/common/dto/pagination.dto';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { GetEventsDto } from './dto/get-events.dto';
 import { CreateAgendaDto } from './dto/create-agenda.dto';
 import { CreateSpeakerDto } from './dto/create-speaker.dto';
 import { UpdateFormFieldDto } from './dto/update-form-field.dto';
@@ -38,7 +39,7 @@ export class EventsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all events' })
-  findAll(@Query() pagination: PaginationDto) {
+  findAll(@Query() pagination: GetEventsDto) {
     return this.eventsService.findAll(pagination);
   }
 

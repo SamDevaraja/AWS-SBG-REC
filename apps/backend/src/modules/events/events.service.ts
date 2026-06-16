@@ -4,6 +4,7 @@ import { PrismaService } from '@/database/prisma.service';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PaginatedResponseDto } from '@/common/dto/paginated-response.dto';
 import { CreateEventDto } from './dto/create-event.dto';
+import { GetEventsDto } from './dto/get-events.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { CreateAgendaDto } from './dto/create-agenda.dto';
 import { CreateSpeakerDto } from './dto/create-speaker.dto';
@@ -75,8 +76,18 @@ export class EventsService {
     });
   }
 
-  async findAll(pagination: PaginationDto) {
-    const { page = 1, limit = 10, search, category, availability, sortBy = 'createdAt', sortOrder = 'desc' } = pagination;
+  async findAll(pagination: GetEventsDto) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      category,
+      availability,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      status,
+      mode,
+    } = pagination;
     const skip = (page - 1) * limit;
 
     const andConditions: any[] = [];
@@ -108,6 +119,18 @@ export class EventsService {
           status: { notIn: ['REGISTRATION_OPEN', 'PUBLISHED'] },
         });
       }
+    }
+
+    if (status) {
+      andConditions.push({
+        status: { equals: status },
+      });
+    }
+
+    if (mode) {
+      andConditions.push({
+        mode: { equals: mode },
+      });
     }
 
     const where = andConditions.length > 0 ? { AND: andConditions } : {};

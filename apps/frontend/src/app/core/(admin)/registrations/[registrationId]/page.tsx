@@ -63,7 +63,7 @@ function InfoCard({ title, children }: { title: string; children: React.ReactNod
 }
 
 /* ── Info Row ─────────────────────────────────────────────────────── */
-function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string | undefined | null }) {
+function InfoRow({ icon: Icon, label, value }: { icon: React.ComponentType<any>; label: string; value: string | undefined | null }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
       <div style={{ padding: '7px', borderRadius: '8px', background: 'rgba(35,47,62,0.04)', border: '1px solid rgba(35,47,62,0.06)', flexShrink: 0, marginTop: 1 }}>
