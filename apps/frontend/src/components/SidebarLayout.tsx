@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Sidebar, { type NavItem, type SidebarUser } from "./Sidebar";
 import { clearSessionCache } from "./AuthWrapper";
 
@@ -74,6 +74,40 @@ export default function SidebarLayout({
     }
   }, [router, pathname]);
 
+  const getBackLabel = useCallback(() => {
+    if (!pathname) return "Back";
+    
+    const parts = pathname.split('/').filter(Boolean);
+    if (parts.length <= 1) return "Back";
+
+    const lastPart = parts[parts.length - 1];
+    
+    if (pathname.startsWith('/core/manage-regions')) {
+      return "Categories";
+    }
+    if (pathname.startsWith('/core/manage-categories')) {
+      return "Dashboard";
+    }
+    if (lastPart === 'manage-regions') {
+      return "Categories";
+    }
+    
+    if (parts.includes('registrations') && parts.length > 2) {
+      return "Registrations";
+    }
+    
+    if (parts[parts.length - 2]) {
+      const parentSegment = parts[parts.length - 2];
+      const formatted = parentSegment.charAt(0).toUpperCase() + parentSegment.slice(1).replace(/-/g, ' ');
+      if (formatted === "Core" || formatted === "Crew") {
+        return "Dashboard";
+      }
+      return formatted;
+    }
+    
+    return "Events";
+  }, [pathname]);
+
   // Desktop: current width; Mobile: 0 (sidebar overlays, no margin)
   const mainMargin = isMobile ? 0 : isOpen ? SIDEBAR_OPEN_W : SIDEBAR_COLLAPSED_W;
 
@@ -123,13 +157,13 @@ export default function SidebarLayout({
 
         {/* Inline Top-Left Back Button (hidden on root home/dashboard views, and main nav pages) */}
         {pathname && pathname !== homeHref && pathname !== '/certifications' && pathname !== '/events' && !pathname.startsWith('/news') && (
-          <div className="absolute md:top-5 md:left-8 top-4 right-4 z-30">
+          <div className="absolute md:top-4 md:left-8 top-3 right-4 z-30">
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700 hover:text-slate-900 transition-all bg-white/90 backdrop-blur-md hover:bg-white border border-slate-200/80 rounded-full px-3 py-1 shadow-sm hover:shadow-md cursor-pointer group"
+              className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer group"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-slate-500 group-hover:-translate-x-0.5 transition-transform" />
-              <span>Back</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              <span>{getBackLabel()}</span>
             </button>
           </div>
         )}
