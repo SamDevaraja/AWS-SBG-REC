@@ -222,22 +222,22 @@ export default function CertificationsPage() {
   const visible = certs.filter((c) => c.level === activeLevel);
 
   return (
-    <main className="mx-auto max-w-[1200px] p-6 md:p-8 lg:p-10">
+    <main className="mx-auto max-w-[1200px] px-6 pt-8 pb-8 md:px-8 lg:px-10">
 
       {/* ── Hero ── */}
-      <section className="glass-panel relative overflow-hidden rounded-[24px] border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-8 lg:px-10 lg:py-10 mb-8">
+      <section className="glass-panel relative overflow-hidden rounded-[24px] border border-slate-200 bg-white px-6 py-5 shadow-sm sm:px-8 lg:px-10 lg:py-6 mb-6">
         <div className="absolute inset-0 grid-fade opacity-[0.22] pointer-events-none" />
         <div className="absolute -right-8 top-4 h-32 w-32 rounded-full bg-[#ff9900]/10 blur-3xl pointer-events-none" />
         <div className="absolute left-0 top-16 h-36 w-36 rounded-full bg-[#00a3e0]/10 blur-3xl pointer-events-none" />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <span className="inline-flex items-center rounded-full border border-orange-100 bg-orange-50/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8a4d00] shadow-sm">
               AWS Certification Explorer
             </span>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
               All AWS Certifications
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-500">
+            <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-500">
               Select a level tab to browse certifications. Each card shows full exam details, domains, and percentages.
             </p>
           </div>
