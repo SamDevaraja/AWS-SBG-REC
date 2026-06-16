@@ -351,11 +351,16 @@ export default function EventsPage() {
     >
       <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8 max-w-[1280px] mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-normal tracking-tight text-slate-900">Events</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-normal tracking-tight text-slate-900">Events</h1>
+            <p className="text-xs text-slate-500 font-normal mt-1">
+              Create, manage, and track all community activities, registrations, and scheduling configurations.
+            </p>
+          </div>
           <Link
             href="/core/events/create"
-            className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-lg text-xs font-normal px-4 py-2 hover:bg-[#232F3E]/90 shadow-sm transition"
+            className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-lg text-xs font-normal px-4 py-2 hover:bg-[#232F3E]/90 shadow-sm transition self-start sm:self-auto"
           >
             <Plus className="h-3.5 w-3.5" />
             Create Event
