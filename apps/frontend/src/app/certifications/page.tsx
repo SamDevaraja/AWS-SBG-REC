@@ -234,7 +234,7 @@ export default function CertificationsPage() {
             <span className="inline-flex items-center rounded-full border border-orange-100 bg-orange-50/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8a4d00] shadow-sm">
               AWS Certification Explorer
             </span>
-            <h1 className="mt-2 text-3xl font-medium tracking-tight text-slate-900 sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-normal tracking-tight text-slate-900 sm:text-4xl">
               All AWS Certifications
             </h1>
             <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-500">
