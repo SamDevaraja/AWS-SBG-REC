@@ -110,7 +110,7 @@ export default function SidebarLayout({
       />
 
       <main
-        className="h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-[#F8FAFC]"
+        className="h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-[#F8FAFC] relative"
         style={{
           marginLeft: mainMargin,
           width: `calc(100% - ${mainMargin}px)`,
@@ -123,10 +123,10 @@ export default function SidebarLayout({
 
         {/* Inline Top-Left Back Button (hidden on root home/dashboard views, and main nav pages) */}
         {pathname && pathname !== homeHref && pathname !== '/certifications' && pathname !== '/events' && !pathname.startsWith('/news') && (
-          <div style={{ width: '100%', padding: '20px 32px 0 32px' }} className="shrink-0">
+          <div className="absolute md:top-5 md:left-8 top-4 right-4 z-30">
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-2 text-xs font-semibold text-white/90 hover:text-white transition-colors bg-[#131b2e] hover:bg-[#1a243d] rounded-lg px-3 py-1.5 shadow-sm cursor-pointer group"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer group"
             >
               <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
               <span>Back</span>
