@@ -1,0 +1,35 @@
+/* ── ScrollStack ── */
+
+.scroll-stack-scroller {
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  /* hide native scrollbar — Lenis takes over */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-stack-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-stack-inner {
+  position: relative;
+  width: 100%;
+}
+
+.scroll-stack-card {
+  position: relative;
+  width: 100%;
+  /* transform values injected by JS */
+  will-change: transform, filter;
+  transform-origin: top center;
+  backface-visibility: hidden;
+}
+
+.scroll-stack-end {
+  height: 1px;
+  width: 100%;
+  pointer-events: none;
+}

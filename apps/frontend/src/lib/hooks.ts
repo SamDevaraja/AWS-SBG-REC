@@ -288,11 +288,10 @@ export function useRegistrationsByEventStats() {
 
 // ── Announcements ────────────────────────────────────────────────────────────
 
-export function useAnnouncements(eventId: string) {
+export function useAnnouncements(eventId?: string) {
   return useQuery({
     queryKey: ['announcements', eventId],
     queryFn: () => api.fetchAnnouncements(eventId),
-    enabled: !!eventId,
   });
 }
 
@@ -300,8 +299,8 @@ export function useCreateAnnouncement() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateAnnouncementDto) => api.createAnnouncement(data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['announcements', variables.eventId] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
     },
   });
 }

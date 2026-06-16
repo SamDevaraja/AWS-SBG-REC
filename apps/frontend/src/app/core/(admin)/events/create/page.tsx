@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateEvent } from '@/lib/hooks';
 import {
@@ -132,6 +132,51 @@ function BasicInfoStep({
   setFormData: (data: CreateEventDto) => void;
   errors: Record<string, string>;
 }) {
+  const [title, setTitle] = useState(formData.title || '');
+  const [shortDesc, setShortDesc] = useState(formData.shortDescription || '');
+  const [description, setDescription] = useState(formData.description || '');
+  const [venue, setVenue] = useState(formData.venue || '');
+  const [capacity, setCapacity] = useState(formData.capacity ?? '');
+  const [date, setDate] = useState(formData.date || '');
+  const [time, setTime] = useState(formData.time || '');
+  const [deadline, setDeadline] = useState(formData.registrationDeadline || '');
+
+  // Refs to avoid stale closures in setTimeout
+  const formDataRef = useRef(formData);
+  const setFormDataRef = useRef(setFormData);
+
+  useEffect(() => {
+    formDataRef.current = formData;
+    setFormDataRef.current = setFormData;
+  }, [formData, setFormData]);
+
+  // Track timers for debounce
+  const timers = useRef<Record<string, NodeJS.Timeout>>({});
+
+  const triggerChange = (field: keyof CreateEventDto, value: any) => {
+    if (timers.current[field]) {
+      clearTimeout(timers.current[field]);
+    }
+    timers.current[field] = setTimeout(() => {
+      setFormDataRef.current({ ...formDataRef.current, [field]: value });
+    }, 150);
+  };
+
+  const handleBlur = (field: keyof CreateEventDto, value: any) => {
+    if (timers.current[field]) {
+      clearTimeout(timers.current[field]);
+    }
+    setFormDataRef.current({ ...formDataRef.current, [field]: value });
+  };
+
+
+  // Clean up timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(timers.current).forEach(clearTimeout);
+    };
+  }, []);
+
   return (
     <div className="space-y-5">
       {/* Title */}
@@ -141,8 +186,12 @@ function BasicInfoStep({
         </label>
         <input
           type="text"
-          value={formData.title || ''}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            triggerChange('title', e.target.value);
+          }}
+          onBlur={() => handleBlur('title', title)}
           placeholder="Event title"
           className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
         />
@@ -154,8 +203,12 @@ function BasicInfoStep({
         <label className="block text-xs font-medium text-slate-700 mb-1">Short Description</label>
         <input
           type="text"
-          value={formData.shortDescription || ''}
-          onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+          value={shortDesc}
+          onChange={(e) => {
+            setShortDesc(e.target.value);
+            triggerChange('shortDescription', e.target.value);
+          }}
+          onBlur={() => handleBlur('shortDescription', shortDesc)}
           placeholder="Brief description (shown in cards)"
           className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
         />
@@ -166,8 +219,12 @@ function BasicInfoStep({
         <label className="block text-xs font-medium text-slate-700 mb-1">Full Description</label>
         <textarea
           rows={5}
-          value={formData.description || ''}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          value={description}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            triggerChange('description', e.target.value);
+          }}
+          onBlur={() => handleBlur('description', description)}
           placeholder="Detailed event description..."
           className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition resize-none"
         />
@@ -198,8 +255,12 @@ function BasicInfoStep({
           <label className="block text-xs font-medium text-slate-700 mb-1">Venue</label>
           <input
             type="text"
-            value={formData.venue || ''}
-            onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
+            value={venue}
+            onChange={(e) => {
+              setVenue(e.target.value);
+              triggerChange('venue', e.target.value);
+            }}
+            onBlur={() => handleBlur('venue', venue)}
             placeholder="Event venue"
             className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
           />
@@ -239,13 +300,13 @@ function BasicInfoStep({
         <input
           type="number"
           min={0}
-          value={formData.capacity ?? ''}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              capacity: e.target.value ? Number(e.target.value) : undefined,
-            })
-          }
+          value={capacity}
+          onChange={(e) => {
+            const num = e.target.value ? Number(e.target.value) : undefined;
+            setCapacity(e.target.value ? Number(e.target.value) : '');
+            triggerChange('capacity', num);
+          }}
+          onBlur={() => handleBlur('capacity', capacity === '' ? undefined : Number(capacity))}
           placeholder="Max attendees"
           className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
         />
@@ -258,8 +319,12 @@ function BasicInfoStep({
           <div className="relative">
             <input
               type="date"
-              value={formData.date || ''}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              value={date}
+              onChange={(e) => {
+                setDate(e.target.value);
+                triggerChange('date', e.target.value);
+              }}
+              onBlur={() => handleBlur('date', date)}
               className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
             />
           </div>
@@ -269,8 +334,12 @@ function BasicInfoStep({
           <label className="block text-xs font-medium text-slate-700 mb-1">Time</label>
           <input
             type="time"
-            value={formData.time || ''}
-            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+            value={time}
+            onChange={(e) => {
+              setTime(e.target.value);
+              triggerChange('time', e.target.value);
+            }}
+            onBlur={() => handleBlur('time', time)}
             className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
           />
         </div>
@@ -281,13 +350,12 @@ function BasicInfoStep({
           </label>
           <input
             type="date"
-            value={formData.registrationDeadline || ''}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                registrationDeadline: e.target.value,
-              })
-            }
+            value={deadline}
+            onChange={(e) => {
+              setDeadline(e.target.value);
+              triggerChange('registrationDeadline', e.target.value);
+            }}
+            onBlur={() => handleBlur('registrationDeadline', deadline)}
             className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
           />
         </div>
@@ -1095,7 +1163,7 @@ export default function CreateEventPage() {
   const isLastStep = currentStep === STEPS.length - 1;
 
   return (
-    <div className="min-h-screen bg-white p-6 lg:p-8">
+    <div className="bg-transparent p-6 lg:p-8">
       <div className="w-full space-y-6">
         {/* Header */}
         <div>

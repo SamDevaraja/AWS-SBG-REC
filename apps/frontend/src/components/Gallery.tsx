@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 /* ─── Card data ─────────────────────────────────────────────────────────── */
 const CARDS = [
   {
-    gradient: "linear-gradient(135deg,#232F3E,#3a5068)",
+    gradient: "linear-gradient(135deg,rgb(130,68,239),#4a7a9b)",
     label: "☁ Cloud Matrix",
     sublabel: "120+ builders · Oct 2025 · 24 hours",
     emoji: "☁",
@@ -29,7 +29,7 @@ const CARDS = [
     description: "A collaborative gathering where students, developers, and tech enthusiasts connected, shared knowledge, and built meaningful professional networks.",
   },
   {
-    gradient: "linear-gradient(135deg,#1A222D,#232F3E)",
+    gradient: "linear-gradient(135deg,#2c4a62,#3d6680)",
     label: "🎤 Community Meetup",
     sublabel: "100+ students certified",
     emoji: "🎤",
@@ -45,7 +45,7 @@ const CARDS = [
     description: "A beginner-friendly cloud computing session focused on cloud fundamentals, industry-recognized certifications, career opportunities, and structured learning roadmaps.",
   },
   {
-    gradient: "linear-gradient(135deg,#232F3E,#1A222D)",
+    gradient: "linear-gradient(135deg,#243448,#2d4f6b)",
     label: "🤖 Robo Wolke",
     sublabel: "Robotics & IoT Showcase · Dobot Magician",
     emoji: "🤖",
@@ -56,9 +56,9 @@ const CARDS = [
 
 /* ─── Stack layout constants ────────────────────────────────────────────── */
 const CARD_H     = 500;   // card height px
-const Y_STEP     = 14;    // vertical offset per depth level (stack peek)
-const SCALE_STEP = 0.04;  // scale reduction per depth level
-const AUTO_MS    = 2000;  // auto-advance interval (ms)
+const Y_STEP     = 13;    // vertical offset per depth level (stack peek)
+const SCALE_STEP = 0.03;  // scale reduction per depth level
+const AUTO_MS    = 2800;  // auto-advance interval (ms)
 const N          = CARDS.length;
 
 /* ─── Shared card face ──────────────────────────────────────────────────── */
@@ -159,7 +159,7 @@ function CardFace({
           right: 0,
           padding: "52px 28px 24px",
           background: card.image 
-            ? "transparent" // scrim gradient handles this when image is present
+            ? "transparent"
             : "linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%)",
           zIndex: 5,
         }}
@@ -234,7 +234,7 @@ export default function Gallery() {
       id="gallery"
       style={{
         width: "100vw",
-        background: "#F8F9FB",
+        background: "linear-gradient(180deg, #FDFCFB 0%, #FFFFFF 50%, #F8F9FB 100%)",
         padding: "80px 0 60px",
         position: "relative",
         overflow: "hidden",
@@ -285,7 +285,7 @@ export default function Gallery() {
                     opacity:
                       isTop && flyingIdx === cardIdx
                         ? 0
-                        : 1 - depth * 0.06,
+                        : 1 - depth * 0.04,
                   }}
                   transition={{
                     layout: { type: "spring", stiffness: 260, damping: 28 },
@@ -303,8 +303,8 @@ export default function Gallery() {
                     zIndex: N - depth,
                     transformOrigin: "top center",
                     boxShadow: isTop
-                      ? "0 24px 56px rgba(15,23,42,0.14)"
-                      : "0 8px 24px rgba(15,23,42,0.07)",
+                      ? "0 24px 56px rgba(15,23,42,0.14), 0 0 0 1px rgba(255,153,0,0.1), 0 0 30px rgba(255,153,0,0.06)"
+                      : "0 8px 24px rgba(15,23,42,0.07), 0 0 0 1px rgba(255,153,0,0.04)",
                     userSelect: "none",
                     pointerEvents: "none",
                   }}
@@ -332,7 +332,7 @@ export default function Gallery() {
                       style={{
                         position: "absolute",
                         inset: 0,
-                        background: "rgba(15, 23, 42, 0.22)",
+                        background: "rgba(15, 23, 42, 0.15)",
                         zIndex: 1,
                       }}
                     />
@@ -401,12 +401,12 @@ export default function Gallery() {
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               style={{
                 position: "absolute",
-                bottom: -36,
+                bottom: -0,
                 left: "50%",
                 translateX: "-50%",
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#9ca3af",
+                color: "#6b7280",
                 pointerEvents: "none",
                 whiteSpace: "nowrap",
                 letterSpacing: "0.03em",
@@ -417,7 +417,17 @@ export default function Gallery() {
           </div>
 
           {/* ── RIGHT column: heading + active card info ───────────────── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
+          <div
+            style={{
+              background: "#FFFFFF",
+              borderRadius: 24,
+              padding: "32px 36px",
+              boxShadow: "0 8px 32px rgba(0,115,187,0.08), 0 0 0 1px rgba(0,115,187,0.10), 0 0 30px rgba(0,115,187,0.06)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 28,
+            }}
+          >
             {/* Section heading (Static) */}
             <div>
               <h2
@@ -444,7 +454,7 @@ export default function Gallery() {
             </div>
 
             {/* Subtle separator line */}
-            <div style={{ height: "1px", background: "rgba(30, 45, 61, 0.08)", width: "100%" }} />
+            <div style={{ height: "1px", background: "linear-gradient(90deg, rgba(255,153,0,.18), rgba(0,115,187,.12))", width: "100%" }} />
 
             <motion.div
               key={order[0]}
@@ -497,7 +507,7 @@ export default function Gallery() {
                     animate={{
                       width: order[0] === i ? 24 : 8,
                       backgroundColor:
-                        order[0] === i ? "#232F3E" : "rgba(35,47,62,.18)",
+                        order[0] === i ? "#FF9900" : "rgba(255,153,0,.18)",
                     }}
                     transition={{ duration: 0.3 }}
                     style={{ height: 8, borderRadius: 100, cursor: "pointer" }}

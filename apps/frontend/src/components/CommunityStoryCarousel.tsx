@@ -92,7 +92,6 @@ export default function OurTeamShowcase() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-  
   const total = TEAM_MEMBERS.length;
 
   const next = useCallback(() => setActiveIndex((p) => (p + 1) % total), [total]);
@@ -135,8 +134,7 @@ export default function OurTeamShowcase() {
       id="team"
       style={{
         width: "100%",
-        minHeight: "100vh",
-        background: "linear-gradient(180deg, #FFFFFF 0%, #F7F9FC 50%, #EEF3FA 100%)",
+        background: "linear-gradient(180deg, #FFFDF9 0%, #FFFFFF 50%, #F5FAFF 100%)",
         position: "relative",
         overflow: "hidden",
         display: "flex",
@@ -156,8 +154,9 @@ export default function OurTeamShowcase() {
         OUR TEAM
       </div>
 
-      <div style={{ position: "absolute", top: "-5%", left: "-5%", width: "50vw", height: "50vw", borderRadius: "50%", background: "radial-gradient(circle,rgba(0,115,187,0.05) 0%,transparent 70%)", filter: "blur(80px)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "-5%", right: "-5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle,rgba(255,153,0,0.05) 0%,transparent 70%)", filter: "blur(80px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "-5%", left: "-5%", width: "50vw", height: "50vw", borderRadius: "50%", background: "radial-gradient(circle,rgba(255,153,0,.07) 0%,transparent 70%)", filter: "blur(80px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "-5%", right: "-5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle,rgba(255,153,0,0.08) 0%,transparent 70%)", filter: "blur(80px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "20%", left: "30%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle,rgba(130,68,239,.06) 0%,transparent 70%)", filter: "blur(60px)", pointerEvents: "none" }} />
 
       {/* Radial spotlight behind the active center card */}
       <motion.div
@@ -175,7 +174,7 @@ export default function OurTeamShowcase() {
       />
 
       {/* ── HEADER ── */}
-      <div style={{ textAlign: "center", marginBottom: 60, position: "relative", zIndex: 10, padding: "0 24px" }}>
+      <div style={{ textAlign: "center", marginBottom: 32, position: "relative", zIndex: 10, padding: "0 24px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14 }}>
           <div style={{ width: 28, height: 2.5, borderRadius: 2, background: "#FF9900" }} />
           <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "3px", textTransform: "uppercase", color: "#FF9900" }}>
@@ -209,12 +208,10 @@ export default function OurTeamShowcase() {
         {TEAM_MEMBERS.map((member, idx) => {
           const diff = getDiff(idx);
           const isActive = diff === 0;
-          
-          // Progressive scale and opacity
           const absDiff = Math.abs(diff);
           let scale = 1;
           let opacity = 1;
-          let xOffset = diff * 220; // base offset
+          let xOffset = diff * 240;
           let blur = 0;
           let zIndex = 10 - absDiff;
 
@@ -225,10 +222,6 @@ export default function OurTeamShowcase() {
             scale = Math.max(0.7, 1 - absDiff * 0.12);
             opacity = Math.max(0, 1 - absDiff * 0.35);
             blur = absDiff * 2;
-            
-            // Add extra push away from center to create space
-            if (diff > 0) xOffset += 60;
-            if (diff < 0) xOffset -= 60;
           }
 
           return (
@@ -262,8 +255,8 @@ export default function OurTeamShowcase() {
                 backdropFilter: "blur(24px)",
                 border: isActive ? `1.5px solid ${member.accent}40` : "1px solid rgba(255,255,255,0.8)",
                 boxShadow: isActive
-                  ? `0 32px 80px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,1) inset, 0 12px 40px ${member.glowColor}`
-                  : "0 12px 32px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.6) inset",
+                  ? `0 32px 80px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,1) inset, 0 12px 40px ${member.glowColor}, 0 0 0 1px rgba(255,153,0,0.1), 0 0 30px rgba(255,153,0,0.05)`
+                  : "0 12px 32px rgba(0,0,0,0.04), 0 0 0 1px rgba(255,255,255,0.6) inset, 0 0 0 1px rgba(255,153,0,0.04)",
               }}
               whileHover={isActive ? {
                 y: -6,
@@ -329,8 +322,8 @@ export default function OurTeamShowcase() {
             color: "#0073BB", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
             transition: "all 0.25s ease",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#0073BB"; e.currentTarget.style.color = "#fff"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; e.currentTarget.style.color = "#0073BB"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#FF9900"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.boxShadow = "0 0 20px rgba(255,153,0,0.3)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; e.currentTarget.style.color = "#FF9900"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1)"; }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
@@ -340,20 +333,20 @@ export default function OurTeamShowcase() {
           style={{
             position: "absolute", right: "clamp(16px, 4vw, 60px)", top: "50%", transform: "translateY(-50%)",
             zIndex: 20, width: 52, height: 52, borderRadius: "50%",
-            background: "rgba(255,255,255,0.9)", backdropFilter: "blur(16px)", border: "1.5px solid rgba(0,115,187,0.1)",
+            background: "rgba(255,255,255,0.9)", backdropFilter: "blur(16px)", border: "1.5px solid rgba(255,153,0,0.1)",
             boxShadow: "0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1)",
-            color: "#0073BB", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#FF9900", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
             transition: "all 0.25s ease",
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#0073BB"; e.currentTarget.style.color = "#fff"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; e.currentTarget.style.color = "#0073BB"; }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#FF9900"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.boxShadow = "0 0 20px rgba(255,153,0,0.3)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; e.currentTarget.style.color = "#FF9900"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1)"; }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
         </button>
       </div>
 
       {/* ── PAGINATION DOTS ── */}
-      <div style={{ display: "flex", gap: 8, marginTop: 40, position: "relative", zIndex: 10, alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 8, marginTop: 28, position: "relative", zIndex: 10, alignItems: "center" }}>
         {TEAM_MEMBERS.map((card, idx) => (
           <button
             key={idx}

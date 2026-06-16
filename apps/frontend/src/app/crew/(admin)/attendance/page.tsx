@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCrewAttendance, useMarkCrewAttendance } from '@/lib/hooks';
 import { useDebounce } from '@/lib/useDebounce';
-import { CheckCircle, XCircle, Search, UserCheck, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Search, UserCheck, Calendar, Download } from 'lucide-react';
 
 function formatDateTime(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -16,6 +17,7 @@ function formatDateTime(dateString: string): string {
 }
 
 export default function CrewAttendancePage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [ticketCode, setTicketCode] = useState('');
   const [feedback, setFeedback] = useState<{
@@ -73,13 +75,22 @@ export default function CrewAttendancePage() {
     <div className="min-h-screen bg-slate-50/50 p-6 lg:p-8">
       <div className="mx-auto max-w-5xl space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#232F3E]">
-            Attendance Management
-          </h1>
-          <p className="text-sm text-slate-500">
-            Log ticket entries manually, search active check-ins, and view attendance logs
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#232F3E]">
+              Attendance Management
+            </h1>
+            <p className="text-sm text-slate-500">
+              Log ticket entries manually, search active check-ins, and view attendance logs
+            </p>
+          </div>
+          <button
+            onClick={() => router.push('/crew/attendance/od-generator?scope=crew')}
+            className="inline-flex items-center gap-1.5 border border-slate-200 bg-white text-slate-700 hover:text-[#FF9900] hover:border-[#FF9900] rounded-[8px] text-xs font-semibold px-4 py-2 shadow-sm transition whitespace-nowrap self-start sm:self-auto cursor-pointer"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Generate OD List
+          </button>
         </div>
 
         {/* Quick Check-In Form */}

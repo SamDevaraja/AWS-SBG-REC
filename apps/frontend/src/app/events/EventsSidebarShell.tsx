@@ -11,14 +11,16 @@ import {
   MessageSquare,
   Database,
   Newspaper,
+  Cpu,
 } from 'lucide-react';
 
 const eventsNavItems: NavItem[] = [
   { icon: <CalendarDays className="w-4 h-4" />, label: 'events', href: '/events' },
   { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
   { icon: <Map className="w-4 h-4" />, label: 'roadmap', href: '/events#roadmap' },
-  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/events#chat' },
-  { icon: <Award className="w-4 h-4" />, label: 'certification', href: '/certifications' },
+  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/events/chat' },
+  { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
+  { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
 ];
 
 export default function EventsSidebarShell({ children }: { children: React.ReactNode }) {

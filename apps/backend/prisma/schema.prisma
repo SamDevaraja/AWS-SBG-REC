@@ -389,3 +389,274 @@ enum NewsCategory {
   PROGRAMMING
   GENERAL
 }
+
+model UnhandledQuery {
+  id             String    @id @default(uuid())
+  sessionId      String    @map("session_id")
+  message        String
+  bestSimilarity Float     @map("best_similarity")
+  bestMatchDoc   String?   @map("best_match_doc")
+  timestamp      DateTime  @default(now())
+  status         String    @default("live")
+  adminReply     String?   @map("admin_reply")
+  adminDocId     String?   @map("admin_doc_id")
+  resolvedAt     DateTime? @map("resolved_at")
+
+  @@map("unhandled_queries")
+}
+
+model FaqChip {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String   @default("")
+  orderIdx  Int      @default(0) @map("order_idx")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("faq_chips")
+}
+
+model CrewMessage {
+  id         String   @id @default(uuid())
+  chatId     String   @map("chat_id")
+  sender     String
+  ciphertext String
+  iv         String
+  timestamp  DateTime @default(now())
+  status     String   @default("delivered")
+
+  @@map("crew_messages")
+}
+
+model GroupChatMessage {
+  id             String   @id @default(uuid())
+  senderName     String   @map("sender_name")
+  senderRole     String   @map("sender_role")
+  avatarColor    String   @default("#FF9900") @map("avatar_color")
+  avatarInitials String   @map("avatar_initials")
+  avatarPhoto    String?  @map("avatar_photo")
+  text           String   @default("")
+  attachments    Json?    @map("attachments")
+  timestamp      DateTime @default(now())
+
+  @@map("group_chat_messages")
+}
+
+model Certification {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  level       String
+  category    String
+  summary     String
+  highlights  String
+  accent      String
+  duration    String
+  questions   Int
+  cost        String
+  mode        String
+  intended    String?
+  domains     Json     // Stores array of Domain: { title, pct, topics: string[] }
+  detailHtml  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("certifications")
+}
+
+model ReportEvent {
+  id           Int                 @id @default(autoincrement())
+  eventName    String              @map("event_name")
+  eventNumber  Int                 @map("event_number")
+  academicYear String              @map("academic_year")
+  place        String
+  time         String
+  createdAt    DateTime            @default(now()) @map("created_at")
+  agendaItems  ReportAgendaItem[]
+  participants ReportParticipant[]
+
+  @@map("report_events")
+}
+
+model ReportAgendaItem {
+  id      Int         @id @default(autoincrement())
+  eventId Int         @map("event_id")
+  content String
+  order   Int
+  event   ReportEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("report_agenda_items")
+}
+
+model ReportParticipant {
+  id      Int         @id @default(autoincrement())
+  eventId Int         @map("event_id")
+  name    String
+  role    String
+  event   ReportEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("report_participants")
+}
+
+// =============================================
+// AWS SERVICES CATALOG MODELS
+// =============================================
+
+model AWSServiceCategory {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  description  String?
+  iconUrl      String?
+  displayOrder Int          @default(0)
+  isActive     Boolean      @default(true)
+  isDeleted    Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  services     AWSService[]
+
+  @@index([displayOrder])
+  @@index([isDeleted])
+}
+
+model AWSService {
+  id                  String             @id @default(cuid())
+  serviceCode         String             @unique
+  name                String             @unique
+  slug                String             @unique
+  categoryId          String
+  category            AWSServiceCategory @relation(fields: [categoryId], references: [id])
+  shortDescription    String
+  fullDescription     String
+  characteristics     String[]
+  features            String[]
+  useCases            String[]
+  pricingModels       String[]
+  relatedServices     Json               // [{"slug": "amazon-ebs", "name": "Amazon EBS"}]
+  iconUrl             String
+  keywords            String[]
+  awsDocumentationUrl String?
+  isFeatured          Boolean            @default(false)
+  status              String             @default("GA") // GA, Preview, Beta, Deprecated, Retired
+  lastAwsUpdate       DateTime?
+  comparisonTags      String[]
+  displayOrder        Int                @default(0)
+  isActive            Boolean            @default(true)
+  isDeleted           Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([categoryId])
+  @@index([displayOrder])
+  @@index([isDeleted])
+  @@index([isFeatured])
+}
+
+model Category {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  slug         String   @unique
+  flag         String
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  regions      Region[]
+
+  @@index([displayOrder])
+  @@index([isDeleted])
+}
+
+model Region {
+  id                        String   @id @default(cuid())
+  awsRegionCode             String   @unique
+  name                      String
+  regionCode                String
+  flag                      String
+  flagUrl                   String?
+  displayOrder              Int      @default(0)
+  latitude                  Float
+  longitude                 Float
+  infrastructureDescription String
+  availabilityZones         Int
+  launchYear                Int
+  primaryLocation           String
+  compliance                String
+  totalServices             String
+  aimlServices              String
+  analyticsServices         String
+  networkingServices        String
+  edgeLocations             String
+  directConnect             String
+  reach                     String
+  latency                   String
+
+  // Relationships
+  categoryId                String
+  category                  Category @relation(fields: [categoryId], references: [id])
+  services                  RegionService[]
+  benefits                  RegionBenefit[]
+  aiCapabilities            RegionAiCapability[]
+  topServices               RegionTopService[]
+  workloads                 RegionWorkload[]
+
+  // Soft deletion
+  isDeleted                 Boolean  @default(false)
+
+  // Audit fields
+  createdBy                 String?
+  updatedBy                 String?
+
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@index([awsRegionCode])
+  @@index([categoryId])
+  @@index([isDeleted])
+}
+
+model RegionService {
+  id       String @id @default(cuid())
+  name     String
+  regionId String
+  region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, name])
+}
+
+model RegionBenefit {
+  id          String @id @default(cuid())
+  description String
+  regionId    String
+  region      Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, description])
+}
+
+model RegionAiCapability {
+  id         String @id @default(cuid())
+  capability String
+  regionId   String
+  region     Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, capability])
+}
+
+model RegionTopService {
+  id       String @id @default(cuid())
+  name     String
+  regionId String
+  region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, name])
+}
+
+model RegionWorkload {
+  id          String @id @default(cuid())
+  description String
+  regionId    String
+  region      Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([regionId, description])
+}
+

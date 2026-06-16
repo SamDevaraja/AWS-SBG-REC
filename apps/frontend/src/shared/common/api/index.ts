@@ -244,8 +244,11 @@ export async function fetchRegistrationsByEvent(): Promise<EventRegistrationCoun
 
 // ── Announcements ────────────────────────────────────────────────────────────
 
-export async function fetchAnnouncements(eventId: string): Promise<Announcement[]> {
-  return fetcher(`/announcements/event/${eventId}`);
+export async function fetchAnnouncements(eventId?: string): Promise<Announcement[]> {
+  if (eventId) {
+    return fetcher(`/announcements/event/${eventId}`);
+  }
+  return fetcher('/announcements');
 }
 
 export async function createAnnouncement(data: CreateAnnouncementDto): Promise<Announcement> {

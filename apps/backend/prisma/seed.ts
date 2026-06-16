@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -594,6 +596,51 @@ async function main() {
     ],
   });
   console.log('Seeded news articles');
+
+  console.log('Seeding certifications...');
+  const certsPath = 'c:\\Users\\Sam Devaraja\\Desktop\\About_certificates\\backend\\src\\data\\certifications.json';
+  if (fs.existsSync(certsPath)) {
+    const certsData = JSON.parse(fs.readFileSync(certsPath, 'utf8'));
+    for (const cert of certsData) {
+      await prisma.certification.upsert({
+        where: { key: cert.key },
+        update: {
+          name: cert.name,
+          level: cert.level,
+          category: cert.category,
+          summary: cert.summary,
+          highlights: cert.highlights,
+          accent: cert.accent,
+          duration: cert.duration,
+          questions: cert.questions,
+          cost: cert.cost,
+          mode: cert.mode,
+          intended: cert.intended || null,
+          domains: cert.domains,
+          detailHtml: cert.detailHtml,
+        },
+        create: {
+          key: cert.key,
+          name: cert.name,
+          level: cert.level,
+          category: cert.category,
+          summary: cert.summary,
+          highlights: cert.highlights,
+          accent: cert.accent,
+          duration: cert.duration,
+          questions: cert.questions,
+          cost: cert.cost,
+          mode: cert.mode,
+          intended: cert.intended || null,
+          domains: cert.domains,
+          detailHtml: cert.detailHtml,
+        },
+      });
+    }
+    console.log(`Seeded ${certsData.length} certifications.`);
+  } else {
+    console.log('Warning: Certifications JSON file not found at ' + certsPath);
+  }
 
   console.log('Seeding completed successfully!');
 }

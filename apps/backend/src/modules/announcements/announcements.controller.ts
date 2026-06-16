@@ -14,6 +14,12 @@ export class AnnouncementsController {
     return this.announcementsService.create(dto);
   }
 
+  @Get()
+  @ApiOperation({ summary: 'Get all announcements' })
+  findAll() {
+    return this.announcementsService.findAll();
+  }
+
   @Get('event/:eventId')
   @ApiOperation({ summary: 'Get all announcements for an event' })
   findByEvent(@Param('eventId') eventId: string) {

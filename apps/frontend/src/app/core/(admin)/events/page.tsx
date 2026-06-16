@@ -343,7 +343,7 @@ export default function EventsPage() {
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <div className="min-h-screen bg-white p-6 lg:p-8">
+    <div className="bg-transparent p-6 lg:p-8">
       <div className="w-full space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

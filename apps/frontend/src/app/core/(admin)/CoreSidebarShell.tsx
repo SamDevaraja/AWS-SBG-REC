@@ -14,14 +14,20 @@ import {
   ClipboardList,
   BarChart3,
   Newspaper,
+  Megaphone,
+  Cpu,
+  Settings2,
 } from 'lucide-react';
 
 const coreNavItems: NavItem[] = [
   { icon: <CalendarDays className="w-4 h-4" />, label: 'events', href: '/core/events' },
   { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
+  { icon: <Megaphone className="w-4 h-4" />, label: 'announcements', href: '/core/announcements' },
   { icon: <Map className="w-4 h-4" />, label: 'roadmap', href: '/core/dashboard#roadmap' },
-  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/core/dashboard#chat' },
-  { icon: <Award className="w-4 h-4" />, label: 'certification', href: '/certifications' },
+  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/core/chat' },
+  { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
+  { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
+  { icon: <Settings2 className="w-4 h-4" />, label: 'manage services', href: '/core/services' },
   { icon: <Users className="w-4 h-4" />, label: 'registrations', href: '/core/registrations' },
   { icon: <Ticket className="w-4 h-4" />, label: 'tickets', href: '/core/tickets' },
   { icon: <ClipboardList className="w-4 h-4" />, label: 'attendance', href: '/core/attendance' },

@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useEvents, useAttendance, useVerifyTicket } from '@/lib/hooks';
 import {
   QrCode, CheckCircle, XCircle, AlertTriangle,
   ChevronDown, Calendar, Filter,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Download,
 } from 'lucide-react';
 import type { Ticket } from '@/lib/types';
 import { formatDateTime } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
+
 
 /* ─── Loading Skeleton ──────────────────────────────────────────── */
 function LoadingSkeleton() {
@@ -75,6 +77,7 @@ function Avatar({ name }: { name: string }) {
 
 /* ─── Main Page ─────────────────────────────────────────────────── */
 export default function AttendancePage() {
+  const router = useRouter();
   const [eventFilter, setEventFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -184,16 +187,35 @@ export default function AttendancePage() {
               </span>
             </div>
 
-            {/* Scan Ticket Button */}
-            <button
-              onClick={() => { setScanModalOpen(true); setScanResult(null); setTicketCode(''); }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#232F3E'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; }}
-            >
-              <QrCode style={{ width: 15, height: 15 }} />
-              Scan Ticket
-            </button>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {/* OD List Button */}
+              <button
+                onClick={() => {
+                  if (!eventFilter) {
+                    alert("Please select a specific event from the dropdown filter first to generate its OD list.");
+                    return;
+                  }
+                  router.push(`/core/attendance/od-generator?eventId=${eventFilter}`);
+                }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ffffff', color: '#232F3E', border: '1.5px solid rgba(35,47,62,0.12)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(35,47,62,0.04)', transition: 'all 0.2s' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#FF9900'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(35,47,62,0.12)'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
+              >
+                <Download style={{ width: 15, height: 15 }} />
+                Generate OD List
+              </button>
+
+              {/* Scan Ticket Button */}
+              <button
+                onClick={() => { setScanModalOpen(true); setScanResult(null); setTicketCode(''); }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#232F3E'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; }}
+              >
+                <QrCode style={{ width: 15, height: 15 }} />
+                Scan Ticket
+              </button>
+            </div>
           </div>
 
           <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>Track and verify event attendance</p>

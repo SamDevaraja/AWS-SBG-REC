@@ -17,10 +17,13 @@ import { NotificationsModule } from '@/modules/notifications/notifications.modul
 import { AnalyticsModule } from '@/modules/analytics/analytics.module';
 import { AuditLogsModule } from '@/modules/audit-logs/audit-logs.module';
 import { AnnouncementsModule } from '@/modules/announcements/announcements.module';
+import { CertificationsModule } from '@/modules/certifications/certifications.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CrewModule } from '@/modules/crew/crew.module';
 import { FeedModule } from '@/modules/feed/feed.module';
 import { JobsModule } from '@/modules/jobs/jobs.module';
+import { ChatModule } from '@/modules/chat/chat.module';
+import { AwsServicesModule } from '@/modules/aws-services/aws-services.module';
 
 @Module({
   imports: [
@@ -37,10 +40,13 @@ import { JobsModule } from '@/modules/jobs/jobs.module';
     AnalyticsModule,
     AuditLogsModule,
     AnnouncementsModule,
+    CertificationsModule,
     AuthModule,
     CrewModule,
     FeedModule,
     JobsModule,
+    ChatModule,
+    AwsServicesModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

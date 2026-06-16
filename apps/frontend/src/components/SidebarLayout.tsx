@@ -123,7 +123,7 @@ export default function SidebarLayout({
 
         {/* Inline Top-Left Back Button (hidden on root home/dashboard views, and main nav pages) */}
         {pathname && pathname !== homeHref && pathname !== '/certifications' && pathname !== '/events' && !pathname.startsWith('/news') && (
-          <div style={{ width: '100%', padding: '24px 24px 0' }} className="shrink-0">
+          <div style={{ width: '100%', padding: '20px 32px 0 32px' }} className="shrink-0">
             <button
               onClick={handleBack}
               className="inline-flex items-center gap-2 text-xs font-semibold text-white/90 hover:text-white transition-colors bg-[#131b2e] hover:bg-[#1a243d] rounded-lg px-3 py-1.5 shadow-sm cursor-pointer group"

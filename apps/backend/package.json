@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1068.0",
+    "@huggingface/transformers": "^4.2.0",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^10.4.0",
     "@nestjs/config": "^4.0.4",
@@ -38,6 +39,7 @@
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.78.0",
     "cheerio": "^1.2.0",
+    "chromadb": "^3.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "compression": "^1.8.1",

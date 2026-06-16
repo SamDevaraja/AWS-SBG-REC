@@ -43,9 +43,9 @@ export default function JourneyCard({ plain = false, hideDesc = false }: { plain
         background: "transparent",
       } : {
         width:"100%",maxWidth:500,
-        background:"#ffffff",border:"1.5px solid #f0ebe3",
+        background:"#FFFFFF",border:"1px solid rgba(255,255,255,.95)",
         borderRadius:26,overflow:"hidden",
-        boxShadow:"0 20px 60px rgba(30,45,61,.1)",
+        boxShadow:"0 0 0 1px rgba(255,153,0,.06), 0 4px 20px rgba(255,153,0,.05), 0 20px 50px rgba(30,45,61,.04), inset 0 1px 0 rgba(255,255,255,1)",
       }}>
       {/* gradient top bar — draws in */}
       {!plain && (
@@ -96,7 +96,7 @@ export default function JourneyCard({ plain = false, hideDesc = false }: { plain
                     style={{
                       width:circleSize, height:circleSize,
                       borderRadius:"50%",
-                      background:isA?st.color:isP?st.light:isH?st.light:"#fafafa",
+                      background:isA?st.color:isP?st.light:isH?st.light:"#ffffff",
                       border:`2.5px solid ${isA||isP||isH?st.color:"#e0d8cf"}`,
                       display:"flex",alignItems:"center",justifyContent:"center",
                       fontSize: isMobile ? (isA ? "1.2rem" : "0.9rem") : (isA ? "1.65rem" : "1.1rem"),
@@ -119,7 +119,7 @@ export default function JourneyCard({ plain = false, hideDesc = false }: { plain
                       transformOrigin:"left",position:"relative"}}/>
                 )}
                 {i<STAGES.length-1&&i>=active&&(
-                  <div style={{flex:1,height:2,margin:lineMargin,borderRadius:2,background:"#f0ebe3"}}/>
+                  <div style={{flex:1,height:2,margin:lineMargin,borderRadius:2,background:"rgba(35,47,62,.07)"}}/>
                 )}
               </div>
             );
@@ -152,7 +152,7 @@ export default function JourneyCard({ plain = false, hideDesc = false }: { plain
           <div style={{display:"flex",justifyContent:"center",gap:7}}>
             {STAGES.map((st,i)=>(
               <motion.div key={i} onClick={()=>setActive(i)}
-                animate={{ width:i===active?24:8, background:i<=active?st.color:"#f0ebe3" }}
+                animate={{ width:i===active?24:8, background:i<=active?st.color:"rgba(35,47,62,.07)" }}
                 transition={{ duration:.35 }}
                 style={{height:8,borderRadius:100,cursor:"pointer"}}/>
             ))}

@@ -1,12 +1,10 @@
 "use client";
 import { useRef } from "react";
 import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
-import { useRouter } from "next/navigation";
 
 export default function CTA() {
-  const router = useRouter();
   const containerRef = useRef(null);
-  const inView = useInView(containerRef, { once: true, margin: "-60px" });
+  const inView = useInView(containerRef, { once: false, margin: "-60px" });
 
   // Magnetic Button state
   const mx = useMotionValue(0);
@@ -31,9 +29,7 @@ export default function CTA() {
       ref={containerRef}
       style={{
         width: "100vw",
-        background: "linear-gradient(135deg, #1e2d3d 0%, #243448 40%, #162032 100%)",
-        backgroundSize: "200% 200%",
-        animation: "bgShift 8s ease infinite",
+        background: "linear-gradient(135deg, #FFF8F0 0%, #FFFFFF 40%, #F0F8FF 100%)",
         padding: "60px 0",
         position: "relative",
         overflow: "hidden",
@@ -41,23 +37,24 @@ export default function CTA() {
       }}
     >
       {/* Orange line draws left->right at very top */}
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "#FF9900",
-          transformOrigin: "left",
-          zIndex: 10,
-        }}
-      />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "3px",
+              background: "#FF9900",
+              boxShadow: "0 0 20px rgba(255,153,0,0.3)",
+              transformOrigin: "left",
+              zIndex: 10,
+            }}
+          />
 
-      {/* Decorative Blob */}
+      {/* Decorative Blobs */}
       <div
         style={{
           position: "absolute",
@@ -66,8 +63,37 @@ export default function CTA() {
           width: "320px",
           height: "320px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(255, 153, 0, 0.08) 0%, transparent 70%)",
-          animation: "blob 14s ease-in-out infinite",
+          background: "radial-gradient(circle, rgba(255,153,0,.22) 0%, transparent 70%)",
+          filter: "blur(60px)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "-80px",
+          left: "-80px",
+          width: "320px",
+          height: "320px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(0,115,187,.16) 0%, transparent 70%)",
+          filter: "blur(50px)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: "30%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "400px",
+          height: "400px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(130,68,239,.12) 0%, transparent 70%)",
+          filter: "blur(60px)",
           pointerEvents: "none",
           zIndex: 0,
         }}
@@ -96,8 +122,9 @@ export default function CTA() {
             display: "inline-flex",
             alignItems: "center",
             gap: "8px",
-            background: "rgba(255, 255, 255, 0.08)",
-            border: "1px solid rgba(255, 255, 255, 0.14)",
+            background: "rgba(255,153,0,.08)",
+            border: "1px solid rgba(255,153,0,.22)",
+            boxShadow: "0 0 12px rgba(255,153,0,.08), inset 0 1px 0 rgba(255,255,255,.8)",
             borderRadius: "100px",
             padding: "6px 16px",
             marginBottom: "22px",
@@ -112,7 +139,7 @@ export default function CTA() {
               top: 0,
               bottom: 0,
               width: "30%",
-              background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent)",
+              background: "linear-gradient(90deg, transparent, rgba(255, 153, 0, 0.15), transparent)",
               animation: "scanLine 3s ease infinite",
             }}
           />
@@ -128,8 +155,8 @@ export default function CTA() {
           <span
             style={{
               fontSize: "11px",
-              fontWeight: 700,
-              color: "rgba(255, 255, 255, 0.85)",
+              fontWeight: 800,
+              color: "#E68900",
               textTransform: "uppercase",
               letterSpacing: "0.12em",
             }}
@@ -144,16 +171,17 @@ export default function CTA() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.1, duration: 0.6 }}
           style={{
-            fontSize: "clamp(2rem, 4.2vw, 2.8rem)",
+            fontSize: "clamp(1.75rem, 3.5vw, 2.3rem)",
+            whiteSpace: "nowrap",
             fontWeight: 900,
-            color: "#ffffff",
+            color: "#1e2d3d",
             lineHeight: 1.15,
             marginBottom: "16px",
             letterSpacing: "-0.01em",
           }}
         >
           Ready to start your{" "}
-          <span style={{ color: "#FF9900" }}>cloud journey?</span>
+          <span style={{ backgroundImage: "linear-gradient(90deg, #FF9900, rgb(130,68,239))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>cloud journey?</span>
         </motion.h2>
 
         {/* Description */}
@@ -163,7 +191,7 @@ export default function CTA() {
           transition={{ delay: 0.18, duration: 0.5 }}
           style={{
             fontSize: "14px",
-            color: "rgba(255, 255, 255, 0.65)",
+            color: "#4b5563",
             lineHeight: 1.8,
             marginBottom: "40px",
             maxWidth: "440px",
@@ -187,8 +215,8 @@ export default function CTA() {
         >
           {/* Magnetic primary button */}
           <motion.button
-            onClick={() => router.push("/signup")}
-            style={{ x: sx, y: sy, border: "none", background: "transparent", padding: 0 }}
+            whileHover={{ boxShadow: "0 14px 40px rgba(255,153,0,.48)" }}
+            style={{ x: sx, y: sy, border: "none", background: "transparent", padding: 0, borderRadius: "100px" }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             whileTap={{ scale: 0.96 }}
@@ -198,13 +226,13 @@ export default function CTA() {
                 display: "block",
                 padding: "14px 32px",
                 borderRadius: "100px",
-                background: "#ffffff",
+                background: "linear-gradient(135deg, #FF9900 0%, #E68900 100%)",
                 color: "#1e2d3d",
                 fontSize: "14px",
                 fontWeight: 800,
                 cursor: "pointer",
                 fontFamily: "inherit",
-                boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+                boxShadow: "0 8px 28px rgba(255,153,0,.38), 0 4px 12px rgba(255,153,0,.22)",
                 transition: "background 0.2s ease",
               }}
             >
@@ -215,14 +243,15 @@ export default function CTA() {
           {/* Secondary Button */}
           <motion.a
             href="#gallery"
-            whileHover={{ background: "rgba(255, 255, 255, 0.08)", y: -2 }}
+            whileHover={{ background: "rgba(255,153,0,.08)", borderColor: "#FF9900", color: "#FF9900", y: -2 }}
             whileTap={{ scale: 0.96 }}
             style={{
               padding: "14px 32px",
               borderRadius: "100px",
-              border: "1.5px solid rgba(255, 255, 255, 0.25)",
-              background: "transparent",
-              color: "#ffffff",
+              border: "1.5px solid rgba(35,47,62,.18)",
+              background: "rgba(255,255,255,.8)",
+              backdropFilter: "blur(10px)",
+              color: "#1e2d3d",
               fontSize: "14px",
               fontWeight: 700,
               cursor: "pointer",

@@ -1,5 +1,4 @@
 "use client";
-
 import React, {
   useState,
   useEffect,
@@ -51,7 +50,6 @@ const Tooltip = memo(
   }) => {
     const offsetX = direction === "right" ? nodeSize / 2 + 8 : direction === "left" ? -(nodeSize / 2 + 8) : 0;
     const offsetY = direction === "bottom" ? nodeSize / 2 + 8 : direction === "top" ? -(nodeSize / 2 + 8) : 0;
-    
     const tx = direction === "right" ? "0%" : direction === "left" ? "-100%" : "-50%";
     const ty = direction === "bottom" ? "0%" : direction === "top" ? "-100%" : "-50%";
 
@@ -81,7 +79,7 @@ const Tooltip = memo(
           border: "1.5px solid rgba(35,47,62,0.09)",
           borderRadius: "13px",
           boxShadow:
-            "0 12px 36px rgba(35,47,62,0.10), 0 2px 8px rgba(0,115,187,0.06)",
+            "0 12px 36px rgba(35,47,62,0.10), 0 2px 8px rgba(0,115,187,0.06), 0 0 0 1px rgba(255,153,0,0.06), 0 0 20px rgba(255,153,0,0.03)",
           textAlign: "center",
         }}
       >
@@ -218,7 +216,7 @@ export default function CloudOrbit() {
   const hoveredIdRef = useRef<string | null>(null);
 
   // Tracked angle accumulators (degrees) — updated each frame
-  const anglesRef = useRef<number[]>([45, 135, 225, 315, 60, 180, 300, 0, 120, 240]);
+  const anglesRef = useRef<number[]>([0, 90, 180, 270, 45, 165, 285, 105, 225, 345]);
 
   // ── Resize ──
   useEffect(() => {
@@ -236,8 +234,8 @@ export default function CloudOrbit() {
     const isMobile = screenSize === "mobile";
     const isTablet = screenSize === "tablet";
 
-    const containerSize = isMobile ? 320 : isTablet ? 430 : 620;
-    const centerR = isMobile ? 42 : isTablet ? 48 : 60;
+    const containerSize = isMobile ? 320 : isTablet ? 430 : 560;
+    const centerR = isMobile ? 42 : isTablet ? 48 : 55;
     const nodeSize = isMobile ? 36 : isTablet ? 40 : 46;
     const tooltipW = isMobile ? 130 : 182;
 
@@ -248,9 +246,9 @@ export default function CloudOrbit() {
 
     // Scaled down radii to keep the globe compact and avoid viewport cutoff
     const radii = {
-      inner: isMobile ? 85 : isTablet ? 100 : 115,
-      middle: isMobile ? 125 : isTablet ? 145 : 165,
-      outer: isMobile ? 165 : isTablet ? 190 : 215,
+      inner: isMobile ? 90 : isTablet ? 108 : 118,
+      middle: isMobile ? 135 : isTablet ? 158 : 172,
+      outer: isMobile ? 180 : isTablet ? 210 : 228,
     };
 
     return { containerSize, centerR, nodeSize, radii, tooltipW };
@@ -270,7 +268,7 @@ export default function CloudOrbit() {
         details: "Real AWS services. Real cloud experience.",
         color: "#0073BB",
         ring: "outer",
-        startAngle: 45,
+        startAngle: 0,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#0073BB" />
@@ -286,7 +284,7 @@ export default function CloudOrbit() {
         details: "Create applications that solve real problems.",
         color: "#FF9900",
         ring: "outer",
-        startAngle: 135,
+        startAngle: 90,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5" stroke="#FF9900" />
@@ -303,7 +301,7 @@ export default function CloudOrbit() {
         details: "Prepare for AWS certifications with peers.",
         color: "#FF9900",
         ring: "outer",
-        startAngle: 225,
+        startAngle: 180,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="8" r="6" stroke="#0073BB" />
@@ -318,7 +316,7 @@ export default function CloudOrbit() {
         details: "Connect with builders, mentors, and innovators.",
         color: "#232F3E",
         ring: "outer",
-        startAngle: 315,
+        startAngle: 270,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#0073BB" />
@@ -328,7 +326,7 @@ export default function CloudOrbit() {
           </svg>
         ),
       },
-      // Middle ring — 3 nodes, 120° apart
+      // Middle ring — 3 nodes, 120° apart, offset 45° from outer
       {
         id: "networking",
         name: "Networking",
@@ -336,7 +334,7 @@ export default function CloudOrbit() {
         details: "Connect with peers, builders, and cloud professionals.",
         color: "#0073BB",
         ring: "middle",
-        startAngle: 60,
+        startAngle: 45,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" stroke="#0073BB" />
@@ -358,7 +356,7 @@ export default function CloudOrbit() {
         details: "Learn from experienced mentors and industry experts.",
         color: "#FF9900",
         ring: "middle",
-        startAngle: 180,
+        startAngle: 165,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#0073BB" />
@@ -374,7 +372,7 @@ export default function CloudOrbit() {
         details: "Gain insights into real-world cloud technologies and careers.",
         color: "#232F3E",
         ring: "middle",
-        startAngle: 300,
+        startAngle: 285,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="7" width="20" height="14" rx="2" stroke="#0073BB" />
@@ -382,15 +380,15 @@ export default function CloudOrbit() {
           </svg>
         ),
       },
-      // Inner ring — 3 nodes, 120° apart
+      // Inner ring — 3 nodes, 120° apart, offset 60° from middle
       {
         id: "events",
         name: "Events & Workshops",
         short: "Events",
         details: "Learn directly from industry experts.",
         color: "#0073BB",
-        ring: "middle",
-        startAngle: 0,
+        ring: "inner",
+        startAngle: 105,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" stroke="#0073BB" />
@@ -406,7 +404,7 @@ export default function CloudOrbit() {
         details: "Compete, innovate, and showcase your skills.",
         color: "#FF9900",
         ring: "inner",
-        startAngle: 120,
+        startAngle: 225,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .5 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" stroke="#FF9900" />
@@ -421,8 +419,8 @@ export default function CloudOrbit() {
         short: "Speakers",
         details: "Interact with industry leaders and AWS professionals.",
         color: "#FF9900",
-        ring: "middle",
-        startAngle: 240,
+        ring: "inner",
+        startAngle: 345,
         icon: (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="18" height="12" rx="2" stroke="#0073BB" />
@@ -497,7 +495,6 @@ export default function CloudOrbit() {
         // Prevent horizontal cutoff at screen edges for outer nodes by stacking tooltips vertically.
         // Middle/Outer rings are far enough from the center that vertical tooltips won't overlap the hub.
         dir = sin > 0 ? "bottom" : "top";
-        
         // Prevent vertical cutoff when the node is near the extreme top or bottom edge.
         // If ny is too close to 0, tooltip "top" bleeds out. Flip it inward to "bottom".
         if (dir === "top" && ny < 120) {

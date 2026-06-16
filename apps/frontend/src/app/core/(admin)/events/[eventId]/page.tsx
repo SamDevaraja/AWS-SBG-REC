@@ -100,7 +100,7 @@ function AnnouncementTypeIcon({ type }: { type: string }) {
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-white p-6 lg:p-8">
+    <div className="bg-transparent p-6 lg:p-8">
       <div className="w-full space-y-6 animate-pulse">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded bg-slate-100" />
@@ -244,7 +244,7 @@ export default function EventDetailsPage() {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-white p-6 lg:p-8">
+      <div className="bg-transparent p-6 lg:p-8">
         <div className="w-full text-center py-20">
           <p className="text-sm text-slate-500">Event not found.</p>
           <Link
@@ -260,7 +260,7 @@ export default function EventDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6 lg:p-8">
+    <div className="bg-transparent p-6 lg:p-8">
       <div className="w-full space-y-6">
 
 

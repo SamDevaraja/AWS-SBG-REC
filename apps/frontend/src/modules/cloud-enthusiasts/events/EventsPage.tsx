@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEvents } from '../shared/hooks/useCloudEnthusiasts';
 import { Event } from '../shared/types';
 import { EC2ConsoleLoader, AnimatedEmptyState, ErrorAlert } from '../shared/components/Animations';
@@ -22,6 +23,19 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function EventsPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkHash = () => {
+      if (typeof window !== 'undefined' && window.location.hash === '#chat') {
+        router.replace('/events/chat');
+      }
+    };
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [router]);
+
   // Raw input state — updates immediately for a responsive UI feel
   const [searchInput, setSearchInput] = useState('');
   const [category, setCategory] = useState('All');

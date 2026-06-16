@@ -45,7 +45,9 @@ function loadEnvOverride() {
           } else if (val.startsWith("'") && val.endsWith("'")) {
             val = val.substring(1, val.length - 1);
           }
-          process.env[key] = val;
+          if (process.env[key] === undefined || process.env[key] === '') {
+            process.env[key] = val;
+          }
         }
       });
     }

@@ -1,11 +1,11 @@
 "use client";
-
+ 
 import { memo } from "react";
 import type { NewsArticle } from "@/types/news";
 import { cn } from "@/utils/cn";
 import { formatPublishedDate, getCategoryLabel } from "@/utils/news-format";
 import { NewsImage } from "./NewsImage";
-
+ 
 type NewsCardProps = {
   article: NewsArticle;
   onClick: (articleId: string) => void;
@@ -22,7 +22,7 @@ type NewsCardProps = {
     | "quote";
   className?: string;
 };
-
+ 
 export const NewsCard = memo(function NewsCard({
   article,
   onClick,
@@ -54,7 +54,7 @@ export const NewsCard = memo(function NewsCard({
           <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
             {getCategoryLabel(article.category)}
           </span>
-          <h2 className="break-words font-display text-[15px] font-semibold leading-[1.3] tracking-tight [overflow-wrap:anywhere] group-hover:text-[#B07024] transition-colors duration-200">
+          <h2 className="break-words font-display text-[15px] font-semibold leading-[1.3] tracking-tight [overflow-wrap:anywhere] group-hover:text-[color:var(--accent)] transition-colors duration-200">
             {article.title}
           </h2>
           <p className="mt-1.5 text-[10px] font-medium text-white/65">
@@ -64,7 +64,7 @@ export const NewsCard = memo(function NewsCard({
       </button>
     );
   }
-
+ 
   // ─── HEADLINE ONLY CARD (Text-only editorial block) ───
   if (variant === "headline") {
     return (
@@ -99,7 +99,7 @@ export const NewsCard = memo(function NewsCard({
       </button>
     );
   }
-
+ 
   // ─── COMPACT TICKER ROW (Fast horizontal text scan) ───
   if (variant === "ticker") {
     return (
@@ -124,7 +124,7 @@ export const NewsCard = memo(function NewsCard({
       </button>
     );
   }
-
+ 
   // ─── FLAT EDITORIAL CARD (Image on top, no card borders/backgrounds) ───
   if (variant === "flat-editorial") {
     return (
@@ -137,7 +137,7 @@ export const NewsCard = memo(function NewsCard({
           className,
         )}
       >
-        <div className="news-aspect-16-10 rounded-[var(--radius-lg)] mb-2.5">
+        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[var(--radius-lg)] mb-2.5">
           <NewsImage
             src={article.imageUrl}
             category={article.category}
@@ -166,7 +166,7 @@ export const NewsCard = memo(function NewsCard({
       </button>
     );
   }
-
+ 
   // ─── FLAT HORIZONTAL CARD (Side-by-side, no card borders/backgrounds) ───
   if (variant === "flat-horizontal") {
     return (
@@ -179,7 +179,7 @@ export const NewsCard = memo(function NewsCard({
           className,
         )}
       >
-        <div className="news-aspect-4-3-side rounded-md">
+        <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-md sm:w-24">
           <NewsImage
             src={article.imageUrl}
             category={article.category}
@@ -203,7 +203,7 @@ export const NewsCard = memo(function NewsCard({
       </button>
     );
   }
-
+ 
   // ─── EDITORIAL QUOTE CARD (Typography-focused statement box) ───
   if (variant === "quote") {
     return (
@@ -236,12 +236,12 @@ export const NewsCard = memo(function NewsCard({
       </button>
     );
   }
-
+ 
   // ─── CARD VARIANT RENDERING (standard, large, horizontal, compact) ───
   const isHorizontal = variant === "horizontal";
   const isLarge = variant === "large";
   const isCompact = variant === "compact";
-
+ 
   return (
     <button
       type="button"
@@ -258,10 +258,10 @@ export const NewsCard = memo(function NewsCard({
         className={cn(
           "relative overflow-hidden",
           isHorizontal
-            ? "news-aspect-4-5-side"
-            : "news-aspect-16-9",
-          isLarge && "news-aspect-16-8",
-          isCompact && "news-aspect-16-8",
+            ? "aspect-[4/5] w-28 shrink-0 sm:w-36"
+            : "aspect-[16/9] w-full",
+          isLarge && "aspect-[16/8]",
+          isCompact && "aspect-[16/8]",
         )}
       >
         <NewsImage
@@ -278,7 +278,7 @@ export const NewsCard = memo(function NewsCard({
           {getCategoryLabel(article.category)}
         </span>
       </div>
-
+ 
       <div
         className={cn(
           "flex min-w-0 flex-col",
