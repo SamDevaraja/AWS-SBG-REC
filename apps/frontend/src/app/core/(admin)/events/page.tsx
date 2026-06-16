@@ -343,7 +343,12 @@ export default function EventsPage() {
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <div className="bg-gradient-to-br from-[#232F3E]/10 via-slate-50 to-[#FF9900]/8 min-h-full w-full">
+    <div 
+      className="min-h-full w-full relative"
+      style={{
+        background: "radial-gradient(ellipse at 90% 10%, rgba(255, 153, 0, 0.22) 0%, rgba(255, 153, 0, 0.08) 45%, rgba(255, 255, 255, 0) 80%), #F8FAFC",
+      }}
+    >
       <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8 max-w-[1280px] mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
