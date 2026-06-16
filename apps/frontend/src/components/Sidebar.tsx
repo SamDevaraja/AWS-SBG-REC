@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from "react";
-import { LogOut, ChevronLeft, ChevronRight, Menu, X, User as UserIcon, PlusCircle, HelpCircle } from "lucide-react";
+import { LogOut, Menu, X, User as UserIcon, PlusCircle, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface NavItem {
@@ -139,7 +139,7 @@ export default function Sidebar({
                 className="p-1.5 rounded-lg hover:bg-white/5 transition-colors shrink-0 ml-2"
                 aria-label="Collapse sidebar"
               >
-                <ChevronLeft className="w-4 h-4 text-slate-400 hover:text-white" />
+                <Menu className="w-4 h-4 text-slate-400 hover:text-white" />
               </button>
             )}
           </div>
@@ -173,7 +173,7 @@ export default function Sidebar({
                     className="p-1.5 rounded-lg hover:bg-white/5 transition-colors shrink-0"
                     aria-label="Collapse sidebar"
                   >
-                    <ChevronLeft className="w-4 h-4 text-slate-400 hover:text-white" />
+                    <Menu className="w-4 h-4 text-slate-400 hover:text-white" />
                   </button>
                 )}
               </div>
@@ -195,7 +195,7 @@ export default function Sidebar({
               className="w-9 h-9 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-center justify-center transition-colors duration-150"
               aria-label="Expand sidebar"
             >
-              <ChevronRight className="w-4 h-4 text-slate-400 hover:text-white" />
+              <Menu className="w-4 h-4 text-slate-400 hover:text-white" />
             </button>
           </div>
         )}
