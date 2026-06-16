@@ -42,7 +42,7 @@ export default function EventForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/api/events")
+    fetch("/api/events/report")
       .then((res) => res.json())
       .then((data: EventData[]) => {
         setEvents(data);
