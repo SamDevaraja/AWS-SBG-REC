@@ -381,7 +381,7 @@ export default function EventsPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full border border-slate-200 rounded-lg text-xs pl-8 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/10 focus:border-[#232F3E] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                className="w-full border border-slate-200 rounded-lg text-xs pl-8 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
 
@@ -393,7 +393,7 @@ export default function EventsPage() {
                   setCategory(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/10 focus:border-[#232F3E] transition-all duration-200 text-slate-700 cursor-pointer"
+                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
               >
                 <option value="">All Categories</option>
                 <option value="Business">Business</option>
@@ -416,7 +416,7 @@ export default function EventsPage() {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/10 focus:border-[#232F3E] transition-all duration-200 text-slate-700 cursor-pointer"
+                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
               >
                 <option value="">All Statuses</option>
                 <option value="DRAFT">Draft</option>
@@ -437,7 +437,7 @@ export default function EventsPage() {
                   setModeFilter(e.target.value);
                   setPage(1);
                 }}
-                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/10 focus:border-[#232F3E] transition-all duration-200 text-slate-700 cursor-pointer"
+                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
               >
                 <option value="">All Modes</option>
                 <option value="ONLINE">Online</option>
