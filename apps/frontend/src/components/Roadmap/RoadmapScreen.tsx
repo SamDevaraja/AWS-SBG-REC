@@ -1,0 +1,680 @@
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import * as Icons from 'lucide-react';
+import { SkyBackground } from './SkyBackground';
+import { RoadmapPath, PathNode } from './RoadmapPath';
+import { CloudIslandNode } from './CloudIslandNode';
+import { MissionDetailsDrawer } from './MissionDetailsDrawer';
+import { BeginnerSummitLandmark, IntermediateSummitLandmark, CloudArchitectSummitLandmark } from './MilestoneLandmark';
+import { IntermediateCloudsOverlay } from './IntermediateCloudsOverlay';
+import { AdvancedCloudsOverlay } from './AdvancedCloudsOverlay';
+import { learningService, progressService } from '@/services/roadmap.api';
+import { calculateRoadmapGeometry } from '@/lib/roadmapGeometry';
+import { cn } from '@/lib/utils';
+import { getAuthSession } from '@/lib/authHelper';
+import { authService } from '@/services/auth.service';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const getIconForSlug = (slug: string): string => {
+  const map: Record<string, string> = {
+    fundamentals: 'Globe',
+    ec2: 'Cpu',
+    s3: 'Database',
+    iam: 'Shield',
+    vpc: 'Network',
+    rds: 'Server',
+    route53: 'Compass',
+    elasticloadbalancing: 'Shuffle',
+    autoscaling: 'ArrowUpCircle',
+    lambda: 'Zap',
+    dynamodb: 'HardDrive',
+    cloudwatch: 'Eye',
+    sns_sqs: 'Mail',
+    cloudtrail: 'FileText',
+    cloudfront: 'Tv',
+    ecs_eks: 'Box',
+    iam_advanced: 'Lock',
+    transit_gateway: 'GitMerge',
+  };
+  return map[slug] || 'Boxes';
+};
+
+const LevelIslandHeader: React.FC<{
+  number: string;
+  title: string;
+  completed: number;
+  total: number;
+  description: string;
+  levelColor: 'beginner' | 'intermediate' | 'advanced';
+  locked: boolean;
+}> = ({ number, title, completed, total, description, levelColor, locked }) => {
+  const containerClasses = cn(
+    'w-[260px] border transition-all duration-300 select-none rounded-[22px]',
+    !locked
+      ? 'bg-white border-slate-200/50 shadow-md hover:shadow-xl hover:-translate-y-0.5 text-slate-800'
+      : levelColor === 'intermediate'
+        ? 'bg-slate-700/70 border-slate-600/50 shadow-none text-slate-400'
+        : 'bg-slate-900/80 border-slate-800/50 shadow-none text-slate-400'
+  );
+
+  return (
+    <div className={containerClasses}>
+      <div className="p-5">
+        <div className="relative z-10 flex flex-col">
+          <span className={cn(
+            'text-[9px] font-black uppercase tracking-widest block font-heading',
+            !locked ? 'text-slate-500' : 'text-slate-400'
+          )}>
+            LEVEL {number}
+          </span>
+          <h2 className={cn(
+            'text-base font-black leading-tight mt-0.5 tracking-tight font-heading',
+            !locked ? 'text-slate-950' : 'text-slate-100'
+          )}>
+            {title}
+          </h2>
+          <span className={cn(
+            'text-[10px] font-bold mt-1 font-heading',
+            !locked ? 'text-slate-600' : 'text-slate-400'
+          )}>
+            {completed} / {total} Completed
+          </span>
+          <p className={cn(
+            'text-[11px] leading-snug mt-2 font-medium',
+            !locked ? 'text-slate-600' : 'text-slate-300'
+          )}>
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface VisualNode {
+  id: string;
+  name: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  type: 'module' | 'summit';
+  points?: number;
+  iconName?: string;
+}
+
+export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) => {
+  const router = useRouter();
+  const [modules, setModules] = useState<any[]>([]);
+  const [moduleStates, setModuleStates] = useState<Record<string, 'completed' | 'current' | 'locked'>>({});
+  const [xp, setXp] = useState<number>(0);
+  const [topicName, setTopicName] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const session = getAuthSession();
+
+    let active = true;
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [topicDetail, progress] = await Promise.all([
+          learningService.getTopicDetail(topicSlug),
+          progressService.getMyProgress(),
+        ]);
+
+        if (!active) return;
+
+        // Map learning API modules to UI modules format
+        const mappedModules = topicDetail.modules.map((m) => ({
+          id: m.slug,
+          name: m.name,
+          points: m.xpPoints,
+          level: m.level === 'BEGINNER' ? 'Beginner' : m.level === 'INTERMEDIATE' ? 'Intermediate' : 'Advanced',
+          description: m.description,
+          iconName: getIconForSlug(m.slug),
+          learningPagesCount: m.slideCount,
+          quizQuestionsCount: m.questionCount,
+          tasks: [],
+          quiz: {
+            question: '',
+            options: [],
+            answerIndex: 0,
+            explanation: '',
+          },
+          learningContent: [],
+          dbId: m.slug,
+        }));
+
+        // Map status for each module slug
+        const states: Record<string, 'completed' | 'current' | 'locked'> = {};
+        topicDetail.modules.forEach((m) => {
+          if (m.status === 'COMPLETED') {
+            states[m.slug] = 'completed';
+          } else if (m.status === 'UNLOCKED') {
+            states[m.slug] = 'current';
+          } else {
+            states[m.slug] = 'locked';
+          }
+        });
+
+        setTopicName(topicDetail.name);
+        setModules(mappedModules);
+        setModuleStates(states);
+        setXp(progress.currentXP);
+      } catch (err) {
+        console.error('Failed to load roadmap data:', err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadData();
+    return () => {
+      active = false;
+    };
+  }, [topicSlug]);
+
+  const handleLogout = () => {
+    authService.logout();
+    router.push('/login');
+  };
+
+  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [boardWidth, setBoardWidth] = useState(1000);
+  const [activeTab, setActiveTab] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
+
+  // Viewport refs for scrolling and path rendering
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  // Measure dynamic geometry based on modules list
+  const {
+    coordinates,
+    totalHeight,
+    intermediateStartY,
+    intermediateHeight,
+    advancedStartY,
+    advancedHeight
+  } = calculateRoadmapGeometry(modules);
+
+  // Resize handler to measure container width
+  useEffect(() => {
+    if (!boardRef.current) return;
+    const handleResize = () => {
+      setBoardWidth(boardRef.current?.offsetWidth || 1000);
+    };
+
+    handleResize();
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    if (boardRef.current) {
+      resizeObserver.observe(boardRef.current);
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
+    };
+  }, [loading]);
+
+  // Split modules list by level dynamically
+  const beginnerList = modules.filter((m) => m.level === 'Beginner');
+  const intermediateList = modules.filter((m) => m.level === 'Intermediate');
+  const advancedList = modules.filter((m) => m.level === 'Advanced');
+
+  // Check completions of each region to unlock milestones
+  const beginnerCompleted = beginnerList.filter((m) => moduleStates[m.id] === 'completed').length;
+  const intermediateCompleted = intermediateList.filter((m) => moduleStates[m.id] === 'completed').length;
+  const advancedCompleted = advancedList.filter((m) => moduleStates[m.id] === 'completed').length;
+  const totalCompleted = modules.filter((m) => moduleStates[m.id] === 'completed').length;
+
+  const isIntermediateLocked = beginnerCompleted < beginnerList.length;
+  const isAdvancedLocked = intermediateCompleted < intermediateList.length;
+
+  let backgroundGradient = '';
+  if (isIntermediateLocked && isAdvancedLocked) {
+    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 25%, #5a6578 38%, #202735 48%, #1b202e 65%, #05070a 80%, #000000 100%)';
+  } else if (isAdvancedLocked) {
+    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 30%, #f0f9ff 45%, #ffffff 58%, #1f2430 68%, #05070a 76%, #000000 100%)';
+  } else {
+    backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 40%, #f0f9ff 70%, #e0f2fe 100%)';
+  }
+
+  // Build visual node list
+  const visualNodesList: VisualNode[] = [
+    ...beginnerList.map((m) => ({ ...m, type: 'module' as const })),
+    { id: 'summit_beginner', name: 'Beginner Summit', level: 'Beginner' as const, type: 'summit' as const },
+    ...intermediateList.map((m) => ({ ...m, type: 'module' as const })),
+    { id: 'summit_intermediate', name: 'Intermediate Summit', level: 'Intermediate' as const, type: 'summit' as const },
+    ...advancedList.map((m) => ({ ...m, type: 'module' as const })),
+    { id: 'summit_advanced', name: 'Cloud Architect Summit', level: 'Advanced' as const, type: 'summit' as const }
+  ];
+
+  // Map coordinates and statuses for paths
+  const pathNodes: PathNode[] = visualNodesList.map((node) => {
+    const coord = coordinates[node.id] || { x: 50, y: 200 };
+    const nodeStatus = node.type === 'summit'
+      ? (node.id === 'summit_beginner'
+        ? (beginnerCompleted === beginnerList.length ? 'completed' as const : 'locked' as const)
+        : node.id === 'summit_intermediate'
+          ? (intermediateCompleted === intermediateList.length ? 'completed' as const : 'locked' as const)
+          : (totalCompleted === modules.length ? 'completed' as const : 'locked' as const))
+      : (moduleStates[node.id] || 'locked');
+
+    return {
+      id: node.id,
+      x: coord.x,
+      y: coord.y,
+      status: nodeStatus,
+    };
+  });
+
+  // Scroll to active node or beginner on mount
+  useEffect(() => {
+    if (!mapContainerRef.current || modules.length === 0) return;
+    const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0];
+    const activeCoord = coordinates[activeNode.id];
+    if (activeCoord && mapContainerRef.current) {
+      const scrollPos = activeCoord.y - window.innerHeight / 2 + 200;
+      mapContainerRef.current.scrollTop = Math.max(0, scrollPos);
+    }
+  }, [moduleStates, modules, coordinates]);
+
+  const selectedModule = modules.find((m) => m.id === selectedModuleId) || null;
+  const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0] || { id: '', name: 'Start', level: 'Beginner', points: 50 };
+
+  useEffect(() => {
+    if (activeNode) {
+      setActiveTab(activeNode.level.toLowerCase() as 'beginner' | 'intermediate' | 'advanced');
+    }
+  }, [activeNode]);
+
+  const isActiveBeginner = activeTab === 'beginner';
+  const isActiveIntermediate = activeTab === 'intermediate';
+  const isActiveAdvanced = activeTab === 'advanced';
+
+  const scrollTarget = (topValue: number) => {
+    if (mapContainerRef.current) {
+      mapContainerRef.current.scrollTo({ top: topValue, behavior: 'smooth' });
+    }
+  };
+
+  // Ambient Particles definition for sky depth
+  const particles = [
+    { id: 'p1', left: '15%', top: '350px', duration: 18, delay: 0 },
+    { id: 'p2', left: '80%', top: '750px', duration: 25, delay: 2 },
+    { id: 'p3', left: '20%', top: '1250px', duration: 21, delay: 1 },
+    { id: 'p4', left: '75%', top: '1750px', duration: 29, delay: 3 },
+    { id: 'p5', left: '25%', top: '2200px', duration: 23, delay: 0.5 },
+    { id: 'p6', left: '85%', top: '2500px', duration: 27, delay: 1.5 },
+  ];
+
+  // Drifting foreground clouds (above nodes, z-35) for parallax effect
+  const fgClouds = [
+    { id: 'fg-c1', top: '350px', width: 280, duration: 48, direction: 1, blur: 'blur-sm' },
+    { id: 'fg-c2', top: '980px', width: 340, duration: 58, direction: -1, blur: 'blur-sm' },
+    { id: 'fg-c3', top: '1620px', width: 300, duration: 52, direction: 1, blur: 'blur-sm' },
+    { id: 'fg-c4', top: '2250px', width: 370, duration: 62, direction: -1, blur: 'blur-md' },
+  ];
+
+  // Dynamic values for intermediate / advanced card positioning
+  const intermediateCardTop = intermediateStartY - 140;
+  const advancedCardTop = advancedStartY - 160;
+
+  if (loading) {
+    return (
+      <div className="h-full w-full min-h-[500px] bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
+        <SkyBackground />
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute w-12 h-12 rounded-full bg-sky-500/10 animate-ping" />
+            <Icons.Loader2 className="w-10 h-10 text-sky-500 animate-spin stroke-[2.5]" />
+          </div>
+          <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase animate-pulse font-heading">
+            Preparing Your Journey...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 flex flex-col h-full w-full relative overflow-hidden select-none font-sans text-slate-800 bg-transparent">
+
+      {/* Floating Top Panel Container */}
+      <div className="absolute top-4 left-6 right-6 z-50 flex flex-col gap-4 pointer-events-none">
+
+        {/* Back to Topics Button & Centered Completion Progress Bar */}
+        <div className="w-full flex justify-between items-center pointer-events-none">
+          <Link
+            href="/learn"
+            className="flex items-center gap-1.5 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-xs cursor-pointer pointer-events-auto flex-shrink-0"
+            title="Back to Topics"
+          >
+            <Icons.ChevronLeft className="w-4 h-4 stroke-[3]" />
+            Back to Topics
+          </Link>
+
+          {/* Centered overall completion progress bar */}
+          {modules.length > 0 && (
+            <div className="flex items-center gap-3.5 bg-white/95 border border-slate-200/50 shadow-[0_10px_30px_rgba(15,23,42,0.06)] rounded-full px-5 py-2.5 pointer-events-auto backdrop-blur-md">
+              <div className="flex flex-col">
+                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest leading-none font-heading">
+                  Topic Progress
+                </span>
+                <span className="text-[11px] font-black text-slate-700 font-heading mt-0.5 whitespace-nowrap">
+                  {totalCompleted} / {modules.length} Modules
+                </span>
+              </div>
+              <div className="w-24 sm:w-40 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/30 relative shadow-inner">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
+                  style={{ width: `${Math.round((totalCompleted / modules.length) * 100)}%` }}
+                />
+              </div>
+              <span className="text-xs font-black text-slate-900 font-heading">
+                {Math.round((totalCompleted / modules.length) * 100)}%
+              </span>
+            </div>
+          )}
+
+          {/* Empty spacer to balance the back button for absolute centering */}
+          <div className="w-[124px] hidden md:block" />
+        </div>
+
+        {/* LEVEL NAVIGATION BADGES (PILLS) WITH PREMIUM GRADIENTS */}
+        <div className="flex justify-center gap-3 pointer-events-auto">
+          <button
+            onClick={() => {
+              scrollTarget(0);
+              setActiveTab('beginner');
+            }}
+            className={cn(
+              'flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border border-white/40 hover:scale-105 active:scale-95 text-slate-900',
+              isActiveBeginner
+                ? 'shadow-[0_8px_25px_rgba(80,201,153,0.5),0_0_12px_rgba(80,201,153,0.25)] scale-105'
+                : 'shadow-[0_4px_12px_rgba(0,0,0,0.06)] opacity-90'
+            )}
+            style={{
+              background: 'linear-gradient(90deg, #50C999 0%, #7EE8A8 100%)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+          >
+            <Icons.Cloud className="w-4 h-4 fill-current text-emerald-900" />
+            BEGINNER LEVEL
+          </button>
+
+          <button
+            onClick={() => {
+              scrollTarget(intermediateStartY - 120);
+              setActiveTab('intermediate');
+            }}
+            className={cn(
+              'flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border border-white/40 hover:scale-105 active:scale-95 text-slate-900',
+              isActiveIntermediate
+                ? 'shadow-[0_8px_25px_rgba(78,168,255,0.5),0_0_12px_rgba(110,247,255,0.25)] scale-105'
+                : 'shadow-[0_4px_12px_rgba(0,0,0,0.06)] opacity-90'
+            )}
+            style={{
+              background: 'linear-gradient(90deg, #6EF7FF 0%, #4EA8FF 100%)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+          >
+            {isIntermediateLocked ? (
+              <Icons.Lock className="w-4 h-4 text-blue-900" />
+            ) : (
+              <Icons.Zap className="w-4 h-4 fill-current text-blue-900" />
+            )}
+            INTERMEDIATE LEVEL
+          </button>
+
+          <button
+            onClick={() => {
+              scrollTarget(advancedStartY - 140);
+              setActiveTab('advanced');
+            }}
+            className={cn(
+              'flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border border-white/40 hover:scale-105 active:scale-95 text-slate-900',
+              isActiveAdvanced
+                ? 'shadow-[0_8px_25px_rgba(243,179,68,0.5),0_0_12px_rgba(255,221,148,0.25)] scale-105'
+                : 'shadow-[0_4px_12px_rgba(0,0,0,0.06)] opacity-90'
+            )}
+            style={{
+              background: 'linear-gradient(90deg, #FFDD94 0%, #F3B344 100%)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+          >
+            {isAdvancedLocked ? (
+              <Icons.Lock className="w-4 h-4 text-amber-950" />
+            ) : (
+              <Icons.Trophy className="w-4 h-4 fill-current text-amber-950" />
+            )}
+            ADVANCED LEVEL
+          </button>
+        </div>
+      </div>
+
+      {/* SCROLLABLE ADVENTURE CANVAS CONTAINER */}
+      <div
+        ref={mapContainerRef}
+        className="w-full flex-1 overflow-y-auto overflow-x-hidden relative z-10"
+        style={{ background: backgroundGradient }}
+      >
+        {/* Animated Sky background */}
+        <SkyBackground />
+
+        {/* Board container shifted down to not collide with header at scroll top */}
+        <div
+          ref={boardRef}
+          className="relative w-full z-10 mt-[140px]"
+          style={{ height: `${totalHeight}px` }}
+        >
+          {/* Connected Curves dynamic path generator */}
+          <RoadmapPath nodes={pathNodes} width={boardWidth} />
+
+          {/* Ambient Floating Sky Particles */}
+          {particles.map((p) => (
+            <motion.div
+              key={p.id}
+              className="absolute w-2 h-2 rounded-full bg-cyan-200/40 shadow-[0_0_8px_rgba(56,189,248,0.5)] pointer-events-none"
+              style={{ left: p.left, top: p.top }}
+              animate={{
+                x: [0, 35, -35, 0],
+                y: [0, -90, -180, 0],
+                opacity: [0.1, 0.75, 0.4, 0.1],
+                scale: [0.8, 1.25, 0.9, 0.8]
+              }}
+              transition={{
+                duration: p.duration,
+                repeat: Infinity,
+                delay: p.delay,
+                ease: 'easeInOut'
+              }}
+            />
+          ))}
+
+          {/* Parallax Foreground Drifting Clouds */}
+          {fgClouds.map((cloud) => (
+            <motion.div
+              key={cloud.id}
+              className={cn('absolute pointer-events-none text-white/25 select-none', cloud.blur)}
+              style={{
+                top: cloud.top,
+                width: cloud.width,
+              }}
+              animate={{
+                x: cloud.direction === 1 ? ['-30%', '110%'] : ['110%', '-30%'],
+              }}
+              transition={{
+                duration: cloud.duration,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            >
+              <svg viewBox="0 0 200 100" fill="currentColor">
+                <path d="M 30,70 A 20,20 0 0,1 60,40 A 25,25 0 0,1 110,30 A 22,22 0 0,1 150,45 A 18,18 0 0,1 180,70 A 10,10 0 0,1 170,80 L 30,80 A 10,10 0 0,1 30,70 Z" />
+              </svg>
+            </motion.div>
+          ))}
+
+          {/* CANVAS REGION TITLE: LEVEL 1 BEGINNER */}
+          <div className="absolute left-[20px] top-[40px] z-20">
+            <LevelIslandHeader
+              number="1"
+              title="Beginner"
+              completed={beginnerCompleted}
+              total={beginnerList.length}
+              description="Build your foundation and learn the core of AWS Cloud."
+              levelColor="beginner"
+              locked={false}
+            />
+          </div>
+
+          {/* START HERE BADGE WITH FLAG */}
+          {coordinates['fundamentals'] && (
+            <div
+              className="absolute z-30 flex flex-col items-center"
+              style={{
+                left: `calc(${coordinates['fundamentals'].x}% - 60px)`,
+                top: `${coordinates['fundamentals'].y - 80}px`
+              }}
+            >
+              <div className="bg-[#0dce88] text-slate-950 font-black text-[9px] px-3 py-1 rounded-full border border-white tracking-widest shadow-[0_0_15px_rgba(13,206,136,0.3)] animate-pulse flex items-center gap-1 font-heading">
+                START HERE
+              </div>
+              {/* Tiny red flag flagpost */}
+              <div className="w-0.5 h-8 bg-rose-500 relative">
+                <div className="absolute top-0 right-0 w-2.5 h-2 bg-rose-500 rounded-sm" />
+              </div>
+            </div>
+          )}
+
+          {/* CANVAS REGION TITLE: LEVEL 2 INTERMEDIATE */}
+          <div
+            className="absolute left-[20px] z-20 transition-all duration-1000"
+            style={{ top: `${intermediateCardTop}px` }}
+          >
+            <LevelIslandHeader
+              number="2"
+              title="Intermediate"
+              completed={intermediateCompleted}
+              total={intermediateList.length}
+              description="Deepen your knowledge and build real-world cloud solutions."
+              levelColor="intermediate"
+              locked={isIntermediateLocked}
+            />
+          </div>
+
+          {/* CANVAS REGION TITLE: LEVEL 3 ADVANCED */}
+          <div
+            className="absolute left-[20px] z-20 transition-all duration-1000"
+            style={{ top: `${advancedCardTop}px` }}
+          >
+            <LevelIslandHeader
+              number="3"
+              title="Advanced"
+              completed={advancedCompleted}
+              total={advancedList.length}
+              description="Master advanced services and become a cloud architect."
+              levelColor="advanced"
+              locked={isAdvancedLocked}
+            />
+          </div>
+
+          {/* RENDER SUMMITS & CASTLE LANDMARKS */}
+
+          {/* Beginner Summit */}
+          {coordinates['summit_beginner'] && (
+            <BeginnerSummitLandmark
+              x={coordinates['summit_beginner'].x}
+              y={coordinates['summit_beginner'].y}
+              locked={isIntermediateLocked}
+            />
+          )}
+
+          {/* Intermediate Summit */}
+          {coordinates['summit_intermediate'] && (
+            <IntermediateSummitLandmark
+              x={coordinates['summit_intermediate'].x}
+              y={coordinates['summit_intermediate'].y}
+              locked={isAdvancedLocked}
+            />
+          )}
+
+          {/* Intermediate region cloud cover overlay */}
+          <IntermediateCloudsOverlay
+            locked={isIntermediateLocked}
+            top={intermediateStartY}
+            height={intermediateHeight}
+          />
+
+          {/* Advanced region cloud cover overlay */}
+          <AdvancedCloudsOverlay
+            locked={isAdvancedLocked}
+            top={advancedStartY}
+            height={advancedHeight}
+          />
+
+          {/* Advanced Castle Summit */}
+          {coordinates['summit_advanced'] && (
+            <CloudArchitectSummitLandmark
+              x={coordinates['summit_advanced'].x}
+              y={coordinates['summit_advanced'].y}
+              locked={totalCompleted < modules.length}
+            />
+          )}
+
+          {/* RENDER ISLAND NODES */}
+          {modules.map((module, idx) => {
+            const coord = coordinates[module.id];
+            if (!coord) return null;
+            const status = moduleStates[module.id] || 'locked';
+
+            const levelIndex = module.level === 'Beginner'
+              ? beginnerList.findIndex((m) => m.id === module.id)
+              : module.level === 'Intermediate'
+                ? intermediateList.findIndex((m) => m.id === module.id)
+                : advancedList.findIndex((m) => m.id === module.id);
+
+            return (
+              <CloudIslandNode
+                key={module.id}
+                id={module.id}
+                name={module.name}
+                points={module.points}
+                status={status}
+                iconName={module.iconName}
+                x={coord.x}
+                y={coord.y}
+                index={idx}
+                level={module.level}
+                levelIndex={levelIndex}
+                onClick={() => {
+                  setSelectedModuleId(module.id);
+                  setIsDrawerOpen(true);
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Dynamic slide drawer */}
+      <MissionDetailsDrawer
+        module={selectedModule}
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        status={selectedModuleId ? moduleStates[selectedModuleId] : 'locked'}
+        topicSlug={topicSlug}
+      />
+    </div>
+  );
+};

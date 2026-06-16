@@ -119,12 +119,12 @@ function PosterImageInput({
 
   return (
     <div>
-      <label className="block text-xs font-medium text-slate-700 mb-1.5">Poster Image</label>
+      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Poster Image</label>
 
       <div className="space-y-3">
         {!formData.posterImage ? (
           <div>
-            <label className="border-2 border-dashed border-slate-200 rounded-[10px] p-4 text-center hover:border-slate-350 transition cursor-pointer flex flex-col items-center justify-center min-h-[96px] bg-slate-50">
+            <label className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[10px] p-4 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[96px] bg-slate-50">
               <Upload className="h-6 w-6 text-slate-400 mb-1" />
               <span className="text-xs text-slate-500 font-medium">Select image file</span>
               <span className="text-[9px] text-slate-400">
@@ -146,7 +146,7 @@ function PosterImageInput({
               <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
                 Active Poster Image
               </p>
-              <p className="text-xs text-slate-600 truncate">
+              <p className="text-xs text-slate-650 truncate">
                 {formData.posterImage.startsWith('data:')
                   ? 'Local Uploaded Image'
                   : formData.posterImage}
@@ -220,10 +220,10 @@ function BasicInfoStep({
   }, []);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Title */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1">
+        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">
           Title <span className="text-rose-500">*</span>
         </label>
         <input
@@ -235,14 +235,14 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('title', title)}
           placeholder="Event title"
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
         />
-        {errors.title && <p className="text-[10px] text-rose-500 mt-1">{errors.title}</p>}
+        {errors.title && <p className="text-[10px] text-rose-500 mt-1.5">{errors.title}</p>}
       </div>
 
       {/* Short Description */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1">Short Description</label>
+        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Short Description</label>
         <input
           type="text"
           value={shortDesc}
@@ -252,13 +252,13 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('shortDescription', shortDesc)}
           placeholder="Brief description (shown in cards)"
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
         />
       </div>
 
       {/* Full Description */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1">Full Description</label>
+        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Full Description</label>
         <textarea
           rows={5}
           value={description}
@@ -268,19 +268,19 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('description', description)}
           placeholder="Detailed event description..."
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition resize-none"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400 resize-none"
         />
       </div>
 
       {/* Category & Venue row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">Category</label>
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Category</label>
           <div className="relative">
             <select
               value={formData.category || ''}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+              className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
             >
               <option value="">Select category</option>
               <option value="Workshop">Workshop</option>
@@ -289,12 +289,12 @@ function BasicInfoStep({
               <option value="DevOps">DevOps</option>
               <option value="Analytics">Analytics</option>
             </select>
-            <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90 pointer-events-none" />
+            <ChevronRight className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90 pointer-events-none" />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">Venue</label>
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Venue</label>
           <input
             type="text"
             value={venue}
@@ -304,22 +304,22 @@ function BasicInfoStep({
             }}
             onBlur={() => handleBlur('venue', venue)}
             placeholder="Event venue"
-            className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
           />
         </div>
       </div>
 
       {/* Mode */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-2">Mode</label>
+        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-2">Mode</label>
         <div className="flex gap-3">
           {(['ONLINE', 'OFFLINE', 'HYBRID'] as EventMode[]).map((m) => (
             <label
               key={m}
-              className={`flex items-center gap-2 border rounded-[8px] px-4 py-2 text-xs font-medium cursor-pointer transition ${
+              className={`flex items-center gap-2 border rounded-[8px] px-5 py-2.5 text-xs font-semibold cursor-pointer transition-all duration-200 ${
                 formData.mode === m
-                  ? 'border-[#232F3E] bg-[#232F3E]/5 text-[#232F3E]'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                  ? 'border-[#FF9900] bg-[#FF9900]/5 text-[#FF9900]'
+                  : 'border-slate-200 text-slate-600 hover:border-slate-300 bg-white'
               }`}
             >
               <input
@@ -338,7 +338,7 @@ function BasicInfoStep({
 
       {/* Capacity */}
       <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1">Capacity</label>
+        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Capacity</label>
         <input
           type="number"
           min={0}
@@ -350,28 +350,30 @@ function BasicInfoStep({
           }}
           onBlur={() => handleBlur('capacity', capacity === '' ? undefined : Number(capacity))}
           placeholder="Max attendees"
-          className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+          className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
         />
       </div>
 
       {/* Date, Time, Registration Deadline */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => {
-              setDate(e.target.value);
-              triggerChange('date', e.target.value);
-            }}
-            onBlur={() => handleBlur('date', date)}
-            className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
-          />
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Date</label>
+          <div className="relative">
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => {
+                setDate(e.target.value);
+                triggerChange('date', e.target.value);
+              }}
+              onBlur={() => handleBlur('date', date)}
+              className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">Time</label>
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Time</label>
           <input
             type="time"
             value={time}
@@ -380,12 +382,12 @@ function BasicInfoStep({
               triggerChange('time', e.target.value);
             }}
             onBlur={() => handleBlur('time', time)}
-            className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1">
+          <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">
             Registration Deadline
           </label>
           <input
@@ -396,7 +398,7 @@ function BasicInfoStep({
               triggerChange('registrationDeadline', e.target.value);
             }}
             onBlur={() => handleBlur('registrationDeadline', deadline)}
-            className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+            className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
           />
         </div>
       </div>
@@ -431,6 +433,7 @@ function AgendaStep({
     setAgenda(agenda.filter((item) => item._key !== key));
   }
 
+  // Update a single agenda item field in local state
   function updateItem(key: string, field: keyof CreateAgendaDto, value: string) {
     setAgenda(agenda.map((item) => (item._key === key ? { ...item, [field]: value } : item)));
   }
@@ -446,14 +449,14 @@ function AgendaStep({
   return (
     <div className="space-y-4">
       {agenda.length === 0 && (
-        <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px]">
+        <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50/50">
           <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-slate-500 mb-3 font-medium">
             No agenda items yet. Add your first session.
           </p>
           <button
             onClick={addItem}
-            className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-[8px] text-xs font-medium px-4 py-2 hover:opacity-90 transition"
+            className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm transition-all duration-200"
           >
             <Plus className="h-3.5 w-3.5" />
             Add Item
@@ -464,25 +467,25 @@ function AgendaStep({
       {agenda.map((item, index) => (
         <div
           key={item._key}
-          className="border border-slate-200 rounded-[10px] p-4 space-y-3 bg-white"
+          className="border border-slate-200 rounded-[10px] p-4 space-y-3 bg-white hover:border-slate-300 transition-all duration-200 shadow-sm"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase text-slate-400 bg-slate-100 px-2 py-0.5 rounded-[6px]">
-                #{index + 1}
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-[6px]">
+                Session #{index + 1}
               </span>
               <div className="flex gap-0.5">
                 <button
                   onClick={() => moveItem(index, 'up')}
                   disabled={index === 0}
-                  className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
+                  className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
                 >
                   <ArrowUp className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => moveItem(index, 'down')}
                   disabled={index === agenda.length - 1}
-                  className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
+                  className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
                 >
                   <ArrowDown className="h-3.5 w-3.5" />
                 </button>
@@ -490,51 +493,51 @@ function AgendaStep({
             </div>
             <button
               onClick={() => removeItem(item._key)}
-              className="p-1.5 rounded-[8px] text-rose-500 hover:bg-rose-50 transition"
+              className="p-1.5 rounded-[8px] text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">Title</label>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Title</label>
               <input
                 type="text"
                 value={item.title}
                 onChange={(e) => updateItem(item._key, 'title', e.target.value)}
                 placeholder="Session title"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">Speaker</label>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Speaker</label>
               <input
                 type="text"
                 value={item.speaker || ''}
                 onChange={(e) => updateItem(item._key, 'speaker', e.target.value)}
                 placeholder="Speaker name"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">
                 Start Time
               </label>
               <input
                 type="time"
                 value={item.startTime}
                 onChange={(e) => updateItem(item._key, 'startTime', e.target.value)}
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">End Time</label>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">End Time</label>
               <input
                 type="time"
                 value={item.endTime}
                 onChange={(e) => updateItem(item._key, 'endTime', e.target.value)}
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
               />
             </div>
           </div>
@@ -544,7 +547,7 @@ function AgendaStep({
       {agenda.length > 0 && (
         <button
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 border border-dashed border-slate-300 rounded-[8px] text-xs font-medium px-4 py-2 text-slate-600 hover:border-slate-400 hover:text-slate-800 transition w-full justify-center"
+          className="inline-flex items-center justify-center gap-1.5 border border-dashed border-slate-300 hover:border-[#FF9900] rounded-[8px] text-xs font-semibold px-4 py-3 text-slate-600 hover:text-[#FF9900] hover:bg-[#FF9900]/5 transition-all duration-200 w-full"
         >
           <Plus className="h-3.5 w-3.5" />
           Add Another Item
@@ -579,6 +582,7 @@ function SpeakersStep({
     setSpeakers(speakers.filter((item) => item._key !== key));
   }
 
+  // Update a single speaker field in local state
   function updateItem(key: string, field: keyof CreateSpeakerDto, value: string) {
     setSpeakers(speakers.map((item) => (item._key === key ? { ...item, [field]: value } : item)));
   }
@@ -594,14 +598,14 @@ function SpeakersStep({
   return (
     <div className="space-y-4">
       {speakers.length === 0 && (
-        <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px]">
+        <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50/50">
           <Users className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-slate-500 mb-3 font-medium">
             No speakers added yet. Add your first speaker.
           </p>
           <button
             onClick={addItem}
-            className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-[8px] text-xs font-medium px-4 py-2 hover:opacity-90 transition"
+            className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm transition-all duration-200"
           >
             <Plus className="h-3.5 w-3.5" />
             Add Speaker
@@ -612,25 +616,25 @@ function SpeakersStep({
       {speakers.map((item, index) => (
         <div
           key={item._key}
-          className="border border-slate-200 rounded-[10px] p-4 space-y-3 bg-white"
+          className="border border-slate-200 rounded-[10px] p-4 space-y-3 bg-white hover:border-slate-300 transition-all duration-200 shadow-sm"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase text-slate-400 bg-slate-100 px-2 py-0.5 rounded-[6px]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-[6px]">
                 Speaker #{index + 1}
               </span>
               <div className="flex gap-0.5">
                 <button
                   onClick={() => moveItem(index, 'up')}
                   disabled={index === 0}
-                  className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
+                  className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
                 >
                   <ArrowUp className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => moveItem(index, 'down')}
                   disabled={index === speakers.length - 1}
-                  className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
+                  className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
                 >
                   <ArrowDown className="h-3.5 w-3.5" />
                 </button>
@@ -638,35 +642,35 @@ function SpeakersStep({
             </div>
             <button
               onClick={() => removeItem(item._key)}
-              className="p-1.5 rounded-[8px] text-rose-500 hover:bg-rose-50 transition"
+              className="p-1.5 rounded-[8px] text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
             <div>
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">Name</label>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Name</label>
               <input
                 type="text"
                 value={item.name}
                 onChange={(e) => updateItem(item._key, 'name', e.target.value)}
                 placeholder="Speaker name"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">Role</label>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Role</label>
               <input
                 type="text"
                 value={item.role || ''}
                 onChange={(e) => updateItem(item._key, 'role', e.target.value)}
                 placeholder="e.g. Keynote Speaker"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">
                 Organization
               </label>
               <input
@@ -674,24 +678,25 @@ function SpeakersStep({
                 value={item.organization || ''}
                 onChange={(e) => updateItem(item._key, 'organization', e.target.value)}
                 placeholder="Company or institution"
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">Bio</label>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Bio</label>
               <textarea
                 rows={3}
                 value={item.bio || ''}
                 onChange={(e) => updateItem(item._key, 'bio', e.target.value)}
                 placeholder="Speaker biography..."
-                className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition resize-none"
+                className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400 resize-none"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-[10px] font-medium text-slate-500 mb-1">Photo</label>
-              <div className="border-2 border-dashed border-slate-200 rounded-[10px] p-4 text-center hover:border-slate-300 transition cursor-pointer">
-                <Upload className="h-6 w-6 text-slate-300 mx-auto mb-1" />
-                <p className="text-[10px] text-slate-500">Click to upload photo</p>
+              <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Photo</label>
+              <div className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[10px] p-4 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[96px] bg-slate-50">
+                <Upload className="h-6 w-6 text-slate-400 mb-1.5" />
+                <p className="text-xs text-slate-500 font-medium">Click to upload photo</p>
+                <p className="text-[9px] text-slate-400 mt-0.5">PNG, JPG up to 2MB</p>
               </div>
             </div>
           </div>
@@ -701,7 +706,7 @@ function SpeakersStep({
       {speakers.length > 0 && (
         <button
           onClick={addItem}
-          className="inline-flex items-center gap-1.5 border border-dashed border-slate-300 rounded-[8px] text-xs font-medium px-4 py-2 text-slate-600 hover:border-slate-400 hover:text-slate-800 transition w-full justify-center"
+          className="inline-flex items-center justify-center gap-1.5 border border-dashed border-slate-300 hover:border-[#FF9900] rounded-[8px] text-xs font-semibold px-4 py-3 text-slate-600 hover:text-[#FF9900] hover:bg-[#FF9900]/5 transition-all duration-200 w-full"
         >
           <Plus className="h-3.5 w-3.5" />
           Add Another Speaker
@@ -740,6 +745,7 @@ function FormBuilderStep({
     setFields(fields.filter((f) => f._key !== key));
   }
 
+  // Update a single custom field in local state
   function updateField(key: string, updates: Partial<FormFieldItem>) {
     setFields(fields.map((f) => (f._key === key ? { ...f, ...updates } : f)));
   }
@@ -769,6 +775,7 @@ function FormBuilderStep({
     updateField(fieldKey, { optionsList: opts });
   }
 
+  // Remove options logic
   function removeOption(fieldKey: string, optIndex: number) {
     const field = fields.find((f) => f._key === fieldKey);
     if (!field) return;
@@ -784,14 +791,14 @@ function FormBuilderStep({
     <div className="space-y-6">
       {/* Registration Form Type Selection */}
       <div>
-        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">
+        <label className="block text-xs font-semibold text-slate-555 uppercase tracking-wider mb-3 pl-0.5">
           Registration Form Type
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label
-            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition relative hover:border-slate-350 ${
+            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition-all duration-200 relative hover:border-[#FF9900]/50 ${
               registrationFormType === 'DEFAULT'
-                ? 'border-[#232F3E] bg-[#232F3E]/5 ring-1 ring-[#232F3E]'
+                ? 'border-[#FF9900] bg-[#FF9900]/5 ring-1 ring-[#FF9900]'
                 : 'border-slate-200 bg-white'
             }`}
           >
@@ -803,18 +810,18 @@ function FormBuilderStep({
                 value="DEFAULT"
                 checked={registrationFormType === 'DEFAULT'}
                 onChange={() => setRegistrationFormType('DEFAULT')}
-                className="h-4 w-4 text-[#232F3E] border-slate-300 focus:ring-[#232F3E]"
+                className="h-4 w-4 text-[#FF9900] border-slate-300 focus:ring-[#FF9900] focus:ring-offset-0 focus:outline-none cursor-pointer"
               />
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 leading-relaxed">
               Standard registration with mandatory fields: Name, Roll Number, Email, and Department.
             </p>
           </label>
 
           <label
-            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition relative hover:border-slate-350 ${
+            className={`flex flex-col p-4 border rounded-[12px] cursor-pointer transition-all duration-200 relative hover:border-[#FF9900]/50 ${
               registrationFormType === 'CUSTOM'
-                ? 'border-[#232F3E] bg-[#232F3E]/5 ring-1 ring-[#232F3E]'
+                ? 'border-[#FF9900] bg-[#FF9900]/5 ring-1 ring-[#FF9900]'
                 : 'border-slate-200 bg-white'
             }`}
           >
@@ -826,10 +833,10 @@ function FormBuilderStep({
                 value="CUSTOM"
                 checked={registrationFormType === 'CUSTOM'}
                 onChange={() => setRegistrationFormType('CUSTOM')}
-                className="h-4 w-4 text-[#232F3E] border-slate-300 focus:ring-[#232F3E]"
+                className="h-4 w-4 text-[#FF9900] border-slate-300 focus:ring-[#FF9900] focus:ring-offset-0 focus:outline-none cursor-pointer"
               />
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 leading-relaxed">
               Include the 4 mandatory fields plus add, edit, and reorder additional custom fields.
             </p>
           </label>
@@ -839,91 +846,91 @@ function FormBuilderStep({
       <div className="border-t border-slate-100 pt-6">
         {registrationFormType === 'DEFAULT' ? (
           <div>
-            <h3 className="text-sm font-semibold text-slate-800 mb-3">Form Fields Preview</h3>
-            <div className="space-y-3 bg-slate-50 border border-slate-200 rounded-[12px] p-5">
+            <h3 className="text-xs font-semibold text-slate-555 uppercase tracking-wider mb-3 pl-0.5">Form Fields Preview</h3>
+            <div className="space-y-3 bg-slate-50/50 border border-slate-200 rounded-[12px] p-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="opacity-75">
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Name *</label>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Name *</label>
                   <input
                     type="text"
                     disabled
                     placeholder="John Doe"
-                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white cursor-not-allowed text-slate-400"
+                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-100/50 cursor-not-allowed text-slate-400"
                   />
                 </div>
                 <div className="opacity-75">
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">
                     Roll Number *
                   </label>
                   <input
                     type="text"
                     disabled
                     placeholder="22XX1234"
-                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white cursor-not-allowed text-slate-400"
+                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-100/50 cursor-not-allowed text-slate-400"
                   />
                 </div>
                 <div className="opacity-75">
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Email *</label>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">Email *</label>
                   <input
                     type="email"
                     disabled
                     placeholder="john@example.com"
-                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white cursor-not-allowed text-slate-400"
+                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-100/50 cursor-not-allowed text-slate-400"
                   />
                 </div>
                 <div className="opacity-75">
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">
                     Department *
                   </label>
                   <input
                     type="text"
                     disabled
                     placeholder="Computer Science"
-                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white cursor-not-allowed text-slate-400"
+                    className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-100/50 cursor-not-allowed text-slate-400"
                   />
                 </div>
               </div>
-              <p className="text-[10px] text-slate-400 mt-2">
+              <p className="text-[10px] text-slate-400 mt-2 pl-0.5">
                 * These fields are system-mandatory and cannot be deleted, renamed, or reordered.
               </p>
             </div>
           </div>
         ) : (
           <div>
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold text-slate-800 mb-2">Mandatory Base Fields</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 border border-slate-200 rounded-[8px] p-3 text-[11px] font-medium text-slate-600">
-                <div className="bg-white border border-slate-150 rounded-[6px] py-1.5 px-2.5 text-center">
+            <div className="mb-6">
+              <h3 className="text-xs font-semibold text-slate-555 uppercase tracking-wider mb-2.5 pl-0.5">Mandatory Base Fields</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 border border-slate-200 rounded-[8px] p-3 text-[11px] font-semibold text-slate-600">
+                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
                   Name (Required)
                 </div>
-                <div className="bg-white border border-slate-150 rounded-[6px] py-1.5 px-2.5 text-center">
+                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
                   Roll Number (Required)
                 </div>
-                <div className="bg-white border border-slate-150 rounded-[6px] py-1.5 px-2.5 text-center">
+                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
                   Email (Required)
                 </div>
-                <div className="bg-white border border-slate-150 rounded-[6px] py-1.5 px-2.5 text-center">
+                <div className="bg-white border border-slate-150 rounded-[6px] py-2 px-2.5 text-center shadow-sm">
                   Department (Required)
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-slate-800">Additional Custom Fields</h3>
+            <div className="flex items-center justify-between mb-3.5">
+              <h3 className="text-xs font-semibold text-slate-555 uppercase tracking-wider pl-0.5">Additional Custom Fields</h3>
             </div>
 
             <div className="space-y-4">
               {fields.length === 0 && (
-                <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50">
+                <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50/50">
                   <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
-                  <p className="text-xs text-slate-500 mb-3">
+                  <p className="text-xs text-slate-500 mb-3 font-medium">
                     No custom fields added yet. Add additional fields for your custom form if
                     needed.
                   </p>
                   <button
                     type="button"
                     onClick={addField}
-                    className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-[8px] text-xs font-medium px-4 py-2 hover:opacity-90 transition"
+                    className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-4 py-2.5 shadow-sm transition-all duration-200"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Custom Field
@@ -934,12 +941,12 @@ function FormBuilderStep({
               {fields.map((field, index) => (
                 <div
                   key={field._key}
-                  className="border border-slate-200 rounded-[10px] p-4 space-y-3 bg-white shadow-sm"
+                  className="border border-slate-200 rounded-[10px] p-4 space-y-3.5 bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <GripVertical className="h-4 w-4 text-slate-300 cursor-grab" />
-                      <span className="text-[10px] font-semibold uppercase text-slate-400 bg-slate-100 px-2 py-0.5 rounded-[6px]">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-[6px]">
                         Custom Field #{index + 1}
                       </span>
                       <div className="flex gap-0.5">
@@ -947,7 +954,7 @@ function FormBuilderStep({
                           type="button"
                           onClick={() => moveField(index, 'up')}
                           disabled={index === 0}
-                          className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
+                          className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
                         </button>
@@ -955,7 +962,7 @@ function FormBuilderStep({
                           type="button"
                           onClick={() => moveField(index, 'down')}
                           disabled={index === fields.length - 1}
-                          className="p-1 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
+                          className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition text-slate-500"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
                         </button>
@@ -964,15 +971,15 @@ function FormBuilderStep({
                     <button
                       type="button"
                       onClick={() => removeField(field._key)}
-                      className="p-1.5 rounded-[8px] text-rose-500 hover:bg-rose-50 transition"
+                      className="p-1.5 rounded-[8px] text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
                     <div className="sm:col-span-2">
-                      <label className="block text-[10px] font-medium text-slate-500 mb-1">
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">
                         Label
                       </label>
                       <input
@@ -980,11 +987,11 @@ function FormBuilderStep({
                         value={field.label}
                         onChange={(e) => updateField(field._key, { label: e.target.value })}
                         placeholder="Field label"
-                        className="w-full border border-slate-200 rounded-[8px] text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                        className="w-full border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-medium text-slate-500 mb-1">
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1.5">
                         Type
                       </label>
                       <div className="relative">
@@ -998,7 +1005,7 @@ function FormBuilderStep({
                                 : [],
                             })
                           }
-                          className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                          className="w-full appearance-none border border-slate-200 rounded-[8px] text-sm px-3.5 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
                         >
                           {FIELD_TYPES.map((ft) => (
                             <option key={ft.value} value={ft.value}>
@@ -1006,26 +1013,26 @@ function FormBuilderStep({
                             </option>
                           ))}
                         </select>
-                        <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90 pointer-events-none" />
+                        <ChevronRight className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90 pointer-events-none" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 pl-0.5">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={field.isRequired || false}
                         onChange={(e) => updateField(field._key, { isRequired: e.target.checked })}
-                        className="h-3.5 w-3.5 rounded border-slate-300 text-[#232F3E] focus:ring-[#232F3E]"
+                        className="h-3.5 w-3.5 rounded border-slate-300 text-[#FF9900] focus:ring-[#FF9900] cursor-pointer focus:ring-offset-0 focus:outline-none"
                       />
-                      <span className="text-[10px] font-medium text-slate-500">Required</span>
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Required</span>
                     </label>
                   </div>
 
                   {hasOptions(field.type) && (
-                    <div className="border-t border-slate-100 pt-3 space-y-2">
-                      <label className="block text-[10px] font-medium text-slate-500">
+                    <div className="border-t border-slate-100 pt-3.5 space-y-2.5">
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider pl-0.5 mb-1">
                         Options
                       </label>
                       {(field.optionsList || []).map((opt, optIdx) => (
@@ -1035,7 +1042,7 @@ function FormBuilderStep({
                             value={opt}
                             onChange={(e) => updateOption(field._key, optIdx, e.target.value)}
                             placeholder={`Option ${optIdx + 1}`}
-                            className="flex-1 border border-slate-200 rounded-[8px] text-sm px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+                            className="flex-1 border border-slate-200 rounded-[8px] text-sm px-3.5 py-1.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
                           />
                           <button
                             type="button"
@@ -1049,7 +1056,7 @@ function FormBuilderStep({
                       <button
                         type="button"
                         onClick={() => addOption(field._key)}
-                        className="inline-flex items-center gap-1 text-[10px] font-medium text-[#232F3E] hover:underline"
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#FF9900] hover:text-[#FF9900]/80 transition-all duration-200 pl-0.5"
                       >
                         <Plus className="h-3 w-3" />
                         Add Option
@@ -1063,7 +1070,7 @@ function FormBuilderStep({
                 <button
                   type="button"
                   onClick={addField}
-                  className="inline-flex items-center gap-1.5 border border-dashed border-slate-300 rounded-[8px] text-xs font-medium px-4 py-2 text-slate-600 hover:border-slate-400 hover:text-slate-800 transition w-full justify-center text-center bg-slate-50"
+                  className="inline-flex items-center justify-center gap-1.5 border border-dashed border-slate-300 hover:border-[#FF9900] rounded-[8px] text-xs font-semibold px-4 py-3 text-slate-600 hover:text-[#FF9900] hover:bg-[#FF9900]/5 transition-all duration-200 w-full"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Add Another Field
@@ -1079,35 +1086,35 @@ function FormBuilderStep({
 
 function StepIndicator({ steps, currentStep }: { steps: string[]; currentStep: number }) {
   return (
-    <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-2">
+    <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-3 no-scrollbar">
       {steps.map((step, index) => (
         <div key={step} className="flex items-center gap-1 sm:gap-2">
           <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition border ${
               index === currentStep
-                ? 'bg-[#232F3E] text-white'
+                ? 'bg-[#FF9900] border-[#FF9900] text-white shadow-md shadow-[#FF9900]/20'
                 : index < currentStep
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-slate-100 text-slate-500'
+                  ? 'bg-emerald-50/70 border-emerald-150 text-emerald-700'
+                  : 'bg-slate-50/70 border-slate-200/50 text-slate-450'
             }`}
           >
             <span
-              className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+              className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold transition ${
                 index < currentStep
                   ? 'bg-emerald-500 text-white'
                   : index === currentStep
-                    ? 'bg-white/20 text-white'
+                    ? 'bg-white text-[#FF9900]'
                     : 'bg-slate-200 text-slate-500'
               }`}
             >
               {index < currentStep ? '✓' : index + 1}
             </span>
-            <span className="hidden sm:inline">{step}</span>
+            <span>{step}</span>
           </div>
           {index < steps.length - 1 && (
             <div
               className={`h-px w-4 sm:w-8 ${
-                index < currentStep ? 'bg-emerald-300' : 'bg-slate-200'
+                index < currentStep ? 'bg-emerald-400' : 'bg-slate-200'
               }`}
             />
           )}
@@ -1126,6 +1133,7 @@ export default function EditEventPage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const [formData, setFormData] = useState<CreateEventDto>({
     organizerId: '',
@@ -1201,6 +1209,8 @@ export default function EditEventPage() {
           item.options && 'choices' in item.options ? (item.options.choices as string[]) : [],
       })),
     );
+
+    setIsInitialized(true);
   }, [event]);
 
   const validateStep = useCallback(
@@ -1264,7 +1274,7 @@ export default function EditEventPage() {
 
   const isLastStep = currentStep === STEPS.length - 1;
 
-  if (isLoading) {
+  if (isLoading || !isInitialized) {
     return <LoadingSkeleton />;
   }
 
@@ -1308,12 +1318,12 @@ export default function EditEventPage() {
         )}
 
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-t border-slate-100 pt-6 mt-2">
           <button
             type="button"
             onClick={handleBack}
             disabled={currentStep === 0}
-            className="inline-flex items-center gap-1.5 border border-slate-200 rounded-[8px] text-xs font-medium px-4 py-2 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            className="inline-flex items-center gap-1.5 border border-slate-200 rounded-[8px] text-xs font-semibold px-5 py-2.5 text-slate-600 hover:bg-slate-50/80 hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             Back
@@ -1324,7 +1334,7 @@ export default function EditEventPage() {
               type="button"
               onClick={handleSubmit}
               disabled={updateEvent.isPending}
-              className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-[8px] text-xs font-medium px-5 py-2 hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-6 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {updateEvent.isPending ? (
                 <>
@@ -1339,7 +1349,7 @@ export default function EditEventPage() {
             <button
               type="button"
               onClick={handleNext}
-              className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-[8px] text-xs font-medium px-5 py-2 hover:opacity-90 transition"
+              className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-6 py-2.5 shadow-sm hover:shadow-md transition-all duration-200"
             >
               Next
               <ChevronRight className="h-3.5 w-3.5" />

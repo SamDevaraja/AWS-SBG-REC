@@ -88,6 +88,24 @@ export async function POST(request: Request) {
       }).catch(err => console.error("Resend Login Error:", err));
     }
 
+    // Fetch backend login to obtain NestJS JWT accessToken for roadmap services
+    let accessToken = null;
+    try {
+      const backendRes = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail, password }),
+      });
+      if (backendRes.ok) {
+        const backendData = await backendRes.json();
+        accessToken = backendData.data?.accessToken || backendData.accessToken;
+      } else {
+        console.warn("[API Login] Backend login failed with status:", backendRes.status);
+      }
+    } catch (err) {
+      console.error("[API Login] Failed to fetch backend accessToken:", err);
+    }
+
     return NextResponse.json({ 
       success: true, 
       message: "Login successful. Notification sent.",
@@ -96,6 +114,7 @@ export async function POST(request: Request) {
         email: firstRow.email,
         fullName: fullName,
         role: mappedRole,
+        accessToken,
       }
     });
   } catch (error) {

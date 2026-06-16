@@ -82,6 +82,24 @@ export const SignupCard = () => {
         }));
         // Bust the module-level session cache so AuthWrapper picks up the new role immediately
         clearSessionCache();
+
+        // Perform a background login to secure a NestJS JWT accessToken for the session
+        try {
+          const loginRes = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: formData.email, password: formData.password }),
+          });
+          if (loginRes.ok) {
+            const loginData = await loginRes.json();
+            if (loginData.success && loginData.user.accessToken) {
+              localStorage.setItem("accessToken", loginData.user.accessToken);
+            }
+          }
+        } catch (err) {
+          console.error("Background login after registration failed:", err);
+        }
+
         setStatus({ type: "success", message: "Account created successfully! Redirecting..." });
         setTimeout(() => {
           router.push("/events");

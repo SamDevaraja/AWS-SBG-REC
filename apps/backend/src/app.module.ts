@@ -24,6 +24,13 @@ import { FeedModule } from '@/modules/feed/feed.module';
 import { JobsModule } from '@/modules/jobs/jobs.module';
 import { ChatModule } from '@/modules/chat/chat.module';
 import { AwsServicesModule } from '@/modules/aws-services/aws-services.module';
+import { RoadmapProgressModule } from '@/modules/progress/progress.module';
+import { RoadmapTopicsModule } from '@/modules/topics/topics.module';
+import { RoadmapModulesModule } from '@/modules/curriculum/curriculum.module';
+import { RoadmapSlidesModule } from '@/modules/slides/slides.module';
+import { RoadmapQuestionsModule } from '@/modules/questions/questions.module';
+import { RoadmapLearningModule } from '@/modules/learning/learning.module';
+import { RoadmapUploadsModule } from '@/modules/uploads/uploads.module';
 
 @Module({
   imports: [
@@ -47,6 +54,13 @@ import { AwsServicesModule } from '@/modules/aws-services/aws-services.module';
     JobsModule,
     ChatModule,
     AwsServicesModule,
+    RoadmapProgressModule,
+    RoadmapTopicsModule,
+    RoadmapModulesModule,
+    RoadmapSlidesModule,
+    RoadmapQuestionsModule,
+    RoadmapLearningModule,
+    RoadmapUploadsModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

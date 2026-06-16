@@ -8,7 +8,8 @@ const LINKS = [
   { label: "Gallery", href: "#gallery" },
   { label: "Review", href: "#reviews" },
   { label: "Team", href: "#team" },
-  { label: "Certifications", href: "/certifications" }
+  { label: "Certifications", href: "/certifications" },
+  { label: "Learn", href: "/learn" }
 ];
 
 export default function Navbar() {

@@ -1,0 +1,188 @@
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
+import { PrismaService } from '@/database/prisma.service';
+import { ModuleLevel } from '@prisma/client';
+import { CreateTopicDto } from './dto/create-topic.dto';
+import { UpdateTopicDto } from './dto/update-topic.dto';
+import { ReorderTopicsDto } from './dto/reorder-topics.dto';
+import { RoadmapProgressService } from '@/modules/progress/progress.service';
+
+@Injectable()
+export class RoadmapTopicsService {
+  constructor(
+    private prisma: PrismaService,
+    private progressService: RoadmapProgressService,
+  ) {}
+
+  async findAll() {
+    return this.prisma.roadmapTopic.findMany({
+      orderBy: { orderIndex: 'asc' },
+      include: { modules: { orderBy: { orderIndex: 'asc' } } },
+    });
+  }
+
+  async findOne(id: string) {
+    const topic = await this.prisma.roadmapTopic.findUnique({
+      where: { id },
+      include: { modules: { orderBy: { orderIndex: 'asc' } } },
+    });
+    if (!topic) throw new NotFoundException(`Topic with ID "${id}" not found`);
+    return topic;
+  }
+
+  async create(dto: CreateTopicDto) {
+    const slug = await this.generateUniqueSlug(dto.name);
+    const maxTopic = await this.prisma.roadmapTopic.findFirst({ orderBy: { orderIndex: 'desc' } });
+    const topicOrderIndex = maxTopic ? maxTopic.orderIndex + 1 : 0;
+
+    try {
+      const topic = await this.prisma.roadmapTopic.create({
+        data: {
+          name: dto.name,
+          slug,
+          description: dto.description ?? '',
+          orderIndex: topicOrderIndex,
+          theme: dto.theme ?? 'TECH',
+        },
+      });
+      this.progressService.invalidateCache();
+      return { ...topic, modules: [] };
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        const target = error.meta?.target;
+        if (Array.isArray(target) && target.includes('slug'))
+          throw new ConflictException(`Topic with slug "${slug}" already exists`);
+        if (Array.isArray(target) && target.includes('name'))
+          throw new ConflictException(`Topic with name "${dto.name}" already exists`);
+        throw new ConflictException('Topic already exists');
+      }
+      throw error;
+    }
+  }
+
+  async update(id: string, dto: UpdateTopicDto) {
+    const existing = await this.prisma.roadmapTopic.findUnique({
+      where: { id },
+      include: { modules: true },
+    });
+    if (!existing) throw new NotFoundException(`Topic with ID "${id}" not found`);
+
+    const nameChanged = dto.name && dto.name !== existing.name;
+
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const topic = await tx.roadmapTopic.update({
+          where: { id },
+          data: { name: dto.name, description: dto.description, theme: dto.theme },
+        });
+
+        if (nameChanged) {
+          const newSlug = await this.generateUniqueSlug(dto.name!);
+          await tx.roadmapTopic.update({ where: { id }, data: { slug: newSlug } });
+        }
+
+        const res = await tx.roadmapTopic.findUnique({
+          where: { id },
+          include: { modules: { orderBy: { orderIndex: 'asc' } } },
+        });
+        this.progressService.invalidateCache();
+        return res;
+      });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Topic already exists');
+      }
+      throw error;
+    }
+  }
+
+  async remove(id: string) {
+    const existing = await this.prisma.roadmapTopic.findUnique({
+      where: { id },
+      include: { modules: true },
+    });
+    if (!existing) throw new NotFoundException(`Topic with ID "${id}" not found`);
+
+    return this.prisma.$transaction(async (tx) => {
+      const moduleIds = existing.modules.map((m) => m.id);
+      if (moduleIds.length > 0) {
+        await tx.learningSlide.deleteMany({ where: { moduleId: { in: moduleIds } } });
+        await tx.quizQuestion.deleteMany({ where: { moduleId: { in: moduleIds } } });
+        await tx.roadmapModule.deleteMany({ where: { id: { in: moduleIds } } });
+      }
+      await tx.roadmapTopic.delete({ where: { id } });
+      this.progressService.invalidateCache();
+      return { success: true };
+    });
+  }
+
+  async reorder(dto: ReorderTopicsDto) {
+    const existingTopics = await this.prisma.roadmapTopic.findMany({
+      where: { id: { in: dto.ids } },
+      select: { id: true, orderIndex: true },
+    });
+    if (existingTopics.length !== dto.ids.length)
+      throw new NotFoundException('One or more topic IDs not found');
+
+    const topicMap = new Map<string, number>();
+    for (const t of existingTopics) topicMap.set(t.id, t.orderIndex);
+
+    const isNoOp = dto.ids.every((id, index) => topicMap.get(id) === index);
+    if (isNoOp) return { success: true };
+
+    const SENTINEL_BASE = -1000;
+    const topicUpdates: { id: string; sentinel: number; final: number }[] = [];
+    const moduleUpdates: { id: string; sentinel: number; final: number }[] = [];
+
+    for (let index = 0; index < dto.ids.length; index++) {
+      const id = dto.ids[index];
+      topicUpdates.push({ id, sentinel: SENTINEL_BASE - index, final: index });
+
+      const modules = await this.prisma.roadmapModule.findMany({
+        where: { topicId: id },
+        select: { id: true, level: true },
+      });
+
+      for (const mod of modules) {
+        const levelOffset =
+          mod.level === ModuleLevel.BEGINNER ? 0 : mod.level === ModuleLevel.INTERMEDIATE ? 1 : 2;
+        moduleUpdates.push({
+          id: mod.id,
+          sentinel: SENTINEL_BASE - index * 3 - levelOffset,
+          final: index * 3 + levelOffset,
+        });
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      for (const t of topicUpdates)
+        await tx.roadmapTopic.update({ where: { id: t.id }, data: { orderIndex: t.sentinel } });
+      for (const m of moduleUpdates)
+        await tx.roadmapModule.update({ where: { id: m.id }, data: { orderIndex: m.sentinel } });
+      for (const t of topicUpdates)
+        await tx.roadmapTopic.update({ where: { id: t.id }, data: { orderIndex: t.final } });
+      for (const m of moduleUpdates)
+        await tx.roadmapModule.update({ where: { id: m.id }, data: { orderIndex: m.final } });
+
+      this.progressService.invalidateCache();
+      return { success: true };
+    });
+  }
+
+  private async generateUniqueSlug(name: string): Promise<string> {
+    const baseSlug = name.toLowerCase().trim()
+      .replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+    const targetSlug = baseSlug || 'topic';
+    let slug = targetSlug;
+    let counter = 1;
+    while (true) {
+      const existing = await this.prisma.roadmapTopic.findUnique({ where: { slug } });
+      if (!existing) return slug;
+      slug = `${targetSlug}-${counter}`;
+      counter++;
+    }
+  }
+}

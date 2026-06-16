@@ -43,11 +43,14 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   role          String         @default("enthusiasts")
+  xp            Int            @default(0)
   auditLogs     AuditLog[]
   notifications Notification[]
   roles         UserRole[]
   events        Event[]
   registrations Registration[]
+  moduleProgress UserModuleProgress[]
+  quizAttempts  QuizAttempt[]
 }
 
 model Event {
@@ -660,3 +663,145 @@ model RegionWorkload {
   @@unique([regionId, description])
 }
 
+// =============================================
+// ROADMAP LEARNING MODELS
+// =============================================
+
+enum ProgressStatus {
+  LOCKED
+  UNLOCKED
+  COMPLETED
+}
+
+enum ModuleLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum TopicTheme {
+  TECH
+  FORGE
+  CITADEL
+  HARBOR
+  CRYSTAL
+}
+
+model RoadmapTopic {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String     @unique
+  description String     @default("")
+  orderIndex  Int        @unique
+  theme       TopicTheme @default(TECH)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  modules RoadmapModule[]
+
+  @@map("roadmap_topics")
+}
+
+model RoadmapModule {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  name        String
+  description String
+  tier        String
+  xpPoints    Int
+  orderIndex  Int
+  topicId     String?
+  level       ModuleLevel?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  topic     RoadmapTopic?       @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  slides    LearningSlide[]
+  questions QuizQuestion[]
+  progress  UserModuleProgress[]
+  attempts  QuizAttempt[]
+
+  @@index([topicId, level])
+  @@map("roadmap_modules")
+}
+
+model LearningSlide {
+  id         String        @id @default(cuid())
+  moduleId   String
+  module     RoadmapModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title      String
+  layoutType String
+  imageUrl   String?
+  bullets    String[]
+  orderIndex Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("learning_slides")
+}
+
+model QuizQuestion {
+  id            String        @id @default(cuid())
+  moduleId      String
+  module        RoadmapModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  question      String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctAnswer String
+  explanation   String
+  orderIndex    Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  answers QuizAttemptAnswer[]
+
+  @@map("quiz_questions")
+}
+
+model UserModuleProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  moduleId    String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module      RoadmapModule  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  status      ProgressStatus @default(LOCKED)
+  score       Int?
+  xpEarned    Int            @default(0)
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, moduleId])
+  @@map("user_module_progress")
+}
+
+model QuizAttempt {
+  id             String        @id @default(cuid())
+  userId         String
+  moduleId       String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module         RoadmapModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  totalQuestions Int
+  correctAnswers Int
+  percentage     Float
+  xpEarned       Int
+  attemptedAt    DateTime      @default(now())
+
+  answers QuizAttemptAnswer[]
+
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptAnswer {
+  id             String       @id @default(cuid())
+  attemptId      String
+  questionId     String
+  attempt        QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedAnswer String
+  isCorrect      Boolean
+
+  @@map("quiz_attempt_answers")
+}

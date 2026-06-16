@@ -32,7 +32,10 @@ function isRedisReachable(host: string, port: number, timeoutMs: number): Promis
 
 function loadEnvOverride() {
   try {
-    const envPath = path.join(__dirname, '..', '.env');
+    let envPath = path.join(__dirname, '..', '.env');
+    if (!fs.existsSync(envPath)) {
+      envPath = path.join(process.cwd(), '.env');
+    }
     if (fs.existsSync(envPath)) {
       const content = fs.readFileSync(envPath, 'utf8');
       content.split(/\r?\n/).forEach((line) => {

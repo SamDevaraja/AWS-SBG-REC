@@ -42,7 +42,7 @@ export const InputField = ({
           "h-11 rounded-lg border px-3.5",
           "bg-slate-50 hover:bg-slate-100/80 transition-colors",
           isFocused 
-            ? "border-[#232F3E] ring-4 ring-[#232F3E]/5" 
+            ? "border-[#FF9900] ring-4 ring-[#FF9900]/5" 
             : "border-slate-200",
           error ? "border-red-500/80 ring-red-500/10" : ""
         )}
@@ -51,7 +51,7 @@ export const InputField = ({
           size={16} 
           className={cn(
             "mr-2.5 transition-colors duration-300",
-            isFocused ? "text-[#232F3E]" : "text-slate-400"
+            isFocused ? "text-[#FF9900]" : "text-slate-400"
           )} 
         />
         

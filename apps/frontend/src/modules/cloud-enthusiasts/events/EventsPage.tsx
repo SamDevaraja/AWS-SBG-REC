@@ -89,7 +89,7 @@ export default function EventsPage() {
                 placeholder="Search by name, description, or venue..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="block w-full pl-10 pr-4 py-2.5 border border-slate-200 bg-white rounded-[8px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0073bb]/20 focus:border-[#0073bb] text-sm font-normal transition"
+                className="block w-full pl-10 pr-4 py-2.5 border border-slate-200 bg-white rounded-[8px] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] text-sm font-normal transition"
               />
             </div>
 
@@ -101,7 +101,7 @@ export default function EventsPage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="block w-full pl-10 pr-8 py-2.5 border border-slate-200 bg-white rounded-[8px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0073bb]/20 focus:border-[#0073bb] text-sm font-normal appearance-none cursor-pointer"
+                className="block w-full pl-10 pr-8 py-2.5 border border-slate-200 bg-white rounded-[8px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] text-sm font-normal appearance-none cursor-pointer"
               >
                 <option value="All">All Categories</option>
                 {categories.slice(1).map((cat) => (
@@ -121,7 +121,7 @@ export default function EventsPage() {
               <select
                 value={availability}
                 onChange={(e) => setAvailability(e.target.value)}
-                className="block w-full pl-10 pr-8 py-2.5 border border-slate-200 bg-white rounded-[8px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0073bb]/20 focus:border-[#0073bb] text-sm font-normal appearance-none cursor-pointer"
+                className="block w-full pl-10 pr-8 py-2.5 border border-slate-200 bg-white rounded-[8px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] text-sm font-normal appearance-none cursor-pointer"
               >
                 {AVAILABILITY_FILTERS.map((filter) => (
                   <option key={filter.value} value={filter.value}>

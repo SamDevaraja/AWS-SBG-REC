@@ -15,7 +15,7 @@ export function DateFilter({ value, onChange, label, className = '' }: DateFilte
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#232F3E]/20 focus:border-[#232F3E] transition"
+        className="border border-slate-200 rounded-[8px] text-sm px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition"
       />
     </div>
   );

@@ -116,6 +116,16 @@ export default function SidebarLayout({
     if (!pathname) return false;
     if (pathname === homeHref) return false;
 
+    // Hide global back button on roadmap builder and module content/quiz editors
+    // since they render their own page-specific back buttons
+    if (
+      pathname.includes('/roadmap') ||
+      pathname.includes('/content') ||
+      pathname.includes('/quiz')
+    ) {
+      return false;
+    }
+
     const parts = pathname.split('/').filter(Boolean);
 
     // ≥ 3 segments means definitely a sub/detail page
@@ -173,19 +183,18 @@ export default function SidebarLayout({
           willChange: "margin-left, width",
         }}
       >
-        {/* Back breadcrumb — shown only on sub/detail pages, sits inside the page's natural top-padding zone */}
         {shouldShowBack() && (
-          <div className="absolute top-5 left-8 z-30">
+          <div className="absolute top-6 left-6 lg:left-8 z-30">
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-slate-400 hover:text-slate-700 transition-colors cursor-pointer group"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#FF9900] transition-colors cursor-pointer group"
             >
-              <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              <span>{getBackLabel()}</span>
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200 text-slate-400 group-hover:text-[#FF9900]" />
+              <span className="tracking-wide">{getBackLabel()}</span>
             </button>
           </div>
         )}
-        <div className="flex-1">
+        <div className={shouldShowBack() ? "flex-1 pt-12" : "flex-1"}>
           {children}
         </div>
 

@@ -4,6 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@/database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -23,7 +24,10 @@ function computePortal(roleNames: string[]): { group: string; redirectTo: string
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
@@ -40,6 +44,13 @@ export class AuthService {
     const roleNames = user.roles.map((ur) => ur.role.name);
     const { group, redirectTo } = computePortal(roleNames);
 
+    // Issue JWT access token for roadmap API
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      group,
+    });
+
     return {
       id: user.id,
       email: user.email,
@@ -48,6 +59,7 @@ export class AuthService {
       roles: roleNames,
       group,       // 'CORE' | 'CREW' | 'ENTHUSIAST'
       redirectTo,
+      accessToken, // JWT for roadmap endpoints
     };
   }
 
@@ -83,6 +95,13 @@ export class AuthService {
     const roleNames = user.roles.map((ur) => ur.role.name);
     const { group, redirectTo } = computePortal(roleNames);
 
+    // Issue JWT access token for roadmap API
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      group,
+    });
+
     return {
       id: user.id,
       email: user.email,
@@ -91,6 +110,7 @@ export class AuthService {
       roles: roleNames,
       group,
       redirectTo,
+      accessToken, // JWT for roadmap endpoints
       message: 'Account created successfully.',
     };
   }

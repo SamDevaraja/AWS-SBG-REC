@@ -104,7 +104,7 @@ export default function HeroBanner() {
                 </motion.button>
               </Link>
 
-              <Link href="/crew/dashboard#roadmap">
+              <Link href="/learn">
                 <motion.button
                   whileHover={{
                     scale: 1.03,

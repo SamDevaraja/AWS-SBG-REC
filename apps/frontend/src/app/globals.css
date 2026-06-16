@@ -160,7 +160,12 @@
   --font-size-normal: 0.875rem;
   --font-size-small: 0.75rem;
   --font-size-micro: 0.625rem;
+
+  --z-18: 18;
+  --z-35: 35;
+  --blur-xs: 2px;
 }
+
 
 /* ─── Global Class Overrides for Hardcoded Color Utilities using Attribute Selectors to bypass parser limitations ─── */
 [class~="bg-[#232F3E]"] {
@@ -176,10 +181,10 @@
   border-color: color-mix(in srgb, var(--primary) 20%, transparent) !important;
 }
 [class~="focus:ring-[#232F3E]/20"]:focus {
-  --tw-ring-color: rgba(35, 47, 62, 0.2) !important;
+  --tw-ring-color: rgba(255, 153, 0, 0.2) !important;
 }
 [class~="focus:border-[#232F3E]"]:focus {
-  border-color: var(--primary) !important;
+  border-color: #FF9900 !important;
 }
 [class~="bg-[#232F3E]/5"] {
   background-color: color-mix(in srgb, var(--primary) 5%, transparent) !important;
@@ -204,10 +209,10 @@
   border-color: var(--accent) !important;
 }
 [class~="focus:ring-[#0073BB]/20"]:focus {
-  --tw-ring-color: rgba(35, 47, 62, 0.2) !important;
+  --tw-ring-color: rgba(255, 153, 0, 0.2) !important;
 }
 [class~="focus:border-[#0073BB]"]:focus {
-  border-color: var(--accent) !important;
+  border-color: #FF9900 !important;
 }
 
 

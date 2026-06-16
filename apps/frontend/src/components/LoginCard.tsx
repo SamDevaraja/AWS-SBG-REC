@@ -71,6 +71,10 @@ export const LoginCard = () => {
           role,
         }));
 
+        if (data.user.accessToken) {
+          localStorage.setItem("accessToken", data.user.accessToken);
+        }
+
         setStatus({ type: "success", message: "Successfully logged in! Redirecting..." });
 
         // Role-based redirect — short delay so success message is visible
