@@ -343,8 +343,8 @@ export default function EventsPage() {
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <div className="bg-transparent px-4 py-6 sm:px-6 lg:px-8 lg:py-8 max-w-[1280px] mx-auto">
-      <div className="w-full space-y-6">
+    <div className="bg-gradient-to-br from-[#232F3E]/[0.03] via-white to-[#FF9900]/[0.02] min-h-full w-full">
+      <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8 max-w-[1280px] mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-normal tracking-tight text-slate-900">Events</h1>
