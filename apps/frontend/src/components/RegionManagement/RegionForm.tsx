@@ -332,12 +332,12 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       )}
 
       {/* Identification Header */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] pb-2 border-b border-slate-50">Identification</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] pb-2 border-b border-slate-50 uppercase">Identification</h4>
 
       <div className="grid grid-cols-2 gap-4">
         {/* AWS Region Code */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">AWS Region Code *</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">AWS Region Code *</label>
           <input
             type="text"
             name="awsRegionCode"
@@ -346,13 +346,13 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             placeholder="e.g. us-east-1"
             required
             disabled={!!editingRegion}
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all disabled:opacity-60"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all disabled:opacity-60"
           />
         </div>
 
         {/* Region Name */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Display Name * (Max 80)</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Display Name * (Max 80)</label>
           <input
             type="text"
             name="name"
@@ -361,13 +361,13 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             placeholder="e.g. US East (N. Virginia)"
             maxLength={80}
             required
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Country Code */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Country Code * (e.g. US, CA, DE)</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Country Code * (e.g. US, CA, DE)</label>
           <input
             type="text"
             name="regionCode"
@@ -375,32 +375,32 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             onChange={handleInputChange}
             placeholder="e.g. US"
             required
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Legacy Emoji Flag */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Legacy Emoji Flag (e.g. 🇺🇸)</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Legacy Emoji Flag (e.g. 🇺🇸)</label>
           <input
             type="text"
             name="flag"
             value={formData.flag}
             onChange={handleInputChange}
             placeholder="e.g. 🇺🇸"
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Category select */}
         <div className="flex flex-col gap-1.5 col-span-2">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Presence Category *</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Presence Category *</label>
           <select
             name="categoryId"
             value={formData.categoryId}
             onChange={handleInputChange}
             required
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           >
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
@@ -413,7 +413,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
 
       {/* Flag Upload Section */}
       <div className="flex flex-col gap-2 p-5 bg-slate-50 rounded-2xl border border-slate-200/50">
-        <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Custom Flag Graphic (SVG, PNG, JPG, WEBP)</label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Custom Flag Graphic (SVG, PNG, JPG, WEBP)</label>
         
         <div className="flex items-center gap-6 mt-1">
           {/* Live Flag Preview Container */}
@@ -427,7 +427,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="px-4 py-2.5 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm disabled:bg-slate-400"
+                className="px-4 py-2.5 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm disabled:bg-slate-400 cursor-pointer"
               >
                 {uploading ? <RefreshCw size={12} className="animate-spin" /> : <Upload size={12} />}
                 <span>Upload New Flag</span>
@@ -437,7 +437,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
                 <button
                   type="button"
                   onClick={handleRemoveUploadedFlag}
-                  className="px-4 py-2.5 bg-white border border-red-100 text-red-500 hover:bg-red-50 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-white border border-red-100 text-red-500 hover:bg-red-50 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Trash2 size={12} />
                   <span>Remove Custom</span>
@@ -466,12 +466,12 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Coordinate metrics */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Geographic Coordinates</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Geographic Coordinates</h4>
 
       <div className="grid grid-cols-3 gap-4">
         {/* Latitude */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Latitude *</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Latitude *</label>
           <input
             type="number"
             step="any"
@@ -482,13 +482,13 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             min={-90}
             max={90}
             required
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Longitude */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Longitude *</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Longitude *</label>
           <input
             type="number"
             step="any"
@@ -499,20 +499,20 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             min={-180}
             max={180}
             required
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Region displayOrder */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Display Order</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Display Order</label>
           <input
             type="number"
             name="displayOrder"
             value={formData.displayOrder}
             onChange={handleInputChange}
             placeholder="e.g. 0"
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
       </div>
@@ -540,7 +540,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
               );
             }
           }}
-          className="w-full py-3 bg-[#0073BB]/10 hover:bg-[#0073BB]/20 text-[#0073BB] rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border border-[#0073BB]/20 hover:border-[#0073BB]/40 shadow-sm"
+          className="w-full py-3 bg-[#0073BB]/10 hover:bg-[#0073BB]/20 text-[#0073BB] rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 border border-[#0073BB]/20 hover:border-[#0073BB]/40 shadow-sm cursor-pointer"
         >
           <Eye size={12} />
           <span>Preview Location on Globe</span>
@@ -548,10 +548,10 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       </div>
 
       {/* Infrastructure specs */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Infrastructure Specifications</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Infrastructure Specifications</h4>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Infrastructure Description (Max 250)</label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Infrastructure Description (Max 250)</label>
         <textarea
           name="infrastructureDescription"
           value={formData.infrastructureDescription}
@@ -566,7 +566,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
       <div className="grid grid-cols-2 gap-4">
         {/* Availability Zones */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Availability Zones</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Availability Zones</label>
           <input
             type="number"
             name="availabilityZones"
@@ -574,26 +574,26 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             onChange={handleInputChange}
             placeholder="e.g. 3"
             min={1}
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Launch Year */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Launch Year</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Launch Year</label>
           <input
             type="number"
             name="launchYear"
             value={formData.launchYear}
             onChange={handleInputChange}
             placeholder="e.g. 2016"
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Primary Location */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Primary Location (Max 80)</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Primary Location (Max 80)</label>
           <input
             type="text"
             name="primaryLocation"
@@ -601,13 +601,13 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             onChange={handleInputChange}
             placeholder="e.g. Virginia, USA"
             maxLength={80}
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Compliance */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Compliance Audits (Max 120)</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Compliance Audits (Max 120)</label>
           <input
             type="text"
             name="compliance"
@@ -615,101 +615,101 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             onChange={handleInputChange}
             placeholder="e.g. FedRAMP, HIPAA, SOC"
             maxLength={120}
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
       </div>
 
       {/* Service coverage */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Regional Service Statistics</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Regional Service Statistics</h4>
 
       <div className="grid grid-cols-4 gap-4">
         {/* Total Services */}
         <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1">
-          <label className="text-[9px] font-black uppercase tracking-wider text-slate-500">Total Services</label>
+          <label className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">Total Services</label>
           <input
             type="text"
             name="totalServices"
             value={formData.totalServices}
             onChange={handleInputChange}
             placeholder="e.g. 200+"
-            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* AI/ML Services */}
         <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1">
-          <label className="text-[9px] font-black uppercase tracking-wider text-slate-500">AI/ML</label>
+          <label className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">AI/ML</label>
           <input
             type="text"
             name="aimlServices"
             value={formData.aimlServices}
             onChange={handleInputChange}
             placeholder="e.g. 30+"
-            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Analytics Services */}
         <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1">
-          <label className="text-[9px] font-black uppercase tracking-wider text-slate-500">Analytics</label>
+          <label className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">Analytics</label>
           <input
             type="text"
             name="analyticsServices"
             value={formData.analyticsServices}
             onChange={handleInputChange}
             placeholder="e.g. 20+"
-            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Networking Services */}
         <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1">
-          <label className="text-[9px] font-black uppercase tracking-wider text-slate-500">Networking</label>
+          <label className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">Networking</label>
           <input
             type="text"
             name="networkingServices"
             value={formData.networkingServices}
             onChange={handleInputChange}
             placeholder="e.g. 20+"
-            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-3 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
       </div>
 
       {/* Connectivity */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Global Connectivity Metric</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Global Connectivity Metric</h4>
 
       <div className="grid grid-cols-2 gap-4">
         {/* Edge Locations */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Edge Locations</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Edge Locations</label>
           <input
             type="text"
             name="edgeLocations"
             value={formData.edgeLocations}
             onChange={handleInputChange}
             placeholder="e.g. 15+"
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Direct Connect */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Direct Connect</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Direct Connect</label>
           <input
             type="text"
             name="directConnect"
             value={formData.directConnect}
             onChange={handleInputChange}
             placeholder="e.g. Available / Supported"
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Reach */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Regional Reach (Max 120)</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Regional Reach (Max 120)</label>
           <input
             type="text"
             name="reach"
@@ -717,13 +717,13 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             onChange={handleInputChange}
             placeholder="e.g. Global / Americas"
             maxLength={120}
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
 
         {/* Latency */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Latency Profile (Max 120)</label>
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Latency Profile (Max 120)</label>
           <input
             type="text"
             name="latency"
@@ -731,13 +731,13 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             onChange={handleInputChange}
             placeholder="e.g. Low latency across EU"
             maxLength={120}
-            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+            className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
           />
         </div>
       </div>
 
       {/* Services List Dynamic Collection */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Core Services List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Core Services List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.services.map((service, index) => (
@@ -753,7 +753,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             <button
               type="button"
               onClick={() => handleRemoveService(index)}
-              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 cursor-pointer"
             >
               <Trash2 size={14} />
             </button>
@@ -763,14 +763,14 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
         <button
           type="button"
           onClick={handleAddService}
-          className="py-3 px-4 rounded-xl border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
+          className="py-2.5 px-6 rounded-lg border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer w-fit mx-auto"
         >
           <Plus size={14} /> Add Service Item
         </button>
       </div>
 
-      {/* Benefits List Dynamic Collection */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Key Benefits List</h4>
+      {/* Key Benefits List */}
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Key Benefits List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.benefits.map((benefit, index) => (
@@ -786,7 +786,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             <button
               type="button"
               onClick={() => handleRemoveBenefit(index)}
-              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 cursor-pointer"
             >
               <Trash2 size={14} />
             </button>
@@ -796,14 +796,14 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
         <button
           type="button"
           onClick={handleAddBenefit}
-          className="py-3 px-4 rounded-xl border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
+          className="py-2.5 px-6 rounded-lg border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer w-fit mx-auto"
         >
           <Plus size={14} /> Add Benefit Item
         </button>
       </div>
 
       {/* AI Capabilities List */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">AI Capabilities List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">AI Capabilities List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.aiCapabilities.map((cap, index) => (
@@ -819,7 +819,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             <button
               type="button"
               onClick={() => handleRemoveAiCapability(index)}
-              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 cursor-pointer"
             >
               <Trash2 size={14} />
             </button>
@@ -829,14 +829,14 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
         <button
           type="button"
           onClick={handleAddAiCapability}
-          className="py-3 px-4 rounded-xl border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
+          className="py-2.5 px-6 rounded-lg border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer w-fit mx-auto"
         >
           <Plus size={14} /> Add AI Capability
         </button>
       </div>
 
       {/* Top Services List */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Top Services List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Top Services List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.topServices.map((topSvc, index) => (
@@ -852,7 +852,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             <button
               type="button"
               onClick={() => handleRemoveTopService(index)}
-              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 cursor-pointer"
             >
               <Trash2 size={14} />
             </button>
@@ -862,14 +862,14 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
         <button
           type="button"
           onClick={handleAddTopService}
-          className="py-3 px-4 rounded-xl border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
+          className="py-2.5 px-6 rounded-lg border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer w-fit mx-auto"
         >
           <Plus size={14} /> Add Top Service
         </button>
       </div>
 
       {/* Workloads List */}
-      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.25em] mt-2 pb-2 border-b border-slate-50">Workloads List</h4>
+      <h4 className="text-[10px] font-semibold text-slate-400 tracking-[0.05em] mt-2 pb-2 border-b border-slate-50 uppercase">Workloads List</h4>
       
       <div className="flex flex-col gap-3">
         {formData.workloads.map((workload, index) => (
@@ -885,7 +885,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
             <button
               type="button"
               onClick={() => handleRemoveWorkload(index)}
-              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+              className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 cursor-pointer"
             >
               <Trash2 size={14} />
             </button>
@@ -895,7 +895,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
         <button
           type="button"
           onClick={handleAddWorkload}
-          className="py-3 px-4 rounded-xl border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
+          className="py-2.5 px-6 rounded-lg border border-dashed border-slate-200 text-slate-500 hover:text-[#0073BB] hover:border-[#0073BB]/40 hover:bg-[#0073BB]/5 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer w-fit mx-auto"
         >
           <Plus size={14} /> Add Workload Item
         </button>
@@ -906,7 +906,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-4 border border-slate-200 text-slate-500 hover:text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all"
+          className="px-6 py-2.5 bg-white hover:bg-slate-50/80 text-slate-600 hover:text-slate-900 border border-slate-200/80 rounded-lg font-bold uppercase text-[11px] tracking-wider transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer text-center duration-200"
         >
           Cancel
         </button>
@@ -914,7 +914,7 @@ export default function RegionForm({ categories, editingRegion, onSubmit, onCanc
           type="button"
           onClick={handleSubmitForm}
           disabled={submitting || uploading}
-          className="px-8 py-4 bg-[#1A1C1E] hover:bg-[#0073BB] disabled:bg-slate-400 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center gap-2"
+          className="px-8 py-2.5 bg-slate-950 hover:bg-[#0073BB] disabled:bg-slate-400 text-white rounded-lg font-bold uppercase text-[11px] tracking-wider transition-all shadow-md hover:shadow-[0_4px_16px_rgba(0,115,187,0.2)] hover:-translate-y-0.5 duration-200 cursor-pointer flex items-center gap-2"
         >
           {(submitting || uploading) && <RefreshCw className="animate-spin" size={12} />}
           <span>{editingRegion ? 'Save Changes' : 'Initialize Node'}</span>

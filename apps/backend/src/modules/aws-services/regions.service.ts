@@ -242,6 +242,9 @@ export class RegionsService {
     const { services, benefits, aiCapabilities, topServices, workloads, ...regionData } = data;
 
     const region = await this.getById(id);
+    if (!region) {
+      throw new NotFoundException(`Region with ID ${id} not found`);
+    }
 
     if (regionData.awsRegionCode && regionData.awsRegionCode !== region.awsRegionCode) {
       const existing = await this.getByAwsRegionCode(regionData.awsRegionCode);

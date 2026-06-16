@@ -223,13 +223,13 @@ export default function ServiceForm({
       <div className="flex-grow overflow-y-auto p-10 space-y-8 premium-scrollbar">
         {/* SECTION 1: CORE DETAILS */}
         <div className="space-y-5">
-          <h4 className="text-[10px] font-black text-[#FF9900] uppercase tracking-widest border-b border-slate-100 pb-2">
+          <h4 className="text-[10px] font-bold text-[#FF9900] uppercase tracking-wider border-b border-slate-100 pb-2">
             1. Core Details
           </h4>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 Service Code *
               </label>
               <input
@@ -238,22 +238,22 @@ export default function ServiceForm({
                 onChange={e => setServiceCode(e.target.value.toLowerCase().trim())}
                 placeholder="e.g. ec2"
                 required
-                className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-colors"
+                className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-all text-slate-700"
               />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 Category *
               </label>
               <select
                 value={categoryId}
                 onChange={e => setCategoryId(e.target.value)}
                 required
-                className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-600 focus:outline-none focus:border-[#FF9900] bg-slate-50 cursor-pointer"
+                className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[12px] font-medium text-slate-650 focus:outline-none focus:border-[#FF9900] bg-slate-50 cursor-pointer"
               >
-                <option value="">Select Category</option>
+                <option value="" className="text-slate-400">Select Category</option>
                 {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>
+                  <option key={cat.id} value={cat.id} className="text-slate-700 uppercase text-xs font-semibold">
                     {cat.name}
                   </option>
                 ))}
@@ -263,7 +263,7 @@ export default function ServiceForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 Service Name *
               </label>
               <input
@@ -272,11 +272,11 @@ export default function ServiceForm({
                 onChange={handleNameChange}
                 placeholder="e.g. Amazon Elastic Compute Cloud"
                 required
-                className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-colors"
+                className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-all text-slate-700"
               />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 Slug *
               </label>
               <input
@@ -285,13 +285,13 @@ export default function ServiceForm({
                 onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-"))}
                 placeholder="e.g. amazon-ec2"
                 required
-                className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-colors"
+                className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-all text-slate-700"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+            <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
               Short Description *
             </label>
             <textarea
@@ -300,12 +300,12 @@ export default function ServiceForm({
               placeholder="Provide a concise 1-2 sentence description..."
               rows={2}
               required
-              className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-colors"
+              className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-all text-slate-700 leading-relaxed"
             />
           </div>
 
           <div>
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+            <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
               Full Description *
             </label>
             <textarea
@@ -314,25 +314,25 @@ export default function ServiceForm({
               placeholder="Provide a detailed, complete specification description..."
               rows={4}
               required
-              className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-colors"
+              className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-all text-slate-700 leading-relaxed"
             />
           </div>
         </div>
 
         {/* SECTION 2: ASSETS & RESOURCES */}
         <div className="space-y-5">
-          <h4 className="text-[10px] font-black text-[#FF9900] uppercase tracking-widest border-b border-slate-100 pb-2">
+          <h4 className="text-[10px] font-bold text-[#FF9900] uppercase tracking-wider border-b border-slate-100 pb-2">
             2. Assets & Resources
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
             {/* Custom Icon Drag Drop / Upload */}
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 Service Icon Asset
               </label>
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center p-3 flex-shrink-0">
+                <div className="w-14 h-14 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center p-3 flex-shrink-0">
                   {iconUrl ? (
                     <img
                       src={iconUrl.startsWith("http") ? iconUrl : `${API_URL}${iconUrl}`}
@@ -343,8 +343,8 @@ export default function ServiceForm({
                     <HelpCircle className="text-slate-400" size={24} />
                   )}
                 </div>
-                <label className="flex-grow py-3.5 border border-dashed border-slate-300 hover:border-[#FF9900] rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors text-xs font-bold text-slate-500 hover:text-slate-800">
-                  <Upload size={14} /> {uploading ? "Uploading..." : "Upload SVG Icon"}
+                <label className="flex-grow py-3.5 border border-dashed border-slate-200 hover:border-[#FF9900] rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors text-xs font-semibold text-slate-500 hover:text-slate-800">
+                  <Upload size={14} className="text-slate-400" /> {uploading ? "Uploading..." : "Upload SVG Icon"}
                   <input
                     type="file"
                     accept="image/svg+xml,image/png,image/jpeg"
@@ -362,7 +362,7 @@ export default function ServiceForm({
             </div>
 
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 AWS Documentation URL
               </label>
               <input
@@ -370,7 +370,7 @@ export default function ServiceForm({
                 value={awsDocumentationUrl}
                 onChange={e => setAwsDocumentationUrl(e.target.value)}
                 placeholder="https://docs.aws.amazon.com/..."
-                className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-colors"
+                className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white transition-all text-slate-700"
               />
             </div>
           </div>
@@ -378,7 +378,7 @@ export default function ServiceForm({
 
         {/* SECTION 3: ARCHITECTURE SPECS ARRAYS */}
         <div className="space-y-6">
-          <h4 className="text-[10px] font-black text-[#FF9900] uppercase tracking-widest border-b border-slate-100 pb-2">
+          <h4 className="text-[10px] font-bold text-[#FF9900] uppercase tracking-wider border-b border-slate-100 pb-2">
             3. Specification Details (Arrays)
           </h4>
 
@@ -434,7 +434,7 @@ export default function ServiceForm({
             }
           ].map(field => (
             <div key={field.label} className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block">
                 {field.label}
               </label>
               
@@ -443,7 +443,7 @@ export default function ServiceForm({
                 {field.list.map((item, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-1 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold text-slate-600 flex items-center gap-1.5"
+                    className="px-2.5 py-1 bg-slate-55 border border-slate-150 rounded-lg text-[10px] font-medium text-slate-600 flex items-center gap-1.5"
                   >
                     <span>{item}</span>
                     <button
@@ -470,12 +470,12 @@ export default function ServiceForm({
                       addToArray(field.newVal, field.setter, () => field.newValSetter(""));
                     }
                   }}
-                  className="flex-grow px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white"
+                  className="flex-grow px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => addToArray(field.newVal, field.setter, () => field.newValSetter(""))}
-                  className="px-3 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-[#FF9900]"
+                  className="px-3 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
                 >
                   <Plus size={14} />
                 </button>
@@ -486,13 +486,13 @@ export default function ServiceForm({
 
         {/* SECTION 4: INTEGRATIONS & RELATIONSHIPS */}
         <div className="space-y-5">
-          <h4 className="text-[10px] font-black text-[#FF9900] uppercase tracking-widest border-b border-slate-100 pb-2">
+          <h4 className="text-[10px] font-bold text-[#FF9900] uppercase tracking-wider border-b border-slate-100 pb-2">
             4. Integrations & Relationships
           </h4>
 
           {/* Related Services List */}
           <div className="space-y-3">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+            <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block">
               Related Services
             </label>
 
@@ -501,7 +501,7 @@ export default function ServiceForm({
               {relatedServices.map((rs, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 bg-orange-50/50 border border-orange-100 rounded-lg text-[10px] font-bold text-slate-700 flex items-center gap-1.5"
+                  className="px-2.5 py-1 bg-orange-50/50 border border-orange-100 rounded-lg text-[10px] font-medium text-slate-700 flex items-center gap-1.5"
                 >
                   <span>{rs.name}</span>
                   <button
@@ -520,7 +520,7 @@ export default function ServiceForm({
               <select
                 value={selectedRelatedSlug}
                 onChange={e => setSelectedRelatedSlug(e.target.value)}
-                className="flex-grow px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-500 focus:outline-none focus:border-[#FF9900] bg-slate-50 cursor-pointer"
+                className="flex-grow px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-[12px] font-medium text-slate-600 focus:outline-none focus:border-[#FF9900] bg-slate-50 cursor-pointer"
               >
                 <option value="">Select service to relate...</option>
                 {allServices
@@ -534,7 +534,7 @@ export default function ServiceForm({
               <button
                 type="button"
                 onClick={addRelatedService}
-                className="px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-[#FF9900]"
+                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
               >
                 Relate
               </button>
@@ -544,19 +544,19 @@ export default function ServiceForm({
 
         {/* SECTION 5: OPTIONS & CONTROL */}
         <div className="space-y-5">
-          <h4 className="text-[10px] font-black text-[#FF9900] uppercase tracking-widest border-b border-slate-100 pb-2">
+          <h4 className="text-[10px] font-bold text-[#FF9900] uppercase tracking-wider border-b border-slate-100 pb-2">
             5. Status & Parameters
           </h4>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 Launch Status
               </label>
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value)}
-                className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-600 focus:outline-none"
+                className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[12px] font-medium text-slate-650 focus:outline-none focus:border-[#FF9900] bg-slate-50 cursor-pointer"
               >
                 <option value="GA">General Availability (GA)</option>
                 <option value="Preview">Preview</option>
@@ -567,14 +567,14 @@ export default function ServiceForm({
             </div>
 
             <div>
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-2">
+              <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-2">
                 Display Order
               </label>
               <input
                 type="number"
                 value={displayOrder}
                 onChange={e => setDisplayOrder(Number(e.target.value))}
-                className="w-full px-5 py-3 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none"
+                className="w-full px-4 py-2.5 border border-slate-200 hover:border-slate-300 rounded-xl text-[13px] font-normal focus:outline-none focus:border-[#FF9900] bg-slate-50 focus:bg-white"
               />
             </div>
           </div>
@@ -585,9 +585,9 @@ export default function ServiceForm({
                 type="checkbox"
                 checked={isFeatured}
                 onChange={e => setIsFeatured(e.target.checked)}
-                className="w-4.5 h-4.5 text-[#FF9900] focus:ring-[#FF9900] border-slate-300 rounded cursor-pointer"
+                className="w-4 h-4 text-[#FF9900] focus:ring-[#FF9900] border-slate-300 rounded cursor-pointer"
               />
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                 <Star size={12} className={isFeatured ? "fill-amber-500 stroke-none" : "text-slate-400"} />
                 Featured Service
               </span>
@@ -598,9 +598,9 @@ export default function ServiceForm({
                 type="checkbox"
                 checked={isActive}
                 onChange={e => setIsActive(e.target.checked)}
-                className="w-4.5 h-4.5 text-[#FF9900] focus:ring-[#FF9900] border-slate-300 rounded cursor-pointer"
+                className="w-4 h-4 text-[#FF9900] focus:ring-[#FF9900] border-slate-300 rounded cursor-pointer"
               />
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                 <CheckCircle size={12} className="text-emerald-500" />
                 Active in Catalog
               </span>
@@ -610,18 +610,18 @@ export default function ServiceForm({
       </div>
 
       {/* Form Action Buttons Footer */}
-      <div className="px-10 py-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 flex-shrink-0">
+      <div className="px-10 py-5 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 flex-shrink-0">
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-4.5 border border-slate-200 text-slate-500 hover:text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all cursor-pointer"
+          className="px-5 py-2.5 border border-slate-200 text-slate-500 hover:text-slate-900 rounded-lg font-semibold uppercase text-[10px] tracking-wider transition-all cursor-pointer hover:bg-slate-100/50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={submitting}
-          className="px-8 py-4.5 bg-[#1A1C1E] hover:bg-[#FF9900] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-md shadow-slate-200 cursor-pointer disabled:opacity-50"
+          className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold uppercase text-[10px] tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-50"
         >
           {submitting ? "Saving..." : (editingService ? "Save Service" : "Register Service")}
         </button>

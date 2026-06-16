@@ -2,9 +2,11 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import {
-  Cloud, Shield, ChevronRight, ArrowDown, Sparkles,
-  Search, Server, Trophy, LayoutGrid, CheckCircle2, ChevronLeft
+  ChevronRight, ArrowDown, AlertCircle,
+  Search, Server, Trophy, LayoutGrid, CheckCircle2, ChevronLeft,
+  Settings2
 } from 'lucide-react';
 import GlobeScene from '@/components/Globe/GlobeScene';
 import IntelligenceDashboard from '@/components/Intelligence/IntelligenceDashboard';
@@ -21,6 +23,19 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // User role state
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("aws_sgb_rec_user");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setUserRole((parsed?.role ?? "").toLowerCase().trim());
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   // Load categories and regions from backend API
   useEffect(() => {
@@ -130,7 +145,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(190,227,237,0.15)_0%,transparent_60%)] pointer-events-none" />
         <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-[2.5rem] p-10 max-w-md w-full shadow-xl flex flex-col items-center text-center z-10">
           <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 border border-red-100">
-            <Shield size={30} />
+            <AlertCircle size={30} />
           </div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-3">Mesh Connection Failure</h2>
           <p className="text-slate-500 text-sm font-semibold mb-8">{error}</p>
@@ -169,17 +184,26 @@ export default function Home() {
             {/* Top Header */}
             <header className="absolute top-0 left-0 right-0 z-50 p-10 flex items-center justify-between pointer-events-none">
               <div className="flex items-center gap-4 pointer-events-auto">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#1A1C1E] shadow-xl border border-slate-100/80">
-                  <Cloud size={30} className="text-[#0073BB]" />
-                </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-[32px] font-black tracking-tighter leading-none text-[#1A1C1E]">AWS Region Intelligence</h1>
-                    <Shield size={20} className="text-[#0073BB]" />
-                  </div>
-                  <p className="text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.55em] mt-3">Student Builders Group • Global Presence Mesh</p>
+                  <h1 className="text-[32px] font-semibold tracking-tighter leading-none text-[#1A1C1E]">
+                    AWS Region Intelligence
+                  </h1>
+                  <p className="text-slate-400 text-[10px] font-medium tracking-[0.05em] uppercase mt-2">
+                    Interactive 3D explorer visualizing global cloud infrastructure partitions
+                  </p>
                 </div>
               </div>
+              {userRole === "core" && (
+                <div className="pointer-events-auto">
+                  <Link
+                    href="/core/manage-regions"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[11px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer uppercase tracking-wider"
+                  >
+                    <Settings2 size={12} className="text-[#FF9900]" />
+                    Manage Regions
+                  </Link>
+                </div>
+              )}
             </header>
 
             <div className="flex-grow flex relative z-10 pt-32 pb-10 px-10 gap-8 h-full">
@@ -188,15 +212,18 @@ export default function Home() {
               <motion.aside
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="w-80 flex flex-col gap-4 z-20"
+                className="w-72 flex flex-col gap-4 z-20"
               >
-                <div className="bg-white/70 backdrop-blur-xl border border-slate-100 rounded-[2.5rem] p-8 h-full flex flex-col shadow-sm">
-                  <div className="mb-6">
-                    <h3 className="text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.4em] mb-3">Global Regions</h3>
-                    <p className="text-[13px] font-bold text-slate-500 leading-tight">Select an AWS Region node to begin exploration.</p>
+                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-3xl p-6 h-full flex flex-col shadow-sm">
+
+                  {/* Header */}
+                  <div className="mb-5 pb-5 border-b border-slate-100">
+                    <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-[0.12em] mb-2">Global Regions</p>
+                    <p className="text-[12px] font-medium text-slate-500 leading-snug">Select a region to begin exploration.</p>
                   </div>
 
-                  <div className="flex flex-col gap-2 flex-grow overflow-y-auto premium-scrollbar pb-10">
+                  {/* Region list */}
+                  <div className="flex flex-col gap-1 flex-grow overflow-y-auto premium-scrollbar">
                     {sidebarCategories.map((cat) => {
                       const isExpanded = expandedCategory === cat.id;
                       const hasActiveChild = cat.regionIds.includes(selectedRegion?.id || '');
@@ -204,37 +231,34 @@ export default function Home() {
                       if (cat.regionIds.length === 0) return null;
 
                       return (
-                        <div key={cat.id} className="flex flex-col gap-1">
+                        <div key={cat.id} className="flex flex-col">
                           <button
                             onClick={() => {
                               const nextExpanded = isExpanded ? null : cat.id;
                               setExpandedCategory(nextExpanded);
                               if (nextExpanded) {
-                                // Select first region of this category if switching to it
                                 const firstRegion = regions.find(r => r.id === cat.regionIds[0]);
-                                if (firstRegion) {
-                                  handleRegionSelect(firstRegion);
-                                }
+                                if (firstRegion) handleRegionSelect(firstRegion);
                               }
                             }}
-                            className={`w-full px-5 py-4 rounded-2xl flex items-center justify-between transition-all text-xs font-black uppercase tracking-wider text-left group ${hasActiveChild ? 'bg-[#1A1C1E] text-white shadow-md' : 'hover:bg-slate-100/50 text-slate-600'}`}
+                            className={`w-full px-4 py-3 rounded-xl flex items-center justify-between transition-all text-left group ${hasActiveChild ? 'bg-[#1A1C1E] text-white' : 'hover:bg-slate-50 text-slate-600'}`}
                           >
                             <div className="flex items-center gap-3 truncate">
-                              <FlagImage flag={cat.flag} name={cat.name} className="w-5 h-3.5 object-contain flex-shrink-0" />
-                              <span className="truncate">{cat.name}</span>
+                              <FlagImage flag={cat.flag} name={cat.name} className="w-5 h-3.5 object-contain flex-shrink-0 rounded-sm" />
+                              <span className="text-[11px] font-bold tracking-wide truncate uppercase">{cat.name}</span>
                             </div>
-                            <ChevronRight size={12} className={`flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90 text-current' : 'text-slate-400 group-hover:translate-x-1'}`} />
+                            <ChevronRight size={12} className={`flex-shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''} ${hasActiveChild ? 'text-white/60' : 'text-slate-300'}`} />
                           </button>
 
-                          {/* Render sub-regions if expanded */}
+                          {/* Sub-regions */}
                           <AnimatePresence initial={false}>
                             {isExpanded && (
                               <motion.div
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="pl-6 flex flex-col gap-1 overflow-hidden"
+                                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                                className="overflow-hidden ml-4 mt-1 border-l-2 border-slate-100 pl-3 flex flex-col gap-0.5"
                               >
                                 {cat.regionIds.map((rId) => {
                                   const r = regions.find(region => region.id === rId);
@@ -245,10 +269,10 @@ export default function Home() {
                                     <button
                                       key={r.id}
                                       onClick={() => handleRegionSelect(r)}
-                                      className={`w-full px-4 py-2.5 rounded-xl text-[11px] font-bold tracking-tight text-left transition-all flex items-center justify-between ${isSubSelected ? 'bg-[#0073BB]/10 text-[#0073BB] font-black' : 'text-slate-500 hover:bg-slate-50'}`}
+                                      className={`w-full px-3 py-2 rounded-lg text-[11px] text-left transition-all flex items-center justify-between ${isSubSelected ? 'bg-[#0073BB]/8 text-[#0073BB] font-semibold' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 font-medium'}`}
                                     >
                                       <span>{r.name}</span>
-                                      {isSubSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#0073BB]" />}
+                                      {isSubSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#0073BB] flex-shrink-0" />}
                                     </button>
                                   );
                                 })}
@@ -275,10 +299,10 @@ export default function Home() {
             </div>
 
             {/* Bottom Status Bar */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-              <div className="px-12 py-5 bg-[#232F3E] rounded-full flex items-center gap-6 shadow-2xl pointer-events-auto">
-                <Sparkles size={18} className="text-[#FF9900]" />
-                <p className="text-[13px] font-black text-white/90 uppercase tracking-[0.2em] whitespace-nowrap">AWS Region Intelligence Mesh Active</p>
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+              <div className="flex items-center gap-2.5 px-5 py-2.5 bg-white/90 backdrop-blur-xl border border-slate-200/60 rounded-full shadow-sm pointer-events-auto">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="text-[11px] font-semibold text-slate-500 tracking-wide whitespace-nowrap">Region Intelligence Active</span>
               </div>
             </div>
 
@@ -345,32 +369,49 @@ export default function Home() {
 function RegionBriefModal({ region, onClose, onExplore }: { region: AWSRegionData, onClose: () => void, onExplore: () => void }) {
   return (
     <motion.div
-      initial={{ scale: 0.9, opacity: 0, y: 20 }}
+      initial={{ scale: 0.95, opacity: 0, y: 16 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ scale: 0.9, opacity: 0, y: 20 }}
-      className="absolute bottom-24 right-10 z-[100] w-[420px] overflow-hidden rounded-[3.5rem] shadow-[0_60px_150px_-30px_rgba(0,0,0,0.12)] border border-white"
+      exit={{ scale: 0.95, opacity: 0, y: 16 }}
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      className="absolute bottom-20 right-10 z-[100] w-[360px] overflow-hidden rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.12)] border border-slate-100/80 bg-white"
     >
-      <div className="p-10 bg-white/95 backdrop-blur-3xl h-full flex flex-col">
-        <div className="flex justify-between items-start mb-8">
-          <div className="w-14 h-14 bg-[#1A1C1E] rounded-2xl flex items-center justify-center text-white shadow-xl overflow-hidden">
-            <FlagImage flag={region.flagUrl || region.flag} name={region.name} className="w-10 h-7.5 object-contain" />
+      <div className="p-6 flex flex-col gap-5">
+
+        {/* Header row: flag + close */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden">
+              <FlagImage flag={region.flagUrl || region.flag} name={region.name} className="w-8 h-6 object-contain" />
+            </div>
+            <div>
+              <h3 className="text-[17px] font-bold tracking-tight text-slate-900 leading-tight">{region.name}</h3>
+              <p className="text-[10px] font-semibold text-[#0073BB] uppercase tracking-[0.1em] mt-0.5">AWS Infrastructure Region</p>
+            </div>
           </div>
-          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all">✕</button>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-all text-sm"
+          >
+            ✕
+          </button>
         </div>
 
-        <h3 className="text-3xl font-black mb-2 tracking-tighter text-[#1A1C1E]">{region.name}</h3>
-        <p className="text-xs font-bold text-[#0073BB] uppercase tracking-[0.3em] mb-6">AWS Infrastructure Region</p>
+        {/* Divider */}
+        <div className="h-px bg-slate-100" />
 
-        <p className="text-[14px] text-slate-500 font-bold leading-relaxed mb-8">
+        {/* Description */}
+        <p className="text-[13px] text-slate-500 font-normal leading-relaxed">
           {region.infrastructure}
         </p>
 
+        {/* CTA */}
         <button
           onClick={onExplore}
-          className="w-full py-5 bg-[#1A1C1E] text-white rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-3 hover:bg-[#0073BB] transition-all shadow-xl shadow-slate-200"
+          className="w-full py-3 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-xl font-semibold text-[12px] tracking-wide flex items-center justify-center gap-2 transition-all duration-200"
         >
-          Explore Specification <ArrowDown size={14} />
+          Explore Specification <ArrowDown size={13} />
         </button>
+
       </div>
     </motion.div>
   );

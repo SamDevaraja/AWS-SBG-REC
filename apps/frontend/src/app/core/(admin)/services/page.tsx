@@ -134,7 +134,7 @@ export default function CoreServicesManagementPage() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`px-5 py-3.5 rounded-2xl shadow-xl text-xs font-black uppercase tracking-wider pointer-events-auto border ${
+            className={`px-5 py-3 rounded-xl shadow-lg text-xs font-semibold uppercase tracking-wider pointer-events-auto border ${
               t.type === 'success'
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                 : 'bg-red-50 border-red-200 text-red-700'
@@ -148,24 +148,24 @@ export default function CoreServicesManagementPage() {
       {/* Delete Confirm Modal */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-2xl p-8 max-w-md w-full">
-            <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">Archive Service?</h3>
-            <p className="text-sm text-slate-500 font-semibold mb-6">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-8 max-w-md w-full">
+            <h3 className="text-xl font-bold text-slate-900 mb-2 tracking-tight">Archive Service?</h3>
+            <p className="text-sm text-slate-500 font-normal mb-6">
               Are you sure you want to archive{' '}
-              <span className="text-slate-800 font-black">{deleteTarget.name}</span>?
+              <span className="text-slate-800 font-semibold">{deleteTarget.name}</span>?
               This will soft-delete the service record.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteTarget(null)}
-                className="flex-1 py-3 border border-slate-200 text-slate-600 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-slate-50 transition-all"
+                className="flex-1 py-3 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-slate-50 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={isDeleting}
-                className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50"
               >
                 {isDeleting ? 'Archiving...' : 'Archive'}
               </button>
@@ -179,11 +179,11 @@ export default function CoreServicesManagementPage() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <Cpu className="w-6 h-6 text-[#FF9900]" />
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
               AWS Services Management
             </h1>
           </div>
-          <p className="text-sm text-slate-500 font-semibold">
+          <p className="text-sm text-slate-500 font-normal">
             Add, edit, and manage AWS service catalog entries. Core admin access only.
           </p>
         </div>
@@ -199,7 +199,7 @@ export default function CoreServicesManagementPage() {
           </button>
           <button
             onClick={() => { setEditingService(null); setFormMode('create'); }}
-            className="flex items-center gap-2 px-5 py-3 bg-[#FF9900] hover:bg-[#E08800] text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-orange-500/20"
+            className="flex items-center gap-2 px-5 py-3 bg-[#FF9900] hover:bg-[#E08800] text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md hover:shadow-lg hover:shadow-orange-500/10"
           >
             <Plus size={16} /> Add New Service
           </button>
@@ -218,8 +218,8 @@ export default function CoreServicesManagementPage() {
             className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center justify-between"
           >
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-              <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{stat.label}</p>
+              <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
             </div>
             {stat.icon}
           </div>
@@ -228,9 +228,9 @@ export default function CoreServicesManagementPage() {
 
       {/* Main Content: Table or Form */}
       {formMode ? (
-        <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden">
+        <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
           <div className="px-10 py-6 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
               {formMode === 'edit' ? 'Edit AWS Service' : 'Register New AWS Service'}
             </h2>
           </div>
@@ -246,7 +246,7 @@ export default function CoreServicesManagementPage() {
       ) : loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-10 h-10 border-4 border-[#FF9900]/20 border-t-[#FF9900] rounded-full animate-spin" />
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Services Registry...</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider animate-pulse">Loading Services Registry...</p>
         </div>
       ) : (
         <ServiceTable

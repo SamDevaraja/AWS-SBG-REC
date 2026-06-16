@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, ArrowLeft, Shield, CheckCircle, AlertCircle, RefreshCw, X, Trash2, Edit2, Upload } from 'lucide-react';
+import { Plus, Shield, CheckCircle, AlertCircle, RefreshCw, X, Trash2, Edit2, Upload, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -126,49 +126,15 @@ export default function ManageCategoriesPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(190,227,237,0.1)_0%,transparent_50%)]" />
       </div>
 
-      {/* COMPACT NAV BAR */}
-      <nav className="w-full h-20 px-12 flex items-center justify-between border-b border-slate-100 bg-white/70 backdrop-blur-xl sticky top-0 left-0 z-40 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-white rounded-xl border border-slate-200/80 flex items-center justify-center text-slate-800 shadow-sm text-lg backdrop-blur-md">
-            🗂️
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-black tracking-tight text-slate-900 leading-none">Category Control Center</h2>
-              <span className="text-[8px] font-black uppercase text-[#0073BB] bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded tracking-wider">
-                CORE DASHBOARD
-              </span>
-            </div>
-            <p className="text-[7px] font-black text-slate-400 uppercase tracking-[0.4em] mt-1">AWS Category Presence Registry</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/core/manage-regions"
-            className="px-6 py-2.5 rounded-xl bg-[#0073BB]/10 hover:bg-[#0073BB]/20 text-[#0073BB] border border-[#0073BB]/20 shadow-sm flex items-center gap-2 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all duration-300 hover:shadow-md"
-          >
-            <span>Manage Regions</span>
-          </Link>
-
-          <Link
-            href="/services"
-            className="px-6 py-2.5 rounded-xl bg-white text-slate-700 border border-slate-200 shadow-sm flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-wider cursor-pointer group transition-all duration-300 hover:shadow-md hover:border-slate-300 hover:text-slate-900"
-          >
-            <ArrowLeft size={12} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
-            <span>Back to Explorer</span>
-          </Link>
-        </div>
-      </nav>
-
       {/* TOAST SYSTEM */}
       {toast && (
-        <div className={`fixed bottom-8 right-8 z-[200] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl border animate-slide-up ${toast.type === 'success'
-            ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
-            : 'bg-red-50 text-red-800 border-red-100'
-          }`}>
-          {toast.type === 'success' ? <CheckCircle size={18} className="text-emerald-500" /> : <AlertCircle size={18} className="text-red-500" />}
-          <p className="text-[12px] font-extrabold uppercase tracking-wider">{toast.message}</p>
+        <div className={`fixed bottom-8 right-8 z-[200] flex items-center gap-2.5 px-5 py-3 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.06)] border backdrop-blur-md animate-slide-up ${
+          toast.type === 'success'
+            ? 'bg-emerald-50/95 text-emerald-800 border-emerald-100/80'
+            : 'bg-red-50/95 text-red-800 border-red-100/80'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle size={15} className="text-emerald-500" /> : <AlertCircle size={15} className="text-red-500" />}
+          <p className="text-[11px] font-semibold uppercase tracking-wider">{toast.message}</p>
         </div>
       )}
 
@@ -176,18 +142,27 @@ export default function ManageCategoriesPage() {
       <main className="max-w-[1280px] mx-auto px-8 pt-12 relative z-10">
 
         {/* HEADER SECTION */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12 border-b border-slate-100 pb-8">
           <div>
-            <h1 className="text-4xl font-black text-[#1A1C1E] tracking-tight">AWS Geographic Categories</h1>
-            <p className="text-slate-400 text-[10px] font-black tracking-[0.3em] uppercase mt-2">Create, modify, order, and archive explorer category filters</p>
+            <h1 className="text-4xl font-semibold text-slate-900 tracking-tight">AWS Geographic Categories</h1>
+            <p className="text-slate-400 text-[10px] font-medium tracking-[0.05em] uppercase mt-2">Create, modify, order, and archive explorer category filters</p>
           </div>
 
-          <button
-            onClick={handleAddClick}
-            className="px-8 py-4 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center gap-2 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-          >
-            <Plus size={16} /> Add Category
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/core/manage-regions"
+              className="px-6 py-2.5 bg-white hover:bg-slate-50/80 text-slate-600 hover:text-slate-900 border border-slate-200/80 rounded-lg font-bold uppercase text-[11px] tracking-wider flex items-center gap-2 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer text-center duration-200"
+            >
+              <Globe size={13} className="text-slate-500" />
+              Manage Regions
+            </Link>
+            <button
+              onClick={handleAddClick}
+              className="px-6 py-2.5 bg-slate-950 hover:bg-[#0073BB] text-white rounded-lg font-bold uppercase text-[11px] tracking-wider flex items-center gap-2 transition-all shadow-md hover:shadow-[0_4px_16px_rgba(0,115,187,0.2)] hover:-translate-y-0.5 duration-200 cursor-pointer"
+            >
+              <Plus size={14} /> Add Category
+            </button>
+          </div>
         </div>
 
         {/* LOADING / ERROR STATES */}
@@ -224,60 +199,67 @@ export default function ManageCategoriesPage() {
         )}
 
         {!loading && !error && categories.length > 0 && (
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden animate-fade-in">
+          <div className="bg-white border border-slate-100/80 rounded-[2.5rem] shadow-[0_12px_40px_-15px_rgba(0,0,0,0.03)] overflow-hidden animate-fade-in">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-50 text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-50/50">
-                    <th className="py-6 px-8">Flag</th>
-                    <th className="py-6 px-6">Name</th>
-                    <th className="py-6 px-6">Slug ID</th>
-                    <th className="py-6 px-6">Display Order</th>
-                    <th className="py-6 px-6">Status</th>
-                    <th className="py-6 px-8 text-right">Actions</th>
+                  <tr className="border-b border-slate-100 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] bg-slate-50/80 backdrop-blur-sm select-none">
+                    <th className="py-3.5 px-8">Flag</th>
+                    <th className="py-3.5 px-6">Name</th>
+                    <th className="py-3.5 px-6">Slug ID</th>
+                    <th className="py-3.5 px-6 text-center">Display Order</th>
+                    <th className="py-3.5 px-6">Status</th>
+                    <th className="py-3.5 px-8 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {categories.map((cat) => (
-                    <tr key={cat.id} className="hover:bg-slate-50/50 transition-colors text-[13px] font-semibold text-slate-600">
-                      <td className="py-6 px-8 select-none">
-                        <div className="w-10 h-7 flex items-center justify-center bg-slate-50 border border-slate-200/50 rounded overflow-hidden">
-                          <FlagImage flag={cat.flag} name={cat.name} className="w-8 h-5.5 object-contain" />
+                    <tr key={cat.id} className="hover:bg-slate-50/30 transition-all duration-200 text-[13px] font-semibold text-slate-600 border-b border-slate-50/60 last:border-b-0">
+                      <td className="py-3 px-8 select-none">
+                        <div className="w-12 h-8 flex items-center justify-center bg-white border border-slate-100 rounded-lg overflow-hidden shadow-sm hover:scale-105 transition-transform duration-200">
+                          <FlagImage flag={cat.flag} name={cat.name} className="w-9 h-6 object-contain" />
                         </div>
                       </td>
-                      <td className="py-6 px-6 font-bold text-slate-900">{cat.name}</td>
-                      <td className="py-6 px-6">
-                        <span className="font-mono text-xs bg-slate-100 text-slate-800 px-2.5 py-1 rounded-md font-bold border border-slate-200/40">
+                      <td className="py-3 px-6">
+                        <div className="flex flex-col">
+                          <span className="font-extrabold text-slate-900 text-[14px] tracking-tight">{cat.name}</span>
+                          <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-0.5">AWS Geographic Zone</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-6">
+                        <span className="inline-flex items-center font-mono text-[11px] bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-md font-bold tracking-tight shadow-sm select-all">
                           {cat.slug}
                         </span>
                       </td>
-                      <td className="py-6 px-6 font-mono text-xs font-bold text-slate-800">
-                        {cat.displayOrder}
+                      <td className="py-3 px-6 text-center">
+                        <div className="mx-auto flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 border border-slate-100 text-[11px] font-mono font-black text-slate-600 shadow-inner">
+                          {cat.displayOrder}
+                        </div>
                       </td>
-                      <td className="py-6 px-6">
+                      <td className="py-3 px-6">
                         <button
                           onClick={() => handleToggleActive(cat)}
-                          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all ${cat.isActive
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200/80'
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all duration-200 shadow-sm cursor-pointer ${cat.isActive
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80 hover:bg-emerald-100/80 hover:shadow-md'
+                              : 'bg-slate-50 text-slate-500 border-slate-200/80 hover:bg-slate-100 hover:shadow-md'
                             }`}
                         >
                           {cat.isActive ? 'Active' : 'Inactive'}
                         </button>
                       </td>
-                      <td className="py-6 px-8 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="py-3 px-8 text-right">
+                        <div className="flex items-center justify-end gap-2.5">
                           <button
                             onClick={() => handleEditClick(cat)}
                             title="Edit Category"
-                            className="p-2.5 rounded-xl border border-slate-100 text-slate-400 hover:text-slate-950 hover:bg-slate-50 transition-all hover:shadow-sm"
+                            className="p-3 rounded-xl border border-slate-200/60 bg-white text-slate-500 hover:text-[#0073BB] hover:bg-[#0073BB]/5 hover:border-[#0073BB]/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-sm cursor-pointer"
                           >
                             <Edit2 size={14} />
                           </button>
                           <button
                             onClick={() => handleDeleteClick(cat)}
                             title="Archive Category"
-                            className="p-2.5 rounded-xl border border-red-50 text-red-400 hover:text-red-600 hover:bg-red-50 transition-all hover:shadow-sm"
+                            className="p-3 rounded-xl border border-red-100 bg-red-50/20 text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-sm cursor-pointer"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -321,28 +303,28 @@ export default function ManageCategoriesPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-white border border-slate-100 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl z-10 flex flex-col items-center text-center"
+              className="relative bg-white border border-slate-100/80 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl z-10 flex flex-col items-center text-center"
             >
               <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 border border-red-100 animate-pulse">
                 <Trash2 size={24} />
               </div>
 
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Decommission Category</h3>
-              <p className="text-slate-500 text-xs font-bold leading-relaxed mb-8 uppercase tracking-wider">
-                Are you sure you want to archive category <span className="text-slate-950 font-black">"{deletingCategory.name}"</span>?<br />
+              <h3 className="text-2xl font-semibold text-slate-900 tracking-tight mb-2">Decommission Category</h3>
+              <p className="text-slate-500 text-[13px] font-medium leading-relaxed mb-8">
+                Are you sure you want to archive category <span className="text-slate-950 font-bold">"{deletingCategory.name}"</span>?<br />
                 This will soft-delete the category. Active regions in this category will not be displayed in the sidebar if their category is archived.
               </p>
 
               <div className="flex items-center gap-3 w-full">
                 <button
                   onClick={() => setIsDeleteConfirmOpen(false)}
-                  className="flex-1 py-4 border border-slate-200 text-slate-500 hover:text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all"
+                  className="flex-1 py-2.5 bg-white hover:bg-slate-50/80 text-slate-600 hover:text-slate-900 border border-slate-200/80 rounded-lg font-bold uppercase text-[11px] tracking-wider transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-red-200"
+                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold uppercase text-[11px] tracking-wider transition-all shadow-md hover:shadow-lg hover:shadow-red-200/50 hover:-translate-y-0.5 cursor-pointer duration-200"
                 >
                   Confirm Archive
                 </button>
@@ -501,14 +483,14 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
         {/* Header */}
         <div className="px-10 py-8 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+            <h3 className="text-2xl font-semibold text-slate-900 tracking-tight">
               {editingCategory ? `Edit ${editingCategory.name}` : 'Register Category'}
             </h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Configure database category metrics</p>
+            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1">Configure database category metrics</p>
           </div>
           <button
             onClick={onCancel}
-            className="p-2 rounded-xl hover:bg-slate-50 text-slate-400 hover:text-slate-950 transition-all"
+            className="p-2 rounded-xl hover:bg-slate-50 text-slate-400 hover:text-slate-950 transition-all cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -528,7 +510,7 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
           {/* Form Fields */}
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Category Name *</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Category Name *</label>
               <input
                 type="text"
                 name="name"
@@ -536,12 +518,12 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
                 onChange={handleInputChange}
                 placeholder="e.g. Asia Pacific"
                 required
-                className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+                className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Category Slug * (Unique slug ID)</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Category Slug * (Unique slug ID)</label>
               <input
                 type="text"
                 name="slug"
@@ -550,19 +532,19 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
                 placeholder="e.g. asia-pacific"
                 required
                 disabled={!!editingCategory}
-                className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all disabled:opacity-60"
+                className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all disabled:opacity-60"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">Display Order</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Display Order</label>
               <input
                 type="number"
                 name="displayOrder"
                 value={formData.displayOrder}
                 onChange={handleInputChange}
                 placeholder="e.g. 1"
-                className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+                className="px-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/30 text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
               />
             </div>
 
@@ -575,7 +557,7 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
                 onChange={handleInputChange}
                 className="w-4 h-4 text-[#0073BB] border-slate-300 rounded focus:ring-[#0073BB]/20 focus:ring-opacity-25"
               />
-              <label htmlFor="isActive" className="text-[10px] font-black uppercase tracking-wider text-slate-500 cursor-pointer">
+              <label htmlFor="isActive" className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 cursor-pointer">
                 Activate category (visible in sidebar navigation)
               </label>
             </div>
@@ -583,7 +565,7 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
 
           {/* Flag Asset Management */}
           <div className="flex flex-col gap-2 p-5 bg-slate-50 rounded-2xl border border-slate-200/50">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 font-bold">Category Flag Graphic (Emoji or SVG/PNG/JPG/WEBP)</label>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Category Flag Graphic (Emoji or SVG/PNG/JPG/WEBP)</label>
 
             <div className="flex items-center gap-6 mt-1">
               <div className="w-20 h-14 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden shadow-inner flex-shrink-0">
@@ -596,7 +578,7 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="px-4 py-2.5 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm disabled:bg-slate-400"
+                    className="px-4 py-2.5 bg-[#1A1C1E] hover:bg-[#0073BB] text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm disabled:bg-slate-400 cursor-pointer"
                   >
                     {uploading ? <RefreshCw size={12} className="animate-spin" /> : <Upload size={12} />}
                     <span>Upload Flag Image</span>
@@ -609,7 +591,7 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
                     onChange={handleInputChange}
                     placeholder="Or type legacy emoji (e.g. 🇸🇬)"
                     required
-                    className="flex-grow px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-bold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
+                    className="flex-grow px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold focus:ring-1 focus:ring-[#0073BB]/20 focus:border-[#0073BB]/40 outline-none transition-all"
                   />
                 </div>
 
@@ -638,14 +620,14 @@ function CategoryFormDrawer({ editingCategory, onSubmit, onCancel }: CategoryFor
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-4 border border-slate-200 text-slate-500 hover:text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all"
+              className="px-6 py-2.5 bg-white hover:bg-slate-50/80 text-slate-600 hover:text-slate-900 border border-slate-200/80 rounded-lg font-bold uppercase text-[11px] tracking-wider transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer text-center duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || uploading}
-              className="px-8 py-4 bg-[#1A1C1E] hover:bg-[#0073BB] disabled:bg-slate-400 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center gap-2"
+              className="px-8 py-2.5 bg-slate-950 hover:bg-[#0073BB] disabled:bg-slate-400 text-white rounded-lg font-bold uppercase text-[11px] tracking-wider transition-all shadow-md hover:shadow-[0_4px_16px_rgba(0,115,187,0.2)] hover:-translate-y-0.5 duration-200 cursor-pointer flex items-center gap-2"
             >
               {(submitting || uploading) && <RefreshCw className="animate-spin" size={12} />}
               <span>{editingCategory ? 'Save Changes' : 'Initialize Category'}</span>
