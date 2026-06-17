@@ -55,76 +55,95 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="bg-transparent min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+    <div className="bg-transparent p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-screen-xl mx-auto space-y-6">
 
         {/* ── Page Header ───────────────────────────────────────────────────── */}
-        <div className="pb-6 border-b border-slate-200">
-          <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">
-            Cloud Events & Workshops
-          </h1>
-          <p className="mt-1 text-slate-500 text-sm max-w-xl font-normal leading-relaxed">
-            Explore and register for upcoming bootcamps, workshops, and cloud sessions.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-5 border-b border-slate-200/80 gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 mb-2 uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              AWS Developer Community
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
+              Cloud Events & Workshops
+            </h1>
+            <p className="mt-1 text-slate-500 text-sm max-w-xl font-normal leading-relaxed">
+              Accelerate your cloud journey with hands-on labs, expert-led workshops, and local meetups.
+            </p>
+          </div>
+          
+          {/* Quick Stats or Status badge */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="bg-white border border-slate-200/80 rounded-xl p-3 flex items-center gap-3 shadow-xs">
+              <div className="w-9 h-9 rounded-lg bg-[#232F3E] text-white flex items-center justify-center font-bold text-lg">
+                {events?.length ?? 0}
+              </div>
+              <div>
+                <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Events</div>
+                <div className="text-xs font-semibold text-slate-700">Available to Register</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* ── Search & Filter Toolbar ───────────────────────────────────────── */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+        {/* ── Search & Filter Toolbar ──────────────────── */}
+        <div className="bg-white border border-slate-200/70 rounded-xl p-3.5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow max-w-4xl">
             {/* Search */}
             <div className="relative flex-grow">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Search className="h-4 w-4" />
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Search className="h-3.5 w-3.5" />
               </span>
               <input
                 type="text"
                 placeholder="Search events by name, venue, or description..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="block w-full pl-10 pr-4 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 rounded-lg text-slate-850 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] text-sm transition"
+                className="block w-full pl-9 pr-4 py-1.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/10 focus:border-[#FF9900] text-xs transition-all"
               />
             </div>
 
             {/* Category select */}
-            <div className="relative shrink-0 sm:w-48">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Filter className="h-4 w-4" />
+            <div className="relative shrink-0 sm:w-44">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Filter className="h-3.5 w-3.5" />
               </span>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="block w-full pl-10 pr-8 py-2 bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] text-sm appearance-none cursor-pointer transition"
+                className="block w-full pl-9 pr-8 py-1.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/10 focus:border-[#FF9900] text-xs appearance-none cursor-pointer transition-all"
               >
                 <option value="All">All Categories</option>
                 {categories.slice(1).map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>
 
             {/* Availability */}
-            <div className="relative shrink-0 sm:w-48">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Users className="h-4 w-4" />
+            <div className="relative shrink-0 sm:w-44">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Users className="h-3.5 w-3.5" />
               </span>
               <select
                 value={availability}
                 onChange={(e) => setAvailability(e.target.value)}
-                className="block w-full pl-10 pr-8 py-2 bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] text-sm appearance-none cursor-pointer transition"
+                className="block w-full pl-9 pr-8 py-1.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/10 focus:border-[#FF9900] text-xs appearance-none cursor-pointer transition-all"
               >
                 {AVAILABILITY_FILTERS.map((filter) => (
                   <option key={filter.value} value={filter.value}>{filter.label}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>
           </div>
 
           {/* View Toggles & Count */}
-          <div className="flex items-center justify-between lg:justify-end gap-4 shrink-0 border-t border-slate-100 pt-3 lg:border-0 lg:pt-0">
+          <div className="flex items-center justify-between lg:justify-end gap-3 shrink-0">
             <div className="flex items-center gap-2">
-              <span className="text-[12px] text-slate-400 font-medium">
+              <span className="text-[11px] text-slate-400 font-medium">
                 {events && events.length > 0
                   ? `${events.length} event${events.length !== 1 ? 's' : ''}`
                   : ''}
@@ -138,27 +157,27 @@ export default function EventsPage() {
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="text-[11px] font-semibold text-[#FF9900] hover:text-orange-600 transition"
+                  className="text-[11px] font-semibold text-[#FF9900] hover:text-orange-600 transition ml-1"
                 >
                   Clear filters
                 </button>
               )}
             </div>
 
-            <div className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200/50 gap-0.5">
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/50 gap-0.5">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-md transition-all duration-150 ${viewMode === 'grid' ? 'bg-white text-[#232F3E] shadow-xs' : 'text-slate-400 hover:text-slate-600'}`}
                 title="Grid View"
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-1.5 rounded-md transition-all duration-150 ${viewMode === 'list' ? 'bg-white text-[#232F3E] shadow-xs' : 'text-slate-400 hover:text-slate-600'}`}
                 title="List View"
               >
-                <List className="w-4 h-4" />
+                <List className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -190,8 +209,6 @@ export default function EventsPage() {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 // EventCard
 // ─────────────────────────────────────────────────────────────────────────────
 const EventCard = memo(function EventCard({ event }: { event: Event }) {
@@ -224,97 +241,100 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
   return (
     <div
       ref={cardRef}
-      className={`group bg-white border border-slate-200 hover:border-slate-300 rounded-2xl overflow-hidden shadow-xs hover:shadow-md flex flex-col h-full relative transition-all duration-300 ${isEnded ? 'ended-blur opacity-85' : ''}`}
+      className={`group bg-white border border-slate-200/80 hover:border-slate-350 rounded-xl overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-1 flex flex-col h-full relative transition-all duration-300 ease-out ${isEnded ? 'ended-blur opacity-85' : ''}`}
     >
       {/* Banner */}
-      <div className="aspect-[16/9] w-full relative overflow-hidden bg-slate-950 shrink-0">
+      <div className="aspect-[16/9] w-full relative overflow-hidden bg-slate-950 shrink-0 border-b border-slate-100">
         {banner_url ? (
           <img
             src={banner_url}
             alt={title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-500 ease-out"
+            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
             onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
           />
         ) : (
           <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-            <span className="text-[10px] text-slate-400">No banner</span>
+            <span className="text-[10px] text-slate-400 font-medium">No banner available</span>
           </div>
         )}
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
-        {/* Solid dark mask at the bottom of the banner to hide pre-baked image details */}
-        <div className="absolute inset-x-0 bottom-0 h-9 bg-slate-950/90 flex items-center justify-between px-3.5 z-10 select-none">
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider ${mode === 'ONLINE' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
+        {/* Frosted Glass overlay bar at the bottom to obscure pre-baked details elegantly */}
+        <div className="absolute inset-x-0 bottom-0 h-9 bg-slate-950/75 backdrop-blur-xs border-t border-white/10 flex items-center justify-between px-3 z-10 select-none">
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${mode === 'ONLINE' ? 'bg-emerald-600/90 text-white' : 'bg-blue-600/90 text-white'}`}>
             {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
           </span>
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+          <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">
             {category}
           </span>
         </div>
       </div>
 
-      <div className="p-5 flex-grow flex flex-col justify-between">
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-bold text-[18px] sm:text-[20px] text-slate-950 line-clamp-2 mb-1.5 font-display leading-tight min-h-[50px]">
+      {/* Card Content body */}
+      <div className="p-4 flex-grow flex flex-col justify-between">
+        <div className="flex-grow flex flex-col">
+          {/* Header/Title & Description container without artificial spaces */}
+          <div className="space-y-1">
+            <h3 className="font-bold text-sm sm:text-[15px] text-slate-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors font-display tracking-tight">
               {title}
             </h3>
-            <p className="text-slate-500 text-[11px] font-normal line-clamp-2 leading-relaxed min-h-[34px]">
-              {short_description}
-            </p>
+            {short_description && (
+              <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
+                {short_description}
+              </p>
+            )}
           </div>
 
-          {/* Meta info single line (un-boxed) */}
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium py-1 w-full min-w-0">
+          {/* Date, Time, Venue metadata line - aligned closely at the bottom of content area */}
+          <div className="mt-auto pt-4 flex items-center gap-1.5 text-[11px] text-slate-500 font-medium pb-0.5 w-full min-w-0">
             <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <div className="flex items-center gap-1 min-w-0 truncate">
               <span className="shrink-0">{formattedDate}</span>
-              <span className="text-slate-350 shrink-0">•</span>
+              <span className="text-slate-300 shrink-0">•</span>
               <span className="shrink-0">{startTimeStr}</span>
-              <span className="text-slate-350 shrink-0">•</span>
+              <span className="text-slate-300 shrink-0">•</span>
               <span className="truncate text-slate-450" title={venue}>{venue}</span>
             </div>
           </div>
-
-          {/* Availability Status */}
-          <div className="flex items-center justify-between text-xs py-1 border-t border-slate-100 pt-3.5">
-            <span className="text-slate-400 font-medium">Availability</span>
-            {isEnded ? (
-              <span className="text-slate-450 font-bold text-[10px] uppercase tracking-wider">Closed</span>
-            ) : isFull ? (
-              <span className="text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded border border-rose-100 text-[10px] uppercase tracking-wider">Sold Out</span>
-            ) : (
-              <span className="text-emerald-750 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 text-[10px] uppercase tracking-wider">{seatsLeft} seats remaining</span>
-            )}
-          </div>
         </div>
 
-        {/* CTA */}
-        <div className="mt-5 pt-4 border-t border-slate-100">
+        {/* Bottom Booking Area */}
+        <div className="mt-3.5 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-between text-xs mb-2.5">
+            <span className="text-slate-400 text-[11px] font-medium">Availability</span>
+            {isEnded ? (
+              <span className="text-slate-450 font-bold text-[9px] uppercase tracking-wider">Closed</span>
+            ) : isFull ? (
+              <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-100/80 text-[9px] uppercase tracking-wider">Sold Out</span>
+            ) : (
+              <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100/80 text-[9px] uppercase tracking-wider">{seatsLeft} seats remaining</span>
+            )}
+          </div>
+
           {isEnded ? (
             <button
               disabled
-              className="w-full flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-400 font-semibold py-2.5 rounded-lg cursor-not-allowed text-xs"
+              className="w-full flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-400 font-semibold py-2 rounded-lg cursor-not-allowed text-xs transition-colors"
             >
               Event Completed
             </button>
           ) : isFull ? (
             <button
               disabled
-              className="w-full flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-400 font-semibold py-2.5 rounded-lg cursor-not-allowed text-xs"
+              className="w-full flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-400 font-semibold py-2 rounded-lg cursor-not-allowed text-xs transition-colors"
             >
               Fully Booked
             </button>
           ) : (
             <Link
               href={`/events/${event_id}`}
-              className="w-full flex items-center justify-center gap-1.5 bg-[#232F3E] hover:bg-[#1a2535] text-white font-semibold py-2.5 rounded-lg shadow-sm text-xs transition-all duration-200 group/btn"
+              className="w-full flex items-center justify-center gap-1.5 bg-[#232F3E] hover:bg-[#1a2535] text-white font-semibold py-2 rounded-lg shadow-xs text-xs transition-all duration-200 group/btn"
             >
               <span>View Details</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform duration-200" />
             </Link>
           )}
         </div>
@@ -364,31 +384,31 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
   return (
     <div
       ref={rowRef}
-      className={`group bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-4 flex flex-col md:flex-row items-stretch md:items-center gap-4 relative overflow-hidden transition-all duration-200 shadow-xs ${isEnded ? 'ended-blur opacity-85' : ''}`}
+      className={`group bg-white border border-slate-200/80 hover:border-slate-350 rounded-xl p-3.5 flex flex-col md:flex-row items-stretch md:items-center gap-4 relative overflow-hidden transition-all duration-300 shadow-xs hover:shadow-sm ${isEnded ? 'ended-blur opacity-85' : ''}`}
     >
       {/* Thumbnail */}
-      <div className="w-full md:w-32 h-20 bg-slate-900 rounded-lg overflow-hidden shrink-0 relative">
+      <div className="w-full md:w-32 h-20 bg-slate-900 rounded-lg overflow-hidden shrink-0 relative border border-slate-100/80 shadow-xs">
         {banner_url ? (
           <img
             src={banner_url}
             alt={title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-500"
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
             onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
           />
         ) : (
           <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-            <span className="text-[10px] text-slate-400">No banner</span>
+            <span className="text-[9px] text-slate-400 font-medium">No banner</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
         
-        <span className="absolute top-2 left-2 bg-[#232F3E]/90 text-white text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-xs">
+        <span className="absolute top-1.5 left-2 bg-[#232F3E]/95 text-white text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-xs">
           {category}
         </span>
         
-        <span className={`absolute bottom-2 left-2 text-[8px] font-bold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider ${
+        <span className={`absolute bottom-1.5 left-2 text-[7px] font-bold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider ${
           mode === 'ONLINE' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
         }`}>
           {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
@@ -404,70 +424,72 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
       </div>
 
       {/* Middle section: Titles & Description & Metadata */}
-      <div className="flex-grow min-w-0 flex flex-col justify-between py-0.5">
-        <div>
+      <div className="flex-grow min-w-0 flex flex-col justify-between h-full py-0.5">
+        <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-slate-950 font-display text-[17px] truncate leading-snug">
+            <h3 className="font-bold text-slate-900 font-display text-[15px] sm:text-[16px] tracking-tight group-hover:text-amber-600 transition-colors truncate leading-snug">
               {title}
             </h3>
             {isFull && !isEnded && (
-              <span className="bg-rose-50 text-rose-700 text-[9px] font-semibold px-2 py-0.5 rounded-full border border-rose-100 shrink-0">
+              <span className="bg-rose-50 text-rose-700 text-[8px] font-semibold px-1.5 py-0.5 rounded-full border border-rose-100 shrink-0">
                 Full
               </span>
             )}
           </div>
-          <p className="text-slate-500 text-[11px] font-normal leading-relaxed line-clamp-1 mt-0.5">
-            {short_description}
-          </p>
+          {short_description && (
+            <p className="text-slate-500 text-[11px] font-normal leading-relaxed line-clamp-1">
+              {short_description}
+            </p>
+          )}
         </div>
 
         {/* Metadata single line */}
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium truncate mt-2.5">
-          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-          <span className="shrink-0">{formattedDate}</span>
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium truncate mt-2 pb-0.5">
+          <Calendar className="w-3.5 h-3.5 text-slate-455 shrink-0 text-slate-400" />
+          <span className="text-slate-500 shrink-0">{formattedDate}</span>
           <span className="text-slate-300 shrink-0">•</span>
-          <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-          <span className="shrink-0">{startTimeStr}</span>
+          <Clock className="w-3.5 h-3.5 text-slate-455 shrink-0 text-slate-400" />
+          <span className="text-slate-500 shrink-0">{startTimeStr}</span>
           <span className="text-slate-300 shrink-0">•</span>
-          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-          <span className="truncate max-w-[250px]" title={venue}>{venue}</span>
+          <MapPin className="w-3.5 h-3.5 text-slate-455 shrink-0 text-slate-400" />
+          <span className="text-slate-500 truncate max-w-[280px]" title={venue}>{venue}</span>
         </div>
       </div>
 
       {/* Right section: Action & Availability */}
-      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t border-slate-100 md:border-l md:border-t-0 md:pl-6 pt-3 md:pt-0 shrink-0 md:w-44">
+      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 border-t border-slate-100 md:border-l md:border-t-0 md:pl-6 pt-3 md:pt-0 shrink-0 md:w-44">
         <div className="text-right">
           {isEnded ? (
-            <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Closed</span>
+            <span className="text-slate-400 font-bold text-[9px] uppercase tracking-wider">Closed</span>
           ) : isFull ? (
-            <span className="text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded border border-rose-100 text-[10px] uppercase tracking-wider">Sold Out</span>
+            <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-100 text-[9px] uppercase tracking-wider">Sold Out</span>
           ) : (
-            <span className="text-emerald-750 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 text-[10px] uppercase tracking-wider">{seatsLeft} seats left</span>
+            <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 text-[9px] uppercase tracking-wider">{seatsLeft} seats remaining</span>
           )}
         </div>
 
-        <div className="shrink-0 w-24 md:w-full mt-1">
+        <div className="shrink-0 w-24 md:w-full mt-0.5">
           {isEnded ? (
             <button
               disabled
-              className="w-full text-center text-xs font-semibold py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed"
+              className="w-full text-center text-xs font-semibold py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed"
             >
               Ended
             </button>
           ) : isFull ? (
             <button
               disabled
-              className="w-full text-center text-xs font-semibold py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed"
+              className="w-full text-center text-xs font-semibold py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed"
             >
               Full
             </button>
           ) : (
             <Link
               href={`/events/${event_id}`}
-              className="w-full flex items-center justify-center gap-1 bg-[#232F3E] hover:bg-[#1a2535] text-white text-xs font-semibold py-2 rounded-lg shadow-sm transition group/btn"
+              className="w-full flex items-center justify-center gap-1 bg-[#232F3E] hover:bg-[#1a2535] text-white text-xs font-semibold py-1.5 rounded-lg shadow-xs transition-all duration-200 group/btn"
             >
               <span>Details</span>
-              <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform duration-200" />
             </Link>
           )}
         </div>
