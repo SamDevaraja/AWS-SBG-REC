@@ -88,29 +88,9 @@ export default function EventsPage() {
           )}
         </div>
 
-        {/* ── Categories Pill Tab List ──────────────────────────────────────── */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-none">
-          {categories.map((cat) => {
-            const isSelected = category === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition-all duration-150 ${
-                  isSelected
-                    ? 'bg-[#232F3E] text-white border-transparent shadow-xs'
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-
         {/* ── Search & Filter Toolbar ───────────────────────────────────────── */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow max-w-3xl">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow max-w-4xl">
             {/* Search */}
             <div className="relative flex-grow">
               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -125,8 +105,26 @@ export default function EventsPage() {
               />
             </div>
 
+            {/* Category select */}
+            <div className="relative shrink-0 sm:w-48">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Filter className="h-4 w-4" />
+              </span>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="block w-full pl-10 pr-8 py-2 bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] text-sm appearance-none cursor-pointer transition"
+              >
+                <option value="All">All Categories</option>
+                {categories.slice(1).map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            </div>
+
             {/* Availability */}
-            <div className="relative shrink-0 sm:w-56">
+            <div className="relative shrink-0 sm:w-48">
               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                 <Users className="h-4 w-4" />
               </span>
