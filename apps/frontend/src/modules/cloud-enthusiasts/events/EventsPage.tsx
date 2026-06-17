@@ -61,10 +61,6 @@ export default function EventsPage() {
         {/* ── Page Header ───────────────────────────────────────────────────── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="h-1.5 w-6 rounded-full bg-[#FF9900]" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">AWS SBG REC</span>
-            </div>
             <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">
               Cloud Events & Workshops
             </h1>
@@ -74,13 +70,16 @@ export default function EventsPage() {
           </div>
 
           {events && events.length > 0 && (
-            <div className="shrink-0 flex items-center gap-3 bg-white border border-slate-200 rounded-[12px] px-4 py-2.5 shadow-xs">
-              <div className="text-right">
-                <span className="block text-2xl font-extrabold text-slate-950 leading-none">{events.length}</span>
-                <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1 block">Active Events</span>
+            <div className="shrink-0 flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
+              <div className="p-2 bg-amber-50 rounded-lg text-amber-600 border border-amber-100/50 shrink-0">
+                <Calendar className="w-4 h-4" />
+              </div>
+              <div className="min-w-[80px]">
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">Active Events</span>
+                <span className="block text-2xl font-extrabold text-slate-900 mt-1.5 leading-none">{events.length}</span>
               </div>
               {isRefetching && (
-                <span className="flex h-2 w-2 relative">
+                <span className="flex h-2 w-2 relative shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                 </span>
