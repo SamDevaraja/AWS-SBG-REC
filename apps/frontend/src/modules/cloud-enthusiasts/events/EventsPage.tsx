@@ -263,11 +263,11 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
         {/* Frosted Glass overlay bar at the bottom to obscure pre-baked details elegantly */}
-        <div className="absolute inset-x-0 bottom-0 h-9 bg-slate-950/75 backdrop-blur-xs border-t border-white/10 flex items-center justify-between px-3 z-10 select-none">
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${mode === 'ONLINE' ? 'bg-emerald-600/90 text-white' : 'bg-blue-600/90 text-white'}`}>
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-slate-950/80 backdrop-blur-xs border-t border-white/5 flex items-center justify-between px-3.5 z-10 select-none">
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${mode === 'ONLINE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/35' : 'bg-blue-500/10 text-blue-400 border border-blue-500/35'}`}>
             {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
           </span>
-          <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-slate-200 tracking-widest uppercase">
             {category}
           </span>
         </div>
@@ -291,11 +291,11 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           {/* Date, Time, Venue metadata line - aligned closely at the bottom of content area */}
           <div className="mt-auto pt-4 flex items-center gap-1.5 text-[11px] text-slate-500 font-medium pb-0.5 w-full min-w-0">
             <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <div className="flex items-center gap-1 min-w-0 truncate">
+            <div className="flex items-center gap-1.5 min-w-0 truncate">
               <span className="shrink-0">{formattedDate}</span>
-              <span className="text-slate-300 shrink-0">•</span>
+              <span className="text-slate-300 shrink-0">|</span>
               <span className="shrink-0">{startTimeStr}</span>
-              <span className="text-slate-300 shrink-0">•</span>
+              <span className="text-slate-300 shrink-0">|</span>
               <span className="truncate text-slate-450" title={venue}>{venue}</span>
             </div>
           </div>
@@ -404,12 +404,12 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
         
-        <span className="absolute top-1.5 left-2 bg-[#232F3E]/95 text-white text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-xs">
+        <span className="absolute top-1.5 left-2 bg-slate-950/85 backdrop-blur-xs text-white text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-xs">
           {category}
         </span>
         
         <span className={`absolute bottom-1.5 left-2 text-[7px] font-bold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider ${
-          mode === 'ONLINE' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
+          mode === 'ONLINE' ? 'bg-emerald-500/95 text-white' : 'bg-blue-500/95 text-white'
         }`}>
           {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
         </span>
@@ -444,15 +444,15 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
         </div>
 
         {/* Metadata single line */}
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium truncate mt-2 pb-0.5">
-          <Calendar className="w-3.5 h-3.5 text-slate-455 shrink-0 text-slate-400" />
-          <span className="text-slate-500 shrink-0">{formattedDate}</span>
-          <span className="text-slate-300 shrink-0">•</span>
-          <Clock className="w-3.5 h-3.5 text-slate-455 shrink-0 text-slate-400" />
-          <span className="text-slate-500 shrink-0">{startTimeStr}</span>
-          <span className="text-slate-300 shrink-0">•</span>
-          <MapPin className="w-3.5 h-3.5 text-slate-455 shrink-0 text-slate-400" />
-          <span className="text-slate-500 truncate max-w-[280px]" title={venue}>{venue}</span>
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium truncate mt-2 pb-0.5">
+          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <div className="flex items-center gap-1.5 min-w-0 truncate">
+            <span className="shrink-0">{formattedDate}</span>
+            <span className="text-slate-300 shrink-0">|</span>
+            <span className="shrink-0">{startTimeStr}</span>
+            <span className="text-slate-300 shrink-0">|</span>
+            <span className="truncate text-slate-450" title={venue}>{venue}</span>
+          </div>
         </div>
       </div>
 
