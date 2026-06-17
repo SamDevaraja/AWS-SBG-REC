@@ -6,7 +6,8 @@ import { useRegistrations, useEvents } from '@/lib/hooks';
 import {
   Download, Eye, XCircle, ClipboardList,
   Search, ChevronDown, Calendar, Filter,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Users, CheckCircle2,
+  Clock, AlertTriangle
 } from 'lucide-react';
 import { formatDate } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
@@ -14,32 +15,22 @@ import { StatusBadge } from '@/shared/components/StatusBadge';
 /* ─── Loading Skeleton ──────────────────────────────────────────────── */
 function LoadingSkeleton() {
   return (
-    <div
-      style={{
-        background: 'rgba(255,255,255,0.8)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderRadius: '24px',
-        border: '1.5px solid rgba(35,47,62,0.08)',
-        boxShadow: '0 20px 40px rgba(35,47,62,0.04)',
-        overflow: 'hidden',
-      }}
-    >
+    <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-sm border-collapse">
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(35,47,62,0.07)', background: 'rgba(35,47,62,0.02)' }}>
+            <tr className="border-b border-slate-100 bg-slate-50/50">
               {['ID', 'Attendee', 'Email', 'Event', 'Date', 'Status', ''].map((h) => (
-                <th key={h} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest" style={{ color: '#475569' }}>{h}</th>
+                <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100/70">
             {Array.from({ length: 6 }).map((_, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid rgba(35,47,62,0.04)' }}>
-                {[20, 28, 36, 32, 24, 20, 16].map((w, j) => (
-                  <td key={j} className="px-5 py-4">
-                    <div className="h-3 rounded-full animate-pulse" style={{ width: `${w * 4}px`, background: 'rgba(35,47,62,0.06)' }} />
+              <tr key={i} className="animate-pulse">
+                {[16, 28, 36, 32, 24, 20, 12].map((w, j) => (
+                  <td key={j} className="px-6 py-4.5">
+                    <div className="h-3.5 rounded bg-slate-100" style={{ width: `${w * 4}px` }} />
                   </td>
                 ))}
               </tr>
@@ -54,31 +45,15 @@ function LoadingSkeleton() {
 /* ─── Empty State ────────────────────────────────────────────────────── */
 function EmptyState() {
   return (
-    <div
-      style={{
-        background: 'linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderRadius: '24px',
-        border: '1.5px dashed rgba(35,47,62,0.12)',
-        padding: '64px 32px',
-        textAlign: 'center',
-      }}
-    >
-      <div
-        style={{
-          margin: '0 auto 20px',
-          width: '56px', height: '56px',
-          borderRadius: '16px',
-          background: 'rgba(35,47,62,0.05)',
-          border: '1px solid rgba(35,47,62,0.08)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
-        <ClipboardList style={{ width: 24, height: 24, color: '#94a3b8' }} />
+    <div className="border border-dashed border-slate-200/80 rounded-2xl p-16 text-center bg-white/60 backdrop-blur-sm relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,153,0,0.025)_0%,transparent_70%)] pointer-events-none" />
+      <div className="relative z-10">
+        <div className="mx-auto w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center mb-4 text-slate-400">
+          <ClipboardList size={22} />
+        </div>
+        <h3 className="text-[15px] font-bold text-slate-800 mb-1">No registrations found</h3>
+        <p className="text-[12.5px] text-slate-400 max-w-xs mx-auto">Try adjusting your search query or filters.</p>
       </div>
-      <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#232F3E', marginBottom: '6px' }}>No registrations found</h3>
-      <p style={{ fontSize: '13px', color: '#94a3b8' }}>Try adjusting your search or filter criteria.</p>
     </div>
   );
 }
@@ -87,90 +62,20 @@ function EmptyState() {
 function Avatar({ name }: { name: string }) {
   const initials = name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
   const palettes = [
-    { bg: 'linear-gradient(135deg,#f59e0b,#f97316)', color: '#fff' },
-    { bg: 'linear-gradient(135deg,#3b82f6,#6366f1)', color: '#fff' },
-    { bg: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff' },
-    { bg: 'linear-gradient(135deg,#f43f5e,#e11d48)', color: '#fff' },
-    { bg: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff' },
-    { bg: 'linear-gradient(135deg,#0073BB,#005d96)', color: '#fff' },
+    { bg: 'from-amber-400 to-orange-500', text: 'text-white' },
+    { bg: 'from-blue-400 to-indigo-500', text: 'text-white' },
+    { bg: 'from-emerald-400 to-teal-500', text: 'text-white' },
+    { bg: 'from-rose-400 to-red-500', text: 'text-white' },
+    { bg: 'from-purple-400 to-violet-500', text: 'text-white' },
+    { bg: 'from-[#0073BB] to-[#005d96]', text: 'text-white' },
   ];
   const p = palettes[name.charCodeAt(0) % palettes.length];
   return (
-    <div
-      style={{
-        width: 32, height: 32, borderRadius: '50%',
-        background: p.bg, color: p.color,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '11px', fontWeight: 800, flexShrink: 0,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-      }}
-    >
+    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${p.bg} ${p.text} flex items-center justify-center text-[10.5px] font-black shrink-0 shadow-sm border border-white`}>
       {initials}
     </div>
   );
 }
-
-/* ─── Stat Card ──────────────────────────────────────────────────────── */
-function StatCard({
-  label, value, icon: Icon, accent,
-}: { label: string; value: number | string; icon: React.ComponentType<any>; accent: string }) {
-  return (
-    <div
-      style={{
-        background: 'rgba(255,255,255,0.8)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: '20px',
-        border: '1.5px solid rgba(35,47,62,0.08)',
-        boxShadow: '0 8px 24px rgba(35,47,62,0.05)',
-        padding: '20px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '16px',
-        position: 'relative' as const,
-        overflow: 'hidden',
-      }}
-    >
-      {/* corner glow */}
-      <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: accent, filter: 'blur(30px)', pointerEvents: 'none' }} />
-      <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(35,47,62,0.05)', border: '1px solid rgba(35,47,62,0.06)', position: 'relative', zIndex: 1 }}>
-        <Icon style={{ width: 18, height: 18, color: '#232F3E' }} />
-      </div>
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <p style={{ fontSize: '24px', fontWeight: 900, color: '#232F3E', lineHeight: 1, margin: 0 }}>{value}</p>
-        <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' as const, letterSpacing: '0.07em', margin: '4px 0 0' }}>{label}</p>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Pill Label ──────────────────────────────────────────────────────── */
-function SectionPill({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        background: 'linear-gradient(135deg, rgba(255,153,0,0.07), rgba(35,47,62,0.04))',
-        border: '1px solid rgba(255,153,0,0.25)',
-        borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: '14px',
-        boxShadow: '0 2px 12px rgba(255,153,0,0.08)',
-      }}
-    >
-      {/* Orange dot */}
-      <span style={{
-        width: 7, height: 7, borderRadius: '50%',
-        background: 'linear-gradient(135deg, #FF9900, #F7BA45)',
-        flexShrink: 0,
-        boxShadow: '0 0 6px rgba(255,153,0,0.5)',
-        display: 'inline-block',
-      }} />
-      <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
-        {children}
-      </span>
-    </div>
-  );
-}
-
 
 /* ─── Main Page ──────────────────────────────────────────────────────── */
 export default function RegistrationsPage() {
@@ -198,7 +103,6 @@ export default function RegistrationsPage() {
   const totalPages = data?.totalPages ?? 1;
   const totalCount = data?.total ?? 0;
 
-
   function handleExportCsv() {
     const rows = [['ID', 'Name', 'Email', 'Event', 'Date', 'Status']];
     registrations.forEach((r) => {
@@ -220,297 +124,265 @@ export default function RegistrationsPage() {
       return acc;
     }, []);
 
-  const hasActiveFilter = search || statusFilter || eventFilter || dateFrom || dateTo;
+  const hasActiveFilter = !!(search || statusFilter || eventFilter || dateFrom || dateTo);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>
-
-      {/* ── Background ambient blobs (matches landing page) ── */}
-      <div style={{ position: 'fixed', top: '10%', right: '12%', width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,115,187,0.05) 0%, transparent 70%)', filter: 'blur(50px)', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'fixed', bottom: '10%', left: '8%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,153,0,0.06) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0 }} />
-
-      <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-
-        {/* ── Header ── */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 28, background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px' }}>
-          <div>
-            <SectionPill>Admin · Registrations</SectionPill>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
-                Registrations
-              </h1>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(35,47,62,0.07)', border: '1px solid rgba(35,47,62,0.1)',
-                borderRadius: '100px', padding: '3px 12px',
-                fontSize: '12px', fontWeight: 800, color: '#232F3E',
-              }}>
-                {totalCount}
-              </span>
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-10 px-10 overflow-y-auto premium-scrollbar scroll-smooth">
+      {/* Background ambient glow (matches services explorer) */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.05)_0%,transparent_55%)] pointer-events-none z-0" />
+      
+      <div className="max-w-7xl w-full mx-auto flex flex-col gap-6 z-10 relative">
+        
+        {/* ── Header Card ── */}
+        <div className="relative overflow-hidden bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
+          {/* Ambient background glow inside the header card */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[radial-gradient(circle_at_70%_20%,rgba(255,153,0,0.08)_0%,transparent_60%)] pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              {/* Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200/50 rounded-full mb-3 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Admin · Registrations</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <h1 className="text-[26px] font-bold text-slate-900 tracking-tight leading-none">
+                  Registrations
+                </h1>
+                <span className="inline-flex items-center justify-center rounded-full bg-slate-100 border border-slate-200/60 px-3 py-0.5 text-xs font-bold text-slate-600">
+                  {totalCount}
+                </span>
+              </div>
+              <p className="text-[12px] text-slate-400 font-normal mt-2">
+                Manage and monitor all event registrations across the platform.
+              </p>
             </div>
-            <p style={{ fontSize: '14px', color: '#475569', marginTop: 8, marginLeft: 1 }}>
-              Manage and monitor all event registrations
-            </p>
+            
+            <button
+              onClick={handleExportCsv}
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12px] font-semibold transition-all shadow-md hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
+            >
+              <Download size={14} />
+              Export CSV
+            </button>
           </div>
-
-          <button
-            onClick={handleExportCsv}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#232F3E', color: '#ffffff',
-              borderRadius: '12px', fontSize: '13px', fontWeight: 700,
-              padding: '10px 20px', border: 'none', cursor: 'pointer',
-              boxShadow: '0 4px 16px rgba(35,47,62,0.2)',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#232F3E'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; }}
-          >
-            <Download style={{ width: 15, height: 15 }} />
-            Export CSV
-          </button>
         </div>
 
-        {/* Orange divider (like landing page section separators) */}
-        <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginBottom: 28, borderRadius: 2 }} />
+        {/* ── Stats Cards Row ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(0,115,187,0.04)_0%,transparent_60%)]" />
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+              <Users size={18} className="group-hover:text-[#0073BB] transition-colors" />
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Total Registrations</span>
+              <span className="text-xl font-bold text-slate-800">{totalCount}</span>
+            </div>
+          </div>
 
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(16,185,129,0.04)_0%,transparent_60%)]" />
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors">
+              <CheckCircle2 size={18} className="group-hover:text-emerald-500 transition-colors" />
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Confirmed</span>
+              <span className="text-xl font-bold text-slate-800">
+                {registrations.filter(r => r.status === 'CONFIRMED').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
+              </span>
+            </div>
+          </div>
 
-        {/* ── Filters Card ── */}
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderRadius: '24px',
-            border: '1.5px solid rgba(35,47,62,0.08)',
-            boxShadow: '0 8px 32px rgba(35,47,62,0.05)',
-            padding: '20px 24px',
-            marginBottom: 20,
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* dot grid */}
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(35,47,62,0.025) 1.2px, transparent 1.2px)', backgroundSize: '20px 20px', pointerEvents: 'none', zIndex: 0, borderRadius: '24px' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginBottom: 12 }}>
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(245,158,11,0.04)_0%,transparent_60%)]" />
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
+              <Clock size={18} className="group-hover:text-amber-500 transition-colors" />
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Pending</span>
+              <span className="text-xl font-bold text-slate-800">
+                {registrations.filter(r => r.status === 'PENDING').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
+              </span>
+            </div>
+          </div>
 
-              {/* Search */}
-              <div style={{ position: 'relative', flex: '1 1 220px' }}>
-                <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#94a3b8' }} />
-                <input
-                  type="text"
-                  placeholder="Search by name or email…"
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  style={{
-                    width: '100%', background: 'rgba(255,255,255,0.9)',
-                    border: '1.5px solid rgba(35,47,62,0.1)', borderRadius: '12px',
-                    fontSize: '13px', color: '#232F3E',
-                    paddingLeft: 36, paddingRight: 12, paddingTop: 10, paddingBottom: 10,
-                    outline: 'none', boxSizing: 'border-box',
-                  }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#FF9900'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,153,0,0.12)'; }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(35,47,62,0.1)'; e.currentTarget.style.boxShadow = 'none'; }}
-                />
-              </div>
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(239,68,68,0.04)_0%,transparent_60%)]" />
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-rose-50 group-hover:border-rose-100 transition-colors">
+              <AlertTriangle size={18} className="group-hover:text-rose-500 transition-colors" />
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Cancelled</span>
+              <span className="text-xl font-bold text-slate-800">
+                {registrations.filter(r => r.status === 'CANCELLED').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
+              </span>
+            </div>
+          </div>
+        </div>
 
-              {/* Event Filter */}
-              <div style={{ position: 'relative' }}>
-                <Filter style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', width: 13, height: 13, color: '#94a3b8', pointerEvents: 'none' }} />
-                <select
-                  value={eventFilter}
-                  onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-                  style={{
-                    appearance: 'none', background: 'rgba(255,255,255,0.9)',
-                    border: '1.5px solid rgba(35,47,62,0.1)', borderRadius: '12px',
-                    fontSize: '13px', color: '#232F3E',
-                    paddingLeft: 30, paddingRight: 30, paddingTop: 10, paddingBottom: 10,
-                    cursor: 'pointer', outline: 'none',
-                  }}
-                >
-                  <option value="">All Events</option>
-                  {events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
-                </select>
-                <ChevronDown style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', width: 13, height: 13, color: '#94a3b8', pointerEvents: 'none' }} />
-              </div>
-
-              {/* Status Filter */}
-              <div style={{ position: 'relative' }}>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                  style={{
-                    appearance: 'none', background: 'rgba(255,255,255,0.9)',
-                    border: '1.5px solid rgba(35,47,62,0.1)', borderRadius: '12px',
-                    fontSize: '13px', color: '#232F3E',
-                    paddingLeft: 14, paddingRight: 30, paddingTop: 10, paddingBottom: 10,
-                    cursor: 'pointer', outline: 'none',
-                  }}
-                >
-                  <option value="">All Statuses</option>
-                  <option value="CONFIRMED">Confirmed</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </select>
-                <ChevronDown style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', width: 13, height: 13, color: '#94a3b8', pointerEvents: 'none' }} />
-              </div>
+        {/* ── Filters Panel Card ── */}
+        <div className="bg-white border border-slate-100 rounded-2xl px-6 py-5 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.015)_0%,transparent_55%)] pointer-events-none" />
+          
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            {/* Search Input */}
+            <div className="md:col-span-6 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+              <input
+                type="text"
+                placeholder="Search registrations by attendee name or email..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
+              />
             </div>
 
-            {/* Date Range + Clear */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', fontWeight: 700, color: '#475569' }}>
-                <Calendar style={{ width: 13, height: 13 }} />
-                Date range
+            {/* Event Dropdown */}
+            <div className="md:col-span-3 relative">
+              <select
+                value={eventFilter}
+                onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+              >
+                <option value="">All Events</option>
+                {events.map((ev) => (
+                  <option key={ev.id} value={ev.id}>
+                    {ev.title}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+            </div>
+
+            {/* Status Dropdown */}
+            <div className="md:col-span-3 relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+              >
+                <option value="">All Statuses</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="PENDING">Pending</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+            </div>
+          </div>
+
+          {/* Date Filters & Clear button */}
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100/80">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                <Calendar size={13} className="text-slate-400" />
+                <span>Registration Date Range</span>
               </div>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-                style={{
-                  background: 'rgba(255,255,255,0.9)',
-                  border: '1.5px solid rgba(35,47,62,0.1)', borderRadius: '12px',
-                  fontSize: '13px', color: '#232F3E', padding: '8px 12px', outline: 'none',
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#FF9900'; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(35,47,62,0.1)'; }}
+                className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
               />
-              <span style={{ fontSize: 13, color: '#94a3b8' }}>→</span>
+              <span className="text-slate-400 text-xs font-medium">to</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-                style={{
-                  background: 'rgba(255,255,255,0.9)',
-                  border: '1.5px solid rgba(35,47,62,0.1)', borderRadius: '12px',
-                  fontSize: '13px', color: '#232F3E', padding: '8px 12px', outline: 'none',
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#FF9900'; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(35,47,62,0.1)'; }}
+                className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
               />
-              {hasActiveFilter && (
-                <button
-                  onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-                  style={{ fontSize: '12px', fontWeight: 700, color: '#FF9900', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}
-                >
-                  Clear all
-                </button>
-              )}
             </div>
+
+            {hasActiveFilter && (
+              <button
+                onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setDateFrom(''); setDateTo(''); setPage(1); }}
+                className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer"
+              >
+                Clear all filters
+              </button>
+            )}
           </div>
         </div>
 
-        {/* ── Table ── */}
+        {/* ── Grid/Table View ── */}
         {isLoading ? (
           <LoadingSkeleton />
         ) : registrations.length === 0 ? (
           <EmptyState />
         ) : (
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.85)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              borderRadius: '24px',
-              border: '1.5px solid rgba(35,47,62,0.08)',
-              boxShadow: '0 20px 40px rgba(35,47,62,0.06)',
-              overflow: 'hidden',
-              position: 'relative',
-            }}
-          >
-            {/* dot grid overlay */}
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(35,47,62,0.02) 1.2px, transparent 1.2px)', backgroundSize: '20px 20px', pointerEvents: 'none', zIndex: 0 }} />
-            <div className="overflow-x-auto" style={{ position: 'relative', zIndex: 1 }}>
-              <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden relative">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
+            
+            <div className="overflow-x-auto relative z-10">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(35,47,62,0.07)', background: 'rgba(35,47,62,0.02)' }}>
+                  <tr className="border-b border-slate-100 bg-slate-50/50">
                     {['ID', 'Attendee', 'Email', 'Event', 'Date', 'Status', 'Actions'].map((h) => (
-                      <th key={h} style={{ padding: '14px 20px', fontSize: '10px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
+                      <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-100/70">
                   {registrations.map((reg) => (
                     <tr
                       key={reg.id}
-                      className="group"
-                      style={{ borderBottom: '1px solid rgba(35,47,62,0.04)', transition: 'background 0.15s' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(255,153,0,0.03)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'; }}
+                      className="hover:bg-slate-50/40 transition-all duration-200 group"
                     >
                       {/* ID */}
-                      <td style={{ padding: '14px 20px' }}>
-                        <span style={{
-                          fontFamily: 'JetBrains Mono, monospace',
-                          fontSize: '11px', color: '#64748b',
-                          background: 'rgba(35,47,62,0.05)',
-                          border: '1px solid rgba(35,47,62,0.07)',
-                          borderRadius: '8px', padding: '3px 8px',
-                        }}>
+                      <td className="px-6 py-4.5 whitespace-nowrap">
+                        <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-lg px-2.5 py-1 text-slate-500 font-medium">
                           {reg.id.length > 8 ? reg.id.slice(0, 8) + '…' : reg.id}
                         </span>
                       </td>
 
                       {/* Attendee */}
-                      <td style={{ padding: '14px 20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <td className="px-6 py-4.5 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
                           <Avatar name={reg.name} />
-                          <span style={{ fontSize: '13px', fontWeight: 700, color: '#232F3E' }}>{reg.name}</span>
+                          <span className="text-[13.5px] font-bold text-slate-800">{reg.name}</span>
                         </div>
                       </td>
 
                       {/* Email */}
-                      <td style={{ padding: '14px 20px', maxWidth: 200 }}>
-                        <span style={{ fontSize: '13px', color: '#475569', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reg.email}</span>
+                      <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-500">
+                        {reg.email}
                       </td>
 
                       {/* Event */}
-                      <td style={{ padding: '14px 20px', maxWidth: 200 }}>
-                        <span style={{ fontSize: '13px', color: '#334155', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reg.event?.title ?? '—'}</span>
+                      <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
+                        {reg.event?.title ?? '—'}
                       </td>
 
                       {/* Date */}
-                      <td style={{ padding: '14px 20px', whiteSpace: 'nowrap' }}>
-                        <span style={{ fontSize: '13px', color: '#475569' }}>{formatDate(reg.registrationDate)}</span>
+                      <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-500">
+                        {formatDate(reg.registrationDate)}
                       </td>
 
                       {/* Status */}
-                      <td style={{ padding: '14px 20px' }}>
+                      <td className="px-6 py-4.5 whitespace-nowrap">
                         <StatusBadge status={reg.status} />
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <td className="px-6 py-4.5 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
                           <Link
                             href={`/registrations/${reg.id}`}
-                            title="View"
-                            style={{
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              width: 30, height: 30, borderRadius: '8px',
-                              color: '#94a3b8', textDecoration: 'none',
-                              border: '1px solid transparent', transition: 'all 0.15s',
-                            }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(35,47,62,0.06)'; (e.currentTarget as HTMLAnchorElement).style.color = '#232F3E'; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = '#94a3b8'; }}
+                            title="View Details"
+                            className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all"
                           >
-                            <Eye style={{ width: 15, height: 15 }} />
+                            <Eye size={14} />
                           </Link>
                           {reg.status !== 'CANCELLED' && (
                             <Link
                               href={`/registrations/${reg.id}?action=cancel`}
-                              title="Cancel"
-                              style={{
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                width: 30, height: 30, borderRadius: '8px',
-                                color: '#94a3b8', textDecoration: 'none', transition: 'all 0.15s',
-                              }}
-                              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(239,68,68,0.08)'; (e.currentTarget as HTMLAnchorElement).style.color = '#ef4444'; }}
-                              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = '#94a3b8'; }}
+                              title="Cancel Registration"
+                              className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all"
                             >
-                              <XCircle style={{ width: 15, height: 15 }} />
+                              <XCircle size={14} />
                             </Link>
                           )}
                         </div>
@@ -525,55 +397,44 @@ export default function RegistrationsPage() {
 
         {/* ── Pagination ── */}
         {!isLoading && totalPages > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20 }}>
-            <p style={{ fontSize: '12px', color: '#94a3b8' }}>
-              Page <strong style={{ color: '#232F3E' }}>{page}</strong> of <strong style={{ color: '#232F3E' }}>{totalPages}</strong>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
+            <p className="text-[12px] text-slate-400 font-medium">
+              Showing page <span className="font-bold text-slate-700">{page}</span> of <span className="font-bold text-slate-700">{totalPages}</span> ({totalCount} total registrations)
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                style={{
-                  padding: '7px 8px', borderRadius: '10px',
-                  border: '1.5px solid rgba(35,47,62,0.1)', background: 'rgba(255,255,255,0.9)',
-                  color: '#475569', cursor: 'pointer', display: 'flex',
-                  opacity: page === 1 ? 0.4 : 1, transition: 'all 0.15s',
-                }}
+                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
               >
-                <ChevronLeft style={{ width: 16, height: 16 }} />
+                <ChevronLeft size={16} />
               </button>
+              
               {pages.map((p, idx) =>
                 typeof p === 'string' ? (
-                  <span key={`e-${idx}`} style={{ fontSize: 12, color: '#94a3b8', padding: '0 4px' }}>…</span>
+                  <span key={`el-${idx}`} className="text-slate-400 text-xs px-2 select-none">…</span>
                 ) : (
                   <button
                     key={p}
                     onClick={() => setPage(p)}
-                    style={{
-                      minWidth: 36, height: 36, borderRadius: '10px', fontSize: '13px', fontWeight: 700,
-                      border: '1.5px solid',
-                      borderColor: p === page ? '#FF9900' : 'rgba(35,47,62,0.1)',
-                      background: p === page ? 'linear-gradient(135deg,#FF9900,#F7BA45)' : 'rgba(255,255,255,0.9)',
-                      color: p === page ? '#ffffff' : '#475569',
-                      cursor: 'pointer', transition: 'all 0.15s',
-                      boxShadow: p === page ? '0 4px 12px rgba(255,153,0,0.25)' : 'none',
-                    }}
+                    className={`min-w-[36px] h-9 rounded-xl text-[12.5px] font-bold border transition-all flex items-center justify-center cursor-pointer ${
+                      p === page
+                        ? 'bg-gradient-to-r from-[#FF9900] to-[#F7BA45] border-[#FF9900] text-white shadow-sm shadow-orange-500/20'
+                        : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                    }`}
                   >
                     {p}
                   </button>
                 )
               )}
+              
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                style={{
-                  padding: '7px 8px', borderRadius: '10px',
-                  border: '1.5px solid rgba(35,47,62,0.1)', background: 'rgba(255,255,255,0.9)',
-                  color: '#475569', cursor: 'pointer', display: 'flex',
-                  opacity: page === totalPages ? 0.4 : 1, transition: 'all 0.15s',
-                }}
+                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
               >
-                <ChevronRight style={{ width: 16, height: 16 }} />
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
