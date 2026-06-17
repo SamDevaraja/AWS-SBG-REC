@@ -267,7 +267,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${mode === 'ONLINE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/35' : 'bg-blue-500/10 text-blue-400 border border-blue-500/35'}`}>
             {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
           </span>
-          <span className="text-[10px] font-bold text-slate-200 tracking-widest uppercase">
+          <span className="text-[9.5px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-100 border border-white/15 uppercase tracking-wider backdrop-blur-xs">
             {category}
           </span>
         </div>
@@ -278,7 +278,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
         <div className="flex-grow flex flex-col">
           {/* Header/Title & Description container without artificial spaces */}
           <div className="space-y-1">
-            <h3 className="font-bold text-sm sm:text-[15px] text-slate-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors font-display tracking-tight">
+            <h3 className="font-bold text-[17px] sm:text-[18px] text-slate-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors font-display tracking-tight">
               {title}
             </h3>
             {short_description && (
@@ -427,7 +427,7 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
       <div className="flex-grow min-w-0 flex flex-col justify-between h-full py-0.5">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-slate-900 font-display text-[15px] sm:text-[16px] tracking-tight group-hover:text-amber-600 transition-colors truncate leading-snug">
+            <h3 className="font-bold text-slate-900 font-display text-[16px] sm:text-[18px] tracking-tight group-hover:text-amber-600 transition-colors truncate leading-snug">
               {title}
             </h3>
             {isFull && !isEnded && (
