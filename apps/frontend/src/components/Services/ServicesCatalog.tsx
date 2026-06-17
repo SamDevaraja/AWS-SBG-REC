@@ -74,27 +74,6 @@ export default function ServicesCatalog() {
     loadData();
   }, []);
 
-  // Responsive columns logic based on container width
-  useEffect(() => {
-    const updateColumns = () => {
-      if (!containerRef.current) return;
-      const width = containerRef.current.clientWidth;
-      if (width < 640) {
-        setColumns(1);
-      } else if (width < 1024) {
-        setColumns(2);
-      } else if (width < 1280) {
-        setColumns(3);
-      } else {
-        setColumns(4);
-      }
-    };
-
-    updateColumns();
-    window.addEventListener("resize", updateColumns);
-    return () => window.removeEventListener("resize", updateColumns);
-  }, [servicesForRole]);
-
   // Allowed major services list for Enthusiasts (30 major services requested by the user)
   const allowedEnthusiastServices = useMemo(() => new Set([
     "amazon-ec2", "ec2",
@@ -140,6 +119,27 @@ export default function ServicesCatalog() {
       return allowedEnthusiastServices.has(slugLower) || allowedEnthusiastServices.has(codeLower);
     });
   }, [services, userRole, allowedEnthusiastServices]);
+
+  // Responsive columns logic based on container width
+  useEffect(() => {
+    const updateColumns = () => {
+      if (!containerRef.current) return;
+      const width = containerRef.current.clientWidth;
+      if (width < 640) {
+        setColumns(1);
+      } else if (width < 1024) {
+        setColumns(2);
+      } else if (width < 1280) {
+        setColumns(3);
+      } else {
+        setColumns(4);
+      }
+    };
+
+    updateColumns();
+    window.addEventListener("resize", updateColumns);
+    return () => window.removeEventListener("resize", updateColumns);
+  }, [servicesForRole]);
 
   // Filter categories to only those containing services visible to the role
   const visibleCategories = useMemo(() => {
