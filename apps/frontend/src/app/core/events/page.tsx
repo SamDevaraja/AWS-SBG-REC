@@ -376,7 +376,15 @@ export default function EventsPage() {
                 Create, manage, and track all community activities, registrations, and scheduling configurations.
               </p>
             </div>
-            <div style={{ marginTop: 24 }}>
+            <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
+              <Link
+                href="/core/registrations"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ffffff', color: '#232F3E', border: '1.5px solid rgba(35,47,62,0.12)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(35,47,62,0.04)', transition: 'all 0.2s', textDecoration: 'none' }}
+                className="hover:border-[#FF9900] hover:text-[#FF9900]"
+              >
+                <Users style={{ width: 15, height: 15 }} />
+                View Registrations
+              </Link>
               <Link
                 href="/core/events/create"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s', textDecoration: 'none' }}

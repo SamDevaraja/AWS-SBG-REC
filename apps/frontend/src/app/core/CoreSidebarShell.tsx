@@ -25,7 +25,6 @@ const coreNavItems: NavItem[] = [
   { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/core/chat' },
   { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
   { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
-  { icon: <Users className="w-4 h-4" />, label: 'registrations', href: '/core/registrations' },
   { icon: <Ticket className="w-4 h-4" />, label: 'tickets', href: '/core/tickets' },
   { icon: <ClipboardList className="w-4 h-4" />, label: 'attendance', href: '/core/attendance' },
 ];
