@@ -2,41 +2,39 @@
 import pg from 'pg';
 const { Pool } = pg;
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL is not defined in the environment variables.');
-}
-
 // Reuse connection pool in development to prevent leaks across HMR reloads
 const globalForDb = globalThis as unknown as {
   pool: pg.Pool | undefined;
 };
 
-let isNew = false;
-export const pool = (() => {
+export function getPool(): pg.Pool {
   if (globalForDb.pool) return globalForDb.pool;
-  isNew = true;
-  return new Pool({
+
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is not defined in the environment variables.');
+  }
+
+  const poolInstance = new Pool({
     connectionString: databaseUrl,
     max: 10,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 5_000,
   });
-})();
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForDb.pool = pool;
-}
+  if (process.env.NODE_ENV !== 'production') {
+    globalForDb.pool = poolInstance;
+  }
 
-if (isNew) {
-  // Warm up the pool on module load (establishes the first connection eagerly)
-  pool.connect().then((client) => {
+  // Warm up the pool asynchronously
+  poolInstance.connect().then((client) => {
     client.release();
     console.log('✅ PostgreSQL pool warmed up — connection established.');
   }).catch((err) => {
     console.error('⚠️  PostgreSQL pool warm-up failed:', err.message);
   });
+
+  return poolInstance;
 }
 
 /**
@@ -54,7 +52,7 @@ export async function sql(
       queryText += `$${i + 1}`;
     }
   }
-  const result = await pool.query(queryText, values);
+  const result = await getPool().query(queryText, values);
   return result.rows;
 }
 
@@ -65,3 +63,4 @@ export async function ensureDbInitialized() {
   isInitialized = true;
   console.log('PostgreSQL DB initialized. Using unified "User" table.');
 }
+

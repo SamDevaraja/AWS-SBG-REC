@@ -7,7 +7,7 @@ import {
   Download, Eye, XCircle, ClipboardList,
   Search, ChevronDown, Calendar, Filter,
   ChevronLeft, ChevronRight, Users, CheckCircle2,
-  Clock, AlertTriangle
+  Clock, AlertTriangle, Ticket
 } from 'lucide-react';
 import { formatDate } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
@@ -159,13 +159,22 @@ export default function RegistrationsPage() {
               </p>
             </div>
             
-            <button
-              onClick={handleExportCsv}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12px] font-semibold transition-all shadow-md hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
-            >
-              <Download size={14} />
-              Export CSV
-            </button>
+            <div className="flex items-center gap-3 shrink-0">
+              <Link
+                href="/core/tickets"
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-xl text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
+              >
+                <Ticket size={14} className="text-[#FF9900]" />
+                View Tickets
+              </Link>
+              <button
+                onClick={handleExportCsv}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12px] font-semibold transition-all shadow-md hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
+              >
+                <Download size={14} />
+                Export CSV
+              </button>
+            </div>
           </div>
         </div>
 
