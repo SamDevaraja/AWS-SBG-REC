@@ -93,21 +93,73 @@ export default function ServicesCatalog() {
     updateColumns();
     window.addEventListener("resize", updateColumns);
     return () => window.removeEventListener("resize", updateColumns);
-  }, [services]);
+  }, [servicesForRole]);
 
-  // Statistics calculation
+  // Allowed major services list for Enthusiasts (30 major services requested by the user)
+  const allowedEnthusiastServices = useMemo(() => new Set([
+    "amazon-ec2", "ec2",
+    "aws-lambda", "lambda",
+    "aws-auto-scaling-ec2", "ec2autoscaling",
+    "amazon-s3", "s3",
+    "amazon-ebs", "ebs",
+    "amazon-rds", "rds",
+    "amazon-dynamodb", "dynamodb",
+    "amazon-aurora", "aurora",
+    "amazon-vpc", "vpc",
+    "amazon-route-53", "route53",
+    "amazon-cloudfront", "cloudfront",
+    "elastic-load-balancing", "elb", "elasticloadbalancing",
+    "aws-iam", "iam",
+    "aws-kms", "kms",
+    "aws-secrets-manager", "secretsmanager",
+    "aws-waf", "waf",
+    "amazon-cloudwatch", "cloudwatch",
+    "aws-systems-manager", "ssm", "systemsmanager",
+    "aws-cloudtrail", "cloudtrail",
+    "amazon-ecs", "ecs",
+    "amazon-eks", "eks",
+    "amazon-sqs", "sqs",
+    "amazon-sns", "sns",
+    "amazon-eventbridge", "eventbridge",
+    "aws-step-functions", "stepfunctions",
+    "aws-cloudformation", "cloudformation",
+    "amazon-api-gateway", "apigateway", "apigw",
+    "amazon-kinesis", "amazon-kinesis-data-streams", "amazon-kinesis-data-firehose", "amazon-kinesis-data-analytics", "amazon-kinesis-video-streams", "kinesis", "kinesisstreams", "kinesisfirehose", "kinesisanalytics", "kinesisvideo",
+    "amazon-redshift", "redshift",
+    "aws-glue", "glue"
+  ]), []);
+
+  // Filter services by role restriction first
+  const servicesForRole = useMemo(() => {
+    const isEnthusiast = userRole !== "core" && userRole !== "crew";
+    if (!isEnthusiast) return services;
+    
+    return services.filter(service => {
+      const slugLower = service.slug.toLowerCase();
+      const codeLower = service.serviceCode.toLowerCase();
+      return allowedEnthusiastServices.has(slugLower) || allowedEnthusiastServices.has(codeLower);
+    });
+  }, [services, userRole, allowedEnthusiastServices]);
+
+  // Filter categories to only those containing services visible to the role
+  const visibleCategories = useMemo(() => {
+    const activeCategoryIds = new Set(servicesForRole.map(s => s.categoryId));
+    return categories.filter(cat => activeCategoryIds.has(cat.id));
+  }, [categories, servicesForRole]);
+
+  // Statistics calculation based on role-filtered services
   const stats = useMemo(() => {
-    const total = services.length;
-    const active = services.filter(s => s.isActive).length;
-    const featured = services.filter(s => s.isFeatured).length;
-    const categoriesCount = categories.length;
+    const total = servicesForRole.length;
+    const active = servicesForRole.filter(s => s.isActive).length;
+    const featured = servicesForRole.filter(s => s.isFeatured).length;
+    const categoriesCount = visibleCategories.length;
 
     return { total, active, featured, categoriesCount };
-  }, [services, categories]);
+  }, [servicesForRole, visibleCategories]);
 
   // Filter services locally for instant speed
   const filteredServices = useMemo(() => {
-    return services.filter(service => {
+    return servicesForRole.filter(service => {
       // Search filter
       const matchesSearch =
         service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -132,7 +184,7 @@ export default function ServicesCatalog() {
 
       return matchesSearch && matchesCategory && matchesFeatured && matchesStatus && matchesActive;
     });
-  }, [services, searchQuery, selectedCategorySlug, showOnlyFeatured, statusFilter]);
+  }, [servicesForRole, searchQuery, selectedCategorySlug, showOnlyFeatured, statusFilter]);
 
   // Chunk filtered services into rows
   const serviceRows = useMemo(() => {
@@ -318,7 +370,7 @@ export default function ServicesCatalog() {
               >
                 All Categories
               </button>
-              {categories.map(cat => (
+              {visibleCategories.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategorySlug(cat.slug)}
@@ -371,7 +423,7 @@ export default function ServicesCatalog() {
           onNavigateService={(id) => {
             setSelectedServiceId(id);
           }}
-          allServices={services}
+          allServices={servicesForRole}
         />
       )}
     </section>

@@ -59,6 +59,59 @@ export default function Home() {
     loadData();
   }, []);
 
+  // Dynamically map/filter region services for enthusiasts to the 30 major services
+  const normalizedRegions = useMemo(() => {
+    const isEnthusiast = userRole !== "core" && userRole !== "crew";
+    if (!isEnthusiast) return regions;
+
+    const allowedServiceNamesAndCodes = new Set([
+      "amazon-ec2", "ec2",
+      "aws-lambda", "lambda",
+      "aws-auto-scaling-ec2", "ec2autoscaling",
+      "amazon-s3", "s3",
+      "amazon-ebs", "ebs",
+      "amazon-rds", "rds",
+      "amazon-dynamodb", "dynamodb",
+      "amazon-aurora", "aurora",
+      "amazon-vpc", "vpc",
+      "amazon-route-53", "route53",
+      "amazon-cloudfront", "cloudfront",
+      "elastic-load-balancing", "elb", "elasticloadbalancing",
+      "aws-iam", "iam",
+      "aws-kms", "kms",
+      "aws-secrets-manager", "secretsmanager",
+      "aws-waf", "waf",
+      "amazon-cloudwatch", "cloudwatch",
+      "aws-systems-manager", "ssm", "systemsmanager",
+      "aws-cloudtrail", "cloudtrail",
+      "amazon-ecs", "ecs",
+      "amazon-eks", "eks",
+      "amazon-sqs", "sqs",
+      "amazon-sns", "sns",
+      "amazon-eventbridge", "eventbridge",
+      "aws-step-functions", "stepfunctions",
+      "aws-cloudformation", "cloudformation",
+      "amazon-api-gateway", "apigateway", "apigw",
+      "amazon-kinesis", "amazon-kinesis-data-streams", "amazon-kinesis-data-firehose", "amazon-kinesis-data-analytics", "amazon-kinesis-video-streams", "kinesis", "kinesisstreams", "kinesisfirehose", "kinesisanalytics", "kinesisvideo",
+      "amazon-redshift", "redshift",
+      "aws-glue", "glue"
+    ]);
+
+    return regions.map(r => {
+      const filterFn = (s: string) => {
+        const sLower = s.toLowerCase().replace(/\s+/g, '-');
+        return Array.from(allowedServiceNamesAndCodes).some(allowed => 
+          sLower.includes(allowed) || allowed.includes(sLower)
+        );
+      };
+      return {
+        ...r,
+        services: (r.services || []).filter(filterFn),
+        topServices: (r.topServices || []).filter(filterFn)
+      };
+    });
+  }, [regions, userRole]);
+
   // History Popstate Navigation Logic
   useEffect(() => {
     if (typeof window !== 'undefined' && window.history) {
@@ -73,8 +126,8 @@ export default function Home() {
         setExpandedCategory(null);
       } else if (state.view === 'details') {
         setShowIntelligence(true);
-        if (state.regionId && regions.length > 0) {
-          const region = regions.find(r => r.id === state.regionId);
+        if (state.regionId && normalizedRegions.length > 0) {
+          const region = normalizedRegions.find(r => r.id === state.regionId);
           if (region) {
             setSelectedRegion(region);
             setExpandedCategory(region.categoryId);
@@ -87,13 +140,13 @@ export default function Home() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [regions]);
+  }, [normalizedRegions]);
 
   // Dynamically group active categories from database, preserving displayOrder
   const sidebarCategories = useMemo(() => {
     const sortedCats = [...categories].sort((a, b) => a.displayOrder - b.displayOrder);
     return sortedCats.map(cat => {
-      const catRegions = regions
+      const catRegions = normalizedRegions
         .filter(r => r.categoryId === cat.slug)
         .sort((a, b) => a.displayOrder - b.displayOrder);
       return {
@@ -103,7 +156,7 @@ export default function Home() {
         regionIds: catRegions.map(r => r.id)
       };
     });
-  }, [categories, regions]);
+  }, [categories, normalizedRegions]);
 
   // Only show markers for regions listed in active sidebar categories
   const visibleRegionIds = useMemo(() =>
@@ -112,14 +165,14 @@ export default function Home() {
 
   // Filter regions based on search query
   const filteredRegions = useMemo(() => {
-    return regions.filter(r => {
+    return normalizedRegions.filter(r => {
       const matchesSearch =
         r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.services.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
         r.infrastructure.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
-  }, [regions, searchQuery]);
+  }, [normalizedRegions, searchQuery]);
 
   const handleRegionSelect = (region: AWSRegionData) => {
     setSelectedRegion(region);
@@ -290,7 +343,7 @@ export default function Home() {
               <div className="flex-grow relative flex items-center justify-center">
                 <div className="w-[850px] h-[850px] relative pointer-events-auto">
                   <GlobeScene
-                    regions={regions.filter(r => visibleRegionIds.has(r.id))}
+                    regions={normalizedRegions.filter(r => visibleRegionIds.has(r.id))}
                     onSelectRegion={handleRegionSelect}
                     selectedRegion={selectedRegion}
                   />
