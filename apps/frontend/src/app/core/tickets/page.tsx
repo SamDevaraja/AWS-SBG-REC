@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useTickets, useEvents, useRegenerateTicket, useEmailTicket } from '@/lib/hooks';
 import TicketDetailsModal from '@/components/TicketDetailsModal';
 import {
   Eye, RefreshCw, Mail, Ticket,
   Search, ChevronDown, Filter,
   ChevronLeft, ChevronRight, CheckCircle2,
-  Clock, AlertTriangle
+  Clock, AlertTriangle, ClipboardList
 } from 'lucide-react';
 import type { Ticket as TicketType } from '@/lib/types';
 import { formatDate } from '@/shared/utils/formatDate';
@@ -148,6 +149,16 @@ export default function TicketsPage() {
               <p className="text-[12px] text-slate-400 font-normal mt-2">
                 Manage, verify, and monitor secure entry passes for registered cloud events.
               </p>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <Link
+                href="/core/attendance"
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-xl text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
+              >
+                <ClipboardList size={14} className="text-[#FF9900]" />
+                View Attendance
+              </Link>
             </div>
           </div>
         </div>
