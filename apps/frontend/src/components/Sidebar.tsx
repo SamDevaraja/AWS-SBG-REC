@@ -25,6 +25,7 @@ interface SidebarProps {
   currentPath: string;
   onNavigate: (href: string) => void;
   navItems: NavItem[];
+  bottomNavItems?: NavItem[];
   user?: SidebarUser;
   homeHref?: string;
   signOutLabel?: string;
@@ -42,6 +43,7 @@ export default function Sidebar({
   currentPath,
   onNavigate,
   navItems,
+  bottomNavItems,
   user,
   homeHref = "/",
   signOutLabel = "Sign Out",
@@ -256,6 +258,46 @@ export default function Sidebar({
 
         {/* Sign out */}
         <div className="border-t border-white/5 shrink-0 py-3 px-3 space-y-1">
+          {/* Bottom nav items (e.g. Incidents) — sit just above sign-out */}
+          {bottomNavItems && bottomNavItems.map((item) => {
+            const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/');
+            return (
+              <div
+                key={item.label}
+                className="relative"
+                onMouseEnter={() => !isOpen && setHoveredItem(item.label)}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                <button
+                  onClick={() => { onNavigate(item.href); onMobileClose(); }}
+                  className={cn(
+                    "flex items-center transition-all duration-150 w-full group py-2.5 gap-3 text-left font-sans border-l-4 px-3 rounded-xl",
+                    isActive
+                      ? "border-[#FF6B00] bg-[#1f2739] text-[#FF6B00] font-semibold"
+                      : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
+                  )}
+                >
+                  <div className={cn("flex items-center justify-center shrink-0", isActive ? "text-[#FF6B00]" : "text-slate-300 group-hover:text-white")}>
+                    {item.icon}
+                  </div>
+                  <span
+                    className={cn("text-sm truncate flex-1 transition-[opacity,transform,width] duration-[200ms] ease-out", isActive ? "font-semibold capitalize" : "font-normal capitalize")}
+                    style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
+                  >
+                    {item.label}
+                  </span>
+                </button>
+                {/* Tooltip — collapsed desktop only */}
+                {!isOpen && !isMobile && hoveredItem === item.label && (
+                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-gray-900/90 text-white text-xs font-semibold rounded-lg shadow-xl z-50 whitespace-nowrap pointer-events-none">
+                    {item.label}
+                    <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-r-4 border-r-gray-900/90" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
           <button
             onClick={() => onSignOut?.()}
             className="flex items-center transition-all duration-150 group w-full px-3 py-2.5 gap-3 text-left text-slate-300 hover:text-red-400 hover:bg-white/5 rounded-xl font-sans font-normal"
@@ -265,13 +307,7 @@ export default function Sidebar({
             </div>
             <span
               className="text-sm truncate transition-[opacity,transform,width] duration-[200ms] ease-out"
-              style={{
-                opacity: isOpen ? 1 : 0,
-                transform: isOpen ? 'translateX(0)' : 'translateX(-8px)',
-                pointerEvents: isOpen ? 'auto' : 'none',
-                width: isOpen ? 'auto' : '0px',
-                overflow: 'hidden',
-              }}
+              style={{ opacity: isOpen ? 1 : 0, transform: isOpen ? 'translateX(0)' : 'translateX(-8px)', pointerEvents: isOpen ? 'auto' : 'none', width: isOpen ? 'auto' : '0px', overflow: 'hidden' }}
             >
               {signOutLabel}
             </span>

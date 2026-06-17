@@ -23,6 +23,9 @@ const crewNavItems: NavItem[] = [
   { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/crew/chat' },
   { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
   { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
+];
+
+const crewBottomNavItems: NavItem[] = [
   { icon: <ShieldAlert className="w-4 h-4" />, label: 'incidents', href: '/crew/incidents' },
 ];
 // HMR cache reload trigger: 2
@@ -50,6 +53,7 @@ export default function CrewSidebarShell({ children }: { children: React.ReactNo
   return (
     <SidebarLayout
       navItems={crewNavItems}
+      bottomNavItems={crewBottomNavItems}
       user={user}
       brandTitle={user?.name || 'Crew Member'}
       brandSubtitle={user?.badge || 'Crew'}

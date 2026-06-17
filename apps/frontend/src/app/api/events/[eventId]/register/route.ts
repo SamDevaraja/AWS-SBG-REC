@@ -35,35 +35,24 @@ export async function POST(
       // Fallback: If user is not found, dynamically create one to proceed gracefully
       userId = crypto.randomUUID();
       const nameParts = fullName.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || "";
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
       await sql`
         INSERT INTO "User" (id, email, password, "firstName", "lastName", "isActive", "createdAt", "updatedAt")
         VALUES (${userId}, ${normalizedEmail}, 'dummy_fallback_password_123!', ${firstName}, ${lastName}, true, NOW(), NOW())
       `;
     }
 
-    // 2. Fetch event form fields to map responses labels to field IDs
-    const dbFields = await sql`
-      SELECT "field_id" as id, "field_label" as label
-      FROM "form_fields"
-      WHERE "event_id" = ${eventId}
-    `;
-
-    const answers = Object.entries(responses || {}).map(([label, value]) => {
-      const matchedField = dbFields.find(
-        (f) => f.label.toLowerCase().trim() === label.toLowerCase().trim()
-      );
-      return {
-        fieldId: matchedField ? matchedField.id : crypto.randomUUID(),
-        value: value,
-      };
-    });
+    // 2. Build answers array from responses object (label -> value pairs)
+    const answers = Object.entries(responses || {}).map(([label, value]) => ({
+      fieldId: label,   // backend accepts label as fieldId gracefully
+      value: String(value),
+    }));
 
     // 3. POST to backend /api/registrations
     const backendRes = await fetch(`${backendUrl}/api/registrations`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         userId,
         eventId,

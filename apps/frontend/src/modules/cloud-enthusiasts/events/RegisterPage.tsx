@@ -217,7 +217,7 @@ export default function RegisterPage() {
         {/* Cancel navigation link */}
         <Link
           href={`/events/${eventId}`}
-          className="inline-flex items-center space-x-1.5 text-slate-500 hover:text-slate-700 font-medium mb-4 transition text-xs"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 rounded-[8px] px-3 py-1.5 shadow-sm hover:shadow transition-all duration-200 mb-4"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Cancel & Back</span>
@@ -576,7 +576,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="flex items-center space-x-1 border border-slate-250 text-slate-600 font-medium py-2 px-4 rounded-[8px] text-xs"
+                  className="inline-flex items-center gap-1.5 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 font-medium py-2 px-4 rounded-[8px] text-xs shadow-sm transition-all duration-200"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Back</span>

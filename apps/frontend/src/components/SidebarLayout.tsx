@@ -13,6 +13,7 @@ const MOBILE_BREAKPOINT = 768;
 interface SidebarLayoutProps {
   children: React.ReactNode;
   navItems: NavItem[];
+  bottomNavItems?: NavItem[];
   user?: SidebarUser;
   homeHref?: string;
   signOutLabel?: string;
@@ -24,6 +25,7 @@ interface SidebarLayoutProps {
 export default function SidebarLayout({
   children,
   navItems,
+  bottomNavItems,
   user,
   homeHref,
   signOutLabel = "Sign Out",
@@ -165,6 +167,7 @@ export default function SidebarLayout({
         currentPath={pathname}
         onNavigate={handleNavigate}
         navItems={navItems}
+        bottomNavItems={bottomNavItems}
         user={user}
         homeHref={homeHref}
         signOutLabel={signOutLabel}

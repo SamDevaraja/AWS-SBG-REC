@@ -12,7 +12,6 @@ import {
   Users,
   Ticket,
   ClipboardList,
-  BarChart3,
   Newspaper,
   Megaphone,
   Cpu,
@@ -29,7 +28,6 @@ const coreNavItems: NavItem[] = [
   { icon: <Users className="w-4 h-4" />, label: 'registrations', href: '/core/registrations' },
   { icon: <Ticket className="w-4 h-4" />, label: 'tickets', href: '/core/tickets' },
   { icon: <ClipboardList className="w-4 h-4" />, label: 'attendance', href: '/core/attendance' },
-  { icon: <BarChart3 className="w-4 h-4" />, label: 'analytics', href: '/core/analytics' },
 ];
 
 export default function CoreSidebarShell({ children }: { children: React.ReactNode }) {

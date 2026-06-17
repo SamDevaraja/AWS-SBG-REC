@@ -230,16 +230,19 @@ export default function RoadmapProgress() {
 
           {/* Bottom CTA */}
           {continueModule && (
-            <div className="mt-auto pt-2">
+            <div className="mt-auto pt-3">
               <Link
                 href={`/learn/${continueModule.topicSlug}`}
-                className="flex items-center justify-between w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-3 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 group cursor-pointer"
+                className="flex items-center justify-between w-full bg-white/70 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-2xl px-4 py-3.5 group cursor-pointer transition-all duration-200 hover:shadow-sm active:scale-[0.99]"
               >
-                <div className="flex items-center gap-2">
-                  <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Continue: {continueModule.name}</span>
+                <div className="flex items-center gap-3">
+                  <Trophy className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-[10px] font-semibold text-slate-400 leading-none mb-0.5 uppercase tracking-wide">Continue learning</p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight">{continueModule.name}</p>
+                  </div>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0" />
               </Link>
             </div>
           )}

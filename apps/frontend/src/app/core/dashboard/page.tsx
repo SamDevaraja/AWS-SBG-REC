@@ -289,7 +289,7 @@ export default function DashboardPage() {
   const adminActions = [
     { label: 'New Event', href: '/core/events/create', icon: CalendarPlus, color: 'text-brand-orange bg-brand-orange/10 border border-brand-orange/15' },
     { label: 'Scanner Panel', href: '/core/attendance', icon: UserCheck, color: 'text-indigo-600 bg-indigo-50 border border-indigo-100' },
-    { label: 'View Reports', href: '/core/analytics', icon: BarChart3, color: 'text-teal-600 bg-teal-50 border border-teal-100' },
+    { label: 'Generate Report', href: '/core/analytics', icon: BarChart3, color: 'text-teal-600 bg-teal-50 border border-teal-100' },
     { label: 'Certifications', href: '/certifications', icon: Award, color: 'text-amber-600 bg-amber-50 border border-amber-100' },
   ];
 

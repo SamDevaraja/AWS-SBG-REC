@@ -66,6 +66,7 @@ export const LoginCard = () => {
 
         // Cache user details (including role) for RBAC
         localStorage.setItem("aws_sgb_rec_user", JSON.stringify({
+          id: data.user.id,
           fullName: data.user.fullName,
           email: data.user.email,
           role,
@@ -95,10 +96,64 @@ export const LoginCard = () => {
     }
   };
 
+  // ── Demo / Mock login (bypasses DB, for UI-only collaborators) ──────────────
+  const DEMO_ACCOUNTS = [
+    {
+      role: 'core',
+      label: 'Core Admin',
+      name: 'Alex Carter',
+      email: 'alex.carter@demo.aws',
+      redirect: '/core/dashboard',
+      bg: 'bg-amber-50 hover:bg-amber-100 border-amber-200 hover:border-amber-300',
+      text: 'text-amber-800',
+      badge: 'bg-amber-100 text-amber-700 border-amber-200',
+      dot: 'bg-amber-400',
+      initials: 'AC',
+      avatarBg: 'bg-gradient-to-br from-amber-400 to-orange-500',
+    },
+    {
+      role: 'crew',
+      label: 'Crew Member',
+      name: 'Jordan Lee',
+      email: 'jordan.lee@demo.aws',
+      redirect: '/crew/dashboard',
+      bg: 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 hover:border-indigo-300',
+      text: 'text-indigo-800',
+      badge: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+      dot: 'bg-indigo-400',
+      initials: 'JL',
+      avatarBg: 'bg-gradient-to-br from-indigo-400 to-blue-500',
+    },
+    {
+      role: 'enthusiasts',
+      label: 'Enthusiast',
+      name: 'Sam Rivera',
+      email: 'sam.rivera@demo.aws',
+      redirect: '/events/dashboard',
+      bg: 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 hover:border-emerald-300',
+      text: 'text-emerald-800',
+      badge: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      dot: 'bg-emerald-400',
+      initials: 'SR',
+      avatarBg: 'bg-gradient-to-br from-emerald-400 to-teal-500',
+    },
+  ] as const;
+
+  const handleDemoLogin = (account: typeof DEMO_ACCOUNTS[number]) => {
+    clearSessionCache();
+    localStorage.setItem('aws_sgb_rec_user', JSON.stringify({
+      id: `demo-${account.role}-001`,
+      fullName: account.name,
+      email: account.email,
+      role: account.role,
+    }));
+    router.push(account.redirect);
+  };
+
   return (
     <div className="relative z-10 w-full max-w-[480px]">
       <div className="bg-white shadow-premium rounded-[16px] py-8 px-6 flex flex-col items-center overflow-hidden border border-slate-200 w-full">
-        {/* Header Bar Section */}
+        {/* Header */}
         <div className="flex flex-col items-center text-center mb-6 w-full">
           <div className="flex items-center gap-2 mb-4 justify-center">
             <img src="/brand-logo.png" alt="Logo" className="w-5 h-5 object-contain" />
@@ -114,7 +169,7 @@ export const LoginCard = () => {
           </p>
         </div>
 
-        {/* Form Section */}
+        {/* Form */}
         <form className="w-full space-y-5" onSubmit={handleSubmit}>
           <InputField
             label="Email Address"
@@ -156,7 +211,6 @@ export const LoginCard = () => {
             </div>
           )}
 
-          {/* Primary Button */}
           <button
             disabled={isLoading}
             type="submit"
@@ -175,6 +229,60 @@ export const LoginCard = () => {
             </div>
           </button>
         </form>
+
+        {/* ── Demo Access ─────────────────────────────────────────────────── */}
+        <div className="w-full mt-6">
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px bg-slate-100" />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 px-1">
+              Preview Access
+            </span>
+            <div className="flex-1 h-px bg-slate-100" />
+          </div>
+
+          {/* Container */}
+          <div className="rounded-[12px] border border-slate-100 bg-slate-50/60 overflow-hidden divide-y divide-slate-100">
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.role}
+                type="button"
+                onClick={() => handleDemoLogin(account)}
+                className="group w-full flex items-center gap-3 px-3.5 py-3 hover:bg-white transition-all duration-150 text-left"
+              >
+                {/* Gradient avatar */}
+                <div className={`w-8 h-8 rounded-[8px] ${account.avatarBg} flex items-center justify-center text-white text-[11px] font-bold shrink-0 shadow-sm`}>
+                  {account.initials}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[12px] font-semibold text-slate-800 leading-none">
+                      {account.label}
+                    </span>
+                    <span className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${account.badge}`}>
+                      {account.role === 'enthusiasts' ? 'USER' : account.role}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-0.5 truncate">{account.name}</p>
+                </div>
+
+                {/* Arrow CTA */}
+                <span className={`text-[10px] font-semibold shrink-0 ${account.text} opacity-0 group-hover:opacity-100 transition-all duration-150 translate-x-1 group-hover:translate-x-0 flex items-center gap-0.5`}>
+                  Login
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <p className="text-center text-[10px] text-slate-300 mt-2.5">
+            UI preview · no database connection required
+          </p>
+        </div>
 
         <div className="mt-5 text-center">
           <p className="text-slate-500 text-xs font-normal">

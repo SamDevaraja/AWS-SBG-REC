@@ -1087,9 +1087,20 @@ export default function CreateEventPage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [userId, setUserId] = useState<string>('');
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('aws_sgb_rec_user');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setUserId(parsed.id || '');
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   const [formData, setFormData] = useState<CreateEventDto>({
-    organizerId: 'organizer-user',
+    organizerId: '',
     title: '',
     category: '',
     description: '',
@@ -1140,8 +1151,15 @@ export default function CreateEventPage() {
       return;
     }
 
+    if (!userId) {
+      setErrors({ title: 'User session not found. Please log in again.' });
+      setCurrentStep(0);
+      return;
+    }
+
     const payload: CreateEventDto = {
       ...formData,
+      organizerId: userId,
       posterImage:
         formData.posterImage && formData.posterImage.startsWith('data:')
           ? '/uploads/events/cloud_matrix.jpg'

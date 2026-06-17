@@ -69,8 +69,8 @@ export default function CrewChatPage() {
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 110px)",
-        margin: "0 24px 24px",
+        height: "calc(100vh - 130px)",
+        margin: "20px 24px 24px",
         background: "rgba(255, 255, 255, 0.55)",
         backdropFilter: "blur(30px) saturate(180%)",
         WebkitBackdropFilter: "blur(30px) saturate(180%)",

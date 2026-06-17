@@ -390,61 +390,53 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
       }}
     >
       <style>{`
-        .gc-bubble-wrap { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 8px; animation: gcfadeIn 0.2s ease-out; }
+        .gc-bubble-wrap {
+          display: flex;
+          align-items: flex-end;
+          gap: 8px;
+          margin-bottom: 4px;
+          animation: gcfadeIn 0.2s ease-out;
+        }
         .gc-bubble-wrap.sent { flex-direction: row-reverse; }
         .gc-bubble {
-          width: fit-content;
           max-width: 100%;
-          padding: 10px 14px;
-          border-radius: 16px;
-          font-size: 14px;
+          padding: 9px 13px;
+          border-radius: 18px;
+          font-size: 13.5px;
           line-height: 1.55;
           word-break: break-word;
           white-space: pre-wrap;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-          position: relative;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .gc-bubble.sent {
-          background: ${COLORS.sentBg};
+          background: #e8f0fe;
           border-bottom-right-radius: 4px;
           color: #1e40af;
-          border: 1px solid rgba(37, 99, 235, 0.15);
+          border: 1px solid rgba(37, 99, 235, 0.12);
         }
         .gc-bubble.recv {
-          background: ${COLORS.recvBg};
+          background: #ffffff;
           border-bottom-left-radius: 4px;
           color: ${COLORS.sidebar};
-          border: 1px solid rgba(35, 47, 62, 0.08);
+          border: 1px solid rgba(35, 47, 62, 0.09);
         }
         .gc-date-divider {
           display: flex; align-items: center; gap: 12px;
-          margin: 16px 0 12px;
+          margin: 16px 0 10px;
         }
         .gc-date-divider::before, .gc-date-divider::after {
-          content: ""; flex: 1; height: 1px; background: rgba(0,0,0,0.08);
+          content: ""; flex: 1; height: 1px; background: rgba(0,0,0,0.07);
         }
         .gc-send-btn {
           box-shadow: 0 3px 0 #CC7A00;
           transition: background 0.2s, transform 0.1s, box-shadow 0.1s !important;
           border-radius: 9999px !important;
         }
-        .gc-send-btn:hover {
-          background: #e08500 !important;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 0 #CC7A00;
-        }
-        .gc-send-btn:active {
-          transform: translateY(2px) !important;
-          box-shadow: 0 1px 0 #CC7A00;
-        }
-        .gc-send-btn:disabled {
-          opacity: 0.55;
-          cursor: not-allowed;
-          transform: none !important;
-          box-shadow: none !important;
-        }
+        .gc-send-btn:hover { background: #e08500 !important; transform: translateY(-1px); box-shadow: 0 4px 0 #CC7A00; }
+        .gc-send-btn:active { transform: translateY(2px) !important; box-shadow: 0 1px 0 #CC7A00; }
+        .gc-send-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         .gc-input:focus { border-color: ${COLORS.gold}; box-shadow: 0 0 0 3px ${COLORS.gold}22; }
-        @keyframes gcfadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        @keyframes gcfadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
       `}</style>
 
       {/* Chat body */}
@@ -452,9 +444,10 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "20px 24px",
+          padding: "16px 24px",
           display: "flex",
           flexDirection: "column",
+          justifyContent: "flex-end",
         }}
       >
         {loading ? (
@@ -509,12 +502,13 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
             const isMe = user && msg.senderName === user.fullName && msg.senderRole === user.role;
             return (
               <div key={msg.id} className={`gc-bubble-wrap ${isMe ? "sent" : ""}`}>
+                {/* Avatar — only for received messages, aligned to bottom */}
                 {!isMe && (
                   <Avatar
                     initials={msg.avatarInitials}
                     color={msg.avatarColor}
                     photo={userPhotos[`${msg.senderName.toLowerCase()}_${msg.senderRole.toLowerCase()}`] || msg.avatarPhoto}
-                    size={32}
+                    size={30}
                   />
                 )}
 
@@ -523,28 +517,27 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: isMe ? "flex-end" : "flex-start",
-                    maxWidth: "65%",
-                    width: "fit-content",
+                    maxWidth: "60%",
                   }}
                 >
+                  {/* Sender name + role badge — only for received */}
                   {!isMe && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, paddingLeft: 2 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: msg.avatarColor }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3, paddingLeft: 2 }}>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: msg.avatarColor }}>
                         {msg.senderName}
                       </span>
                       <RoleBadge role={msg.senderRole} />
                     </div>
                   )}
 
+                  {/* Message bubble */}
                   <div className={`gc-bubble ${isMe ? "sent" : "recv"}`}>
                     {msg.text && (
-                      <div style={{ marginBottom: (msg.attachments?.length ?? 0) > 0 ? 8 : 0 }}>
-                        {msg.text}
-                      </div>
+                      <span>{msg.text}</span>
                     )}
 
                     {msg.attachments && msg.attachments.length > 0 && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: msg.text ? 8 : 0 }}>
                         {msg.attachments.map((att, attIdx) => (
                           <div
                             key={attIdx}
@@ -560,105 +553,42 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
                               <img
                                 src={att.url}
                                 alt="attachment"
-                                style={{
-                                  width: "100%",
-                                  display: "block",
-                                  maxHeight: 200,
-                                  objectFit: "contain",
-                                  cursor: "zoom-in",
-                                }}
+                                style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "contain", cursor: "zoom-in" }}
                                 onClick={() => {
                                   const w = window.open();
-                                  w?.document.write(
-                                    `<img src="${att.url}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`
-                                  );
+                                  w?.document.write(`<img src="${att.url}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
                                 }}
                               />
                             ) : att.type === "video" ? (
-                              <video
-                                src={att.url}
-                                controls
-                                style={{ width: "100%", display: "block", maxHeight: 200 }}
-                              />
+                              <video src={att.url} controls style={{ width: "100%", display: "block", maxHeight: 200 }} />
                             ) : (
                               <a
                                 href={att.url}
                                 download={att.name || "file"}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 10,
-                                  padding: "10px 14px",
-                                  background: isMe ? "rgba(0,0,0,0.05)" : "#f0f2f5",
-                                  borderRadius: 10,
-                                  textDecoration: "none",
-                                  color: COLORS.sidebar,
-                                  border: "1px solid rgba(0,0,0,0.06)",
-                                  transition: "background 0.2s",
-                                }}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.background = isMe
-                                    ? "rgba(0,0,0,0.08)"
-                                    : "#e4e6eb")
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.background = isMe
-                                    ? "rgba(0,0,0,0.05)"
-                                    : "#f0f2f5")
-                                }
+                                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: isMe ? "rgba(0,0,0,0.05)" : "#f0f2f5", borderRadius: 10, textDecoration: "none", color: COLORS.sidebar, border: "1px solid rgba(0,0,0,0.06)", transition: "background 0.2s" }}
+                                onMouseEnter={(e) => (e.currentTarget.style.background = isMe ? "rgba(0,0,0,0.08)" : "#e4e6eb")}
+                                onMouseLeave={(e) => (e.currentTarget.style.background = isMe ? "rgba(0,0,0,0.05)" : "#f0f2f5")}
                               >
-                                <span style={{ fontSize: 24 }}>📄</span>
+                                <span style={{ fontSize: 22 }}>📄</span>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div
-                                    style={{
-                                      fontSize: 13,
-                                      fontWeight: 700,
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      whiteSpace: "nowrap",
-                                    }}
-                                  >
-                                    {att.name || "Document"}
-                                  </div>
-                                  <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>
-                                    {att.size ? `${(att.size / 1024).toFixed(1)} KB` : "File"}
-                                  </div>
+                                  <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.name || "Document"}</div>
+                                  <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>{att.size ? `${(att.size / 1024).toFixed(1)} KB` : "File"}</div>
                                 </div>
-                                <span style={{ fontSize: 14, color: COLORS.muted }}>⬇️</span>
+                                <span style={{ fontSize: 13, color: COLORS.muted }}>⬇️</span>
                               </a>
                             )}
                           </div>
                         ))}
                       </div>
                     )}
+                  </div>
 
-                    {isMe && (
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: "#34b7f1",
-                          marginTop: 2,
-                          textAlign: "right",
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          alignItems: "center",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        ✓✓
-                      </div>
-                    )}
+                  {/* Timestamp + read tick — below the bubble */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 3, paddingLeft: isMe ? 0 : 2, paddingRight: isMe ? 2 : 0 }}>
+                    <span style={{ fontSize: 10, color: COLORS.muted }}>{formatTime(msg.timestamp)}</span>
+                    {isMe && <span style={{ fontSize: 11, color: "#34b7f1", fontWeight: 700, lineHeight: 1 }}>✓✓</span>}
                   </div>
                 </div>
-
-                {isMe && (
-                  <Avatar
-                    initials={msg.avatarInitials}
-                    color={msg.avatarColor}
-                    photo={userPhotos[`${msg.senderName.toLowerCase()}_${msg.senderRole.toLowerCase()}`] || msg.avatarPhoto}
-                    size={32}
-                  />
-                )}
               </div>
             );
           })
