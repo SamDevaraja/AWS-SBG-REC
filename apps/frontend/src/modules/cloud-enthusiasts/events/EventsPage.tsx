@@ -199,7 +199,6 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
   const seatsLeft = Math.max(0, max_capacity - registered);
   const isFull = seatsLeft === 0;
   const isEnded = event_status === 'Ended';
-  const fillPct = Math.min(100, Math.round((registered / max_capacity) * 100));
 
   const cardRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -252,66 +251,44 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
         </span>
 
         {/* Mode badge */}
-        <span className={`absolute bottom-3 left-3 flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${mode === 'ONLINE' ? 'bg-emerald-500/90 text-white' : 'bg-blue-500/90 text-white'}`}>
-          {mode === 'ONLINE' ? <Wifi className="w-2.5 h-2.5" /> : <WifiOff className="w-2.5 h-2.5" />}
-          {mode}
+        <span className={`absolute bottom-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded shadow-xs uppercase tracking-wide ${mode === 'ONLINE' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
+          {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
         </span>
-
-        {/* Seat badge */}
-        {!isEnded && (
-          isFull ? (
-            <span className="absolute top-3 right-3 bg-rose-600 text-white font-semibold text-[9px] uppercase tracking-wide px-2.5 py-1 rounded-full shadow-sm">
-              Sold Out
-            </span>
-          ) : (
-            <span className="absolute top-3 right-3 bg-[#FF9900] text-slate-900 font-bold text-[9px] uppercase tracking-wide px-2.5 py-1 rounded-full shadow-sm">
-              {seatsLeft} Left
-            </span>
-          )
-        )}
       </div>
 
       <div className="p-5 flex-grow flex flex-col justify-between">
         <div className="space-y-4">
           <div>
-            <h3 className="font-bold text-[16px] text-slate-955 line-clamp-1 mb-1.5 group-hover:text-[#FF9900] transition-colors font-display">
+            <h3 className="font-bold text-[19px] sm:text-[21px] text-slate-950 line-clamp-2 mb-1.5 group-hover:text-[#FF9900] transition-colors font-display leading-tight min-h-[52px]">
               {title}
             </h3>
-            <p className="text-slate-500 text-xs font-normal line-clamp-2 leading-relaxed min-h-[32px]">
+            <p className="text-slate-500 text-[11px] font-normal line-clamp-2 leading-relaxed min-h-[34px]">
               {short_description}
             </p>
           </div>
 
-          {/* Meta info grid */}
-          <div className="grid grid-cols-2 gap-x-2 gap-y-2 border-t border-b border-slate-100 py-3 text-xs text-slate-500 font-medium">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span className="truncate">{formattedDate}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span className="truncate">{startTimeStr}</span>
-            </div>
-            <div className="flex items-center gap-1.5 col-span-2">
-              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          {/* Meta info single line */}
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium py-2 px-2.5 bg-slate-50 border border-slate-100 rounded-lg w-full min-w-0">
+            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1 min-w-0 truncate">
+              <span className="shrink-0">{formattedDate}</span>
+              <span className="text-slate-300 shrink-0">•</span>
+              <span className="shrink-0">{startTimeStr}</span>
+              <span className="text-slate-300 shrink-0">•</span>
               <span className="truncate" title={venue}>{venue}</span>
             </div>
           </div>
 
-          {/* Capacity progress bar */}
-          <div>
-            <div className="flex justify-between items-center mb-1 text-[10px] font-semibold text-slate-400">
-              <span>Registration Progress</span>
-              <span className={fillPct >= 90 ? 'text-rose-500' : fillPct >= 60 ? 'text-amber-500' : 'text-slate-600'}>
-                {registered} / {max_capacity} ({fillPct}%)
-              </span>
-            </div>
-            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${fillPct >= 90 ? 'bg-rose-500' : fillPct >= 60 ? 'bg-amber-400' : 'bg-emerald-500'}`}
-                style={{ width: `${fillPct}%` }}
-              />
-            </div>
+          {/* Availability Status */}
+          <div className="flex items-center justify-between text-xs py-1 border-t border-slate-100 pt-3.5">
+            <span className="text-slate-400 font-medium">Availability</span>
+            {isEnded ? (
+              <span className="text-slate-450 font-bold text-[10px] uppercase tracking-wider">Closed</span>
+            ) : isFull ? (
+              <span className="text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded border border-rose-100 text-[10px] uppercase tracking-wider">Sold Out</span>
+            ) : (
+              <span className="text-emerald-750 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 text-[10px] uppercase tracking-wider">{seatsLeft} seats left</span>
+            )}
           </div>
         </div>
 
@@ -362,7 +339,6 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
   const seatsLeft = Math.max(0, max_capacity - registered);
   const isFull = seatsLeft === 0;
   const isEnded = event_status === 'Ended';
-  const fillPct = Math.min(100, Math.round((registered / max_capacity) * 100));
 
   const rowRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -412,11 +388,10 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
           {category}
         </span>
         
-        <span className={`absolute bottom-2 left-2 flex items-center gap-0.5 text-[8px] font-bold px-1.5 py-0.5 rounded ${
-          mode === 'ONLINE' ? 'bg-emerald-500 text-white' : 'bg-blue-500 text-white'
+        <span className={`absolute bottom-2 left-2 text-[8px] font-bold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider ${
+          mode === 'ONLINE' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
         }`}>
-          {mode === 'ONLINE' ? <Wifi className="w-2 h-2" /> : <WifiOff className="w-2 h-2" />}
-          {mode}
+          {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
         </span>
 
         {isEnded && (
@@ -432,7 +407,7 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
       <div className="flex-grow min-w-0 flex flex-col justify-between py-0.5">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-slate-95 font-display text-[15px] group-hover:text-[#FF9900] transition truncate leading-snug">
+            <h3 className="font-bold text-slate-95 font-display text-[17px] group-hover:text-[#FF9900] transition truncate leading-snug">
               {title}
             </h3>
             {isFull && !isEnded && (
@@ -441,45 +416,37 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
               </span>
             )}
           </div>
-          <p className="text-slate-500 text-xs line-clamp-1 mt-0.5 font-normal leading-relaxed">
+          <p className="text-slate-500 text-[11px] font-normal leading-relaxed line-clamp-1 mt-0.5">
             {short_description}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center text-slate-500 gap-x-4 gap-y-1.5 text-xs mt-3 font-medium">
-          <span className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span>{formattedDate}</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span>{startTimeStr}</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="truncate max-w-[200px]">{venue}</span>
-          </span>
+        {/* Metadata single line */}
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium truncate mt-2.5">
+          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="shrink-0">{formattedDate}</span>
+          <span className="text-slate-300 shrink-0">•</span>
+          <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="shrink-0">{startTimeStr}</span>
+          <span className="text-slate-300 shrink-0">•</span>
+          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="truncate max-w-[250px]" title={venue}>{venue}</span>
         </div>
       </div>
 
-      {/* Right section: Progress bar & Action */}
-      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t border-slate-100 md:border-l md:border-t-0 md:pl-6 pt-3 md:pt-0 shrink-0 md:w-48">
-        <div className="w-32 md:w-full">
-          <div className="flex justify-between items-center text-[10px] mb-1 font-semibold text-slate-400">
-            <span>{registered} / {max_capacity}</span>
-            <span className={isFull || isEnded ? 'text-rose-500' : 'text-slate-600'}>
-              {isEnded ? 'Ended' : `${seatsLeft} left`}
-            </span>
-          </div>
-          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full ${fillPct >= 90 ? 'bg-rose-500' : fillPct >= 60 ? 'bg-amber-400' : 'bg-emerald-500'}`}
-              style={{ width: `${fillPct}%` }}
-            />
-          </div>
+      {/* Right section: Action & Availability */}
+      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t border-slate-100 md:border-l md:border-t-0 md:pl-6 pt-3 md:pt-0 shrink-0 md:w-44">
+        <div className="text-right">
+          {isEnded ? (
+            <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Closed</span>
+          ) : isFull ? (
+            <span className="text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded border border-rose-100 text-[10px] uppercase tracking-wider">Sold Out</span>
+          ) : (
+            <span className="text-emerald-750 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 text-[10px] uppercase tracking-wider">{seatsLeft} seats left</span>
+          )}
         </div>
 
-        <div className="shrink-0 w-24 md:w-full">
+        <div className="shrink-0 w-24 md:w-full mt-1">
           {isEnded ? (
             <button
               disabled
