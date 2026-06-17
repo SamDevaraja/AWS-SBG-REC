@@ -224,7 +224,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
   return (
     <div
       ref={cardRef}
-      className={`group bg-white border border-slate-200 hover:border-slate-300 rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_15px_-3px_rgba(0,0,0,0.01)] hover:shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05),0_10px_15px_-3px_rgba(0,0,0,0.03)] flex flex-col h-full relative transition-all duration-300 ${isEnded ? 'ended-blur opacity-85' : ''}`}
+      className={`group bg-white border border-slate-200 hover:border-slate-300 rounded-2xl overflow-hidden shadow-xs hover:shadow-md flex flex-col h-full relative transition-all duration-300 ${isEnded ? 'ended-blur opacity-85' : ''}`}
     >
       {/* Banner */}
       <div className="aspect-[16/9] w-full relative overflow-hidden bg-slate-950 shrink-0">
@@ -234,7 +234,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
             alt={title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-500 ease-out"
+            className="w-full h-full object-cover object-top group-hover:scale-102 transition-transform duration-500 ease-out"
             onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
           />
         ) : (
@@ -243,23 +243,23 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           </div>
         )}
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
-        {/* Category pill */}
-        <span className="absolute top-3 left-3 bg-[#232F3E]/90 text-white font-bold text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-md shadow-xs backdrop-blur-xs">
-          {category}
-        </span>
-
-        {/* Mode badge */}
-        <span className={`absolute bottom-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded shadow-xs uppercase tracking-wide ${mode === 'ONLINE' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
-          {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
-        </span>
+        {/* Solid dark mask at the bottom of the banner to hide pre-baked image details */}
+        <div className="absolute inset-x-0 bottom-0 h-9 bg-slate-950/90 flex items-center justify-between px-3.5 z-10 select-none">
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded shadow-xs uppercase tracking-wider ${mode === 'ONLINE' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
+            {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
+          </span>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+            {category}
+          </span>
+        </div>
       </div>
 
       <div className="p-5 flex-grow flex flex-col justify-between">
         <div className="space-y-4">
           <div>
-            <h3 className="font-bold text-[19px] sm:text-[21px] text-slate-950 line-clamp-2 mb-1.5 group-hover:text-[#FF9900] transition-colors font-display leading-tight min-h-[52px]">
+            <h3 className="font-bold text-[18px] sm:text-[20px] text-slate-950 line-clamp-2 mb-1.5 font-display leading-tight min-h-[50px]">
               {title}
             </h3>
             <p className="text-slate-500 text-[11px] font-normal line-clamp-2 leading-relaxed min-h-[34px]">
@@ -267,15 +267,15 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
             </p>
           </div>
 
-          {/* Meta info single line */}
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium py-2 px-2.5 bg-slate-50 border border-slate-100 rounded-lg w-full min-w-0">
+          {/* Meta info single line (un-boxed) */}
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium py-1 w-full min-w-0">
             <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <div className="flex items-center gap-1 min-w-0 truncate">
               <span className="shrink-0">{formattedDate}</span>
-              <span className="text-slate-300 shrink-0">•</span>
+              <span className="text-slate-350 shrink-0">•</span>
               <span className="shrink-0">{startTimeStr}</span>
-              <span className="text-slate-300 shrink-0">•</span>
-              <span className="truncate" title={venue}>{venue}</span>
+              <span className="text-slate-350 shrink-0">•</span>
+              <span className="truncate text-slate-450" title={venue}>{venue}</span>
             </div>
           </div>
 
@@ -287,7 +287,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
             ) : isFull ? (
               <span className="text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded border border-rose-100 text-[10px] uppercase tracking-wider">Sold Out</span>
             ) : (
-              <span className="text-emerald-750 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 text-[10px] uppercase tracking-wider">{seatsLeft} seats left</span>
+              <span className="text-emerald-750 font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100 text-[10px] uppercase tracking-wider">{seatsLeft} seats remaining</span>
             )}
           </div>
         </div>
@@ -407,7 +407,7 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
       <div className="flex-grow min-w-0 flex flex-col justify-between py-0.5">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-slate-95 font-display text-[17px] group-hover:text-[#FF9900] transition truncate leading-snug">
+            <h3 className="font-bold text-slate-950 font-display text-[17px] truncate leading-snug">
               {title}
             </h3>
             {isFull && !isEnded && (
