@@ -278,7 +278,7 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
         <div className="flex-grow flex flex-col">
           {/* Header/Title & Description container without artificial spaces */}
           <div className="space-y-1">
-            <h3 className="font-bold text-[17px] sm:text-[18px] text-slate-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors font-display tracking-tight">
+            <h3 className="font-bold text-[19px] sm:text-[21px] text-slate-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors font-display tracking-tight">
               {title}
             </h3>
             {short_description && (
@@ -427,7 +427,7 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
       <div className="flex-grow min-w-0 flex flex-col justify-between h-full py-0.5">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-slate-900 font-display text-[16px] sm:text-[18px] tracking-tight group-hover:text-amber-600 transition-colors truncate leading-snug">
+            <h3 className="font-bold text-slate-900 font-display text-[18px] sm:text-[20px] tracking-tight group-hover:text-amber-600 transition-colors truncate leading-snug">
               {title}
             </h3>
             {isFull && !isEnded && (
