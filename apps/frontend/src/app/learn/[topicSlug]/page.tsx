@@ -56,7 +56,7 @@ export default function TopicRoadmapPage() {
         const topics = await learningService.getTopicList();
         if (!active) return;
         const topic = topics.find((t) => t.slug === topicSlug);
-        if (topic && !topic.unlocked) {
+        if (!topic || !topic.unlocked) {
           router.replace('/learn');
           return;
         }

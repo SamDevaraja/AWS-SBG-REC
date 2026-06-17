@@ -793,17 +793,17 @@ export default function CoreChatPage() {
           display: flex;
           flex-direction: column;
           height: calc(100vh - 56px);
-          padding: 28px 28px 24px;
+          padding: 16px 20px 12px;
           color: ${A.text};
           font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
           box-sizing: border-box;
           overflow: hidden;
         }
         .tab-btn {
-          padding: 8px 18px;
+          padding: 5px 14px;
           border-radius: 9999px;
           border: 1px solid transparent;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
@@ -874,48 +874,34 @@ export default function CoreChatPage() {
       `}</style>
 
       {/* Custom Subheader inside layout wrapper */}
-      <header
-        style={{
-          background: "rgba(255, 255, 255, 0.72)",
-          backdropFilter: "blur(20px)",
-          border: `1px solid ${A.border}`,
-          padding: "10px 20px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-          flexWrap: "wrap",
-          borderRadius: 12,
-          marginBottom: 16,
-        }}
-      >
-        {/* Brand */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${A.accent}, #8b5cf6)`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: "bold", fontSize: 15 }}>🛡️</div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: A.text }}>Chat Administration</div>
-            <div style={{ fontSize: 9, color: A.muted, letterSpacing: "0.03em" }}>AWS Club Operations</div>
+      <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: 24, padding: '16px 24px', marginBottom: 16 }}>
+        {/* Row 1: Title + Navigation */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ flexShrink: 0 }}>
+            <div style={{ fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1 }}>Chat Administration</div>
+            <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>AWS Club Operations</div>
+          </div>
+
+          {/* View Navigation */}
+          <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.04)", padding: "3px 4px", borderRadius: 9999 }}>
+            <button onClick={() => setActiveView("queries")} className={`tab-btn ${activeView === "queries" ? "active-admin" : "inactive"}`}>Unhandled Queries & KB</button>
+            <button onClick={() => setActiveView("crew_chats")} className={`tab-btn ${activeView === "crew_chats" ? "active-admin" : "inactive"}`}>Crew General & E2EE Chat</button>
+            <button onClick={() => setActiveView("manage_users")} className={`tab-btn ${activeView === "manage_users" ? "active-admin" : "inactive"}`}>Manage Members</button>
           </div>
         </div>
 
-        {/* View Navigation — centred */}
-        <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.04)", padding: "3px 4px", borderRadius: 9999 }}>
-          <button onClick={() => setActiveView("queries")} className={`tab-btn ${activeView === "queries" ? "active-admin" : "inactive"}`}>📋 Unhandled Queries & KB</button>
-          <button onClick={() => setActiveView("crew_chats")} className={`tab-btn ${activeView === "crew_chats" ? "active-admin" : "inactive"}`}>💬 Crew General & E2EE Chat</button>
-          <button onClick={() => setActiveView("manage_users")} className={`tab-btn ${activeView === "manage_users" ? "active-admin" : "inactive"}`}>👤 Manage Members</button>
-        </div>
+        {/* Row 2: Stats */}
+        {activeView === "queries" && (
+          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <StatPill label="Live" value={stats?.live} color={A.warning} />
+            <StatPill label="Resolved" value={stats?.resolved} color={A.success} />
+            <StatPill label="KB Docs" value={stats?.kb_docs} color={A.accent} />
+          </div>
+        )}
 
-        {/* Real-time stats — right-anchored, always reserve space */}
-        <div style={{ display: "flex", gap: 8, flexShrink: 0, minWidth: 220, justifyContent: "flex-end" }}>
-          {activeView === "queries" ? (
-            <>
-              <StatPill label="Live" value={stats?.live} color={A.warning} />
-              <StatPill label="Resolved" value={stats?.resolved} color={A.success} />
-              <StatPill label="KB Docs" value={stats?.kb_docs} color={A.accent} />
-            </>
-          ) : null}
-        </div>
-      </header>
+        {/* Orange divider */}
+        <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 12, borderRadius: 2 }} />
+      </div>
 
       {/* Main panel body */}
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>

@@ -104,7 +104,7 @@ export default function Sidebar({
         style={{
           width: sidebarW,
           transform: isMobile && !isMobileOpen ? 'translateX(-100%)' : 'translateX(0)',
-          background: "var(--sidebar-bg, #131b2e)",
+          background: "var(--sidebar-bg, #0a0e1a)",
           boxShadow: "4px 0 32px -4px rgba(0,0,0,0.5)",
           willChange: "width, transform",
         }}
@@ -127,7 +127,7 @@ export default function Sidebar({
               <button onClick={() => onNavigate(homeHref)} className="flex flex-col gap-0.5 text-left group cursor-pointer">
                 <h1 className="text-lg font-bold text-white tracking-tight leading-tight group-hover:text-slate-200 transition-colors">{brandTitle}</h1>
                 {brandSubtitle && (
-                  <p className="text-[15px] font-medium text-slate-400 mt-0.5">{brandSubtitle}</p>
+                  <p className="text-[13px] font-medium text-slate-400 mt-0.5">{brandSubtitle}</p>
                 )}
               </button>
             ) : (
@@ -162,7 +162,7 @@ export default function Sidebar({
                   <div className="flex-1 min-w-0">
                     <p className="text-lg font-extrabold truncate text-white tracking-tight leading-tight">{user.name}</p>
                     {user.badge && (
-                      <p className="text-[15px] font-medium text-slate-400 mt-0.5 truncate">
+                      <p className="text-[13px] font-medium text-slate-400 mt-0.5 truncate">
                         {user.badge}
                       </p>
                     )}
@@ -219,7 +219,7 @@ export default function Sidebar({
                     "flex items-center transition-all duration-150 w-full group py-3 gap-3 text-left font-sans border-l-4",
                     isOpen ? "px-5" : "px-2 justify-center",
                     isActive
-                      ? "border-[#FF6B00] bg-[#1f2739] text-[#FF6B00] font-semibold"
+                      ? "border-[#FF6B00] bg-[#121929] text-[#FF6B00] font-semibold"
                       : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
                   )}
                 >
@@ -273,7 +273,7 @@ export default function Sidebar({
                   className={cn(
                     "flex items-center transition-all duration-150 w-full group py-2.5 gap-3 text-left font-sans border-l-4 px-3 rounded-xl",
                     isActive
-                      ? "border-[#FF6B00] bg-[#1f2739] text-[#FF6B00] font-semibold"
+                      ? "border-[#FF6B00] bg-[#121929] text-[#FF6B00] font-semibold"
                       : "border-transparent text-slate-300 hover:text-white hover:bg-white/5 font-normal"
                   )}
                 >

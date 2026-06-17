@@ -16,8 +16,8 @@ export default function CrewTasksPage() {
   const completedTasks = (tasks ?? []).filter((t) => t.status === 'COMPLETED');
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[#232F3E]">
@@ -51,7 +51,7 @@ export default function CrewTasksPage() {
                   </div>
                 ))
               ) : pendingTasks.length === 0 ? (
-                <div className="border border-dashed border-slate-200 rounded-lg p-6 text-center text-xs text-slate-400">
+                <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-200 rounded-lg p-6 text-center text-xs text-slate-400">
                   No pending tasks
                 </div>
               ) : (
@@ -109,7 +109,7 @@ export default function CrewTasksPage() {
                   </div>
                 ))
               ) : inProgressTasks.length === 0 ? (
-                <div className="border border-dashed border-slate-200 rounded-lg p-6 text-center text-xs text-slate-400">
+                <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-200 rounded-lg p-6 text-center text-xs text-slate-400">
                   No tasks currently in progress
                 </div>
               ) : (
@@ -173,7 +173,7 @@ export default function CrewTasksPage() {
                   </div>
                 ))
               ) : completedTasks.length === 0 ? (
-                <div className="border border-dashed border-slate-200 rounded-lg p-6 text-center text-xs text-slate-400">
+                <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-200 rounded-lg p-6 text-center text-xs text-slate-400">
                   No completed tasks
                 </div>
               ) : (

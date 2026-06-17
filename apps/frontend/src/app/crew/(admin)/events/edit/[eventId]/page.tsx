@@ -921,7 +921,7 @@ function FormBuilderStep({
 
             <div className="space-y-4">
               {fields.length === 0 && (
-                <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px] bg-slate-50/50">
+        <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="text-center py-8 border border-dashed border-slate-200 rounded-[10px]">
                   <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-xs text-slate-500 mb-3 font-medium">
                     No custom fields added yet. Add additional fields for your custom form if

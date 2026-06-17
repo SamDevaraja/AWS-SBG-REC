@@ -18,7 +18,7 @@ const eventsNavItems: NavItem[] = [
   { icon: <CalendarDays className="w-4 h-4" />, label: 'events', href: '/events' },
   { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
   { icon: <Map className="w-4 h-4" />, label: 'roadmap', href: '/learn' },
-  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/events/chat' },
+  { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/chat' },
   { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
   { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
 ];

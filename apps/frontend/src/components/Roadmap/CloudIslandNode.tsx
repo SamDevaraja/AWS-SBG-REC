@@ -35,14 +35,14 @@ export const CloudIslandNode: React.FC<CloudIslandNodeProps> = ({
   // Stagger float delay for natural look
   const floatDelay = (index * 0.35) % 2;
 
-  // Level-relative display number: use levelIndex if provided, else fall back to index
-  const circleNumber = (levelIndex ?? index) + 1;
+  // Display number: use global index
+  const circleNumber = index + 1;
   const progressNumber = String(circleNumber).padStart(2, '0');
 
   return (
     <div
       className={cn(
-        "absolute z-25 -translate-x-1/2 -translate-y-1/2 select-none transition-all duration-300",
+        "absolute z-25 -translate-x-1/2 -translate-y-1/2 select-none transition-all duration-300 will-change-transform",
         status !== 'locked' ? "cursor-pointer animate-float-cloud" : "cursor-default animate-float-cloud opacity-80"
       )}
       style={{

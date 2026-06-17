@@ -29,7 +29,7 @@ export default function UpcomingEvent() {
 
   if (!event) {
     return (
-      <GlassCard className="flex flex-col items-center justify-center text-center p-12 min-h-[300px]">
+      <GlassCard style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="flex flex-col items-center justify-center text-center p-12 min-h-[300px]">
         <div className="w-16 h-16 rounded-full bg-brand-blue/10 flex items-center justify-center mb-4 text-brand-blue">
           <Calendar className="w-8 h-8" />
         </div>
@@ -42,7 +42,7 @@ export default function UpcomingEvent() {
   }
 
   return (
-    <GlassCard className="p-0 overflow-hidden flex flex-col lg:flex-row h-full border border-white/30" hoverEffect={false} style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.15))" }}>
+    <GlassCard className="p-0 overflow-hidden flex flex-col lg:flex-row h-full border border-white/30" hoverEffect={false} style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }}>
       {/* Poster */}
       <div className="relative w-full lg:w-[42%] aspect-[4/5] overflow-hidden bg-slate-50">
         <img

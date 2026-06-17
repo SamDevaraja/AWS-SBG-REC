@@ -13,6 +13,7 @@ export interface SpeakerDetail {
   designation?: string;
   bio?: string;
   avatar_url?: string;
+  linkedin_url?: string;
 }
 
 export interface FAQ {

@@ -166,7 +166,11 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
         orderIndex: m.orderIndex,
       }));
 
+      const levelOrder: Record<string, number> = { Beginner: 0, Intermediate: 1, Advanced: 2 };
       mapped.sort((a, b) => {
+        const orderA = levelOrder[a.level] ?? 0;
+        const orderB = levelOrder[b.level] ?? 0;
+        if (orderA !== orderB) return orderA - orderB;
         const modA = dbModules.find((m) => m.slug === a.id);
         const modB = dbModules.find((m) => m.slug === b.id);
         return (modA?.orderIndex ?? 0) - (modB?.orderIndex ?? 0);
@@ -237,7 +241,11 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
         learningContent: [],
         dbId: m.id,
       }));
+      const levelOrder: Record<string, number> = { Beginner: 0, Intermediate: 1, Advanced: 2 };
       mapped.sort((a, b) => {
+        const orderA = levelOrder[a.level] ?? 0;
+        const orderB = levelOrder[b.level] ?? 0;
+        if (orderA !== orderB) return orderA - orderB;
         const modA = dbModules.find((m) => m.slug === a.id);
         const modB = dbModules.find((m) => m.slug === b.id);
         return (modA?.orderIndex ?? 0) - (modB?.orderIndex ?? 0);
@@ -486,6 +494,7 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
   const tierIndex = selectedModule ? currentTierModules.findIndex((m) => m.id === selectedModule.id) : -1;
   const isFirstInTier = tierIndex === 0;
   const isLastInTier = tierIndex === currentTierModules.length - 1;
+  const selectedModuleIndex = selectedModule ? modules.findIndex((m) => m.id === selectedModule.id) : -1;
 
   const backgroundGradient = 'linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 20%, #ffffff 40%, #e0f2fe 100%)';
 
@@ -650,7 +659,7 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
                   </div>
                   <span className="text-[10px] font-black text-slate-555 font-heading uppercase tracking-wider mt-0.5">{selectedModule.level}</span>
                 </div>
-                <span className="text-lg font-black text-slate-800 font-heading flex-shrink-0">{selectedModule.orderIndex != null ? String(selectedModule.orderIndex + 1).padStart(2, '0') : '--'}</span>
+                <span className="text-lg font-black text-slate-800 font-heading flex-shrink-0">{selectedModuleIndex !== -1 ? String(selectedModuleIndex + 1).padStart(2, '0') : '--'}</span>
                 <span className="text-[9px] font-black font-heading text-slate-555 uppercase tracking-widest bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md flex-shrink-0 self-center">{selectedModule.id.slice(0, 5).toUpperCase()}</span>
               </div>
 

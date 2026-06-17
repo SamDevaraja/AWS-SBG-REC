@@ -11,27 +11,21 @@ function getHomeForRole(role: string): string {
   return '/events';
 }
 
-/** Cache parsed user so repeated navigations don't re-parse localStorage */
-let _cachedUser: { role: string } | null | undefined = undefined;
-
 function getSession(): { role: string } | null {
-  if (_cachedUser !== undefined) return _cachedUser;
   try {
     const raw = localStorage.getItem('aws_sgb_rec_user');
-    if (!raw) { _cachedUser = null; return null; }
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
-    _cachedUser = { role: (parsed?.role ?? 'enthusiasts').toLowerCase().trim() };
-    return _cachedUser;
+    return { role: (parsed?.role ?? 'enthusiasts').toLowerCase().trim() };
   } catch {
     localStorage.removeItem('aws_sgb_rec_user');
-    _cachedUser = null;
     return null;
   }
 }
 
-/** Invalidate cache on logout / login */
+/** Keep for backward compatibility, no longer needed since we read dynamically */
 export function clearSessionCache() {
-  _cachedUser = undefined;
+  // No-op
 }
 
 /**

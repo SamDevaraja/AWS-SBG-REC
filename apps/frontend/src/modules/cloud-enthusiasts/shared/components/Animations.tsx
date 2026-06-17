@@ -81,7 +81,7 @@ export function AnimatedSuccessCheck() {
 // 5. Static Error Alert Panel
 export function ErrorAlert({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="max-w-md mx-auto my-8 p-5 bg-rose-50 border border-rose-100 text-rose-800 rounded-[10px] shadow-sm text-center">
+    <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="max-w-md mx-auto my-8 p-5 border border-rose-100 text-rose-800 rounded-[10px] shadow-sm text-center">
       <div className="inline-flex bg-rose-100 p-2 rounded-full text-rose-500 mb-3">
         <ShieldAlert className="w-6 h-6" />
       </div>

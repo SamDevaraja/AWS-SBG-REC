@@ -89,7 +89,7 @@ export default function IncidentReportingPage() {
   return (
     <div className="h-[calc(100vh-4.5rem)] flex flex-col space-y-4 py-4 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Header Row */}
-      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/45 backdrop-blur-md rounded-[20px] border border-white/50 p-5 shadow-sm">
+      <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)" }} className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-[20px] border border-white/50 p-5 shadow-sm">
         <div className="flex items-start gap-4">
           <div>
             <h1 className="text-xl font-extrabold tracking-tight text-[#232F3E] font-display">
@@ -246,7 +246,7 @@ export default function IncidentReportingPage() {
                   </div>
                 ))
               ) : !incidents || incidents.length === 0 ? (
-                <div className="border-2 border-dashed border-slate-300 bg-slate-50/50 rounded-[14px] min-h-[120px] flex flex-col items-center justify-center p-4 text-center">
+                <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border-2 border-dashed border-slate-300 rounded-[14px] min-h-[120px] flex flex-col items-center justify-center p-4 text-center">
                   <p className="text-xs font-medium text-slate-500">No incident reports recorded.</p>
                 </div>
               ) : (

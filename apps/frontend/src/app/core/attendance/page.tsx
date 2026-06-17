@@ -46,7 +46,7 @@ function LoadingSkeleton() {
 /* ─── Empty State ───────────────────────────────────────────────── */
 function EmptyState() {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderRadius: '24px', border: '1.5px dashed rgba(35,47,62,0.12)', padding: '64px 32px', textAlign: 'center' }}>
+    <div style={{ background: 'linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderRadius: '24px', border: '1.5px dashed rgba(35,47,62,0.12)', padding: '64px 32px', textAlign: 'center' }}>
       <div style={{ margin: '0 auto 20px', width: 56, height: 56, borderRadius: '16px', background: 'rgba(35,47,62,0.05)', border: '1px solid rgba(35,47,62,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <QrCode style={{ width: 24, height: 24, color: '#94a3b8' }} />
       </div>
@@ -170,55 +170,58 @@ export default function AttendancePage() {
       <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* ── Header ── */}
-        <div style={{ marginBottom: 28 }}>
-          {/* Pill */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
-            <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Admin · Attendance</span>
-          </div>
+        <div style={{ marginBottom: 28, background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1 }}>
+                {/* Pill */}
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin · Attendance</span>
+                </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
-                Attendance
-              </h1>
-              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(35,47,62,0.07)', border: '1px solid rgba(35,47,62,0.1)', borderRadius: '100px', padding: '3px 12px', fontSize: '12px', fontWeight: 800, color: '#232F3E' }}>
-                {totalCount}
-              </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
+                    Attendance
+                  </h1>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(35,47,62,0.07)', border: '1px solid rgba(35,47,62,0.1)', borderRadius: '100px', padding: '3px 12px', fontSize: '12px', fontWeight: 800, color: '#232F3E' }}>
+                    {totalCount}
+                  </span>
+                </div>
+                <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>Track and verify event attendance</p>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+                {/* OD List Button */}
+                <button
+                  onClick={() => {
+                    if (!eventFilter) {
+                      alert("Please select a specific event from the dropdown filter first to generate its OD list.");
+                      return;
+                    }
+                    router.push(`/core/attendance/od-generator?eventId=${eventFilter}`);
+                  }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ffffff', color: '#232F3E', border: '1.5px solid rgba(35,47,62,0.12)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(35,47,62,0.04)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#FF9900'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(35,47,62,0.12)'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
+                >
+                  <Download style={{ width: 15, height: 15 }} />
+                  Generate OD List
+                </button>
+
+                {/* Scan Ticket Button */}
+                <button
+                  onClick={() => { setScanModalOpen(true); setScanResult(null); setTicketCode(''); }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#232F3E'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; }}
+                >
+                  <QrCode style={{ width: 15, height: 15 }} />
+                  Scan Ticket
+                </button>
+              </div>
             </div>
-
-            <div style={{ display: 'flex', gap: 10 }}>
-              {/* OD List Button */}
-              <button
-                onClick={() => {
-                  if (!eventFilter) {
-                    alert("Please select a specific event from the dropdown filter first to generate its OD list.");
-                    return;
-                  }
-                  router.push(`/core/attendance/od-generator?eventId=${eventFilter}`);
-                }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ffffff', color: '#232F3E', border: '1.5px solid rgba(35,47,62,0.12)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(35,47,62,0.04)', transition: 'all 0.2s' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#FF9900'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(35,47,62,0.12)'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
-              >
-                <Download style={{ width: 15, height: 15 }} />
-                Generate OD List
-              </button>
-
-              {/* Scan Ticket Button */}
-              <button
-                onClick={() => { setScanModalOpen(true); setScanResult(null); setTicketCode(''); }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#232F3E'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff'; }}
-              >
-                <QrCode style={{ width: 15, height: 15 }} />
-                Scan Ticket
-              </button>
-            </div>
           </div>
-
-          <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>Track and verify event attendance</p>
 
           {/* Orange divider */}
           <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />

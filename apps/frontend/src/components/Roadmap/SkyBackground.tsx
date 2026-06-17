@@ -59,7 +59,7 @@ export const SkyBackground: React.FC = () => {
         ].map((star, idx) => (
           <motion.div
             key={idx}
-            className="absolute rounded-full bg-cyan-200 shadow-[0_0_8px_rgba(56,189,248,0.4)]"
+            className="absolute rounded-full bg-cyan-200 shadow-[0_0_8px_rgba(56,189,248,0.4)] will-change-transform"
             style={{
               top: star.top,
               left: star.left,
@@ -83,7 +83,7 @@ export const SkyBackground: React.FC = () => {
       {/* Background Cloud Layer 1 (Slow & Large - Light Fluffy Silhouette) */}
       <div className="absolute top-[12%] left-0 right-0 h-32 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute flex w-[200vw]"
+          className="absolute flex w-[200vw] will-change-transform"
           animate={{ x: ['0%', '-50%'] }}
           transition={{ ease: 'linear', duration: 180, repeat: Infinity }}
         >
@@ -103,7 +103,7 @@ export const SkyBackground: React.FC = () => {
       {/* Background Cloud Layer 2 (Medium depth - Light Fluffy Silhouette) */}
       <div className="absolute top-[45%] left-0 right-0 h-40 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute flex w-[200vw]"
+          className="absolute flex w-[200vw] will-change-transform"
           animate={{ x: ['-50%', '0%'] }}
           transition={{ ease: 'linear', duration: 140, repeat: Infinity }}
         >
@@ -123,7 +123,7 @@ export const SkyBackground: React.FC = () => {
       {/* Background Cloud Layer 3 (Lower depth, smaller - Light Fluffy Silhouette) */}
       <div className="absolute bottom-[8%] left-0 right-0 h-28 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute flex w-[200vw]"
+          className="absolute flex w-[200vw] will-change-transform"
           animate={{ x: ['0%', '-50%'] }}
           transition={{ ease: 'linear', duration: 110, repeat: Infinity }}
         >

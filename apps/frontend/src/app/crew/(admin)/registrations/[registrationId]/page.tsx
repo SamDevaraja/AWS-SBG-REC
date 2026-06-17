@@ -166,7 +166,7 @@ export default function RegistrationDetailsPage() {
 
   if (!registration) {
     return (
-      <div className="min-h-screen bg-white p-6 lg:p-8">
+      <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="min-h-screen p-6 lg:p-8">
         <div className="w-full text-center py-20">
           <p className="text-sm text-slate-500">Registration not found.</p>
           <button

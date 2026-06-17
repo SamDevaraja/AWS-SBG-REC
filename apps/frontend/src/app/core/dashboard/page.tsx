@@ -294,57 +294,67 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="bg-transparent min-h-screen py-5 px-4 sm:px-6 lg:px-8 relative">
+    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '36px 24px 64px', position: 'relative', overflow: 'hidden' }}>
       {/* Ambient background mesh blob effects */}
       <div className="absolute top-[10%] left-[5%] w-72 h-72 bg-brand-orange/10 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="absolute top-[40%] right-[10%] w-80 h-80 bg-brand-blue/8 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="absolute bottom-[20%] left-[15%] w-72 h-72 bg-brand-orange/8 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <div className="w-full max-w-screen-xl mx-auto space-y-7 relative z-10">
+      <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         
         {/* Welcome Hero Banner */}
         <CoreHeroBanner />
 
-
-
         {/* Shortcuts strip */}
-        <GlassCard hoverEffect={false} className="border border-white/35 py-3.5 px-6" style={{ background: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(16px)" }}>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-xs font-semibold text-slate-800 uppercase tracking-wider font-display">Console Utilities</h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">Quick administrative action shortcuts</p>
+        <div className="mt-6">
+          <GlassCard hoverEffect={false} className="border border-white/40 py-4 px-6" style={{ background: "rgba(255, 255, 255, 0.65)", backdropFilter: "blur(16px)", borderLeft: "3px solid rgba(255, 153, 0, 0.5)" }}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="shrink-0">
+                <h3 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest font-display">Console Utilities</h3>
+                <p className="text-[11px] text-slate-400 mt-0.5 font-normal">Quick administrative action shortcuts</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                {adminActions.map((action) => (
+                  <Link key={action.label} href={action.href}>
+                    <motion.button
+                      whileHover={{ scale: 1.03, y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200/70 bg-white/80 shadow-sm hover:bg-white hover:border-brand-orange/30 hover:shadow-md text-xs font-semibold text-slate-700 transition-all duration-200 cursor-pointer"
+                    >
+                      <div className={`p-1.5 rounded-lg ${action.color}`}>
+                        <action.icon className="h-4 w-4" />
+                      </div>
+                      <span>{action.label}</span>
+                    </motion.button>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              {adminActions.map((action) => (
-                <Link key={action.label} href={action.href}>
-                  <motion.button
-                    whileHover={{ scale: 1.03, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/50 bg-white/70 shadow-sm hover:bg-white text-xs font-semibold text-slate-700 transition cursor-pointer"
-                  >
-                    <div className={`p-1.5 rounded-lg ${action.color}`}>
-                      <action.icon className="h-4 w-4" />
-                    </div>
-                    <span>{action.label}</span>
-                  </motion.button>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        </div>
 
         {/* Recent Events Section */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-slate-850 font-display flex items-center gap-2">
-              <Calendar className="w-4.5 h-4.5 text-brand-orange" />
+        <div className="mt-8">
+          {/* Section divider */}
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-px flex-1 bg-gradient-to-r from-slate-200/80 to-transparent" />
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Recent Activity</span>
+            <div className="h-px flex-1 bg-gradient-to-l from-slate-200/80 to-transparent" />
+          </div>
+
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-[15px] font-semibold text-slate-800 font-display flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-orange/10 border border-brand-orange/20">
+                <Calendar className="w-4 h-4 text-brand-orange" />
+              </span>
               Recent Events
             </h2>
             <Link
               href="/core/events"
-              className="text-xs font-semibold text-brand-orange hover:text-brand-orange/90 flex items-center gap-1 hover:underline transition"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-orange hover:text-brand-orange/80 transition-colors group"
             >
-              View All Console <ArrowRight className="h-3 w-3" />
+              View All Console
+              <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform duration-150" />
             </Link>
           </div>
 
@@ -355,7 +365,7 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : recentEvents.length === 0 ? (
-            <GlassCard hoverEffect={false} className="border border-slate-200/50 py-12 text-center w-full" style={{ background: "rgba(255, 255, 255, 0.7)", backdropFilter: "blur(12px)" }}>
+            <GlassCard hoverEffect={false} className="border border-slate-200/50 py-12 text-center w-full" style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))", backdropFilter: "blur(12px)" }}>
               <Calendar className="h-8 w-8 text-slate-300 mx-auto mb-3 animate-pulse" />
               <h3 className="text-sm font-semibold text-slate-800 mb-1 font-display">No events found</h3>
               <p className="text-xs text-slate-500 mb-4 max-w-xs mx-auto">Get started by creating your first community event.</p>

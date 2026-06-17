@@ -1,9 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { attendanceRecords } from "@/lib/data/crewMockData";
 
+function AttendanceIcon({ className }: { className?: string }) {
+  return (
+    <img src="/empty-icon-attendance.svg" alt="Attendance" className={className} />
+  );
+}
+
 export default function AttendanceTracker() {
+  const [iconHovered, setIconHovered] = useState(false);
   const presentCount = attendanceRecords.filter(
     (r) => r.status === "present"
   ).length;
@@ -16,9 +23,19 @@ export default function AttendanceTracker() {
 
   return (
     <div className="flex flex-col h-full select-none">
-      <h2 className="text-lg font-bold font-display text-foreground">
-        My Attendance
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold font-display text-foreground">
+          My Attendance
+        </h2>
+        <div className="relative" onMouseEnter={() => setIconHovered(true)} onMouseLeave={() => setIconHovered(false)}>
+          <AttendanceIcon className={`w-21 h-21 transition-transform duration-200 ${iconHovered ? "scale-110" : ""}`} />
+          {iconHovered && (
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/85 backdrop-blur-sm text-white text-[9px] font-extrabold rounded-md shadow-lg border border-white/10 whitespace-nowrap pointer-events-none tracking-wider uppercase z-30">
+              Attendance
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="mt-4 flex gap-2">
         <span className="rounded-full bg-brand-teal px-3 py-1 text-[10px] font-semibold text-white">

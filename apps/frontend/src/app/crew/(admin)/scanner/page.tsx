@@ -170,7 +170,7 @@ export default function TicketScannerPage() {
         <div className="w-full">
           {!scanResult ? (
             mode === 'manual' ? (
-              <div className="border-[2px] border-dashed border-slate-300 bg-slate-50/50 rounded-[16px] min-h-[260px] flex flex-col items-center justify-center p-6 text-center">
+              <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border-[2px] border-dashed border-slate-300 rounded-[16px] min-h-[260px] flex flex-col items-center justify-center p-6 text-center">
                 <div className="bg-white p-4 rounded-full shadow-sm border border-slate-100 mb-4">
                   <Search className="w-8 h-8 text-slate-400" />
                 </div>

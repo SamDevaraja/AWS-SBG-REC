@@ -49,7 +49,7 @@ function LoadingSkeleton() {
 function EmptyState() {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+      background: 'linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
       borderRadius: '24px', border: '1.5px dashed rgba(35,47,62,0.12)',
       padding: '64px 32px', textAlign: 'center',
     }}>
@@ -131,11 +131,11 @@ export default function TicketsPage() {
       <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* ── Header ── */}
-        <div style={{ marginBottom: 28 }}>
+        <div style={{ marginBottom: 28, background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px' }}>
           {/* Pill */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
-            <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Admin · Tickets</span>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin · Tickets</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

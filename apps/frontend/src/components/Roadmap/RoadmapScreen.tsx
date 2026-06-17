@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import * as Icons from 'lucide-react';
@@ -11,6 +11,7 @@ import { MissionDetailsDrawer } from './MissionDetailsDrawer';
 import { BeginnerSummitLandmark, IntermediateSummitLandmark, CloudArchitectSummitLandmark } from './MilestoneLandmark';
 import { IntermediateCloudsOverlay } from './IntermediateCloudsOverlay';
 import { AdvancedCloudsOverlay } from './AdvancedCloudsOverlay';
+import { RoadmapProgressUpdater } from './RoadmapProgressUpdater';
 import { learningService, progressService } from '@/services/roadmap.api';
 import { calculateRoadmapGeometry } from '@/lib/roadmapGeometry';
 import { cn } from '@/lib/utils';
@@ -52,39 +53,39 @@ const LevelIslandHeader: React.FC<{
   locked: boolean;
 }> = ({ number, title, completed, total, description, levelColor, locked }) => {
   const containerClasses = cn(
-    'w-[260px] border transition-all duration-300 select-none rounded-[22px]',
+    "w-[260px] border transition-all duration-300 select-none rounded-[22px]",
     !locked
-      ? 'bg-white border-slate-200/50 shadow-md hover:shadow-xl hover:-translate-y-0.5 text-slate-800'
+      ? "gradient-container border-slate-200/50 shadow-md hover:shadow-xl hover:-translate-y-0.5 text-slate-800"
       : levelColor === 'intermediate'
-        ? 'bg-slate-700/70 border-slate-600/50 shadow-none text-slate-400'
-        : 'bg-slate-900/80 border-slate-800/50 shadow-none text-slate-400'
+        ? "bg-slate-700/70 border-slate-600/50 shadow-none text-slate-350"
+        : "bg-slate-900/80 border-slate-800/50 shadow-none text-slate-400"
   );
 
   return (
     <div className={containerClasses}>
-      <div className="p-5">
+      <div className={cn(locked ? "p-5" : "gradient-overlay p-5")}>
         <div className="relative z-10 flex flex-col">
           <span className={cn(
-            'text-[9px] font-black uppercase tracking-widest block font-heading',
-            !locked ? 'text-slate-500' : 'text-slate-400'
+            "text-[9px] font-black uppercase tracking-widest block font-heading",
+            !locked ? "text-slate-500" : "text-slate-400"
           )}>
             LEVEL {number}
           </span>
           <h2 className={cn(
-            'text-base font-black leading-tight mt-0.5 tracking-tight font-heading',
-            !locked ? 'text-slate-950' : 'text-slate-100'
+            "text-base font-black leading-tight mt-0.5 tracking-tight font-heading",
+            !locked ? "text-slate-950" : "text-slate-100"
           )}>
             {title}
           </h2>
           <span className={cn(
-            'text-[10px] font-bold mt-1 font-heading',
-            !locked ? 'text-slate-600' : 'text-slate-400'
+            "text-[10px] font-bold mt-1 font-heading",
+            !locked ? "text-slate-600" : "text-slate-400"
           )}>
             {completed} / {total} Completed
           </span>
           <p className={cn(
-            'text-[11px] leading-snug mt-2 font-medium',
-            !locked ? 'text-slate-600' : 'text-slate-300'
+            "text-[11px] leading-snug mt-2 font-medium",
+            !locked ? "text-slate-600" : "text-slate-300"
           )}>
             {description}
           </p>
@@ -110,9 +111,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const [xp, setXp] = useState<number>(0);
   const [topicName, setTopicName] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const session = getAuthSession();
+    setRole(session.role);
 
     let active = true;
     const loadData = async () => {
@@ -189,7 +192,8 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
 
-  // Measure dynamic geometry based on modules list
+  // Measure dynamic geometry based on store modules list
+  const geometry = useMemo(() => calculateRoadmapGeometry(modules), [modules]);
   const {
     coordinates,
     totalHeight,
@@ -197,7 +201,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     intermediateHeight,
     advancedStartY,
     advancedHeight
-  } = calculateRoadmapGeometry(modules);
+  } = geometry;
 
   // Resize handler to measure container width
   useEffect(() => {
@@ -274,19 +278,49 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
     };
   });
 
-  // Scroll to active node or beginner on mount
+  // Scroll to active node or beginner on mount (only once per topic selection)
+  const hasScrolledRef = useRef(false);
+
   useEffect(() => {
-    if (!mapContainerRef.current || modules.length === 0) return;
+    hasScrolledRef.current = false;
+  }, [topicSlug]);
+
+  useEffect(() => {
+    if (!mapContainerRef.current || modules.length === 0 || hasScrolledRef.current) return;
+
+    // Skip scroll to active node/beginner if topic is just completed
+    const queryParams = new URLSearchParams(window.location.search);
+    if (queryParams.get('justCompleted') === 'true') return;
+
     const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0];
     const activeCoord = coordinates[activeNode.id];
     if (activeCoord && mapContainerRef.current) {
       const scrollPos = activeCoord.y - window.innerHeight / 2 + 200;
-      mapContainerRef.current.scrollTop = Math.max(0, scrollPos);
+      const timer = setTimeout(() => {
+        if (mapContainerRef.current) {
+          mapContainerRef.current.scrollTop = Math.max(0, scrollPos);
+        }
+      }, 100);
+      hasScrolledRef.current = true;
+      return () => clearTimeout(timer);
     }
   }, [moduleStates, modules, coordinates]);
 
   const selectedModule = modules.find((m) => m.id === selectedModuleId) || null;
   const activeNode = modules.find((m) => moduleStates[m.id] === 'current') || modules[0] || { id: '', name: 'Start', level: 'Beginner', points: 50 };
+
+  // Derive display level: active module tier first, fallback to highest completed tier
+  const levelOrder: Record<string, number> = { Beginner: 0, Intermediate: 1, Advanced: 2 };
+  const hasCurrentModule = modules.some((m) => moduleStates[m.id] === 'current');
+  const displayLevel = (() => {
+    if (hasCurrentModule) return activeNode.level;
+    const completedModules = modules.filter((m) => moduleStates[m.id] === 'completed');
+    if (completedModules.length === 0) return activeNode.level;
+    return completedModules.reduce(
+      (highest, m) => (levelOrder[m.level] > levelOrder[highest] ? m.level : highest),
+      'Beginner' as string,
+    );
+  })();
 
   useEffect(() => {
     if (activeNode) {
@@ -298,11 +332,69 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   const isActiveIntermediate = activeTab === 'intermediate';
   const isActiveAdvanced = activeTab === 'advanced';
 
+  // Unlocked states (colors gained)
+  const isBeginnerUnlocked = true;
+  const isIntermediateUnlocked = !isIntermediateLocked;
+  const isAdvancedUnlocked = !isAdvancedLocked;
+
+  // Current levels user is in (glowing shadow)
+  const isBeginnerCurrent = isIntermediateLocked;
+  const isIntermediateCurrent = !isIntermediateLocked && isAdvancedLocked;
+  const isAdvancedCurrent = !isAdvancedLocked;
+
+  const isAdvancedSummitActualLocked = totalCompleted < modules.length;
+  const [isAdvancedSummitLockedVisual, setIsAdvancedSummitLockedVisual] = useState(true);
+  const [animationTriggered, setAnimationTriggered] = useState(false);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const justCompleted = queryParams.get('justCompleted') === 'true';
+
+    if (justCompleted && !isAdvancedSummitActualLocked && !animationTriggered) {
+      setAnimationTriggered(true);
+      setIsAdvancedSummitLockedVisual(true);
+      setActiveTab('advanced');
+
+      // Scroll to the absolute bottom of the page immediately so they can watch the animation at the end!
+      if (mapContainerRef.current) {
+        const maxScroll = mapContainerRef.current.scrollHeight || (totalHeight + 300);
+        mapContainerRef.current.scrollTo({ top: maxScroll, behavior: 'smooth' });
+      }
+
+      // 1.2 seconds delay before breaking the lock
+      const unlockTimer = setTimeout(() => {
+        setIsAdvancedSummitLockedVisual(false);
+      }, 1200);
+
+      // 7.2 seconds delay (1.2s delay + 7s after animation) before redirecting to /learn
+      const redirectTimer = setTimeout(() => {
+        router.push('/learn');
+      }, 8200);
+
+      return () => {
+        clearTimeout(unlockTimer);
+        clearTimeout(redirectTimer);
+      };
+    } else if (!justCompleted || isAdvancedSummitActualLocked) {
+      setIsAdvancedSummitLockedVisual(isAdvancedSummitActualLocked);
+    }
+  }, [loading, isAdvancedSummitActualLocked, animationTriggered, totalHeight, router]);
+
   const scrollTarget = (topValue: number) => {
     if (mapContainerRef.current) {
       mapContainerRef.current.scrollTo({ top: topValue, behavior: 'smooth' });
     }
+    const element = mapContainerRef.current;
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const targetY = rect.top + scrollTop + topValue;
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    }
   };
+
 
   // Ambient Particles definition for sky depth
   const particles = [
@@ -316,9 +408,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
 
   // Drifting foreground clouds (above nodes, z-35) for parallax effect
   const fgClouds = [
-    { id: 'fg-c1', top: '350px', width: 280, duration: 48, direction: 1, blur: 'blur-sm' },
+    { id: 'fg-c1', top: '350px', width: 280, duration: 48, direction: 1, blur: 'blur-xs' },
     { id: 'fg-c2', top: '980px', width: 340, duration: 58, direction: -1, blur: 'blur-sm' },
-    { id: 'fg-c3', top: '1620px', width: 300, duration: 52, direction: 1, blur: 'blur-sm' },
+    { id: 'fg-c3', top: '1620px', width: 300, duration: 52, direction: 1, blur: 'blur-xs' },
     { id: 'fg-c4', top: '2250px', width: 370, duration: 62, direction: -1, blur: 'blur-md' },
   ];
 
@@ -328,10 +420,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
 
   if (loading) {
     return (
-      <div className="h-full w-full min-h-[500px] bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
+      <div className="min-h-screen w-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
         <SkyBackground />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="relative flex items-center justify-center">
+            {/* Outer pulsing ring */}
             <div className="absolute w-12 h-12 rounded-full bg-sky-500/10 animate-ping" />
             <Icons.Loader2 className="w-10 h-10 text-sky-500 animate-spin stroke-[2.5]" />
           </div>
@@ -346,14 +439,14 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   return (
     <div className="flex-1 flex flex-col h-full w-full relative overflow-hidden select-none font-sans text-slate-800 bg-transparent">
 
-      {/* Floating Top Panel Container */}
+      {/* Floating Top Panel Container (Stacks header and level selector dynamically) */}
       <div className="absolute top-4 left-6 right-6 z-50 flex flex-col gap-4 pointer-events-none">
 
         {/* Back to Topics Button & Centered Completion Progress Bar */}
         <div className="w-full flex justify-between items-center pointer-events-none">
           <Link
             href="/learn"
-            className="flex items-center gap-1.5 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-xs cursor-pointer pointer-events-auto flex-shrink-0"
+            className="flex items-center gap-1.5 px-4.5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 font-heading font-black text-xs cursor-pointer pointer-events-auto flex-shrink-0"
             title="Back to Topics"
           >
             <Icons.ChevronLeft className="w-4 h-4 stroke-[3]" />
@@ -383,11 +476,29 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             </div>
           )}
 
-          {/* Empty spacer to balance the back button for absolute centering */}
-          <div className="w-[124px] hidden md:block" />
+          {/* Right side controls for settings and logout (visible on desktop/tablet, hidden on mobile to avoid overlap) */}
+          <div className="hidden sm:flex items-center gap-2 pointer-events-auto shrink-0">
+            <Link
+              href={role === 'core' ? '/core/topics' : role === 'crew' ? '/core/learners' : '/events/dashboard'}
+              className="p-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-650 rounded-2xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
+              title={role === 'core' ? "Admin Portal" : role === 'crew' ? "Crew Portal" : "Events Dashboard"}
+            >
+              <Icons.Settings className="w-4 h-4" />
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/30 text-rose-500 rounded-2xl transition-all cursor-pointer flex items-center justify-center flex-shrink-0"
+              title="Logout"
+            >
+              <Icons.LogOut className="w-4 h-4" />
+            </button>
+          </div>
+          {/* Mobile-only spacer to preserve layout balance */}
+          <div className="w-0 sm:hidden flex-shrink-0" />
         </div>
 
-        {/* LEVEL NAVIGATION BADGES (PILLS) WITH PREMIUM GRADIENTS */}
+        {/* 2. LEVEL NAVIGATION BADGES (PILLS) WITH PREMIUM GRADIENTS */}
         <div className="flex justify-center gap-3 pointer-events-auto">
           <button
             onClick={() => {
@@ -395,10 +506,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               setActiveTab('beginner');
             }}
             className={cn(
-              'flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border border-white/40 hover:scale-105 active:scale-95 text-slate-900',
-              isActiveBeginner
-                ? 'shadow-[0_8px_25px_rgba(80,201,153,0.5),0_0_12px_rgba(80,201,153,0.25)] scale-105'
-                : 'shadow-[0_4px_12px_rgba(0,0,0,0.06)] opacity-90'
+              "flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95 text-slate-900",
+              isBeginnerCurrent
+                ? "shadow-[0_8px_25px_rgba(80,201,153,0.5),0_0_12px_rgba(80,201,153,0.25)] scale-105 border-white/60 ring-2 ring-emerald-400/30"
+                : "shadow-[0_4px_12px_rgba(0,0,0,0.06)] border-white/25 hover:border-white/50",
+              isActiveBeginner ? "border-white/80" : "border-white/30"
             )}
             style={{
               background: 'linear-gradient(90deg, #50C999 0%, #7EE8A8 100%)',
@@ -416,19 +528,27 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               setActiveTab('intermediate');
             }}
             className={cn(
-              'flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border border-white/40 hover:scale-105 active:scale-95 text-slate-900',
+              "flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95",
+              isIntermediateUnlocked
+                ? "text-slate-900 border-white/30"
+                : "text-slate-100 bg-slate-950/40 border-slate-700/40 hover:bg-slate-950/65 hover:text-white",
+              isIntermediateCurrent
+                ? "shadow-[0_8px_25px_rgba(78,168,255,0.5),0_0_12px_rgba(110,247,255,0.25)] scale-105 border-white/60 ring-2 ring-blue-400/30"
+                : isIntermediateUnlocked
+                  ? "shadow-[0_4px_12px_rgba(0,0,0,0.06)] border-white/25 hover:border-white/50"
+                  : "",
               isActiveIntermediate
-                ? 'shadow-[0_8px_25px_rgba(78,168,255,0.5),0_0_12px_rgba(110,247,255,0.25)] scale-105'
-                : 'shadow-[0_4px_12px_rgba(0,0,0,0.06)] opacity-90'
+                ? (isIntermediateUnlocked ? "border-white/80" : "border-slate-300/70 shadow-[0_0_15px_rgba(255,255,255,0.2)] scale-105")
+                : ""
             )}
             style={{
-              background: 'linear-gradient(90deg, #6EF7FF 0%, #4EA8FF 100%)',
+              background: isIntermediateUnlocked ? 'linear-gradient(90deg, #6EF7FF 0%, #4EA8FF 100%)' : undefined,
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
             }}
           >
             {isIntermediateLocked ? (
-              <Icons.Lock className="w-4 h-4 text-blue-900" />
+              <Icons.Lock className="w-3.5 h-3.5 text-slate-200" />
             ) : (
               <Icons.Zap className="w-4 h-4 fill-current text-blue-900" />
             )}
@@ -441,19 +561,27 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
               setActiveTab('advanced');
             }}
             className={cn(
-              'flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border border-white/40 hover:scale-105 active:scale-95 text-slate-900',
+              "flex items-center gap-1.5 px-6 py-2.5 rounded-full text-[11px] font-black tracking-wider transition-all duration-300 font-heading border hover:scale-105 active:scale-95",
+              isAdvancedUnlocked
+                ? "text-slate-900 border-white/30"
+                : "text-slate-100 bg-slate-950/40 border-slate-700/40 hover:bg-slate-950/65 hover:text-white",
+              isAdvancedCurrent
+                ? "shadow-[0_8px_25px_rgba(243,179,68,0.5),0_0_12px_rgba(255,221,148,0.25)] scale-105 border-white/60 ring-2 ring-amber-400/30"
+                : isAdvancedUnlocked
+                  ? "shadow-[0_4px_12px_rgba(0,0,0,0.06)] border-white/25 hover:border-white/50"
+                  : "",
               isActiveAdvanced
-                ? 'shadow-[0_8px_25px_rgba(243,179,68,0.5),0_0_12px_rgba(255,221,148,0.25)] scale-105'
-                : 'shadow-[0_4px_12px_rgba(0,0,0,0.06)] opacity-90'
+                ? (isAdvancedUnlocked ? "border-white/80" : "border-slate-300/70 shadow-[0_0_15px_rgba(255,255,255,0.2)] scale-105")
+                : ""
             )}
             style={{
-              background: 'linear-gradient(90deg, #FFDD94 0%, #F3B344 100%)',
+              background: isAdvancedUnlocked ? 'linear-gradient(90deg, #FFDD94 0%, #F3B344 100%)' : undefined,
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
             }}
           >
             {isAdvancedLocked ? (
-              <Icons.Lock className="w-4 h-4 text-amber-950" />
+              <Icons.Lock className="w-3.5 h-3.5 text-slate-200" />
             ) : (
               <Icons.Trophy className="w-4 h-4 fill-current text-amber-950" />
             )}
@@ -462,14 +590,16 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
         </div>
       </div>
 
-      {/* SCROLLABLE ADVENTURE CANVAS CONTAINER */}
+      {/* 3. SCROLLABLE ADVENTURE CANVAS CONTAINER */}
       <div
         ref={mapContainerRef}
-        className="w-full flex-1 overflow-y-auto overflow-x-hidden relative z-10"
+        className="w-full flex-1 overflow-y-auto overflow-x-hidden scrollbar-none relative z-10"
         style={{ background: backgroundGradient }}
       >
         {/* Animated Sky background */}
         <SkyBackground />
+
+        {/* Loader removed as it is now handled as a full-page view */}
 
         {/* Board container shifted down to not collide with header at scroll top */}
         <div
@@ -480,11 +610,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
           {/* Connected Curves dynamic path generator */}
           <RoadmapPath nodes={pathNodes} width={boardWidth} />
 
-          {/* Ambient Floating Sky Particles */}
+          {/* Ambient Floating Sky Particles (z-18) */}
           {particles.map((p) => (
             <motion.div
               key={p.id}
-              className="absolute w-2 h-2 rounded-full bg-cyan-200/40 shadow-[0_0_8px_rgba(56,189,248,0.5)] pointer-events-none"
+              className="absolute w-2 h-2 rounded-full bg-cyan-200/40 shadow-[0_0_8px_rgba(56,189,248,0.5)] pointer-events-none z-18 will-change-transform"
               style={{ left: p.left, top: p.top }}
               animate={{
                 x: [0, 35, -35, 0],
@@ -501,11 +631,11 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             />
           ))}
 
-          {/* Parallax Foreground Drifting Clouds */}
+          {/* Parallax Foreground Drifting Clouds (z-35) */}
           {fgClouds.map((cloud) => (
             <motion.div
               key={cloud.id}
-              className={cn('absolute pointer-events-none text-white/25 select-none', cloud.blur)}
+              className={cn("absolute pointer-events-none z-35 text-white/25 select-none will-change-transform", cloud.blur)}
               style={{
                 top: cloud.top,
                 width: cloud.width,
@@ -628,7 +758,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             <CloudArchitectSummitLandmark
               x={coordinates['summit_advanced'].x}
               y={coordinates['summit_advanced'].y}
-              locked={totalCompleted < modules.length}
+              locked={isAdvancedSummitLockedVisual}
             />
           )}
 
@@ -637,12 +767,6 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
             const coord = coordinates[module.id];
             if (!coord) return null;
             const status = moduleStates[module.id] || 'locked';
-
-            const levelIndex = module.level === 'Beginner'
-              ? beginnerList.findIndex((m) => m.id === module.id)
-              : module.level === 'Intermediate'
-                ? intermediateList.findIndex((m) => m.id === module.id)
-                : advancedList.findIndex((m) => m.id === module.id);
 
             return (
               <CloudIslandNode
@@ -655,8 +779,6 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
                 x={coord.x}
                 y={coord.y}
                 index={idx}
-                level={module.level}
-                levelIndex={levelIndex}
                 onClick={() => {
                   setSelectedModuleId(module.id);
                   setIsDrawerOpen(true);

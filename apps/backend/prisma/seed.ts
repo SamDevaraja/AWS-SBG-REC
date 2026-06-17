@@ -230,6 +230,15 @@ async function main() {
 
   console.log('Assigned roles to users');
 
+  // Clean up old seeded events to ensure they and their speakers/agenda/tickets are fully recreated
+  await prisma.event.deleteMany({
+    where: {
+      id: {
+        in: ['event-seed-001', 'event-seed-002', 'event-seed-003']
+      }
+    }
+  });
+
   // Create Events
   const event1 = await prisma.event.upsert({
     where: { id: 'event-seed-001' },
@@ -280,12 +289,14 @@ async function main() {
             role: 'Chief Technology Officer',
             organization: 'TechVision Inc.',
             bio: 'Dr. Chen has over 20 years of experience in leading technology innovations.',
+            linkedinUrl: 'https://linkedin.com/in/sarah-chen',
           },
           {
             name: 'James Wilson',
             role: 'AI Research Lead',
             organization: 'DeepMind Labs',
             bio: 'James is a renowned AI researcher with multiple publications in top-tier journals.',
+            linkedinUrl: 'https://linkedin.com/in/james-wilson',
           },
         ],
       },
@@ -359,12 +370,14 @@ async function main() {
             role: 'Mayor',
             organization: 'City Government',
             bio: 'Serving the community for over a decade.',
+            linkedinUrl: 'https://linkedin.com/in/mayor-johnson',
           },
           {
             name: 'Lisa Thompson',
             role: 'Certified Yoga Instructor',
             organization: 'Wellness Center',
             bio: 'Certified yoga instructor with a passion for community health.',
+            linkedinUrl: 'https://linkedin.com/in/lisa-thompson',
           },
         ],
       },
@@ -421,12 +434,14 @@ async function main() {
             role: 'Managing Partner',
             organization: 'Venture Capital Partners',
             bio: 'Angel investor with 15+ years in startup funding.',
+            linkedinUrl: 'https://linkedin.com/in/alex-rivera',
           },
           {
             name: 'Priya Patel',
             role: 'Director of Innovation',
             organization: 'TechAccelerate',
             bio: 'Leading accelerator programs for early-stage startups.',
+            linkedinUrl: 'https://linkedin.com/in/priya-patel',
           },
         ],
       },

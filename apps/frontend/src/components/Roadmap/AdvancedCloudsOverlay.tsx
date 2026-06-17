@@ -70,7 +70,7 @@ export const AdvancedCloudsOverlay: React.FC<AdvancedCloudsOverlayProps> = ({
               animate={{ opacity: 0.28 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
-              className="absolute inset-0 bg-slate-955 pointer-events-none"
+              className="absolute inset-0 bg-slate-950 pointer-events-none"
             />
 
             {/* Cloud layers */}
@@ -107,7 +107,7 @@ export const AdvancedCloudsOverlay: React.FC<AdvancedCloudsOverlayProps> = ({
                 <svg
                   viewBox="0 0 200 100"
                   fill={`url(#${cloud.grad})`}
-                  className="w-full h-full stroke-slate-850/20"
+                  className="w-full h-full stroke-slate-800/20"
                   strokeWidth="1"
                 >
                   <path d="M 30,70 A 20,20 0 0,1 60,40 A 25,25 0 0,1 110,30 A 22,22 0 0,1 150,45 A 18,18 0 0,1 180,70 A 10,10 0 0,1 170,80 L 30,80 A 10,10 0 0,1 30,70 Z" />

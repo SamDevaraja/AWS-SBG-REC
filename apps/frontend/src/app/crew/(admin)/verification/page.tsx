@@ -71,7 +71,7 @@ export default function RegistrationVerificationPage() {
               ))}
             </div>
           ) : !query.trim() ? (
-            <div className="border border-dashed border-slate-300 bg-white rounded-[10px] p-12 text-center text-slate-400">
+            <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-300 rounded-[10px] p-12 text-center text-slate-400">
               <Search className="h-10 w-10 text-slate-350 mx-auto mb-3" />
               <p className="text-sm font-medium">Search query required</p>
               <p className="text-xs mt-1">
@@ -79,7 +79,7 @@ export default function RegistrationVerificationPage() {
               </p>
             </div>
           ) : !results || results.length === 0 ? (
-            <div className="border border-dashed border-rose-200 bg-white rounded-[10px] p-12 text-center text-slate-400">
+            <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-rose-200 rounded-[10px] p-12 text-center text-slate-400">
               <ShieldAlert className="h-10 w-10 text-rose-300 mx-auto mb-3" />
               <p className="text-sm font-semibold text-rose-800">No matching registrations found</p>
               <p className="text-xs mt-1">

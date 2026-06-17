@@ -32,7 +32,7 @@ function typeLabel(type: string) {
 
 function EmptyState() {
   return (
-    <div className="border border-dashed border-slate-300 rounded-[10px] p-12 text-center">
+    <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-300 rounded-[10px] p-12 text-center">
       <div className="mx-auto bg-slate-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
         <Megaphone className="h-6 w-6 text-slate-400" />
       </div>
@@ -106,14 +106,32 @@ export default function AnnouncementsPage() {
   }
 
   return (
-    <div className="bg-transparent p-6 lg:p-8">
-      <div className="w-full space-y-6">
+    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-slate-800">Announcements</h1>
-          <span className="inline-flex items-center justify-center rounded-[6px] bg-[#232F3E]/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-[#232F3E]">
-            {filteredAnnouncements.length}
-          </span>
+        <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px', marginBottom: 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1 }}>
+              {/* Pill */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin · Announcements</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
+                  Announcements
+                </h1>
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(35,47,62,0.07)', border: '1px solid rgba(35,47,62,0.1)', borderRadius: '100px', padding: '3px 12px', fontSize: '12px', fontWeight: 800, color: '#232F3E' }}>
+                  {filteredAnnouncements.length}
+                </span>
+              </div>
+              <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>
+                Create and manage event announcements for attendees.
+              </p>
+            </div>
+          </div>
+          {/* Orange divider */}
+          <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />
         </div>
 
         {/* Create Announcement Form */}

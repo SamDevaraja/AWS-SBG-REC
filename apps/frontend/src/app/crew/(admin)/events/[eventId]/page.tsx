@@ -126,7 +126,7 @@ export default function EventDetailsPage() {
   if (!event) {
     return (
       <div className="min-h-screen p-6 lg:p-8 bg-slate-50 flex items-center justify-center">
-        <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-slate-200 px-12">
+        <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="text-center py-20 rounded-xl shadow-sm border border-slate-200 px-12">
           <p className="text-sm text-slate-500 font-medium">Event not found.</p>
           <Link
             href="/crew/events"
@@ -141,7 +141,7 @@ export default function EventDetailsPage() {
 
   return (
     <div className="min-h-screen pb-12 bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
+      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '40px 24px 64px' }}>
         
         {/* Header Strip */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white rounded-xl p-5 sm:px-8 border border-slate-200 shadow-sm">

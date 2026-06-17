@@ -41,17 +41,6 @@ interface Message {
   status?: string;
 }
 
-interface Announcement {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  format: string;
-  content: string;
-  icon: string;
-  registerUrl: string;
-}
-
 const Icon = ({ name, size = 16, color = "currentColor" }: { name: string; size?: number; color?: string }) => {
   const icons: Record<string, React.ReactNode> = {
     cloud: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" /></svg>,
@@ -154,65 +143,8 @@ function LiveChatEscalationBtn({
   );
 }
 
-// Structured Announcement Card
-const AnnouncementCard = ({ ann }: { ann: Announcement }) => (
-  <div
-    style={{
-      background: "rgba(255, 255, 255, 0.45)",
-      backdropFilter: "blur(10px)",
-      WebkitBackdropFilter: "blur(10px)",
-      border: "1px solid rgba(255, 255, 255, 0.5)",
-      borderRadius: 16,
-      padding: 16,
-      animation: "slideUp 0.3s ease",
-      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-      transition: "box-shadow 0.2s, transform 0.2s",
-    }}
-  >
-    {/* Card Header */}
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
-      <div style={{
-        width: 38, height: 38, borderRadius: 10, background: "rgba(0, 0, 0, 0.05)",
-        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        border: "1px solid rgba(0, 0, 0, 0.08)",
-      }}>
-        <Icon name={ann.icon} size={18} color={COLORS.sidebar} />
-      </div>
-      <div style={{ flex: 1 }}>
-        <h4 className="text-xs" style={{ margin: 0, fontWeight: 700, color: COLORS.sidebar, lineHeight: 1.3 }}>{ann.title}</h4>
-        <span className="text-[10px]" style={{ color: "rgba(0, 0, 0, 0.5)", fontWeight: 600 }}>Posted by Team</span>
-      </div>
-    </div>
-
-    {/* Date / Time / Format row */}
-    <div style={{
-      display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10,
-    }}>
-      <span className="text-[10px]" style={{ padding: "3px 8px", borderRadius: 99, background: "rgba(0, 0, 0, 0.05)", color: COLORS.sidebar, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-        <Icon name="calendar" size={10} color={COLORS.sidebar} />{ann.date}
-      </span>
-      <span className="text-[10px]" style={{ padding: "3px 8px", borderRadius: 99, background: "rgba(0, 0, 0, 0.05)", color: COLORS.sidebar, fontWeight: 600 }}>
-        🕐 {ann.time}
-      </span>
-      <span className="text-[10px]" style={{ padding: "3px 8px", borderRadius: 99, background: "rgba(0, 0, 0, 0.08)", color: COLORS.sidebar, fontWeight: 600 }}>
-        {ann.format}
-      </span>
-    </div>
-
-    {/* Description */}
-    <p className="text-[11px]" style={{ margin: "0 0 14px", color: COLORS.text, lineHeight: 1.6 }}>{ann.content}</p>
-
-    {/* Register Button */}
-    <a href={ann.registerUrl} className="btn-3d text-[11px]" style={{ display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 10, padding: "8px 16px", textDecoration: "none", userSelect: "none" }}>
-      <Icon name="plus" size={11} color="#000" />
-      Register Now
-    </a>
-  </div>
-);
-
 // ChatTab component
 const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
-  const [activeChannel, setActiveChannel] = useState("announcement");
   const [isCustomTyping, setIsCustomTyping] = useState(false);
   const [escalatedMsgs, setEscalatedMsgs] = useState<Set<number>>(new Set());
   const [isWaitingForAdmin, setIsWaitingForAdmin] = useState(false);
@@ -234,61 +166,6 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     setSessionId(sId);
   }, []);
 
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchAnnouncements = async () => {
-      try {
-        const res = await fetch("/api/announcements");
-        if (res.ok) {
-          const json = await res.json();
-          const list = json.data || [];
-          if (Array.isArray(list)) {
-            const mapped = list.map((ann: any) => {
-              const dateObj = new Date(ann.createdAt);
-              const dateStr = dateObj.toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric"
-              });
-              const timeStr = dateObj.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                timeZoneName: "short"
-              }).replace(/([\d]+:[\d]+)\s([AP]M)/, "$1 $2");
-
-              const iconMap: Record<string, string> = {
-                UPDATE: "code",
-                REMINDER: "calendar",
-                SCHEDULE_CHANGE: "calendar",
-                URGENT: "shield",
-                INFO: "mic"
-              };
-
-              return {
-                id: ann.id,
-                title: ann.title,
-                date: dateStr,
-                time: timeStr,
-                format: ann.event?.mode || ann.type || "Update",
-                content: ann.message,
-                icon: iconMap[ann.type] || "mic",
-                registerUrl: ann.eventId ? `/events` : "#"
-              };
-            });
-            setAnnouncements(mapped);
-          }
-        }
-      } catch (err) {
-        console.error("Failed to fetch announcements:", err);
-      } finally {
-        setAnnouncementsLoading(false);
-      }
-    };
-    fetchAnnouncements();
-  }, []);
-
   const fallbackChips: FAQChip[] = [
     { id: "f1", question: "Which AWS certification is best for beginners?", answer: "The AWS Certified Cloud Practitioner is the best starting point for beginners without prior IT or cloud experience." },
     { id: "f2", question: "How should I study for the Cloud Practitioner exam?", answer: "Use the official AWS Skill Builder courses, read the whitepapers, and take practice exams to familiarize yourself with the question formats." },
@@ -303,7 +180,7 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   const [systemMessages, setSystemMessages] = useState<Message[]>([
     {
       role: "bot",
-      text: "Hi! I'm Chat Box 👋 I can help you with AWS certification questions, study tips, or anything cloud-related. What would you like to know?",
+      text: "Hi! I'm Chat Box. I can help you with AWS certification questions, study tips, or anything cloud-related. What would you like to know?",
       timestamp: Date.now() - 1000,
       showEscalate: false,
     }
@@ -325,7 +202,7 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
         });
       }
     }
-  }, [allMessages, activeChannel]);
+  }, [allMessages]);
 
   useEffect(() => {
     return () => {
@@ -682,95 +559,13 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
             <Icon name="bot" size={18} color={COLORS.sidebar} />
           </div>
           <div>
-            <div className="text-xs" style={{ fontWeight: 700, color: COLORS.sidebar }}>Chat Box</div>
-            <div className="text-[10px]" style={{ color: "#16a34a", fontWeight: 600 }}>● Online</div>
+            <div style={{ fontWeight: 700, color: COLORS.sidebar, fontSize: 14 }}>Chat Box</div>
+            <div style={{ color: "#16a34a", fontWeight: 600, fontSize: 11 }}>● Online</div>
           </div>
-        </div>
-
-        {/* Channel Toggle Tabs */}
-        <div style={{ 
-          display: "flex", 
-          gap: 6,
-          padding: "6px", 
-          margin: "12px 16px 6px",
-          background: "rgba(0, 0, 0, 0.04)",
-          borderRadius: 14,
-          border: "1px solid rgba(0, 0, 0, 0.05)",
-          boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.05)"
-        }}>
-          <button 
-            onClick={() => setActiveChannel("announcement")} 
-            className={activeChannel === "announcement" ? "btn-3d text-xs" : "btn-3d-light text-xs"}
-            style={{ 
-              flex: 1, 
-              padding: "10px 16px", 
-              borderRadius: 12,
-              cursor: "pointer", 
-              fontFamily: "inherit",
-              ...(activeChannel === "announcement" ? {} : {
-                background: "transparent",
-                borderColor: "transparent",
-                boxShadow: "none",
-                color: "rgba(42, 37, 33, 0.65)"
-              })
-            }}
-          >
-            Announcement
-          </button>
-          <button 
-            onClick={() => setActiveChannel("doubt")} 
-            className={activeChannel === "doubt" ? "btn-3d text-xs" : "btn-3d-light text-xs"}
-            style={{ 
-              flex: 1, 
-              padding: "10px 16px", 
-              borderRadius: 12,
-              cursor: "pointer", 
-              fontFamily: "inherit",
-              ...(activeChannel === "doubt" ? {} : {
-                background: "transparent",
-                borderColor: "transparent",
-                boxShadow: "none",
-                color: "rgba(42, 37, 33, 0.65)"
-              })
-            }}
-          >
-            Core Chat 💬
-          </button>
         </div>
 
         {/* Content Feed/Chat */}
-        {activeChannel === "announcement" ? (
-          /* Announcement Feed */
-          <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
-            {announcementsLoading ? (
-              <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={COLORS.sidebar} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}>
-                  <line x1="12" y1="2" x2="12" y2="6" /><line x1="12" y1="18" x2="12" y2="22" />
-                  <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /><line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
-                  <line x1="2" y1="12" x2="6" y2="12" /><line x1="18" y1="12" x2="22" y2="12" />
-                  <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /><line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
-                </svg>
-              </div>
-            ) : announcements.length === 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, opacity: 0.6 }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: "50%", background: "rgba(0,0,0,0.05)",
-                  display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", marginBottom: 12
-                }}>
-                  <Icon name="mic" size={24} color={COLORS.sidebar} />
-                </div>
-                <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: COLORS.sidebar }}>No Announcements Yet</h4>
-                <p style={{ margin: "4px 0 0 0", fontSize: 11, textAlign: "center", color: "rgba(0,0,0,0.5)" }}>Watch this space for the latest updates.</p>
-              </div>
-            ) : (
-              announcements.map((ann) => (
-                <AnnouncementCard key={ann.id} ann={ann} />
-              ))
-            )}
-          </div>
-        ) : (
-          /* Doubt View */
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
             <div
               className="wa-chat-container"
               style={{
@@ -904,9 +699,8 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
               )}
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
   );
 };
 

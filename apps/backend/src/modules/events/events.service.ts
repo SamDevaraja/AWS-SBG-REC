@@ -49,6 +49,7 @@ export class EventsService {
                 organization: item.organization,
                 bio: item.bio,
                 photo: item.photo,
+                linkedinUrl: item.linkedinUrl,
               })),
             }
           : undefined,
@@ -250,6 +251,7 @@ export class EventsService {
             organization: item.organization,
             bio: item.bio,
             photo: item.photo,
+            linkedinUrl: item.linkedinUrl,
           })),
         });
       }
@@ -473,6 +475,7 @@ export class EventsService {
         organization: dto.organization,
         bio: dto.bio,
         photo: dto.photo,
+        linkedinUrl: dto.linkedinUrl,
       },
     });
   }
@@ -492,6 +495,7 @@ export class EventsService {
         organization: dto.organization,
         bio: dto.bio,
         photo: dto.photo,
+        linkedinUrl: dto.linkedinUrl,
       },
     });
   }

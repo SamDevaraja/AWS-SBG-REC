@@ -111,6 +111,7 @@ model EventSpeaker {
   organization String?
   bio          String?
   photo        String?
+  linkedinUrl  String?  @map("linkedin_url")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)

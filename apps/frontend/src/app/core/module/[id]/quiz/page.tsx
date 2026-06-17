@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { modulesService, questionsService, mapBackendQuestionToFrontend, mapFrontendQuestionToBackend } from '@/services/roadmap.api';
 import { ApiError } from '@/services/roadmap.apiClient';
 import { authService } from '@/services/auth.service';
@@ -23,9 +23,7 @@ const tierToLevel = (tier: string): 'Beginner' | 'Intermediate' | 'Advanced' => 
 export default function QuizEditorPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const moduleId = params.id as string;
-  const topicId = searchParams.get('topicId');
 
   const [module, setModule] = useState<{ id: string; name: string; level: string; dbId: string; topicId: string | null } | null>(null);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -82,11 +80,10 @@ export default function QuizEditorPage() {
     const loadModuleAndQuestions = async () => {
       try {
         setLoading(true);
-        // moduleId can be dbId or slug. Try loading as dbId first, if not found then slug
         let res;
         try {
           res = await modulesService.getModule(moduleId);
-        } catch (e) {
+        } catch {
           res = await modulesService.getModuleBySlug(moduleId);
         }
         
@@ -302,7 +299,7 @@ export default function QuizEditorPage() {
             <h2 className="text-xl font-extrabold tracking-tight text-white font-heading">
               CMS Runtime Contract Mismatch
             </h2>
-            <p className="text-xs text-rose-450 leading-relaxed max-w-md mx-auto">
+            <p className="text-xs text-rose-400 leading-relaxed max-w-md mx-auto">
               {error}
             </p>
           </div>
@@ -322,7 +319,7 @@ export default function QuizEditorPage() {
       <div className="flex items-center justify-center min-h-[60vh] text-slate-400">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-          <span className="text-xs text-slate-405 font-bold uppercase animate-pulse">
+          <span className="text-xs text-slate-400 font-bold uppercase animate-pulse">
             Loading module quiz editor...
           </span>
         </div>
@@ -333,14 +330,14 @@ export default function QuizEditorPage() {
   if (!module) return null;
 
   return (
-    <div className="space-y-6 flex flex-col h-full bg-slate-50 p-6 min-h-screen">
+    <div className="space-y-6 flex flex-col h-full">
       
       {/* Top Navigation Row */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4 flex-shrink-0 relative">
         <div className="flex items-center gap-3">
           <Link
-            href={topicId ? `/core/topics/${topicId}/roadmap?selected=${module.id}` : '/core/topics'}
-            className="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-colors shadow-sm"
+            href={module?.topicId ? `/core/topics/${module.topicId}/roadmap?selected=${module.id}` : '/core/topics'}
+            className="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-905 transition-colors shadow-sm"
           >
             <Icons.ArrowLeft className="w-4 h-4" />
           </Link>
@@ -353,23 +350,23 @@ export default function QuizEditorPage() {
                 {module.name} Quiz Editor
               </h2>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1 font-semibold">
+            <p className="text-[11px] text-slate-505 mt-1 font-semibold">
               Create, manage, and validate assessment questions for this learning module.
             </p>
           </div>
         </div>
 
         {/* Editor tab navigation */}
-        <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-1">
+        <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex items-center bg-slate-100 rounded-xl p-1 gap-1">
           <Link
-            href={`/core/module/${moduleId}/content?topicId=${topicId || ''}`}
+            href={`/core/module/${module.dbId}/content`}
             className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-white/50"
           >
             <Icons.FileText className="w-3.5 h-3.5 inline mr-1.5" />
             Slides
           </Link>
           <Link
-            href={`/core/module/${moduleId}/quiz?topicId=${topicId || ''}`}
+            href={`/core/module/${module.dbId}/quiz`}
             className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all bg-white text-slate-900 shadow-sm"
           >
             <Icons.HelpCircle className="w-3.5 h-3.5 inline mr-1.5" />
@@ -383,7 +380,7 @@ export default function QuizEditorPage() {
         
         {/* Pane 1: QUESTION LIST (25% width) */}
         <div className="w-72 bg-white border border-slate-200 rounded-3xl p-4 flex flex-col overflow-y-auto flex-shrink-0 gap-4 shadow-sm">
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-455 block font-heading">
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block font-heading">
             Assessment Pool ({questions.length})
           </span>
 
@@ -396,12 +393,12 @@ export default function QuizEditorPage() {
                 className={cn(
                   "p-3 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col gap-1.5 relative group",
                   activeQuestionIdx === idx
-                    ? "bg-indigo-55/45 border-indigo-300 text-indigo-705 font-bold"
-                    : "bg-slate-55 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-905 bg-slate-50"
+                    ? "bg-indigo-50 border-indigo-300 text-indigo-700 font-bold"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 )}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-extrabold uppercase text-slate-450">
+                  <span className="text-[9px] font-extrabold uppercase text-slate-400">
                     Q{idx + 1}
                   </span>
                   <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
@@ -426,7 +423,7 @@ export default function QuizEditorPage() {
 
           <button
             onClick={handleAddQuestion}
-            className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-black py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all text-slate-705 flex-shrink-0"
+            className="w-full mt-4 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-black py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all text-slate-700 flex-shrink-0"
           >
             <Icons.Plus className="w-4 h-4 font-bold" />
             Add Question
@@ -449,7 +446,7 @@ export default function QuizEditorPage() {
 
             {/* Question description */}
             <div className="space-y-1 font-bold">
-              <label className="font-extrabold text-slate-550 text-xs">Question Scenario</label>
+              <label className="font-extrabold text-slate-500 text-xs">Question Scenario</label>
               <textarea
                 rows={3}
                 value={activeQuestion.question}
@@ -460,7 +457,7 @@ export default function QuizEditorPage() {
 
             {/* Options list A B C D */}
             <div className="space-y-3 font-semibold">
-              <label className="font-extrabold text-slate-555 text-xs block">Options & Correct Answer</label>
+              <label className="font-extrabold text-slate-500 text-xs block">Options & Correct Answer</label>
               
               <div className="space-y-3 text-xs">
                 {['A', 'B', 'C', 'D'].map((letter, optIdx) => {
@@ -476,7 +473,7 @@ export default function QuizEditorPage() {
                           "w-6 h-6 rounded-full flex items-center justify-center font-black transition-all border flex-shrink-0 text-[10px]",
                           isCorrect
                             ? "bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/10"
-                            : "bg-slate-55 border-slate-200 text-slate-500 hover:border-slate-400 bg-slate-50"
+                            : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-400"
                         )}
                       >
                         {letter}
@@ -501,7 +498,7 @@ export default function QuizEditorPage() {
 
             {/* Explanation field */}
             <div className="space-y-1 font-bold">
-              <label className="font-extrabold text-slate-550 text-xs">Explanation of Correct Answer</label>
+              <label className="font-extrabold text-slate-500 text-xs">Explanation of Correct Answer</label>
               <textarea
                 rows={3}
                 value={activeQuestion.explanation}
@@ -520,7 +517,7 @@ export default function QuizEditorPage() {
         {/* Pane 3: STUDENT PREVIEW FRAME (35% width) */}
         <div className="w-80 border border-slate-200 rounded-3xl overflow-hidden flex flex-col bg-slate-50 flex-shrink-0 shadow-sm">
           <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-[10px] text-slate-500 font-extrabold tracking-wider">
-            <Icons.Smartphone className="w-4 h-4 text-cyan-605" />
+            <Icons.Smartphone className="w-4 h-4 text-cyan-600" />
             INTERACTIVE STUDENT VIEW
           </div>
 
@@ -531,7 +528,7 @@ export default function QuizEditorPage() {
                 {/* Simulating active question slide */}
                 <div className="space-y-4 select-text">
                   <div className="bg-white border border-slate-200 rounded-2xl p-4 min-h-[100px] flex items-center shadow-inner">
-                    <p className="text-xs font-bold leading-relaxed text-slate-850">
+                    <p className="text-xs font-bold leading-relaxed text-slate-800">
                       {activeQuestion.question}
                     </p>
                   </div>
@@ -565,7 +562,7 @@ export default function QuizEditorPage() {
                         >
                           <span className={cn(
                             "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black border",
-                            isSimSelected ? "bg-indigo-500 text-white" : "bg-slate-100 border-slate-200 text-slate-450"
+                            isSimSelected ? "bg-indigo-500 text-white" : "bg-slate-100 border-slate-200 text-slate-400"
                           )}>
                             {letter}
                           </span>
@@ -611,7 +608,7 @@ export default function QuizEditorPage() {
                         setSimSelectedIdx(null);
                         setSimRevealed(false);
                       }}
-                      className="w-full bg-slate-100 hover:bg-slate-200 text-slate-705 font-black py-3 rounded-2xl text-center text-xs tracking-wider transition-all border border-slate-200"
+                      className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-3 rounded-2xl text-center text-xs tracking-wider transition-all border border-slate-200"
                     >
                       Reset Sim Selection
                     </button>
@@ -620,7 +617,7 @@ export default function QuizEditorPage() {
 
               </div>
             ) : (
-              <div className="text-center text-slate-455 text-xs py-8">
+              <div className="text-center text-slate-400 text-xs py-8">
                 No active question scenario to simulate.
               </div>
             )}

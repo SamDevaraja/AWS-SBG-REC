@@ -5,8 +5,19 @@ import CalendarCard from "@/components/dashboard/crew/CalendarCard";
 import RoadmapProgress from "@/components/dashboard/crew/RoadmapProgress";
 import Announcements from "@/components/dashboard/crew/Announcements";
 import StatsCard from "@/components/StatsCard";
-import { ClipboardList, UserCheck } from "lucide-react";
 import { workAssignments, attendanceRecords } from "@/lib/data/crewMockData";
+
+function WorkAssignmentsIcon({ className }: { className?: string }) {
+  return (
+    <img src="/aws-CloudWatch.svg" alt="Work Assignments" className={className} />
+  );
+}
+
+function AttendanceIcon({ className }: { className?: string }) {
+  return (
+    <img src="/aws-CloudWatch.svg" alt="Attendance" className={className} />
+  );
+}
 
 export default function CrewDashboardPage() {
   const pendingWork = workAssignments.filter((w) => w.status !== "approved").length;
@@ -26,20 +37,22 @@ export default function CrewDashboardPage() {
           label="Work Assignments"
           value={pendingWork}
           subtext="Pending Tasks"
-          icon={ClipboardList}
+          icon={WorkAssignmentsIcon}
           iconClass="text-brand-orange"
           iconBgClass="bg-brand-orange/10"
-          isLucide
+          bareIcon
+          iconLabel="Work Assignments"
           style={{ background: "rgba(255, 255, 255, 0.92)" }}
         />
         <StatsCard
           label="My Attendance"
           value={`${attendanceRate}%`}
           subtext={`${presentCount} Present`}
-          icon={UserCheck}
+          icon={AttendanceIcon}
           iconClass="text-emerald-600"
           iconBgClass="bg-emerald-50"
-          isLucide
+          bareIcon
+          iconLabel="Attendance"
           style={{ background: "rgba(255, 255, 255, 0.92)" }}
         />
         <CalendarCard />
@@ -50,7 +63,7 @@ export default function CrewDashboardPage() {
         <div className="lg:col-span-6 flex flex-col">
           <div
             className="flex flex-col flex-1 min-h-[400px] rounded-[22px] p-6 backdrop-blur-md"
-            style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.15))" }}
+            style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }}
           >
             <RoadmapProgress />
           </div>

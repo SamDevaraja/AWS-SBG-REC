@@ -26,4 +26,9 @@ export class CreateSpeakerDto {
   @IsString()
   @IsOptional()
   photo?: string;
+
+  @ApiPropertyOptional({ description: 'Speaker LinkedIn URL' })
+  @IsString()
+  @IsOptional()
+  linkedinUrl?: string;
 }

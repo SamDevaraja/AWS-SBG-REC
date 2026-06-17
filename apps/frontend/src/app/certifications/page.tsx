@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 /* ─────────────────────────────────────────────
    Types
-   ───────────────────────────────────────────── */
+───────────────────────────────────────────── */
 type Domain = { title: string; pct: number; topics: string[] };
 type CertData = {
   key: string;
@@ -53,7 +53,7 @@ function getAccentStyle(accentStr: string) {
 
 /* ─────────────────────────────────────────────
    Page
-   ───────────────────────────────────────────── */
+───────────────────────────────────────────── */
 export default function CertificationsPage() {
   const [certs, setCerts] = useState<CertData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -159,7 +159,7 @@ export default function CertificationsPage() {
         name: formName,
         level: formLevel,
         category: formCategory,
-        summary: formHighlights, // use highlights as main summary fallback
+        summary: formHighlights,
         highlights: formHighlights,
         accent: formAccent,
         duration: formDuration,
@@ -184,7 +184,6 @@ export default function CertificationsPage() {
         throw new Error("Failed to create certification record.");
       }
 
-      // Reset form and close
       setFormName("");
       setFormIntended("");
       setFormHighlights("");
@@ -222,40 +221,52 @@ export default function CertificationsPage() {
   const visible = certs.filter((c) => c.level === activeLevel);
 
   return (
-    <main className="mx-auto max-w-[1200px] px-6 pt-8 pb-8 md:px-8 lg:px-10">
-
-      {/* ── Hero ── */}
-      <section className="glass-panel relative overflow-hidden rounded-[24px] border border-slate-200 bg-white px-6 py-5 shadow-sm sm:px-8 lg:px-10 lg:py-6 mb-6">
-        <div className="absolute inset-0 grid-fade opacity-[0.22] pointer-events-none" />
-        <div className="absolute -right-8 top-4 h-32 w-32 rounded-full bg-[#ff9900]/10 blur-3xl pointer-events-none" />
-        <div className="absolute left-0 top-16 h-36 w-36 rounded-full bg-[#00a3e0]/10 blur-3xl pointer-events-none" />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <span className="inline-flex items-center rounded-full border border-orange-100 bg-orange-50/50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8a4d00] shadow-sm">
-              AWS Certification Explorer
-            </span>
-            <h1 className="mt-2 text-3xl font-normal tracking-tight text-slate-900 sm:text-4xl">
-              All AWS Certifications
-            </h1>
-            <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-500">
+    <main className="font-sans mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
+      {/* ── Landing Page Style Header ── */}
+      <div 
+        style={{ 
+          background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", 
+          borderRadius: '24px', 
+          padding: '24px', 
+          marginBottom: '32px' 
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1 }}>
+            {/* Pill */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                {role === 'core' ? 'Admin · Certifications' : 'AWS Certification Explorer'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
+                All AWS Certifications
+              </h1>
+            </div>
+            <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>
               Select a level tab to browse certifications. Each card shows full exam details, domains, and percentages.
             </p>
           </div>
           {role === 'core' && (
-            <motion.button
-              onClick={() => setShowCreateModal(true)}
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#232F3E] to-[#1F2A37] text-white px-6 py-3 text-xs font-bold shadow-md shadow-slate-900/10 hover:shadow-lg hover:shadow-orange-500/5 border border-white/10 hover:border-[#ff9900]/30 transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4 text-[#ff9900]" /> Add Certification
-            </motion.button>
+            <div style={{ marginTop: 24 }}>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s', textDecoration: 'none' }}
+              >
+                <Plus style={{ width: 15, height: 15 }} />
+                Add Certification
+              </button>
+            </div>
           )}
         </div>
-      </section>
+        {/* Orange divider */}
+        <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />
+      </div>
 
       {/* ── Level Tabs ── */}
-      <div className="mb-8 flex flex-wrap gap-2.5">
+      <div className="mb-6 flex flex-wrap gap-2.5">
         {levels.map((lvl) => {
           const count = certs.filter((c) => c.level === lvl).length;
           const isActive = activeLevel === lvl;
@@ -265,14 +276,14 @@ export default function CertificationsPage() {
               key={lvl}
               onClick={() => setActiveLevel(lvl)}
               disabled={loading}
-              className={`relative rounded-full border-2 px-5 py-2.5 text-xs font-bold transition-all duration-150 cursor-pointer
+              className={`relative rounded-full border-2 px-5 py-2.5 text-sm font-semibold transition-all duration-150 cursor-pointer
                 ${isActive
-                  ? `${meta.tab} bg-white shadow-sm`
-                  : "border-slate-200 bg-white/70 text-slate-500 hover:bg-white hover:border-slate-300"
+                  ? `${meta.tab} bg-white shadow-md`
+                  : "border-border bg-white/70 text-muted hover:bg-white hover:border-border/80"
                 } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               {lvl}
-              <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-extrabold ${isActive ? meta.badge : "bg-slate-100 text-slate-500"}`}>
+              <span className={`ml-2 rounded-full px-2 py-0.5 text-xs font-bold ${isActive ? meta.badge : "bg-gray-100 text-gray-500"}`}>
                 {loading ? "-" : count}
               </span>
             </button>
@@ -281,12 +292,12 @@ export default function CertificationsPage() {
       </div>
 
       {/* ── Cert Cards for active level ── */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
         {loading ? (
           Array.from({ length: 4 }).map((_, idx) => (
             <div
               key={idx}
-              className="animate-pulse flex flex-col overflow-hidden rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm min-h-[300px]"
+              className="animate-pulse flex flex-col overflow-hidden rounded-[28px] border border-border/70 bg-white/90 p-6 shadow-sm min-h-[300px]"
             >
               <div className="h-1.5 w-full bg-slate-100 -mt-6 -mx-6 mb-6" />
               <div className="flex flex-wrap gap-2 mb-4">
@@ -296,12 +307,11 @@ export default function CertificationsPage() {
               <div className="h-7 w-3/4 rounded bg-slate-100 mb-4" />
               <div className="h-4 w-full rounded bg-slate-100 mb-2" />
               <div className="h-4 w-2/3 rounded bg-slate-100 mb-4 flex-1" />
-              
               <div className="h-12 w-full rounded-xl bg-slate-100 mt-auto" />
             </div>
           ))
         ) : error ? (
-          <div className="col-span-1 md:col-span-2 py-16 text-center bg-white border border-slate-200 rounded-[24px] shadow-sm">
+          <div className="col-span-1 xl:col-span-2 py-16 text-center border border-slate-200 bg-white rounded-[28px] shadow-sm">
             <p className="text-red-500 font-semibold text-sm mb-4">⚠️ {error}</p>
             <button
               onClick={fetchData}
@@ -311,7 +321,7 @@ export default function CertificationsPage() {
             </button>
           </div>
         ) : visible.length === 0 ? (
-          <div className="col-span-1 md:col-span-2 py-16 text-center text-slate-500 bg-white border border-slate-200 rounded-[24px] shadow-sm">
+          <div className="col-span-1 xl:col-span-2 py-16 text-center text-slate-500 border border-slate-200 bg-white rounded-[28px] shadow-sm">
             No certifications found.
           </div>
         ) : (
@@ -324,7 +334,7 @@ export default function CertificationsPage() {
       {/* ── Create Modal ── */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col p-6 md:p-8 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col p-6 md:p-8">
             
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
@@ -594,7 +604,7 @@ export default function CertificationsPage() {
 
 /* ─────────────────────────────────────────────
    Individual cert dashboard card
-   ───────────────────────────────────────────── */
+───────────────────────────────────────────── */
 function CertCard({
   cert,
   role,
@@ -608,8 +618,7 @@ function CertCard({
   const accentStyle = getAccentStyle(cert.accent);
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md relative">
-
+    <article className="group flex flex-col overflow-hidden rounded-[28px] border border-border/70 bg-white/90 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_48px_rgba(15,23,42,0.10)] relative">
       {/* Delete button for Admin only */}
       {role === 'core' && (
         <button
@@ -628,24 +637,24 @@ function CertCard({
 
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-          <div className="pr-8">
+          <div>
             <div className="flex flex-wrap gap-2 mb-2">
-              <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${meta.badge}`}>
+              <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-normal ${meta.badge}`}>
                 {cert.level}
               </span>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-normal text-gray-500">
                 {cert.category}
               </span>
             </div>
-            <h2 className="text-xl font-bold text-slate-900 leading-snug group-hover:text-[#FF9900] transition-colors">{cert.name}</h2>
+            <h2 className="text-xl font-semibold text-ink leading-snug">{cert.name}</h2>
             {cert.intended && (
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed italic">👥 {cert.intended}</p>
+              <p className="mt-1 text-xs text-muted">👤 {cert.intended}</p>
             )}
           </div>
         </div>
 
         {/* Exam info boxes */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
           {[
             { label: "Duration", value: cert.duration, icon: <Clock className="w-3.5 h-3.5 text-[#232F3E] shrink-0" /> },
             { label: "Questions", value: String(cert.questions), icon: <FileText className="w-3.5 h-3.5 text-[#232F3E] shrink-0" /> },
@@ -654,34 +663,35 @@ function CertCard({
           ].map(({ label, value, icon }) => (
             <div
               key={label}
-              className="flex flex-col items-center rounded-xl border border-slate-100 p-2.5 text-center bg-slate-50/50"
+              className="flex flex-col items-center rounded-2xl border border-border/80 p-3 text-center"
+              style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.15))" }}
             >
-              <div className="mb-1 flex items-center justify-center w-7 h-7 rounded-full bg-white shadow-sm border border-slate-100">
+              <div className="mb-1.5 flex items-center justify-center w-7 h-7 rounded-full bg-white/60 shadow-sm border border-black/[0.03]">
                 {icon}
               </div>
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 mb-0.5">{label}</span>
-              <span className="text-xs font-bold text-slate-800 leading-tight">{value}</span>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted mb-0.5">{label}</span>
+              <span className="text-sm font-semibold text-ink leading-tight">{value}</span>
             </div>
           ))}
         </div>
 
         {/* Domains */}
         <div className="flex-1 mb-5">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">Exam Domains</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-3">Exam Domains</p>
           <div className="space-y-3">
             {cert.domains.map((d) => (
               <div key={d.title}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-slate-700">{d.title}</span>
+                  <span className="text-sm font-medium text-ink">{d.title}</span>
                   <span
-                    className="text-[10px] font-bold rounded-full px-1.5 py-0.5 text-white"
+                    className="text-xs font-bold rounded-full px-2 py-0.5 text-white"
                     style={accentStyle}
                   >
                     {d.pct}%
                   </span>
                 </div>
                 {/* Progress bar */}
-                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden mb-1">
+                <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden mb-1">
                   <div
                     className="h-full rounded-full"
                     style={{ width: `${d.pct}%`, ...accentStyle }}
@@ -689,16 +699,11 @@ function CertCard({
                 </div>
                 {/* Topics chips */}
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {d.topics.slice(0, 4).map((t) => (
-                    <span key={t} className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[9px] text-slate-500 font-medium">
+                  {d.topics.map((t) => (
+                    <span key={t} className="rounded-full border border-border bg-white px-2 py-0.5 text-[11px] text-muted">
                       {t}
                     </span>
                   ))}
-                  {d.topics.length > 4 && (
-                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[9px] text-slate-400 font-bold">
-                      +{d.topics.length - 4} more
-                    </span>
-                  )}
                 </div>
               </div>
             ))}
@@ -708,10 +713,10 @@ function CertCard({
         {/* View button */}
         <Link
           href={`/certifications/${cert.key}`}
-          className="w-full flex items-center justify-center space-x-1.5 bg-[#232F3E] hover:bg-[#1f2a37] text-white font-bold py-3 rounded-xl shadow-sm text-xs transition-all duration-150 hover:shadow-md mt-auto"
+          className="w-full flex items-center justify-center space-x-1.5 bg-[#232F3E] text-white font-medium py-3 rounded-[8px] shadow-sm text-xs sm:text-sm hover:shadow-[-12px_0_26px_rgba(255,105,180,0.45),12px_0_26px_rgba(168,85,247,0.45),0_8px_18px_rgba(15,23,42,0.12)] transition-[box-shadow] duration-[0.25s] ease-out mt-auto"
         >
-          <span>View Full Study Details</span>
-          <span className="transition-transform group-hover:translate-x-0.5">→</span>
+          View full details
+          <span className="transition-transform group-hover:translate-x-1">→</span>
         </Link>
 
       </div>

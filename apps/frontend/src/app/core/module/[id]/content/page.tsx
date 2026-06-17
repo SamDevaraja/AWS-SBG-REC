@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { modulesService, slidesService, mapLayoutTypeToFrontend, mapLayoutTypeToBackend } from '@/services/roadmap.api';
 import { ApiError } from '@/services/roadmap.apiClient';
 import { authService } from '@/services/auth.service';
@@ -48,9 +48,7 @@ const getIconForSlug = (slug: string): string => {
 export default function ContentEditorPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const moduleId = params.id as string;
-  const topicId = searchParams.get('topicId');
 
   const [module, setModule] = useState<{ id: string; name: string; level: string; dbId: string; iconName: string; topicId: string | null } | null>(null);
   const [slides, setSlides] = useState<any[]>([]);
@@ -97,11 +95,10 @@ export default function ContentEditorPage() {
     const loadModuleAndSlides = async () => {
       try {
         setLoading(true);
-        // moduleId can be dbId or slug. Try loading as dbId first, if not found then slug
         let res;
         try {
           res = await modulesService.getModule(moduleId);
-        } catch (e) {
+        } catch {
           res = await modulesService.getModuleBySlug(moduleId);
         }
         
@@ -399,7 +396,7 @@ export default function ContentEditorPage() {
             <h2 className="text-xl font-extrabold tracking-tight text-white font-heading">
               CMS Runtime Contract Mismatch
             </h2>
-            <p className="text-xs text-rose-450 leading-relaxed max-w-md mx-auto">
+            <p className="text-xs text-rose-400 leading-relaxed max-w-md mx-auto">
               {error}
             </p>
           </div>
@@ -419,7 +416,7 @@ export default function ContentEditorPage() {
       <div className="flex items-center justify-center min-h-[60vh] text-slate-400">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-          <span className="text-xs text-slate-405 font-bold uppercase animate-pulse">
+          <span className="text-xs text-slate-400 font-bold uppercase animate-pulse">
             Loading slide content editor...
           </span>
         </div>
@@ -430,13 +427,13 @@ export default function ContentEditorPage() {
   if (!module) return null;
 
   return (
-    <div className="space-y-6 flex flex-col h-full bg-slate-50 p-6 min-h-screen">
+    <div className="space-y-6 flex flex-col h-full">
       
       {/* Top Navigation Row */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4 flex-shrink-0">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4 flex-shrink-0 relative">
         <div className="flex items-center gap-3">
           <Link
-            href={topicId ? `/core/topics/${topicId}/roadmap?selected=${module.id}` : '/core/topics'}
+            href={module?.topicId ? `/core/topics/${module.topicId}/roadmap?selected=${module.id}` : '/core/topics'}
             className="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-colors shadow-sm"
           >
             <Icons.ArrowLeft className="w-4 h-4" />
@@ -450,23 +447,23 @@ export default function ContentEditorPage() {
                 {module.name} Content Editor
               </h2>
             </div>
-            <p className="text-[11px] text-slate-550 mt-1 font-semibold">
+            <p className="text-[11px] text-slate-500 mt-1 font-semibold">
               Curate the slide deck that students view when launching this roadmap island.
             </p>
           </div>
         </div>
 
         {/* Editor tab navigation */}
-        <div className="flex items-center bg-slate-100 rounded-xl p-1 gap-1">
+        <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex items-center bg-slate-100 rounded-xl p-1 gap-1">
           <Link
-            href={`/core/module/${moduleId}/content?topicId=${topicId || ''}`}
+            href={`/core/module/${module.dbId}/content`}
             className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all bg-white text-slate-900 shadow-sm"
           >
             <Icons.FileText className="w-3.5 h-3.5 inline mr-1.5" />
             Slides
           </Link>
           <Link
-            href={`/core/module/${moduleId}/quiz?topicId=${topicId || ''}`}
+            href={`/core/module/${module.dbId}/quiz`}
             className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-white/50"
           >
             <Icons.HelpCircle className="w-3.5 h-3.5 inline mr-1.5" />
@@ -481,7 +478,7 @@ export default function ContentEditorPage() {
         {/* Pane 1: SLIDE TIMELINE SIDEBAR (20% width) */}
         <div className="w-60 bg-white border border-slate-200 rounded-3xl p-4 flex flex-col justify-between overflow-y-auto flex-shrink-0 shadow-sm">
           <div className="space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-450 block font-heading">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block font-heading">
               Slides Timeline
             </span>
 
@@ -493,12 +490,12 @@ export default function ContentEditorPage() {
                   className={cn(
                     "p-3 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col gap-2 relative group",
                     activeSlideIndex === idx
-                      ? "bg-indigo-55/45 border-indigo-300 text-indigo-705 font-bold"
-                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-905"
+                      ? "bg-indigo-50 border-indigo-300 text-indigo-700 font-bold"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-extrabold uppercase text-slate-450">
+                    <span className="text-[9px] font-extrabold uppercase text-slate-400">
                       Slide {idx + 1}
                     </span>
                     
@@ -539,7 +536,7 @@ export default function ContentEditorPage() {
 
           <button
             onClick={handleAddSlide}
-            className="w-full mt-4 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-black py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all text-slate-705"
+            className="w-full mt-4 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-black py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all text-slate-700"
           >
             <Icons.Plus className="w-4 h-4 font-bold" />
             Add Slide
@@ -576,8 +573,8 @@ export default function ContentEditorPage() {
                     className={cn(
                       "py-2 px-3 border rounded-xl flex flex-col items-center gap-1.5 transition-all font-bold text-[10px]",
                       activeSlide.layoutType === layout.value || (!activeSlide.layoutType && layout.value === 'text-only')
-                        ? "bg-indigo-55/45 border-indigo-300 text-indigo-705 font-bold"
-                        : "bg-slate-50 border-slate-200 text-slate-550 hover:bg-slate-100 hover:text-slate-800"
+                        ? "bg-indigo-55/45 border-indigo-300 text-indigo-700 font-bold"
+                        : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                     )}
                   >
                     <layout.icon className="w-4 h-4" />
@@ -589,7 +586,7 @@ export default function ContentEditorPage() {
 
             {/* Title field */}
             <div className="space-y-1 font-bold">
-              <label className="font-extrabold text-slate-550 text-xs">Slide Title</label>
+              <label className="font-extrabold text-slate-500 text-xs">Slide Title</label>
               <input
                 type="text"
                 value={activeSlide.title}
@@ -602,7 +599,7 @@ export default function ContentEditorPage() {
             {activeSlide.layoutType !== 'image-only' && (
               <div className="space-y-3 font-semibold">
                 <div className="flex items-center justify-between">
-                  <label className="font-extrabold text-slate-550 text-xs">Curriculum Bullet Points</label>
+                  <label className="font-extrabold text-slate-500 text-xs">Curriculum Bullet Points</label>
                   <button
                     type="button"
                     onClick={handleAddBullet}
@@ -629,7 +626,7 @@ export default function ContentEditorPage() {
                         type="button"
                         onClick={() => handleDeleteBullet(bulletIdx)}
                         disabled={activeSlide.content.length <= 1}
-                        className="p-2 bg-slate-100 hover:bg-rose-50 border border-slate-200 hover:border-rose-100 text-slate-400 hover:text-rose-600 rounded-xl disabled:opacity-30 disabled:pointer-events-none"
+                        className="p-2 bg-slate-100 hover:bg-rose-550 border border-slate-200 hover:border-rose-100 text-slate-450 hover:text-rose-600 rounded-xl disabled:opacity-30 disabled:pointer-events-none"
                       >
                         <Icons.Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -642,17 +639,17 @@ export default function ContentEditorPage() {
             {/* Image selector */}
             {(activeSlide.layoutType === 'text-image' || activeSlide.layoutType === 'image-only') && (
               <div className="space-y-2 border-t border-slate-100 pt-4 mt-2 font-semibold">
-                <label className="font-extrabold text-slate-550 text-xs block">Architectural Image Component</label>
+                <label className="font-extrabold text-slate-500 text-xs block">Architectural Image Component</label>
                 
                 {activeSlide.imageUrl ? (
-                  <div className="relative border border-slate-200 rounded-2xl p-4 bg-slate-55/50 bg-slate-50/50 flex flex-col items-center gap-3">
+                  <div className="relative border border-slate-200 rounded-2xl p-4 bg-slate-50/50 flex flex-col items-center gap-3">
                     <img
                       src={activeSlide.imageUrl}
                       alt="Current Slide View"
                       className="max-h-[120px] object-contain rounded-lg border border-slate-200"
                     />
                     <div className="flex items-center gap-2 w-full">
-                      <label className="flex-1 py-2 px-3 border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-705 text-[11px] font-black rounded-xl cursor-pointer text-center">
+                      <label className="flex-1 py-2 px-3 border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-black rounded-xl cursor-pointer text-center">
                         Change Image
                         <input
                           type="file"
@@ -664,17 +661,17 @@ export default function ContentEditorPage() {
                       <button
                         type="button"
                         onClick={handleRemoveImage}
-                        className="py-2 px-3 border border-rose-100 bg-rose-55 hover:bg-rose-100 text-rose-600 text-[11px] font-black rounded-xl bg-rose-50"
+                        className="py-2 px-3 border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-black rounded-xl"
                       >
                         Remove
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <label className="border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-55/40 hover:bg-indigo-55/20 bg-slate-50/40 hover:bg-indigo-50/20 transition-all text-center">
+                  <label className="border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-50/40 hover:bg-indigo-50/20 transition-all text-center">
                     <Icons.UploadCloud className="w-8 h-8 text-slate-400" />
-                    <span className="text-[11px] font-black text-slate-600">Upload Concept Image</span>
-                    <span className="text-[9px] text-slate-455">JPG, PNG, WebP (Max 5MB)</span>
+                    <span className="text-[11px] font-black text-slate-650">Upload Concept Image</span>
+                    <span className="text-[9px] text-slate-400">JPG, PNG, WebP (Max 5MB)</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -695,8 +692,8 @@ export default function ContentEditorPage() {
 
         {/* Pane 3: STUDENT PREVIEW FRAME (40% width) */}
         <div className="w-[380px] border border-slate-200 rounded-3xl overflow-hidden flex flex-col bg-slate-50 flex-shrink-0 shadow-sm">
-          <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-[10px] text-slate-500 font-extrabold tracking-wider">
-            <Icons.Smartphone className="w-4 h-4 text-cyan-605 text-cyan-600" />
+          <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2 text-[10px] text-slate-550 font-extrabold tracking-wider">
+            <Icons.Smartphone className="w-4 h-4 text-cyan-600" />
             STUDENT PREVIEW PANE
           </div>
 
@@ -707,7 +704,7 @@ export default function ContentEditorPage() {
               {/* Top progress indicator bar */}
               <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
                 <span>Slide {activeSlideIndex + 1} of {slides.length}</span>
-                <span className="text-emerald-600 font-bold">Curriculum Path</span>
+                <span className="text-emerald-650 font-bold">Curriculum Path</span>
               </div>
               <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
                 <div
@@ -734,12 +731,12 @@ export default function ContentEditorPage() {
               )}
             </div>
 
-            {/* Bottom preview buttons */}
+            {/* Modal Bottom buttons simulation */}
             <div className="flex items-center justify-between border-t border-slate-200 pt-4 mt-6 flex-shrink-0">
               <button
                 disabled={activeSlideIndex === 0}
                 onClick={() => setActiveSlideIndex(prev => Math.max(0, prev - 1))}
-                className="px-4.5 py-2.5 rounded-xl border border-slate-200 text-slate-655 hover:text-slate-905 bg-white hover:bg-slate-55 disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                className="px-4.5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none text-xs font-black flex items-center gap-1.5 shadow-sm"
               >
                 <Icons.ArrowLeft className="w-3.5 h-3.5" />
                 Previous

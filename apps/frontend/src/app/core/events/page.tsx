@@ -268,7 +268,7 @@ function LoadingSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
 
 function EmptyState() {
   return (
-    <div className="border border-dashed border-slate-300 rounded-xl p-12 text-center max-w-md mx-auto my-8 bg-white/50">
+    <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-300 rounded-xl p-12 text-center max-w-md mx-auto my-8">
       <div className="mx-auto bg-slate-50 border border-slate-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
         <ImageIcon className="h-6 w-6 text-slate-400" />
       </div>
@@ -354,25 +354,40 @@ export default function EventsPage() {
     <div 
       className="min-h-full w-full relative"
       style={{
-        background: "radial-gradient(ellipse at 90% 10%, rgba(255, 153, 0, 0.22) 0%, rgba(255, 153, 0, 0.08) 45%, rgba(255, 255, 255, 0) 80%), #F8FAFC",
+        background: "#ffffff",
       }}
     >
-      <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8 max-w-[1280px] mx-auto space-y-6">
+      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '40px 24px 64px' }}>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-normal tracking-tight text-slate-900">Events</h1>
-            <p className="text-xs text-slate-500 font-normal mt-1">
-              Create, manage, and track all community activities, registrations, and scheduling configurations.
-            </p>
+        <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px', marginBottom: 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1 }}>
+              {/* Pill */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin · Events</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
+                  Events
+                </h1>
+              </div>
+              <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>
+                Create, manage, and track all community activities, registrations, and scheduling configurations.
+              </p>
+            </div>
+            <div style={{ marginTop: 24 }}>
+              <Link
+                href="/core/events/create"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s', textDecoration: 'none' }}
+              >
+                <Plus style={{ width: 15, height: 15 }} />
+                Create Event
+              </Link>
+            </div>
           </div>
-          <Link
-            href="/core/events/create"
-            className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-lg text-xs font-normal px-4 py-2 hover:bg-[#232F3E]/90 shadow-sm transition self-start sm:self-auto"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Create Event
-          </Link>
+          {/* Orange divider */}
+          <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />
         </div>
 
         {/* Search & Filters */}

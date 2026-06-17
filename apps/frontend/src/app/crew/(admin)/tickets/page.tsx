@@ -71,7 +71,7 @@ function LoadingSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="border border-dashed border-slate-300 rounded-[10px] p-12 text-center">
+    <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-300 rounded-[10px] p-12 text-center">
       <div className="mx-auto bg-slate-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
         <Ticket className="h-6 w-6 text-slate-400" />
       </div>

@@ -143,7 +143,7 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center font-jakarta relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(190,227,237,0.15)_0%,transparent_60%)] pointer-events-none" />
-        <div className="bg-white/80 backdrop-blur-xl border border-slate-100 rounded-[2.5rem] p-10 max-w-md w-full shadow-xl flex flex-col items-center text-center z-10">
+        <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="backdrop-blur-xl border border-slate-100 rounded-[2.5rem] p-10 max-w-md w-full shadow-xl flex flex-col items-center text-center z-10">
           <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 border border-red-100">
             <AlertCircle size={30} />
           </div>

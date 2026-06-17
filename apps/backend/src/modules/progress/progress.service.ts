@@ -83,15 +83,7 @@ export class RoadmapProgressService {
       select: { id: true, slug: true },
     });
 
-    const accessibleTopicIds = new Set(
-      topics
-        .filter((t) => {
-          if (userRole === 'core') return true;
-          if (userRole === 'crew') return t.slug === 'devops-foundations';
-          return t.slug === 'aws-basics';
-        })
-        .map((t) => t.id)
-    );
+    const accessibleTopicIds = new Set(topics.map((t) => t.id));
 
     sortedModules = sortedModules.filter((m) => m.topicId && accessibleTopicIds.has(m.topicId));
 

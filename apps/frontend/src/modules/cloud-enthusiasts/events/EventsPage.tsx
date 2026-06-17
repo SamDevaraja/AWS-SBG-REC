@@ -6,9 +6,17 @@ import { useRouter } from 'next/navigation';
 import { useEvents } from '../shared/hooks/useCloudEnthusiasts';
 import { Event } from '../shared/types';
 import { EC2ConsoleLoader, AnimatedEmptyState, ErrorAlert } from '../shared/components/Animations';
-import { Search, Filter, Users, Calendar, MapPin, LayoutGrid, List, Clock, ArrowRight, Wifi, WifiOff, ChevronDown } from 'lucide-react';
+import {
+  Search, Filter, Users, Calendar, MapPin,
+  LayoutGrid, List, Clock, ArrowRight,
+  HelpCircle
+} from 'lucide-react';
 import { EVENT_CATEGORIES, AVAILABILITY_FILTERS } from '../../../context/mockData';
 
+/**
+ * Debounce hook — delays updating a value until the user stops typing.
+ * Prevents firing a network request on every keystroke.
+ */
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   useEffect(() => {
@@ -18,13 +26,64 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+const TruncatedDescription = ({
+  description,
+  eventId,
+  className = "text-slate-500 text-xs leading-relaxed",
+  linkSizeClass = "text-xs"
+}: {
+  description: string;
+  eventId: string;
+  className?: string;
+  linkSizeClass?: string;
+}) => {
+  const [isTruncated, setIsTruncated] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const element = textRef.current;
+    if (!element) return;
+
+    const checkTruncation = () => {
+      setIsTruncated(element.scrollHeight > element.clientHeight);
+    };
+
+    checkTruncation();
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkTruncation();
+    });
+    resizeObserver.observe(element);
+
+    return () => resizeObserver.disconnect();
+  }, [description]);
+
+  return (
+    <div className="relative">
+      <p
+        ref={textRef}
+        className={`${className} line-clamp-3 ${isTruncated ? 'pr-14' : ''}`}
+      >
+        {description}
+      </p>
+      {isTruncated && (
+        <span className={`absolute bottom-0 right-0 bg-gradient-to-l from-white via-white to-transparent pl-8 text-[#FF9900] hover:text-orange-600 font-semibold ${linkSizeClass} transition-colors`}>
+          <Link href={`/events/${eventId}`}>
+            show more..
+          </Link>
+        </span>
+      )}
+    </div>
+  );
+};
+
 export default function EventsPage() {
   const router = useRouter();
 
   useEffect(() => {
     const checkHash = () => {
       if (typeof window !== 'undefined' && window.location.hash === '#chat') {
-        router.replace('/events/chat');
+        router.replace('/chat');
       }
     };
     checkHash();
@@ -32,11 +91,13 @@ export default function EventsPage() {
     return () => window.removeEventListener('hashchange', checkHash);
   }, [router]);
 
+  // Raw input state — updates immediately for a responsive UI feel
   const [searchInput, setSearchInput] = useState('');
   const [category, setCategory] = useState('All');
   const [availability, setAvailability] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  // Debounced value — only this drives network requests (300ms delay)
   const search = useDebounce(searchInput, 300);
 
   const { data: events, isLoading, error, refetch, isRefetching } = useEvents({
@@ -46,7 +107,6 @@ export default function EventsPage() {
   });
 
   const categories = EVENT_CATEGORIES;
-  const hasActiveFilters = searchInput || category !== 'All' || availability !== 'All';
 
   const clearFilters = () => {
     setSearchInput('');
@@ -54,168 +114,166 @@ export default function EventsPage() {
     setAvailability('All');
   };
 
+  // Sort: upcoming first (nearest date → soonest) then ended last (most-recently-ended → bottom)
+  const sortedEvents = useMemo(() => {
+    if (!events) return [];
+    const upcoming = events
+      .filter(e => e.event_status !== 'Ended')
+      .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
+    const ended = events
+      .filter(e => e.event_status === 'Ended')
+      .sort((a, b) => new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime());
+    return [...upcoming, ...ended];
+  }, [events]);
+
   return (
-    <div className="bg-transparent p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-screen-xl mx-auto space-y-6">
+    <section className="w-full min-h-screen py-7 px-8 bg-white flex flex-col items-center">
 
-        {/* ── Page Header ───────────────────────────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-5 border-b border-slate-200/80 gap-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 mb-2 uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-              AWS Developer Community
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-              Cloud Events & Workshops
-            </h1>
-            <p className="mt-1 text-slate-500 text-sm max-w-xl font-normal leading-relaxed">
-              Accelerate your cloud journey with hands-on labs, expert-led workshops, and local meetups.
-            </p>
+      <div className="max-w-7xl w-full flex flex-col gap-4 z-10">
+
+        {/* ── Hero Banner ── */}
+        <div style={{ background: 'radial-gradient(ellipse at 95% 5%, rgba(255,153,0,0.18) 0%, rgba(255,153,0,0.08) 35%, rgba(255,255,255,0) 65%)', borderRadius: '24px', padding: '24px', marginBottom: 4 }}>
+          {/* Pill label */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>AWS SBG REC · Events Directory</span>
           </div>
-          
-          {/* Quick Stats or Status badge */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="bg-white border border-slate-200/80 rounded-xl p-3 flex items-center gap-3 shadow-xs">
-              <div className="w-9 h-9 rounded-lg bg-[#232F3E] text-white flex items-center justify-center font-bold text-lg">
-                {events?.length ?? 0}
-              </div>
-              <div>
-                <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Events</div>
-                <div className="text-xs font-semibold text-slate-700">Available to Register</div>
-              </div>
-            </div>
-          </div>
+          <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
+            Cloud Events &amp; Workshops
+          </h1>
+          <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>
+            Browse active cloud bootcamps, security workshops, and expert sessions. Reserve your seat instantly.
+          </p>
+          {/* Orange divider */}
+          <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />
         </div>
 
-        {/* ── Search & Filter Toolbar ──────────────────── */}
-        <div className="bg-white border border-slate-200/70 rounded-xl p-3.5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow max-w-4xl">
-            {/* Search */}
-            <div className="relative flex-grow">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Search className="h-3.5 w-3.5" />
-              </span>
-              <input
-                type="text"
-                placeholder="Search events by name, venue, or description..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="block w-full pl-9 pr-4 py-1.5 bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/10 focus:border-[#FF9900] text-xs transition-all"
-              />
-            </div>
+        {/* ── Single-row Filter Bar ── */}
+        <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm px-4 py-3 flex items-center gap-3">
 
-            {/* Category select */}
-            <div className="relative shrink-0 sm:w-44">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Filter className="h-3.5 w-3.5" />
-              </span>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="block w-full pl-9 pr-8 py-1.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/10 focus:border-[#FF9900] text-xs appearance-none cursor-pointer transition-all"
-              >
-                <option value="All">All Categories</option>
-                {categories.slice(1).map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Availability */}
-            <div className="relative shrink-0 sm:w-44">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Users className="h-3.5 w-3.5" />
-              </span>
-              <select
-                value={availability}
-                onChange={(e) => setAvailability(e.target.value)}
-                className="block w-full pl-9 pr-8 py-1.5 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#FF9900]/10 focus:border-[#FF9900] text-xs appearance-none cursor-pointer transition-all"
-              >
-                {AVAILABILITY_FILTERS.map((filter) => (
-                  <option key={filter.value} value={filter.value}>{filter.label}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-            </div>
+          {/* Search — grows to fill available space */}
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+            <input
+              type="text"
+              placeholder="Search by name, description, or venue..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700"
+            />
           </div>
 
-          {/* View Toggles & Count */}
-          <div className="flex items-center justify-between lg:justify-end gap-3 shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-slate-400 font-medium">
-                {events && events.length > 0
-                  ? `${events.length} event${events.length !== 1 ? 's' : ''}`
-                  : ''}
-              </span>
-              {isRefetching && (
-                <span className="flex h-1.5 w-1.5 relative shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
-                </span>
-              )}
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="text-[11px] font-semibold text-[#FF9900] hover:text-orange-600 transition ml-1"
-                >
-                  Clear filters
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/50 gap-0.5">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md transition-all duration-150 ${viewMode === 'grid' ? 'bg-white text-[#232F3E] shadow-xs' : 'text-slate-400 hover:text-slate-600'}`}
-                title="Grid View"
-              >
-                <LayoutGrid className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-all duration-150 ${viewMode === 'list' ? 'bg-white text-[#232F3E] shadow-xs' : 'text-slate-400 hover:text-slate-600'}`}
-                title="List View"
-              >
-                <List className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          {/* Category Filter */}
+          <div className="relative shrink-0">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+            >
+              <option value="All">All Categories</option>
+              {categories.slice(1).map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
           </div>
+
+          {/* Availability Filter */}
+          <div className="relative shrink-0">
+            <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
+            <select
+              value={availability}
+              onChange={(e) => setAvailability(e.target.value)}
+              className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+            >
+              {AVAILABILITY_FILTERS.map((filter) => (
+                <option key={filter.value} value={filter.value}>{filter.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Vertical divider */}
+          <div className="w-px h-6 bg-slate-200 shrink-0" />
+
+          {/* Event count */}
+          <p className="text-[12px] font-medium text-slate-500 whitespace-nowrap shrink-0">
+            {isLoading ? 'Loading...' : sortedEvents.length > 0
+              ? <span><strong className="text-slate-700">{sortedEvents.length}</strong> event{sortedEvents.length !== 1 ? 's' : ''}{isRefetching && <span className="ml-1.5 text-[10px] text-[#FF9900]">(syncing...)</span>}</span>
+              : null
+            }
+          </p>
+
+          {/* View toggle */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-[10px] border border-slate-200/50 shrink-0">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-[8px] transition ${viewMode === 'grid' ? 'bg-white text-[#232F3E] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-[8px] transition ${viewMode === 'list' ? 'bg-white text-[#232F3E] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+              title="List View"
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
+
         </div>
 
-        {/* ── Content ───────────────────────────────────────────────────────── */}
+
+        {/* ── Grid / States ── */}
         {isLoading ? (
-          <div className="py-16 text-center">
-            <EC2ConsoleLoader message="Retrieving active events stream..." />
+          <div className="h-[400px] flex flex-col items-center justify-center gap-3">
+            <div className="w-8 h-8 border-[3px] border-[#FF9900]/20 border-t-[#FF9900] rounded-full animate-spin" />
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Retrieving Active Events...</p>
           </div>
         ) : error ? (
           <ErrorAlert message={(error as Error).message} onRetry={refetch} />
-        ) : events?.length === 0 ? (
-          <AnimatedEmptyState onClear={clearFilters} />
+        ) : sortedEvents.length === 0 ? (
+          <div className="bg-white border border-slate-100 rounded-2xl p-12 text-center shadow-sm">
+            <HelpCircle size={36} className="text-slate-300 mx-auto mb-3" />
+            <h4 className="text-base font-semibold text-slate-700 mb-1">No events found</h4>
+            <p className="text-slate-400 text-[12px] max-w-sm mx-auto mb-4">
+              Try adjusting your search or filters.
+            </p>
+            <button
+              onClick={clearFilters}
+              className="text-[11px] font-semibold text-[#FF9900] hover:underline transition"
+            >
+              Clear all filters
+            </button>
+          </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
-            {events?.map((event) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {sortedEvents.map((event) => (
               <EventCard key={event.event_id} event={event} />
             ))}
           </div>
         ) : (
           <div className="space-y-3">
-            {events?.map((event) => (
+            {sortedEvents.map((event) => (
               <EventListRow key={event.event_id} event={event} />
             ))}
           </div>
         )}
+
       </div>
-    </div>
+    </section>
   );
 }
-// EventCard
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EventCard — memo-wrapped to skip re-renders when sibling cards change state
 // ─────────────────────────────────────────────────────────────────────────────
 const EventCard = memo(function EventCard({ event }: { event: Event }) {
   const { event_id, title, short_description, category, mode, start_datetime, venue, event_status, max_capacity, registered = 0, banner_url } = event;
   const seatsLeft = Math.max(0, max_capacity - registered);
   const isFull = seatsLeft === 0;
   const isEnded = event_status === 'Ended';
+  const isOngoing = event_status === 'Ongoing';
 
   const cardRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -223,13 +281,19 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
   useEffect(() => {
     if (!isEnded) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
       { threshold: 0.1 }
     );
     if (cardRef.current) observer.observe(cardRef.current);
     return () => observer.disconnect();
   }, [isEnded]);
 
+  // Memoize expensive date formatting — only recomputes when start_datetime changes
   const { formattedDate, startTimeStr } = useMemo(() => {
     const d = new Date(start_datetime);
     return {
@@ -241,118 +305,177 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
   return (
     <div
       ref={cardRef}
-      className={`group bg-white border border-slate-200/80 hover:border-slate-350 rounded-xl overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-1 flex flex-col h-full relative transition-all duration-300 ease-out ${isEnded ? 'ended-blur opacity-85' : ''}`}
+      className={`group rounded-xl overflow-hidden transition-all duration-300 flex flex-col h-full relative cursor-pointer ${
+        isEnded
+          ? 'bg-slate-900 border border-slate-500 hover:border-[#FF9900]/50 hover:shadow-[0_0_0_3px_rgba(255,153,0,0.12),0_8px_24px_rgba(255,153,0,0.10)] hover:-translate-y-1 ended-blur'
+          : 'bg-white border border-slate-300 hover:border-[#FF9900]/50 hover:shadow-[0_0_0_3px_rgba(255,153,0,0.12),0_8px_24px_rgba(255,153,0,0.10)] hover:-translate-y-1'
+      }`}
     >
-      {/* Banner */}
-      <div className="aspect-[16/9] w-full relative overflow-hidden bg-slate-950 shrink-0 border-b border-slate-100">
-        {banner_url ? (
-          <img
-            src={banner_url}
-            alt={title}
-            loading="lazy"
-            decoding="async"
-            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
-            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
-          />
-        ) : (
-          <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-            <span className="text-[10px] text-slate-400 font-medium">No banner available</span>
+
+      {isEnded ? (
+        /* ── ENDED: Full-card dark layout ── */
+        <div className="relative flex flex-col h-full">
+          {/* Banner as full background */}
+          <div className="absolute inset-0">
+            <img
+              src={banner_url}
+              alt={title}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover object-top"
+              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+            />
+            {/* Heavy dark overlay so text is readable */}
+            <div className="absolute inset-0 bg-black/70" />
           </div>
-        )}
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
-        {/* Frosted Glass overlay bar at the bottom to obscure pre-baked details elegantly */}
-        <div className="absolute inset-x-0 bottom-0 h-10 bg-slate-950/80 backdrop-blur-xs border-t border-white/5 flex items-center justify-between px-3.5 z-10 select-none">
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${mode === 'ONLINE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/35' : 'bg-blue-500/10 text-blue-400 border border-blue-500/35'}`}>
-            {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
-          </span>
-          <span className="text-[9.5px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-100 border border-white/15 uppercase tracking-wider backdrop-blur-xs">
-            {category}
-          </span>
-        </div>
-      </div>
+          {/* Content overlaid on dark bg */}
+          <div className="relative z-10 p-5 flex flex-col gap-3 h-full">
 
-      {/* Card Content body */}
-      <div className="p-4 flex-grow flex flex-col justify-between">
-        <div className="flex-grow flex flex-col">
-          {/* Header/Title & Description container without artificial spaces */}
-          <div className="space-y-1">
-            <h3 className="font-bold text-[19px] sm:text-[21px] text-slate-900 line-clamp-2 leading-snug group-hover:text-amber-600 transition-colors font-display tracking-tight">
+            {/* Category badge */}
+            <span className="self-start bg-white/20 text-white font-semibold text-[10px] uppercase tracking-wide px-3 py-1 rounded-full border border-white/30">
+              {category}
+            </span>
+
+            {/* Title */}
+            <h3 className="font-bold text-[22px] line-clamp-2 font-display leading-snug text-white">
               {title}
             </h3>
+
+            {/* Description */}
             {short_description && (
-              <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
-                {short_description}
-              </p>
+              <TruncatedDescription
+                description={short_description}
+                eventId={event_id}
+                className="text-[12px] leading-relaxed text-white/70"
+                linkSizeClass="text-[11px]"
+              />
             )}
+
+            {/* Date / Time / Venue */}
+            <div className="flex flex-wrap gap-x-4 gap-y-2 pt-3 border-t border-white/15">
+              <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+                <Calendar className="w-4 h-4 shrink-0 text-white/60" />
+                <span className="truncate">{formattedDate}</span>
+              </span>
+              <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+                <Clock className="w-4 h-4 shrink-0 text-white/60" />
+                <span className="truncate">{startTimeStr} · {mode}</span>
+              </span>
+              <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+                <MapPin className="w-4 h-4 shrink-0 text-white/60" />
+                <span className="truncate">{venue}</span>
+              </span>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-auto pt-3 border-t border-white/15 flex items-center justify-between gap-3">
+              <span className="text-[11px] font-semibold text-white/80 bg-white/15 px-3 py-1 rounded-full border border-white/25">Event Ended</span>
+              <span className="text-[10px] text-white/65 font-medium">{registered} registered</span>
+            </div>
+
+            <button disabled className="w-full py-2.5 rounded-xl bg-white/10 border border-white/20 text-white/60 font-semibold text-[12px] cursor-not-allowed">
+              Event Closed
+            </button>
+
           </div>
 
-          {/* Date, Time, Venue metadata line - aligned closely at the bottom of content area */}
-          <div className="mt-auto pt-4 flex items-center gap-1.5 text-[11px] text-slate-500 font-medium pb-0.5 w-full min-w-0">
-            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <div className="flex items-center gap-1.5 min-w-0 truncate">
-              <span className="shrink-0">{formattedDate}</span>
-              <span className="text-slate-300 shrink-0">|</span>
-              <span className="shrink-0">{startTimeStr}</span>
-              <span className="text-slate-300 shrink-0">|</span>
-              <span className="truncate text-slate-450" title={venue}>{venue}</span>
+          {/* Completed stamp */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 translate-y-10">
+            <div className={`completed-stamp on-dark ${inView ? 'animate-stamp' : 'opacity-0'}`}>
+              Completed
             </div>
           </div>
         </div>
 
-        {/* Bottom Booking Area */}
-        <div className="mt-3.5 pt-3 border-t border-slate-100">
-          <div className="flex items-center justify-between text-xs mb-2.5">
-            <span className="text-slate-400 text-[11px] font-medium">Availability</span>
-            {isEnded ? (
-              <span className="text-slate-450 font-bold text-[9px] uppercase tracking-wider">Closed</span>
-            ) : isFull ? (
-              <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-100/80 text-[9px] uppercase tracking-wider">Sold Out</span>
-            ) : (
-              <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100/80 text-[9px] uppercase tracking-wider">{seatsLeft} seats remaining</span>
+      ) : (
+        /* ── ACTIVE: Tall banner with overlaid title, compact footer ── */
+        <>
+          {/* Tall banner — title + category float over it */}
+          <div className="relative h-56 w-full overflow-hidden bg-slate-900 shrink-0">
+            <img
+              src={banner_url}
+              alt={title}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+            />
+
+            {/* Strong bottom gradient so title is always readable */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+            {/* Category pill — top left */}
+            <span className="absolute top-3 left-3 bg-white/15 text-white font-semibold text-[10px] uppercase tracking-wide px-3 py-1 rounded-full border border-white/25 backdrop-blur-sm">
+              {category}
+            </span>
+
+            {/* Ongoing LIVE badge — top right */}
+            {isOngoing && (
+              <span className="absolute top-3 right-3 flex items-center gap-1.5 bg-emerald-500/25 text-emerald-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-400/40 backdrop-blur-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live
+              </span>
             )}
+
+            {/* Title overlaid at bottom of banner */}
+            <div className="absolute bottom-0 left-0 right-0 p-4">
+              <h3 className="font-bold text-[20px] line-clamp-2 font-display leading-snug text-white group-hover:text-[#FF9900] transition-colors duration-200 drop-shadow-sm">
+                {title}
+              </h3>
+            </div>
           </div>
 
-          {isEnded ? (
-            <button
-              disabled
-              className="w-full flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-400 font-semibold py-2 rounded-lg cursor-not-allowed text-xs transition-colors"
-            >
-              Event Completed
-            </button>
-          ) : isFull ? (
-            <button
-              disabled
-              className="w-full flex items-center justify-center bg-slate-50 border border-slate-200 text-slate-400 font-semibold py-2 rounded-lg cursor-not-allowed text-xs transition-colors"
-            >
-              Fully Booked
-            </button>
-          ) : (
-            <Link
-              href={`/events/${event_id}`}
-              className="w-full flex items-center justify-center gap-1.5 bg-[#232F3E] hover:bg-[#1a2535] text-white font-semibold py-2 rounded-lg shadow-xs text-xs transition-all duration-200 group/btn"
-            >
-              <span>View Details</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform duration-200" />
-            </Link>
-          )}
-        </div>
-      </div>
+          {/* Compact footer */}
+          <div className="p-4 flex flex-col gap-3" style={{ background: 'linear-gradient(135deg, #fdf3e3 0%, #ede9e1 100%)' }}>
 
-      {isEnded && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-          <div className={`completed-stamp ${inView ? 'animate-stamp' : 'opacity-0'}`}>
-            Completed
+            {/* Date / Time / Venue chips */}
+            <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+              <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
+                <Calendar className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+                <span className="truncate">{formattedDate}</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
+                <Clock className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+                <span className="truncate">{startTimeStr} · {mode}</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
+                <MapPin className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+                <span className="truncate">{venue}</span>
+              </span>
+            </div>
+
+            {/* Seats + CTA row */}
+            <div className="flex items-center gap-3 pt-2 border-t border-stone-300">
+              <div className="flex-1">
+                {isFull ? (
+                  <span className="text-[11px] font-semibold text-rose-600 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full">Sold Out</span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full w-fit">
+                    <Users className="w-3 h-3" />
+                    {seatsLeft} / {max_capacity} left
+                  </span>
+                )}
+              </div>
+              <Link
+                href={`/events/${event_id}`}
+                className="shrink-0 px-4 py-2 rounded-xl bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-semibold text-[12px] flex items-center gap-1.5 transition-all duration-200 group/btn"
+              >
+                View
+                <ArrowRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform duration-150" />
+              </Link>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
 });
 
+
+
 // ─────────────────────────────────────────────────────────────────────────────
-// EventListRow
+// EventListRow — memo-wrapped
 // ─────────────────────────────────────────────────────────────────────────────
 const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
   const { event_id, title, short_description, category, mode, start_datetime, venue, event_status, max_capacity, registered = 0, banner_url } = event;
@@ -366,133 +489,114 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
   useEffect(() => {
     if (!isEnded) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
       { threshold: 0.1 }
     );
     if (rowRef.current) observer.observe(rowRef.current);
     return () => observer.disconnect();
   }, [isEnded]);
 
-  const { formattedDate, startTimeStr } = useMemo(() => {
-    const d = new Date(start_datetime);
-    return {
-      formattedDate: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
-      startTimeStr: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    };
-  }, [start_datetime]);
+  const formattedDate = useMemo(
+    () => new Date(start_datetime).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+    [start_datetime]
+  );
 
   return (
     <div
       ref={rowRef}
-      className={`group bg-white border border-slate-200/80 hover:border-slate-350 rounded-xl p-3.5 flex flex-col md:flex-row items-stretch md:items-center gap-4 relative overflow-hidden transition-all duration-300 shadow-xs hover:shadow-sm ${isEnded ? 'ended-blur opacity-85' : ''}`}
+      className={`group bg-white border border-slate-200/60 rounded-xl p-4 hover:border-slate-300/85 hover:shadow-md hover:shadow-slate-100 transition-all duration-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden ${isEnded ? 'ended-blur' : ''}`}
     >
-      {/* Thumbnail */}
-      <div className="w-full md:w-32 h-20 bg-slate-900 rounded-lg overflow-hidden shrink-0 relative border border-slate-100/80 shadow-xs">
-        {banner_url ? (
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        {/* Thumbnail */}
+        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 rounded-xl overflow-hidden shrink-0 relative">
           <img
             src={banner_url}
             alt={title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+            className="w-full h-full object-cover object-top"
           />
-        ) : (
-          <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-            <span className="text-[9px] text-slate-400 font-medium">No banner</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
-        
-        <span className="absolute top-1.5 left-2 bg-slate-950/85 backdrop-blur-xs text-white text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-xs">
-          {category}
-        </span>
-        
-        <span className={`absolute bottom-1.5 left-2 text-[7px] font-bold px-1.5 py-0.5 rounded shadow-xs uppercase tracking-wider ${
-          mode === 'ONLINE' ? 'bg-emerald-500/95 text-white' : 'bg-blue-500/95 text-white'
-        }`}>
-          {mode === 'ONLINE' ? 'Virtual' : 'In-Person'}
-        </span>
-
-        {isEnded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/25 z-30">
-            <div className={`completed-stamp-mini ${inView ? 'animate-stamp-mini' : 'opacity-0'}`}>
-              Completed
+          <div className="absolute inset-0 bg-black/10" />
+          {isEnded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-30">
+              <div className={`completed-stamp-mini ${inView ? 'animate-stamp-mini' : 'opacity-0'}`}>
+                Completed
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Middle section: Titles & Description & Metadata */}
-      <div className="flex-grow min-w-0 flex flex-col justify-between h-full py-0.5">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2">
-            <h3 className="font-bold text-slate-900 font-display text-[18px] sm:text-[20px] tracking-tight group-hover:text-amber-600 transition-colors truncate leading-snug">
-              {title}
-            </h3>
-            {isFull && !isEnded && (
-              <span className="bg-rose-50 text-rose-700 text-[8px] font-semibold px-1.5 py-0.5 rounded-full border border-rose-100 shrink-0">
-                Full
-              </span>
-            )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5 mb-1">
+            <span className="bg-slate-100 text-slate-600 text-[9px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full">
+              {category}
+            </span>
+            <span className="bg-[#232F3E]/10 text-[#232F3E] text-[9px] font-semibold px-2 py-0.5 rounded-full">
+              {mode}
+            </span>
           </div>
+
+          <h3 className={`font-semibold text-[13px] transition truncate mb-0.5 font-display ${isEnded ? 'text-slate-400' : 'text-slate-800 group-hover:text-[#FF9900]'}`}>
+            {title}
+          </h3>
           {short_description && (
-            <p className="text-slate-500 text-[11px] font-normal leading-relaxed line-clamp-1">
-              {short_description}
-            </p>
+            <TruncatedDescription
+              description={short_description}
+              eventId={event_id}
+              className="text-slate-400 text-[11px] font-normal leading-normal mb-1"
+              linkSizeClass="text-[11px]"
+            />
           )}
-        </div>
-
-        {/* Metadata single line */}
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium truncate mt-2 pb-0.5">
-          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-          <div className="flex items-center gap-1.5 min-w-0 truncate">
-            <span className="shrink-0">{formattedDate}</span>
-            <span className="text-slate-300 shrink-0">|</span>
-            <span className="shrink-0">{startTimeStr}</span>
-            <span className="text-slate-300 shrink-0">|</span>
-            <span className="truncate text-slate-450" title={venue}>{venue}</span>
+          <div className="flex flex-wrap items-center text-slate-500 gap-x-3.5 gap-y-0.5 text-[10px] font-normal">
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-slate-400" />
+              <span>{formattedDate}</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-slate-400" />
+              <span className="truncate max-w-[150px]">{venue}</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <Users className="w-3 h-3 text-slate-400" />
+              <span>{registered} / {max_capacity}</span>
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Right section: Action & Availability */}
-      <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 border-t border-slate-100 md:border-l md:border-t-0 md:pl-6 pt-3 md:pt-0 shrink-0 md:w-44">
-        <div className="text-right">
+      {/* Right Column */}
+      <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t border-slate-100 pt-2.5 sm:border-t-0 sm:pt-0 shrink-0">
+        <div className="text-left sm:text-right">
+          <p className="text-slate-400 text-[9px] font-semibold uppercase tracking-widest mb-0.5">Availability</p>
           {isEnded ? (
-            <span className="text-slate-400 font-bold text-[9px] uppercase tracking-wider">Closed</span>
+            <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Ended</span>
           ) : isFull ? (
-            <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-100 text-[9px] uppercase tracking-wider">Sold Out</span>
+            <span className="text-[11px] font-semibold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full">Sold Out</span>
           ) : (
-            <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 text-[9px] uppercase tracking-wider">{seatsLeft} seats remaining</span>
+            <span className="text-[11px] font-semibold text-teal-600 font-mono">{seatsLeft} seats</span>
           )}
         </div>
 
-        <div className="shrink-0 w-24 md:w-full mt-0.5">
-          {isEnded ? (
-            <button
-              disabled
-              className="w-full text-center text-xs font-semibold py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed"
-            >
-              Ended
-            </button>
-          ) : isFull ? (
-            <button
-              disabled
-              className="w-full text-center text-xs font-semibold py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed"
-            >
-              Full
-            </button>
-          ) : (
-            <Link
-              href={`/events/${event_id}`}
-              className="w-full flex items-center justify-center gap-1 bg-[#232F3E] hover:bg-[#1a2535] text-white text-xs font-semibold py-1.5 rounded-lg shadow-xs transition-all duration-200 group/btn"
-            >
-              <span>Details</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform duration-200" />
-            </Link>
-          )}
-        </div>
+        {isEnded ? (
+          <button
+            disabled
+            className="text-[11px] font-semibold px-4 py-2 rounded-xl bg-slate-100 text-slate-400 border border-slate-200/60 cursor-not-allowed"
+          >
+            Closed
+          </button>
+        ) : (
+          <Link
+            href={`/events/${event_id}`}
+            className="text-[11px] font-semibold px-4 py-2 bg-[#1A1C1E] hover:bg-[#232F3E] text-white rounded-xl transition-colors duration-200"
+          >
+            View
+          </Link>
+        )}
       </div>
     </div>
   );

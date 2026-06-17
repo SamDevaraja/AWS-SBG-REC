@@ -38,7 +38,7 @@ export default function Announcements() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className="flex flex-col h-full rounded-[22px] p-6 overflow-hidden select-none min-h-[400px] backdrop-blur-md border border-white/20"
-      style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.15))" }}
+      style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }}
     >
       {/* Panel Header */}
       <div className="flex items-center justify-between mb-4 flex-shrink-0">

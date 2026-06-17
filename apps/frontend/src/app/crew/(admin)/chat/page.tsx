@@ -130,25 +130,11 @@ export default function CrewChatPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.purple})`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-            }}
-          >
-            💬
-          </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: COLORS.sidebar }}>
-              {activeTab === "group" ? "🌐 Crew General Room" : "🔒 End-to-End Encrypted Room"}
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: COLORS.sidebar }}>
+              {activeTab === "group" ? "Crew General Room" : "End-to-End Encrypted Room"}
             </h2>
-            <p style={{ margin: "2px 0 0", fontSize: 10, color: COLORS.muted }}>
+            <p style={{ margin: "2px 0 0", fontSize: 12, color: COLORS.muted }}>
               {activeTab === "group"
                 ? "Shared workspace for all core & crew members"
                 : "Secure channel — key encryption required"}
@@ -170,13 +156,13 @@ export default function CrewChatPage() {
             onClick={() => setActiveTab("group")}
             className={`tab-btn ${activeTab === "group" ? "active-group" : "inactive"}`}
           >
-            🌐 General Group Chat
+            General Group Chat
           </button>
           <button
             onClick={() => setActiveTab("e2e")}
             className={`tab-btn ${activeTab === "e2e" ? "active-e2e" : "inactive"}`}
           >
-            🔒 Secure E2EE Chat
+            Secure E2EE Chat
           </button>
         </div>
       </header>

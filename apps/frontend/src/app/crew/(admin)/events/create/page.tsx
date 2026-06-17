@@ -406,7 +406,7 @@ function AgendaStep({
   return (
     <div className="space-y-4">
       {agenda.length === 0 && (
-        <div className="text-center py-8 border border-dashed border-slate-200 rounded-[10px]">
+        <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="text-center py-8 border border-dashed border-slate-200 rounded-[10px]">
           <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
           <p className="text-xs text-slate-500 mb-3">
             No agenda items yet. Add your first session.

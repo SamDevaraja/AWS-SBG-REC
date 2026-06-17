@@ -33,7 +33,7 @@ export default function Announcements() {
   const { data: announcements = [], isLoading } = useAnnouncements();
 
   return (
-    <GlassCard className="flex flex-col h-full border border-white/20 min-h-[300px]" hoverEffect={false} style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.15))" }}>
+    <GlassCard className="flex flex-col h-full border border-white/20 min-h-[300px]" hoverEffect={false} style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }}>
       {/* Panel Header */}
       <div className="flex items-center justify-between pb-4 border-b border-black/5 mb-4">
         <div className="flex items-center gap-2.5">

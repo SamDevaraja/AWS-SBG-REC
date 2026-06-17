@@ -56,7 +56,7 @@ function EmptyState() {
   return (
     <div
       style={{
-        background: 'rgba(255,255,255,0.8)',
+        background: 'linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         borderRadius: '24px',
@@ -164,7 +164,7 @@ function SectionPill({ children }: { children: React.ReactNode }) {
         boxShadow: '0 0 6px rgba(255,153,0,0.5)',
         display: 'inline-block',
       }} />
-      <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase' as const, letterSpacing: '0.12em' }}>
+      <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
         {children}
       </span>
     </div>
@@ -232,7 +232,7 @@ export default function RegistrationsPage() {
       <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* ── Header ── */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 28 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 28, background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px' }}>
           <div>
             <SectionPill>Admin · Registrations</SectionPill>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

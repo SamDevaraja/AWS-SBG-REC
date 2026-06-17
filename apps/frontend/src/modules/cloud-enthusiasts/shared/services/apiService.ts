@@ -35,6 +35,7 @@ function mapBackendEventToFrontend(e: any): Event {
       designation: s.role || s.designation,
       bio: s.bio,
       avatar_url: s.photo || s.avatar_url,
+      linkedin_url: s.linkedinUrl || s.linkedin_url || '',
     })),
   };
 }

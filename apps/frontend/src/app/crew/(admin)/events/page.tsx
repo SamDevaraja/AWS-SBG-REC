@@ -49,34 +49,39 @@ export default function AssignedEventsPage() {
   );
 
   return (
-    <div className="min-h-screen p-4 lg:p-6 lg:px-8 max-w-7xl mx-auto w-full flex flex-col">
+    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       {/* Header & Search Area */}
-      <div className="relative w-full mb-8 pt-2">
-        {/* Background glow blobs */}
-        <div className="absolute top-1/2 left-[5%] -translate-y-1/2 w-64 h-64 bg-brand-orange/15 rounded-full blur-[100px] pointer-events-none z-0" />
-        <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-72 h-72 bg-[#0073bb]/15 rounded-full blur-[100px] pointer-events-none z-0" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
-          <div>
-            <h1 className="font-semibold text-2xl text-slate-900 mb-1 font-display">
+      <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px', marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1 }}>
+            {/* Pill */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Crew · Events</span>
+            </div>
+            <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
               Assigned Events
             </h1>
-            <p className="text-slate-500 max-w-xl text-xs sm:text-sm font-normal">
+            <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>
               Browse and monitor your operational assignments
             </p>
           </div>
-
-          <div className="w-full md:w-[320px] relative group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-brand-orange transition-colors" />
-            <input
-              type="text"
-              placeholder="Search events by name..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-xl text-sm text-slate-800 placeholder-slate-400 pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 focus:border-brand-orange transition-all shadow-sm"
-            />
+          <div style={{ marginTop: 24, width: '100%', maxWidth: 320 }}>
+            <div style={{ position: 'relative' }}>
+              <Search style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94a3b8' }} />
+              <input
+                type="text"
+                placeholder="Search events by name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(35,47,62,0.1)', borderRadius: '12px', fontSize: '13px', color: '#232F3E', padding: '10px 16px 10px 40px', outline: 'none', transition: 'all 0.2s' }}
+              />
+            </div>
           </div>
         </div>
+        {/* Orange divider */}
+        <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />
       </div>
 
       {/* Content Area */}
@@ -100,7 +105,8 @@ export default function AssignedEventsPage() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white border border-dashed border-slate-300 rounded-[24px] p-16 text-center shadow-sm max-w-2xl mx-auto w-full mt-10"
+          className="border border-dashed border-slate-300 rounded-[24px] p-16 text-center shadow-sm max-w-2xl mx-auto w-full mt-10"
+          style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }}
         >
           <div className="mx-auto bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mb-5 border border-slate-100 shadow-inner">
             <ImageIcon className="h-8 w-8 text-slate-300" />
@@ -203,6 +209,7 @@ export default function AssignedEventsPage() {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }

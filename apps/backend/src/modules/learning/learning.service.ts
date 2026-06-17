@@ -64,15 +64,8 @@ export class RoadmapLearningService {
 
     if (topics.length === 0) return { topics: [] };
 
-    // Filter topics based on role:
-    // core -> see all topics
-    // crew -> see devops-foundations
-    // enthusiasts -> see aws-basics
-    const filteredTopics = topics.filter((t) => {
-      if (userRole === 'core') return true;
-      if (userRole === 'crew') return t.slug === 'devops-foundations';
-      return t.slug === 'aws-basics';
-    });
+    // Allow all roles to see all topics (sequential locking is enforced via module levels)
+    const filteredTopics = topics;
 
     const topicIds = filteredTopics.map((t) => t.id);
     const allModules = await this.prisma.roadmapModule.findMany({
@@ -110,7 +103,7 @@ export class RoadmapLearningService {
         totalModules: result.totalModules,
         completedModules: result.completedModules,
         status: result.status,
-        unlocked: result.unlocked,
+        unlocked: userRole === 'core' ? true : result.unlocked,
         theme: topic.theme,
       });
       previousStatus = result.status;
@@ -122,14 +115,7 @@ export class RoadmapLearningService {
   async findTopicBySlug(slug: string, userId: string) {
     const userRole = await this.getUserRole(userId);
 
-    if (userRole !== 'core') {
-      if (userRole === 'crew' && slug !== 'devops-foundations') {
-        throw new ForbiddenException('You are not authorized to access this topic.');
-      }
-      if ((userRole === 'enthusiasts' || userRole === 'enthusiast') && slug !== 'aws-basics') {
-        throw new ForbiddenException('You are not authorized to access this topic.');
-      }
-    }
+    // Allow all roles to access topic details (sequential locks are checked via the first module below)
 
     const topic = await this.prisma.roadmapTopic.findUnique({
       where: { slug },
@@ -151,9 +137,9 @@ export class RoadmapLearningService {
       return a.orderIndex - b.orderIndex;
     });
 
-    // Lock check — if first module is locked, topic is locked
+    // Lock check — if first module is locked, topic is locked (bypass for core role)
     const firstModule = sortedModules[0];
-    if (firstModule) {
+    if (firstModule && userRole !== 'core') {
       const firstStatus = statuses.get(firstModule.id) || 'LOCKED';
       if (firstStatus === 'LOCKED') {
         throw new ForbiddenException('Topic is locked. Complete the previous topic first.');
@@ -230,11 +216,6 @@ export class RoadmapLearningService {
     const userRole = await this.getUserRole(userId);
 
     const sortedModules = await this.prisma.roadmapModule.findMany({
-      where: userRole === 'core'
-        ? {}
-        : userRole === 'crew'
-          ? { topic: { slug: 'devops-foundations' } }
-          : { topic: { slug: 'aws-basics' } },
       include: { topic: { select: { slug: true, name: true, orderIndex: true } } },
     });
 

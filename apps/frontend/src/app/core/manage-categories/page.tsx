@@ -119,7 +119,7 @@ export default function ManageCategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] font-jakarta pb-16 relative overflow-x-hidden">
+    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>
 
       {/* Background Gradients */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -139,7 +139,7 @@ export default function ManageCategoriesPage() {
       )}
 
       {/* DASHBOARD CONTENT CONTAINER */}
-      <main className="max-w-[1280px] mx-auto px-8 pt-12 relative z-10">
+      <main style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         {/* HEADER SECTION */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12 border-b border-slate-100 pb-8">

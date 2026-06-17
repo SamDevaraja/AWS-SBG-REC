@@ -4,6 +4,12 @@ import { useState } from "react";
 import { Clock } from "lucide-react";
 import type { WorkAssignment } from "@/lib/types/crew";
 
+function WorkAssignmentsIcon({ className }: { className?: string }) {
+  return (
+    <img src="/empty-icon-work.svg" alt="Work Assignments" className={className} />
+  );
+}
+
 const initialAssignments: WorkAssignment[] = [];
 
 const statusStyles: Record<WorkAssignment["status"], string> = {
@@ -26,6 +32,7 @@ export default function WorkAssignments() {
   const [assignments, setAssignments] = useState<WorkAssignment[]>(
     initialAssignments
   );
+  const [iconHovered, setIconHovered] = useState(false);
 
   const updateStatus = (id: string, newStatus: WorkAssignment["status"]) => {
     setAssignments((prev) =>
@@ -85,9 +92,19 @@ export default function WorkAssignments() {
 
   return (
     <div className="flex flex-col h-full select-none">
-      <h2 className="text-lg font-bold font-display text-foreground">
-        My Work Assignments
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold font-display text-foreground">
+          My Work Assignments
+        </h2>
+        <div className="relative" onMouseEnter={() => setIconHovered(true)} onMouseLeave={() => setIconHovered(false)}>
+          <WorkAssignmentsIcon className={`w-21 h-21 transition-transform duration-200 ${iconHovered ? "scale-110" : ""}`} />
+          {iconHovered && (
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/85 backdrop-blur-sm text-white text-[9px] font-extrabold rounded-md shadow-lg border border-white/10 whitespace-nowrap pointer-events-none tracking-wider uppercase z-30">
+              Work Assignments
+            </div>
+          )}
+        </div>
+      </div>
       <div className="mt-4 max-h-[380px] space-y-2 overflow-y-auto custom-scrollbar pr-1 flex-1">
         {assignments.map((a) => (
           <div

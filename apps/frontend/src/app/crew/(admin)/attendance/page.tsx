@@ -164,7 +164,7 @@ export default function CrewAttendancePage() {
               ))}
             </div>
           ) : !logs || logs.length === 0 ? (
-            <div className="border border-dashed border-slate-355 bg-white rounded-[10px] p-12 text-center text-slate-400">
+            <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-355 rounded-[10px] p-12 text-center text-slate-400">
               <Calendar className="h-10 w-10 text-slate-300 mx-auto mb-3" />
               <p className="text-sm font-medium">No check-in logs found.</p>
               <p className="text-xs mt-1">Mark attendance to see entries here.</p>
