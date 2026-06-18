@@ -51,7 +51,7 @@ function PremiumFlipCard({
 
   return (
     <div 
-      className="w-full h-[208px] relative perspective-1000 cursor-pointer select-none"
+      className="w-full h-[260px] relative perspective-1000 cursor-pointer select-none"
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
       onClick={() => setIsFlipped(!isFlipped)}
@@ -75,7 +75,7 @@ function PremiumFlipCard({
           </div>
 
           {/* Data rows */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2.5">
             {frontContent}
           </div>
 
@@ -87,7 +87,7 @@ function PremiumFlipCard({
         </div>
 
         {/* BACK SIDE */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 w-full h-full rounded-2xl border border-slate-100 backdrop-blur-xl p-5 flex flex-col gap-3 shadow-sm overflow-y-auto premium-scrollbar" style={{ background: `linear-gradient(135deg, white 0%, ${accentColor}08 100%)` }}>
+        <div className="absolute inset-0 backface-hidden rotate-y-180 w-full h-full rounded-2xl border border-slate-100 backdrop-blur-xl p-5 flex flex-col gap-3 shadow-sm overflow-hidden" style={{ background: `linear-gradient(135deg, white 0%, ${accentColor}08 100%)` }}>
           {/* Top color strip */}
           <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accentColor }} />
 
@@ -150,8 +150,8 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
 
 
       {/* VIEWPORT-CONTAINED DASHBOARD WRAPPER */}
-      <div className="pt-6 pb-6 px-12 w-full flex flex-col items-center justify-center relative z-10 flex-grow h-full overflow-hidden">
-        <div className="max-w-[1400px] w-full flex flex-col items-center gap-8">
+      <div className="pt-10 pb-10 px-12 w-full flex flex-col items-center justify-start relative z-10 flex-grow h-full overflow-y-auto premium-scrollbar">
+        <div className="max-w-[1400px] w-full flex flex-col items-center gap-6">
           
           {/* HERO PROFILE SECTION */}
           <motion.div
@@ -193,15 +193,15 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
               frontTitle="Infrastructure Overview"
               frontContent={
                 <>
-                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">Availability Zones</span>
                     <span className="text-amber-600 font-bold">{spec.zones}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">Launch Year</span>
                     <span className="text-amber-600 font-bold">{spec.launchYear}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">Primary Location</span>
                     <span className="text-slate-800 font-bold truncate max-w-[120px]">{spec.primaryLocation}</span>
                   </div>
@@ -239,15 +239,15 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
               frontTitle="Regional Service Coverage"
               frontContent={
                 <>
-                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">AWS Services Available</span>
                     <span className="text-[#0073BB] font-bold">{spec.totalServices}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">AI/ML Services</span>
                     <span className="text-[#0073BB] font-bold">{spec.aimlServices}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">Analytics Services</span>
                     <span className="text-slate-800 font-bold">{spec.analyticsServices}</span>
                   </div>
@@ -296,17 +296,17 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
               frontTitle="Global Connectivity"
               frontContent={
                 <>
-                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">Edge Locations</span>
                     <span className="text-indigo-600 font-bold">{spec.edgeLocations}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">Direct Connect</span>
                     <span className="text-emerald-600 font-bold flex items-center gap-1">
                       <CheckCircle2 size={11} /> {spec.directConnect}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-3 py-2 transition-colors">
+                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-4 py-2.5 transition-colors">
                     <span className="text-slate-500 font-medium">Regional Reach</span>
                     <span className="text-slate-800 font-bold truncate max-w-[120px]">{spec.reach}</span>
                   </div>
