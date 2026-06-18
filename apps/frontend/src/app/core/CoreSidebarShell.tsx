@@ -20,11 +20,14 @@ import {
 const coreNavItems: NavItem[] = [
   { icon: <CalendarDays className="w-4 h-4" />, label: 'events', href: '/core/events' },
   { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
-  { icon: <Megaphone className="w-4 h-4" />, label: 'announcements', href: '/core/announcements' },
   { icon: <Map className="w-4 h-4" />, label: 'roadmap builder', href: '/core/topics' },
   { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/core/chat' },
   { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
   { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
+];
+
+const coreBottomNavItems: NavItem[] = [
+  { icon: <Megaphone className="w-4 h-4" />, label: 'announcements', href: '/core/announcements' },
 ];
 
 export default function CoreSidebarShell({ children }: { children: React.ReactNode }) {
@@ -52,6 +55,7 @@ export default function CoreSidebarShell({ children }: { children: React.ReactNo
   return (
     <SidebarLayout
       navItems={coreNavItems}
+      bottomNavItems={coreBottomNavItems}
       user={user}
       brandTitle={user?.name || 'Admin'}
       brandSubtitle={user?.badge || 'Core Admin'}
