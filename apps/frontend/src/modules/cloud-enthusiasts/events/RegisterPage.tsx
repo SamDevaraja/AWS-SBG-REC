@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEventDetails, useRegister } from '../shared/hooks/useCloudEnthusiasts';
 import { EC2ConsoleLoader, ErrorAlert } from '../shared/components/Animations';
-import { ArrowLeft, ArrowRight, Check, User, Mail, GraduationCap, ClipboardList, RefreshCw, AlertCircle, FileUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, User, Mail, GraduationCap, ClipboardList, RefreshCw, AlertCircle, FileUp, ChevronDown, Calendar, MapPin, Clock, Users } from 'lucide-react';
 import { STORAGE_KEYS } from '../../../context/mockData';
+import { cn } from '@/lib/utils';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -211,414 +212,529 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="bg-transparent min-h-screen py-5 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full mx-auto">
-        
-        {/* Cancel navigation link */}
-        <Link
-          href={`/events/${eventId}`}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 bg-white border border-slate-200 hover:border-slate-300 rounded-[8px] px-3 py-1.5 shadow-sm hover:shadow transition-all duration-200 mb-4"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Cancel & Back</span>
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] flex flex-col justify-center items-center font-sans relative py-12 px-4 overflow-y-auto premium-scrollbar scroll-smooth">
+      {/* Background ambient glow (matches events page style) */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.07)_0%,rgba(255,153,0,0.03)_40%,transparent_70%)] pointer-events-none z-0" />
 
-        {/* Wizard Box - 10px rounded-[10px] */}
-        <div className="bg-white border border-slate-200 rounded-[10px] p-5 sm:p-6 shadow-sm">
-          
-          {/* Event banner title */}
-          <div className="text-center mb-6 border-b border-slate-100 pb-4">
-            <span className="bg-[#232F3E]/10 text-[#232F3E] text-[10px] font-medium uppercase px-2.5 py-1 rounded-[6px] mb-2 inline-block">
-              Registration
-            </span>
-            <h2 className="text-lg font-medium text-slate-800 line-clamp-1 font-display">
-              {event.title}
-            </h2>
-            <p className="text-slate-400 text-xs font-normal mt-1">
-              Please fill in your details to secure a seat pass.
-            </p>
-          </div>
-
-          {/* Custom Progress Indicators */}
-          <div className="flex items-center justify-between max-w-sm mx-auto mb-6 relative">
-            {stepLabels.map((lbl, idx) => {
-              const stepNum = idx + 1;
-              const activeStep = getStepNumber(currentStep);
-              const isActive = activeStep === stepNum;
-              const isCompleted = activeStep > stepNum;
-
-              return (
-                <React.Fragment key={lbl}>
-                  <div className="flex flex-col items-center z-10">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300 ${
-                      isCompleted 
-                        ? 'bg-emerald-600 text-white' 
-                        : isActive 
-                          ? 'bg-[#232F3E] text-white ring-4 ring-slate-100' 
-                          : 'bg-slate-100 text-slate-400'
-                    }`}>
-                      {isCompleted ? <Check className="w-3.5 h-3.5" /> : stepNum}
-                    </div>
-                    <span className={`text-[10px] font-normal mt-1.5 hidden sm:inline ${
-                      isActive ? 'text-[#232F3E]' : 'text-slate-400'
-                    }`}>
-                      {lbl}
-                    </span>
+      <div className="max-w-5xl w-full z-10 relative">
+        {/* Wizard Form Card */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+              {/* Glow accent */}
+              <div className="absolute top-0 right-0 w-80 h-80 bg-[radial-gradient(circle_at_75%_20%,rgba(0,115,187,0.03)_0%,transparent_60%)] pointer-events-none" />
+              
+              <div className="relative z-10">
+                {/* Form header */}
+                <div className="mb-6 border-b border-slate-100 pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <Link
+                      href={`/events/${eventId}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors uppercase tracking-wider cursor-pointer"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Cancel & Back</span>
+                    </Link>
                   </div>
-                  {idx < stepLabels.length - 1 && (
-                    <div className="flex-1 h-0.5 bg-slate-100 mx-2 -translate-y-3" />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
 
-          {/* Wizard Form */}
-          <form onSubmit={currentStep === 3 ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
-            
-            {/* STEP 1: Fixed Profile Fields */}
-            {currentStep === 1 && (
-              <div className="space-y-3.5">
-                {/* Full Name */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-normal text-slate-500 uppercase tracking-wide">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <User className="w-4 h-4" />
+                  <div>
+                    <span className="text-[10px] font-semibold text-[#FF9900] uppercase tracking-widest block mb-1">
+                      Event Pass Application
                     </span>
-                    <input
-                      type="text"
-                      required
-                      value={formData.fullName}
-                      onChange={(e) => handleFixedChange('fullName', e.target.value)}
-                      placeholder="Enter your full name"
-                      className={`w-full pl-9 pr-3 py-2 border rounded-[8px] text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 transition ${
-                        validationErrors.fullName 
-                          ? 'border-rose-300 focus:ring-rose-200' 
-                          : 'border-slate-200 focus:ring-[#232F3E]/20 focus:border-[#232F3E]'
-                      }`}
-                    />
+                    <h2 className="text-xl font-bold text-[#232F3E] tracking-tight">
+                      Secure Your Ticket
+                    </h2>
                   </div>
-                  {validationErrors.fullName && (
-                    <p className="text-[10px] text-rose-500 font-normal">{validationErrors.fullName}</p>
-                  )}
                 </div>
 
-                {/* Roll Number */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-normal text-slate-500 uppercase tracking-wide">
-                    Registration / Roll Number <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <ClipboardList className="w-4 h-4" />
-                    </span>
-                    <input
-                      type="text"
-                      required
-                      value={formData.rollNumber}
-                      onChange={(e) => handleFixedChange('rollNumber', e.target.value)}
-                      placeholder="Enter your college registration number"
-                      className={`w-full pl-9 pr-3 py-2 border rounded-[8px] text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 transition ${
-                        validationErrors.rollNumber 
-                          ? 'border-rose-300 focus:ring-rose-200' 
-                          : 'border-slate-200 focus:ring-[#232F3E]/20 focus:border-[#232F3E]'
-                      }`}
-                    />
-                  </div>
-                  {validationErrors.rollNumber && (
-                    <p className="text-[10px] text-rose-500 font-normal">{validationErrors.rollNumber}</p>
-                  )}
-                </div>
-
-                {/* Department */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-normal text-slate-500 uppercase tracking-wide">
-                    Department <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <GraduationCap className="w-4 h-4" />
-                    </span>
-                    <input
-                      type="text"
-                      required
-                      value={formData.department}
-                      onChange={(e) => handleFixedChange('department', e.target.value)}
-                      placeholder="e.g. Computer Science & Engineering"
-                      className={`w-full pl-9 pr-3 py-2 border rounded-[8px] text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 transition ${
-                        validationErrors.department 
-                          ? 'border-rose-300 focus:ring-rose-200' 
-                          : 'border-slate-200 focus:ring-[#232F3E]/20 focus:border-[#232F3E]'
-                      }`}
-                    />
-                  </div>
-                  {validationErrors.department && (
-                    <p className="text-[10px] text-rose-500 font-normal">{validationErrors.department}</p>
-                  )}
-                </div>
-
-                {/* Email */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-normal text-slate-500 uppercase tracking-wide">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="w-4 h-4" />
-                    </span>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => handleFixedChange('email', e.target.value)}
-                      placeholder="yourname@rajalakshmi.edu.in"
-                      className={`w-full pl-9 pr-3 py-2 border rounded-[8px] text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 transition ${
-                        validationErrors.email 
-                          ? 'border-rose-300 focus:ring-rose-200' 
-                          : 'border-slate-200 focus:ring-[#232F3E]/20 focus:border-[#232F3E]'
-                      }`}
-                    />
-                  </div>
-                  {validationErrors.email && (
-                    <p className="text-[10px] text-rose-500 font-normal">{validationErrors.email}</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 2: Dynamic Custom Fields */}
-            {currentStep === 2 && (
-              <div className="space-y-3.5">
-                {customFields.map((field) => {
-                  const isRequired = field.is_required;
-                  const value = responses[field.field_label] || '';
-                  const errorText = validationErrors[field.field_label];
-
-                  return (
-                    <div key={field.field_id} className="space-y-1">
-                      <label className="block text-xs font-normal text-slate-500 uppercase tracking-wide">
-                        {field.field_label} {isRequired && <span className="text-red-500">*</span>}
-                      </label>
-
-                      {/* SELECT TYPE */}
-                      {field.field_type === 'select' && (
-                        <div className="relative">
-                          <select
-                            required={isRequired}
-                            value={value}
-                            onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
-                            className={`w-full px-3 py-2 border rounded-[8px] text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 appearance-none cursor-pointer bg-white ${
-                              errorText 
-                                ? 'border-rose-300 focus:ring-rose-200' 
-                                : 'border-slate-200 focus:ring-[#232F3E]/20 focus:border-[#232F3E]'
-                            }`}
-                          >
-                            <option value="">Select option...</option>
-                            {field.select_options?.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                          <span className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                          </span>
-                        </div>
-                      )}
-
-                      {/* RADIO TYPE */}
-                      {field.field_type === 'radio' && (
-                        <div className="space-y-1.5 py-0.5">
-                          {field.select_options?.map(opt => (
-                            <label key={opt} className="flex items-center space-x-3 cursor-pointer text-xs sm:text-sm text-slate-700">
-                              <input
-                                type="radio"
-                                name={field.field_id}
-                                value={opt}
-                                checked={value === opt}
-                                onChange={() => handleCustomChange(field.field_label, opt)}
-                                className="w-3.5 h-3.5 text-[#232F3E] focus:ring-[#232F3E] border-slate-300"
-                              />
-                              <span>{opt}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* CHECKBOX TYPE */}
-                      {field.field_type === 'checkbox' && (
-                        <div className="space-y-1.5 py-0.5">
-                          {field.select_options?.map(opt => (
-                            <label key={opt} className="flex items-center space-x-3 cursor-pointer text-xs sm:text-sm text-slate-700">
-                              <input
-                                type="checkbox"
-                                checked={value === opt}
-                                onChange={(e) => handleCustomChange(field.field_label, e.target.checked ? opt : '')}
-                                className="w-3.5 h-3.5 rounded text-[#232F3E] focus:ring-[#232F3E] border-slate-300"
-                              />
-                              <span>{opt}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* TEXTAREA TYPE */}
-                      {field.field_type === 'textarea' && (
-                        <textarea
-                          required={isRequired}
-                          value={value}
-                          rows={2.5}
-                          onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
-                          placeholder={`Enter ${field.field_label.toLowerCase()}`}
-                          className={`w-full px-3 py-2 border rounded-[8px] text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 transition ${
-                            errorText 
-                              ? 'border-rose-300 focus:ring-rose-200' 
-                              : 'border-slate-200 focus:ring-[#232F3E]/20 focus:border-[#232F3E]'
-                          }`}
-                        />
-                      )}
-
-                      {/* FILE UPLOAD TYPE */}
-                      {field.field_type === 'file' && (
-                        <div className="border border-dashed border-slate-250 p-4 rounded-[10px] text-center bg-slate-50 relative cursor-pointer">
-                          <input
-                            type="file"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleCustomChange(field.field_label, file.name);
-                            }}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          />
-                          <FileUp className="w-6 h-6 text-slate-400 mx-auto mb-1.5" />
-                          <span className="block text-xs font-normal text-slate-700">
-                            {value ? `File: ${value}` : 'Upload attachment file'}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* STANDARD INPUT TYPES */}
-                      {field.field_type !== 'select' && 
-                       field.field_type !== 'radio' && 
-                       field.field_type !== 'checkbox' && 
-                       field.field_type !== 'textarea' && 
-                       field.field_type !== 'file' && (
-                        <input
-                          type={field.field_type === 'url' ? 'url' : field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : 'text'}
-                          required={isRequired}
-                          value={value}
-                          onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
-                          placeholder={`Enter ${field.field_label.toLowerCase()}`}
-                          className={`w-full px-3 py-2 border rounded-[8px] text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 transition ${
-                            errorText 
-                              ? 'border-rose-300 focus:ring-rose-200' 
-                              : 'border-slate-200 focus:ring-[#232F3E]/20 focus:border-[#232F3E]'
-                          }`}
-                        />
-                      )}
-
-                      {errorText && (
-                        <p className="text-[10px] text-rose-500 font-normal">{errorText}</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* STEP 3: Review summary list */}
-            {currentStep === 3 && (
-              <div className="space-y-4">
-                {validationErrors.submit && (
-                  <div className="bg-rose-50 border border-rose-100 text-rose-800 rounded-[10px] p-3.5 text-xs font-medium flex items-center space-x-2">
-                    <AlertCircle className="w-4.5 h-4.5 text-rose-500 shrink-0" />
-                    <span>{validationErrors.submit}</span>
-                  </div>
-                )}
-
-                <div className="bg-slate-50 border border-slate-100 rounded-[10px] p-4.5 space-y-3">
-                  <h4 className="text-[#232F3E] font-medium text-[10px] uppercase tracking-wider border-b border-slate-200 pb-2">
-                    Confirm Registration Details
-                  </h4>
+                {/* Stacked Wizard Form Panels */}
+                <form onSubmit={currentStep === 3 ? handleSubmit : (e) => e.preventDefault()} className="space-y-4">
                   
-                  <div className="divide-y divide-slate-100 text-xs sm:text-sm leading-relaxed text-slate-700">
-                    <div className="flex justify-between py-2 gap-4">
-                      <span className="text-slate-400 text-xs font-normal uppercase shrink-0">Name:</span>
-                      <span className="font-normal text-sm text-right">{formData.fullName}</span>
-                    </div>
-                    <div className="flex justify-between py-2 gap-4">
-                      <span className="text-slate-400 text-xs font-normal uppercase shrink-0">Roll Number:</span>
-                      <span className="font-normal text-sm text-right">{formData.rollNumber}</span>
-                    </div>
-                    <div className="flex justify-between py-2 gap-4">
-                      <span className="text-slate-400 text-xs font-normal uppercase shrink-0">Department:</span>
-                      <span className="font-normal text-sm text-right">{formData.department}</span>
-                    </div>
-                    <div className="flex justify-between py-2 gap-4">
-                      <span className="text-slate-400 text-xs font-normal uppercase shrink-0">Email:</span>
-                      <span className="font-normal text-sm text-right">{formData.email}</span>
-                    </div>
-
-                    {customFields.map((field) => (
-                      <div key={field.field_id} className="flex justify-between py-2 gap-4">
-                        <span className="text-slate-400 text-xs font-normal uppercase shrink-0">{field.field_label}:</span>
-                        <span className="font-normal text-sm text-right">{responses[field.field_label] || 'N/A'}</span>
+                  {/* PANEL 1: Contact Info */}
+                  <div className={cn(
+                    "border rounded-2xl p-5 transition-all duration-300",
+                    currentStep === 1 ? "border-slate-200 bg-white shadow-sm" : "border-slate-100 bg-slate-50/30"
+                  )}>
+                    {/* Panel Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200",
+                          currentStep === 1 
+                            ? "bg-[#232F3E] border-[#232F3E] text-white shadow-sm ring-4 ring-slate-100" 
+                            : "bg-emerald-500 border-emerald-500 text-white"
+                        )}>
+                          {currentStep === 1 ? '1' : <Check className="w-3.5 h-3.5" />}
+                        </div>
+                        <div>
+                          <span className={cn(
+                            "text-[13px] font-semibold font-sans tracking-tight block",
+                            currentStep === 1 ? "text-slate-900" : "text-slate-500"
+                          )}>
+                            Contact Info
+                          </span>
+                          {currentStep > 1 && (
+                            <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                              {formData.fullName} • {formData.email}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    ))}
+                      {currentStep > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setCurrentStep(1)}
+                          className="text-[10px] font-semibold text-slate-500 hover:text-[#FF9900] hover:border-[#FF9900] transition-colors uppercase tracking-wider cursor-pointer border border-slate-200 px-2.5 py-1 rounded-lg bg-white shadow-sm font-sans"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Panel Body */}
+                    {currentStep === 1 && (
+                      <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                          {/* Full Name */}
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              Full Name <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <User className="w-4 h-4" />
+                              </span>
+                              <input
+                                type="text"
+                                required
+                                value={formData.fullName}
+                                onChange={(e) => handleFixedChange('fullName', e.target.value)}
+                                placeholder="Enter your full name"
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.fullName ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                }`}
+                              />
+                            </div>
+                            {validationErrors.fullName && (
+                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.fullName}</p>
+                            )}
+                          </div>
+
+                          {/* Roll Number */}
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              Registration / Roll Number <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <ClipboardList className="w-4 h-4" />
+                              </span>
+                              <input
+                                type="text"
+                                required
+                                value={formData.rollNumber}
+                                onChange={(e) => handleFixedChange('rollNumber', e.target.value)}
+                                placeholder="Enter your college registration number"
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.rollNumber ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                }`}
+                              />
+                            </div>
+                            {validationErrors.rollNumber && (
+                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.rollNumber}</p>
+                            )}
+                          </div>
+
+                          {/* Department */}
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              Department <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <GraduationCap className="w-4.5 h-4.5" />
+                              </span>
+                              <input
+                                type="text"
+                                required
+                                value={formData.department}
+                                onChange={(e) => handleFixedChange('department', e.target.value)}
+                                placeholder="e.g. Computer Science & Engineering"
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.department ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                }`}
+                              />
+                            </div>
+                            {validationErrors.department && (
+                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.department}</p>
+                            )}
+                          </div>
+
+                          {/* Email */}
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              Email Address <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <Mail className="w-4 h-4" />
+                              </span>
+                              <input
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={(e) => handleFixedChange('email', e.target.value)}
+                                placeholder="yourname@rajalakshmi.edu.in"
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.email ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                }`}
+                              />
+                            </div>
+                            {validationErrors.email && (
+                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.email}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Continue Button */}
+                        <div className="flex justify-end pt-4 border-t border-slate-100">
+                          <button
+                            type="button"
+                            onClick={nextStep}
+                            className="flex items-center gap-1.5 bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-semibold py-2 px-4 rounded-xl shadow-sm hover:shadow text-xs transition-all duration-200 uppercase tracking-wider cursor-pointer font-sans"
+                          >
+                            <span>Continue</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
-            )}
 
-            {/* Step action buttons */}
-            <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-              {currentStep > 1 ? (
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="inline-flex items-center gap-1.5 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 hover:bg-slate-50 font-medium py-2 px-4 rounded-[8px] text-xs shadow-sm transition-all duration-200"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back</span>
-                </button>
-              ) : (
-                <div />
-              )}
+                  {/* PANEL 2: Custom Fields */}
+                  {customFields.length > 0 && (
+                    <div className={cn(
+                      "border rounded-2xl p-5 transition-all duration-300",
+                      currentStep === 2 
+                        ? "border-slate-200 bg-white shadow-sm" 
+                        : currentStep > 2 
+                          ? "border-slate-100 bg-slate-50/30" 
+                          : "border-slate-100 bg-slate-50/20 opacity-60"
+                    )}>
+                      {/* Panel Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200",
+                            currentStep === 2 
+                              ? "bg-[#232F3E] border-[#232F3E] text-white shadow-sm ring-4 ring-slate-100" 
+                              : currentStep > 2 
+                                ? "bg-emerald-500 border-emerald-500 text-white" 
+                                : "bg-slate-100 border-slate-250 text-slate-400"
+                          )}>
+                            {currentStep > 2 ? <Check className="w-3.5 h-3.5" /> : '2'}
+                          </div>
+                          <div>
+                            <span className={cn(
+                              "text-[13px] font-semibold font-sans tracking-tight block",
+                              currentStep === 2 ? "text-slate-900" : "text-slate-500"
+                            )}>
+                              Custom Fields
+                            </span>
+                            {currentStep > 2 && (
+                              <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                                {Object.keys(responses).length} field(s) answered
+                              </span>
+                            )}
+                            {currentStep < 2 && (
+                              <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                                Complete contact info step to unlock
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {currentStep > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => setCurrentStep(2)}
+                            className="text-[10px] font-semibold text-slate-500 hover:text-[#FF9900] hover:border-[#FF9900] transition-colors uppercase tracking-wider cursor-pointer border border-slate-200 px-2.5 py-1 rounded-lg bg-white shadow-sm font-sans"
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
 
-              {currentStep < 3 ? (
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="flex items-center space-x-1.5 bg-[#232F3E] text-white font-medium py-2 px-5 rounded-[8px] shadow-sm text-xs"
-                >
-                  <span>Continue</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={registerMutation.isPending}
-                  className="flex items-center space-x-1.5 bg-[#232F3E] text-white font-medium py-2 px-6 rounded-[8px] shadow-md disabled:bg-slate-300 disabled:cursor-not-allowed text-xs"
-                >
-                  {registerMutation.isPending ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Reserving...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Confirm & Register</span>
-                    </>
+                      {/* Panel Body */}
+                      {currentStep === 2 && (
+                        <div className="mt-4 pt-3.5 border-t border-slate-100">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                            {customFields.map((field) => {
+                              const isRequired = field.is_required;
+                              const value = responses[field.field_label] || '';
+                              const errorText = validationErrors[field.field_label];
+                              const isFullWidth = field.field_type === 'textarea' || field.field_type === 'file';
+
+                              return (
+                                <div key={field.field_id} className={cn("space-y-1.5", isFullWidth && "md:col-span-2")}>
+                                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                                    {field.field_label} {isRequired && <span className="text-red-500">*</span>}
+                                  </label>
+
+                                  {/* SELECT TYPE */}
+                                  {field.field_type === 'select' && (
+                                    <div className="relative">
+                                      <select
+                                        required={isRequired}
+                                        value={value}
+                                        onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
+                                        className={`w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 cursor-pointer transition-all appearance-none ${
+                                          errorText ? 'border-rose-300 focus:border-rose-500' : ''
+                                        }`}
+                                      >
+                                        <option value="">Select option...</option>
+                                        {field.select_options?.map(opt => (
+                                          <option key={opt} value={opt}>{opt}</option>
+                                        ))}
+                                      </select>
+                                      <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={15} />
+                                    </div>
+                                  )}
+
+                                  {/* RADIO TYPE */}
+                                  {field.field_type === 'radio' && (
+                                    <div className="space-y-2 py-1">
+                                      {field.select_options?.map(opt => (
+                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-slate-700 hover:text-slate-900 transition-colors">
+                                          <input
+                                            type="radio"
+                                            name={field.field_id}
+                                            value={opt}
+                                            checked={value === opt}
+                                            onChange={() => handleCustomChange(field.field_label, opt)}
+                                            className="w-4 h-4 text-[#232F3E] focus:ring-[#FF9900] border-slate-300"
+                                          />
+                                          <span className="font-medium">{opt}</span>
+                                        </label>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {/* CHECKBOX TYPE */}
+                                  {field.field_type === 'checkbox' && (
+                                    <div className="space-y-2 py-1">
+                                      {field.select_options?.map(opt => (
+                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-slate-700 hover:text-slate-900 transition-colors">
+                                          <input
+                                            type="checkbox"
+                                            name={field.field_id}
+                                            value={opt}
+                                            checked={value === opt}
+                                            onChange={(e) => handleCustomChange(field.field_label, e.target.checked ? opt : '')}
+                                            className="w-4 h-4 rounded text-[#232F3E] focus:ring-[#FF9900] border-slate-300"
+                                          />
+                                          <span className="font-medium">{opt}</span>
+                                        </label>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {/* TEXTAREA TYPE */}
+                                  {field.field_type === 'textarea' && (
+                                    <textarea
+                                      required={isRequired}
+                                      value={value}
+                                      rows={3}
+                                      onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
+                                      placeholder={`Enter your answer for ${field.field_label.toLowerCase()}...`}
+                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                        errorText ? 'border-rose-300 focus:border-rose-500' : ''
+                                      }`}
+                                    />
+                                  )}
+
+                                  {/* FILE UPLOAD TYPE */}
+                                  {field.field_type === 'file' && (
+                                    <div className="border border-dashed border-slate-200 hover:border-[#FF9900] p-5 rounded-2xl text-center bg-slate-50/50 hover:bg-slate-50/20 relative cursor-pointer transition-all">
+                                      <input
+                                        type="file"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) handleCustomChange(field.field_label, file.name);
+                                        }}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                      />
+                                      <FileUp className="w-7 h-7 text-slate-400 mx-auto mb-2" />
+                                      <span className="block text-xs font-bold text-slate-600">
+                                        {value ? `Selected: ${value}` : 'Upload your attachment file'}
+                                      </span>
+                                      <span className="block text-[10px] text-slate-400 mt-1">
+                                        Drag and drop or click to upload
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {/* STANDARD INPUT TYPES */}
+                                  {field.field_type !== 'select' && 
+                                   field.field_type !== 'radio' && 
+                                   field.field_type !== 'checkbox' && 
+                                   field.field_type !== 'textarea' && 
+                                   field.field_type !== 'file' && (
+                                    <input
+                                      type={field.field_type === 'url' ? 'url' : field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : 'text'}
+                                      required={isRequired}
+                                      value={value}
+                                      onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
+                                      placeholder={`Enter ${field.field_label.toLowerCase()}`}
+                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                        errorText ? 'border-rose-300 focus:border-rose-500' : ''
+                                      }`}
+                                    />
+                                  )}
+
+                                  {errorText && (
+                                    <p className="text-[10px] text-rose-500 font-bold">{errorText}</p>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-4">
+                            <button
+                              type="button"
+                              onClick={prevStep}
+                              className="inline-flex items-center gap-1.5 border border-slate-200 hover:border-slate-350 text-slate-650 hover:text-slate-800 hover:bg-slate-50 font-semibold py-2 px-3.5 rounded-xl text-xs shadow-sm transition-all duration-200 cursor-pointer uppercase tracking-wider font-sans"
+                            >
+                              <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                              <span>Back</span>
+                            </button>
+                            
+                            <button
+                              type="button"
+                              onClick={nextStep}
+                              className="flex items-center gap-1.5 bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm hover:shadow text-xs transition-all duration-200 uppercase tracking-wider cursor-pointer font-sans"
+                            >
+                              <span>Continue</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
-                </button>
-              )}
+
+                  {/* PANEL 3: Review & Submit */}
+                  <div className={cn(
+                    "border rounded-2xl p-5 transition-all duration-300",
+                    currentStep === 3 
+                      ? "border-slate-200 bg-white shadow-sm" 
+                      : "border-slate-100 bg-slate-50/20 opacity-60"
+                  )}>
+                    {/* Panel Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200",
+                          currentStep === 3 
+                            ? "bg-[#232F3E] border-[#232F3E] text-white shadow-sm ring-4 ring-slate-100" 
+                            : "bg-slate-100 border-slate-250 text-slate-400"
+                        )}>
+                          {customFields.length > 0 ? '3' : '2'}
+                        </div>
+                        <div>
+                          <span className={cn(
+                            "text-[13px] font-semibold font-sans tracking-tight block",
+                            currentStep === 3 ? "text-slate-900" : "text-slate-500"
+                          )}>
+                            Review & Submit
+                          </span>
+                          {currentStep < 3 && (
+                            <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                              Complete previous steps to unlock
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Panel Body */}
+                    {currentStep === 3 && (
+                      <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
+                        {validationErrors.submit && (
+                          <div className="bg-rose-50 border border-rose-100 text-rose-800 rounded-xl p-4 text-[12.5px] font-semibold flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                            <span>{validationErrors.submit}</span>
+                          </div>
+                        )}
+
+                        <div className="bg-slate-50/50 border border-slate-200/60 rounded-2xl p-5 space-y-4">
+                          <h4 className="text-slate-450 font-semibold text-[10px] uppercase tracking-widest border-b border-slate-200/60 pb-2.5">
+                            Confirm Application Details
+                          </h4>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1 text-sm leading-relaxed text-slate-700">
+                            <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
+                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Name</span>
+                              <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.fullName}</span>
+                            </div>
+                            <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
+                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Roll Number</span>
+                              <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.rollNumber}</span>
+                            </div>
+                            <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
+                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Department</span>
+                              <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.department}</span>
+                            </div>
+                            <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
+                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Email</span>
+                              <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.email}</span>
+                            </div>
+
+                            {customFields.map((field) => (
+                              <div key={field.field_id} className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
+                                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">{field.field_label}</span>
+                                <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{responses[field.field_label] || 'N/A'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-4">
+                          <button
+                            type="button"
+                            onClick={prevStep}
+                            className="inline-flex items-center gap-1.5 border border-slate-200 hover:border-slate-350 text-slate-650 hover:text-slate-800 hover:bg-slate-50 font-semibold py-2 px-3.5 rounded-xl text-xs shadow-sm transition-all duration-200 cursor-pointer uppercase tracking-wider font-sans"
+                          >
+                            <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Back</span>
+                          </button>
+                          
+                          <button
+                            type="submit"
+                            disabled={registerMutation.isPending}
+                            className="flex items-center gap-1.5 bg-[#232F3E] hover:bg-[#FF9900] text-white font-semibold py-2.5 px-6 rounded-xl shadow-md disabled:bg-slate-350 disabled:cursor-not-allowed text-xs transition-all duration-200 uppercase tracking-wider cursor-pointer font-sans"
+                          >
+                            {registerMutation.isPending ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>Reserving...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Confirm & Register</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </form>
+              </div>
             </div>
 
-          </form>
+          </div>
         </div>
-
-      </div>
-    </div>
-  );
-}
+      );
+    }

@@ -188,6 +188,14 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   const [userPendingMessages, setUserPendingMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    const textarea = e.target;
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
+  };
   const pollingIntervalsRef = useRef<NodeJS.Timeout[]>([]);
 
   const allMessages = [...systemMessages, ...userPendingMessages].sort((a, b) => a.timestamp - b.timestamp);
@@ -295,6 +303,7 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     setIsWaitingForAdmin(true);
     setUserPendingMessages(prev => [...prev, newPendingMsg]);
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
 
     try {
       const res = await fetch("/api/chat", {
@@ -683,9 +692,35 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
               ) : (
                 <form onSubmit={send} style={{ display: "flex", gap: 10, background: "rgba(0, 0, 0, 0.02)", padding: "12px 18px 16px", borderRadius: "0 0 14px 14px", alignItems: "center" }}>
                   <div style={{ fontSize: "18px", color: COLORS.teal, cursor: "pointer" }}>😊</div>
-                  <input className="text-xs chat-input" value={input} onChange={e => setInput(e.target.value)} disabled={isWaitingForAdmin}
+                  <textarea
+                    ref={inputRef}
+                    className="text-xs chat-input"
+                    value={input}
+                    onChange={handleTextareaChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        send(e);
+                      }
+                    }}
+                    disabled={isWaitingForAdmin}
                     placeholder={isWaitingForAdmin ? "Waiting for Core response..." : "Type a doubt to Core..."}
-                    style={{ flex: 1, background: "rgba(255, 255, 255, 0.75)", border: "1px solid rgba(0, 0, 0, 0.12)", borderRadius: 20, padding: "10px 16px", color: COLORS.text, outline: "none", fontFamily: "inherit", cursor: isWaitingForAdmin ? "not-allowed" : "text", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)" }}
+                    rows={1}
+                    style={{
+                      flex: 1,
+                      background: "rgba(255, 255, 255, 0.75)",
+                      border: "1px solid rgba(0, 0, 0, 0.12)",
+                      borderRadius: 16,
+                      padding: "10px 16px",
+                      color: COLORS.text,
+                      outline: "none",
+                      fontFamily: "inherit",
+                      cursor: isWaitingForAdmin ? "not-allowed" : "text",
+                      boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)",
+                      resize: "none",
+                      maxHeight: 160,
+                      lineHeight: 1.4,
+                    }}
                   />
                   <button type="submit" disabled={isWaitingForAdmin} className="btn-3d"
                     style={{ borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: isWaitingForAdmin ? "not-allowed" : "pointer", opacity: isWaitingForAdmin ? 0.5 : 1, padding: 0 }}>

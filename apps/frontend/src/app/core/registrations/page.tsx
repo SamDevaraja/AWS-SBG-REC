@@ -99,9 +99,46 @@ export default function RegistrationsPage() {
     ...(dateTo && { endDate: dateTo }),
   });
 
+  // Query global/filtered statistics based on active dropdown/date filters
+  const { data: statsTotalData } = useRegistrations({
+    limit: 1,
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(dateFrom && { startDate: dateFrom }),
+    ...(dateTo && { endDate: dateTo }),
+  });
+
+  const { data: statsConfirmedData } = useRegistrations({
+    limit: 1,
+    status: 'CONFIRMED',
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(dateFrom && { startDate: dateFrom }),
+    ...(dateTo && { endDate: dateTo }),
+  });
+
+  const { data: statsPendingData } = useRegistrations({
+    limit: 1,
+    status: 'PENDING',
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(dateFrom && { startDate: dateFrom }),
+    ...(dateTo && { endDate: dateTo }),
+  });
+
+  const { data: statsCancelledData } = useRegistrations({
+    limit: 1,
+    status: 'CANCELLED',
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(dateFrom && { startDate: dateFrom }),
+    ...(dateTo && { endDate: dateTo }),
+  });
+
   const registrations = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
   const totalCount = data?.total ?? 0;
+
+  const statsTotal = statsTotalData?.total ?? 0;
+  const statsConfirmed = statsConfirmedData?.total ?? 0;
+  const statsPending = statsPendingData?.total ?? 0;
+  const statsCancelled = statsCancelledData?.total ?? 0;
 
   function handleExportCsv() {
     const rows = [['ID', 'Name', 'Email', 'Event', 'Date', 'Status']];
@@ -127,7 +164,7 @@ export default function RegistrationsPage() {
   const hasActiveFilter = !!(search || statusFilter || eventFilter || dateFrom || dateTo);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-10 px-10 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
       {/* Background ambient glow (matches services explorer) */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.05)_0%,transparent_55%)] pointer-events-none z-0" />
       
@@ -187,7 +224,7 @@ export default function RegistrationsPage() {
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Total Registrations</span>
-              <span className="text-xl font-bold text-slate-800">{totalCount}</span>
+              <span className="text-xl font-bold text-slate-800">{statsTotal}</span>
             </div>
           </div>
 
@@ -198,9 +235,7 @@ export default function RegistrationsPage() {
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Confirmed</span>
-              <span className="text-xl font-bold text-slate-800">
-                {registrations.filter(r => r.status === 'CONFIRMED').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
-              </span>
+              <span className="text-xl font-bold text-slate-800">{statsConfirmed}</span>
             </div>
           </div>
 
@@ -211,9 +246,7 @@ export default function RegistrationsPage() {
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Pending</span>
-              <span className="text-xl font-bold text-slate-800">
-                {registrations.filter(r => r.status === 'PENDING').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
-              </span>
+              <span className="text-xl font-bold text-slate-800">{statsPending}</span>
             </div>
           </div>
 
@@ -224,9 +257,7 @@ export default function RegistrationsPage() {
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Cancelled</span>
-              <span className="text-xl font-bold text-slate-800">
-                {registrations.filter(r => r.status === 'CANCELLED').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
-              </span>
+              <span className="text-xl font-bold text-slate-800">{statsCancelled}</span>
             </div>
           </div>
         </div>

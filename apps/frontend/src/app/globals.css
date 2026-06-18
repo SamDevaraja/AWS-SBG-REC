@@ -583,7 +583,30 @@ img {
   font-family: var(--font-sans) !important;
   color: #232F3E !important;
   font-weight: 600 !important; /* font-medium (600) as in EventRegistrationEnthusiasts */
+  text-shadow: none !important;
+  text-decoration: none !important;
+  -webkit-text-stroke: 0px transparent !important;
+  text-stroke: 0px transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
+
+@keyframes dropUpEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-drop-up {
+  animation: dropUpEnter 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 
 .news-theme {
   --news-background: #F8FAFC;

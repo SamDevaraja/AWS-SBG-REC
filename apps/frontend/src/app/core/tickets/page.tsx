@@ -98,9 +98,38 @@ export default function TicketsPage() {
     ...(eventFilter && { eventId: eventFilter }),
   });
 
+  // Query global/filtered statistics based on active event filters
+  const { data: statsTotalData } = useTickets({
+    limit: 1,
+    ...(eventFilter && { eventId: eventFilter }),
+  });
+
+  const { data: statsActiveData } = useTickets({
+    limit: 1,
+    status: 'ACTIVE',
+    ...(eventFilter && { eventId: eventFilter }),
+  });
+
+  const { data: statsUsedData } = useTickets({
+    limit: 1,
+    status: 'USED',
+    ...(eventFilter && { eventId: eventFilter }),
+  });
+
+  const { data: statsCancelledData } = useTickets({
+    limit: 1,
+    status: 'CANCELLED',
+    ...(eventFilter && { eventId: eventFilter }),
+  });
+
   const tickets = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
   const totalCount = data?.total ?? 0;
+
+  const statsTotal = statsTotalData?.total ?? 0;
+  const statsActive = statsActiveData?.total ?? 0;
+  const statsUsed = statsUsedData?.total ?? 0;
+  const statsCancelled = statsCancelledData?.total ?? 0;
 
   const regenerateMutation = useRegenerateTicket();
   const emailMutation = useEmailTicket();
@@ -119,7 +148,7 @@ export default function TicketsPage() {
   const hasFilter = !!(search || statusFilter || eventFilter);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-10 px-10 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
       {/* Background ambient glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.05)_0%,transparent_55%)] pointer-events-none z-0" />
 
@@ -166,13 +195,13 @@ export default function TicketsPage() {
         {/* ── Stats Cards Row ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(0,115,187,0.04)_0%,transparent_60%)]" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(0,115,187,0.04)_0%,transparent_60%)] animate-pulse" />
             <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
               <Ticket size={18} className="group-hover:text-[#0073BB] transition-colors" />
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Total Tickets</span>
-              <span className="text-xl font-bold text-slate-800">{totalCount}</span>
+              <span className="text-xl font-bold text-slate-800">{statsTotal}</span>
             </div>
           </div>
 
@@ -183,9 +212,7 @@ export default function TicketsPage() {
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Active</span>
-              <span className="text-xl font-bold text-slate-800">
-                {tickets.filter(t => t.status === 'ACTIVE').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
-              </span>
+              <span className="text-xl font-bold text-slate-800">{statsActive}</span>
             </div>
           </div>
 
@@ -196,9 +223,7 @@ export default function TicketsPage() {
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Used</span>
-              <span className="text-xl font-bold text-slate-800">
-                {tickets.filter(t => t.status === 'USED').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
-              </span>
+              <span className="text-xl font-bold text-slate-800">{statsUsed}</span>
             </div>
           </div>
 
@@ -209,9 +234,7 @@ export default function TicketsPage() {
             </div>
             <div>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Cancelled</span>
-              <span className="text-xl font-bold text-slate-800">
-                {tickets.filter(t => t.status === 'CANCELLED').length} <span className="text-[10px] text-slate-400 font-normal">on page</span>
-              </span>
+              <span className="text-xl font-bold text-slate-800">{statsCancelled}</span>
             </div>
           </div>
         </div>

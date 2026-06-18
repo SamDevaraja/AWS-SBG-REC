@@ -123,7 +123,8 @@ export default function SidebarLayout({
     if (
       pathname.includes('/roadmap') ||
       pathname.includes('/content') ||
-      pathname.includes('/quiz')
+      pathname.includes('/quiz') ||
+      pathname.includes('/register')
     ) {
       return false;
     }

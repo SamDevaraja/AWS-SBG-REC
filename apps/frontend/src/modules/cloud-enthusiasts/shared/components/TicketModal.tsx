@@ -60,7 +60,7 @@ export default function TicketModal({ isOpen, onClose, ticket }: TicketModalProp
   };
 
   const verificationUrl = typeof window !== 'undefined' ? `${window.location.origin}/verify/${ticket.ticket_id}` : '';
-  const isActive = ticket.ticket_status === 'Ticket Available';
+  const isActive = ticket.ticket_status === 'Ticket Available' || ticket.ticket_status === 'ACTIVE' || ticket.ticket_status === 'Active';
   const formattedDate = formatDate(ticket.event_date);
 
   return (

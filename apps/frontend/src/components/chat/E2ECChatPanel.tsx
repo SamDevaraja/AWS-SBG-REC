@@ -163,7 +163,7 @@ export default function E2ECChatPanel({ user }: E2ECChatPanelProps) {
     setInputText(e.target.value);
     const textarea = e.target;
     textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -517,11 +517,11 @@ export default function E2ECChatPanel({ user }: E2ECChatPanelProps) {
           onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
           placeholder="Type a secure message..."
-          rows={1}
+          rows={2}
           style={{
             flex: 1,
             padding: "11px 18px",
-            borderRadius: 20,
+            borderRadius: 14,
             border: `1.5px solid ${COLORS.mint}`,
             fontSize: 14,
             fontFamily: "inherit",
@@ -530,7 +530,7 @@ export default function E2ECChatPanel({ user }: E2ECChatPanelProps) {
             color: COLORS.sidebar,
             transition: "border-color 0.2s, box-shadow 0.2s",
             resize: "none",
-            maxHeight: 120,
+            maxHeight: 200,
             lineHeight: 1.4,
           }}
         />

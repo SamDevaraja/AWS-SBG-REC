@@ -521,10 +521,10 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: CMSPanelProps) {
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             placeholder="Write the correct answer to save to database..."
-            rows={4}
+            rows={8}
             disabled={saving !== ""}
             className="custom-textarea"
-            style={{ minHeight: "140px", padding: "14px 18px", fontSize: "13.5px" }}
+            style={{ minHeight: "220px", padding: "16px 20px", fontSize: "14.0px", resize: "vertical" }}
           />
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>

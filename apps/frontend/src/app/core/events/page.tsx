@@ -106,7 +106,7 @@ function ActionsDropdown({
         />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 z-20 w-48 bg-white/95 backdrop-blur-[12px] border border-slate-250/20 rounded-xl shadow-xl shadow-black/[0.08] py-1.5 overflow-hidden transition-all duration-200 origin-top-right">
+        <div className="absolute right-0 bottom-full mb-2 z-20 w-48 bg-white/95 backdrop-blur-[12px] border border-slate-250/20 rounded-xl shadow-xl shadow-black/[0.08] py-1.5 overflow-hidden transition-all duration-200 origin-bottom-right animate-drop-up">
           <button
             onClick={() => {
               onAction('edit', event.id);

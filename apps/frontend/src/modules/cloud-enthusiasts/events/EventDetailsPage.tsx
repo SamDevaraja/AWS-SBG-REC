@@ -51,14 +51,17 @@ export default function EventDetailsPage() {
             if (searchParams.get('showTicket') === 'true') {
               setIsTicketModalOpen(true);
             }
-          } else {
+          } else if (data.status === 'Invalid Ticket' || data.error?.includes('not found') || data.error?.includes('registration logs')) {
             // Ticket invalid, remove stale data from localStorage
             handleRemoveStale();
+          } else {
+            // Keep ticket for local display
+            setRegisteredTicket(found);
           }
         })
         .catch(() => {
-          // On error, remove stale data
-          handleRemoveStale();
+          // Do not delete on transient network error, keep registration ticket
+          setRegisteredTicket(found);
         })
         .finally(() => {
           setCheckingRegistration(false);
@@ -181,13 +184,7 @@ export default function EventDetailsPage() {
               <div className="w-full md:w-[280px] lg:w-[320px] shrink-0 md:sticky md:top-6 space-y-6 mx-auto md:mx-0">
                 {/* Poster Container */}
                 {event.banner_url ? (
-                  <div className="relative w-full aspect-square bg-slate-950 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
-                    {/* Blurred Backdrop */}
-                    <img
-                      src={event.banner_url}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-110 pointer-events-none"
-                    />
+                  <div className="relative w-full aspect-square bg-slate-50 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
                     {/* Sharp Centered Poster */}
                     <img
                       src={event.banner_url}

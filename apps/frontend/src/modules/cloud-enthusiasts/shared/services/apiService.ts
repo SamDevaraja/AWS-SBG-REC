@@ -163,7 +163,7 @@ export const apiService = {
   async getMyTickets(): Promise<Ticket[]> {
     try {
       // For attendees, we rely on local storage because we don't have a session-based backend endpoint
-      const rawTickets = localStorage.getItem('aws_sgb_rec_tickets');
+      const rawTickets = localStorage.getItem('cloud_enthusiasts_tickets') || localStorage.getItem('aws_sgb_rec_tickets');
       const localTickets = rawTickets ? JSON.parse(rawTickets) : [];
       return localTickets.map((t: any) => ({
         ticket_id: t.ticketId,
@@ -195,30 +195,51 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to verify ticket');
     const data = await res.json();
     
+    const ticket = data.data ? mapBackendTicketToFrontend(data.data) : undefined;
+    const event = data.data?.event ? mapBackendEventToFrontend(data.data.event) : undefined;
+    
+    // Compute verification status dynamically to match the backend and UI expectations
+    let status = 'Valid Ticket';
+    if (ticket) {
+      if (ticket.ticket_status === 'USED' || ticket.ticket_status === 'Used') {
+        status = 'Already Scanned';
+      } else if (ticket.ticket_status === 'CANCELLED' || ticket.ticket_status === 'Cancelled') {
+        status = 'Cancelled Ticket';
+      } else if (event?.start_datetime) {
+        const eventEndOfDay = new Date(event.start_datetime);
+        eventEndOfDay.setHours(23, 59, 59, 999);
+        if (new Date() > eventEndOfDay) {
+          status = 'Expired Ticket';
+        }
+      }
+    } else {
+      status = 'Invalid Ticket';
+    }
+
     return {
-      success: data.success,
-      status: data.status || '',
-      ticket: data.data?.ticket ? mapBackendTicketToFrontend(data.data.ticket) : undefined,
-      event: data.data?.event ? mapBackendEventToFrontend(data.data.event) : undefined,
+      success: data.success && !!ticket,
+      status: status,
+      ticket,
+      event,
       error: data.error,
     };
   },
 
-  async markAttendance(ticketId: string, scannerId: string): Promise<{
+  async markAttendance(ticketCode: string, scannerId: string): Promise<{
     success: boolean;
     ticket?: Ticket;
     error?: string;
   }> {
-    const res = await fetch(`/api/tickets/${ticketId}`, {
+    const res = await fetch(`/api/attendance/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ scannerId }),
+      body: JSON.stringify({ ticketCode, scannerId }),
     });
     const data = await res.json();
     return {
-      success: data.success,
+      success: data.success && data.data?.valid,
       ticket: data.data?.ticket ? mapBackendTicketToFrontend(data.data.ticket) : undefined,
-      error: data.error,
+      error: data.error || (data.data?.valid ? undefined : data.data?.status),
     };
   },
 };

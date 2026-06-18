@@ -76,11 +76,11 @@ export default function TicketVerificationPage() {
   }, [ticketId, fetchVerificationDetails]);
 
   const handleCheckIn = async () => {
-    if (!ticketId) return;
+    if (!ticketId || !ticket?.ticket_code) return;
     try {
       setCheckingIn(true);
       setCheckInError(null);
-      const res = await apiService.markAttendance(ticketId, scannerId);
+      const res = await apiService.markAttendance(ticket.ticket_code, scannerId);
       if (res.success) {
         // Refresh local status
         setStatus('Already Scanned');
