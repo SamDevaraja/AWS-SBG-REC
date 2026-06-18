@@ -254,7 +254,7 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
           onChange={(e) => setNewAnswer(e.target.value)}
           placeholder="Predefined answer..."
           rows={3}
-          style={{ width: "100%", background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none", fontFamily: "inherit", resize: "none" }}
+          style={{ width: "100%", minHeight: "80px", flexShrink: 0, background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none", fontFamily: "inherit", resize: "vertical" }}
         />
         <button
           type="submit"
@@ -449,7 +449,7 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: CMSPanelProps) {
             placeholder="Write the correct answer to save to database..."
             rows={4}
             disabled={saving !== ""}
-            style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1.5px solid ${A.border}`, background: "#fdfdfd", color: A.text, fontSize: 12, outline: "none", fontFamily: "inherit", resize: "none" }}
+            style={{ width: "100%", minHeight: "120px", flexShrink: 0, padding: "12px 16px", borderRadius: 12, border: `1.5px solid ${A.border}`, background: "#fdfdfd", color: A.text, fontSize: 13, outline: "none", fontFamily: "inherit", resize: "vertical" }}
           />
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
