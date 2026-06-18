@@ -390,7 +390,7 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: CMSPanelProps) {
 
   if (!query) {
     return (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: A.surface, borderRadius: 14, padding: 40, border: `1px solid ${A.border}`, color: A.muted, minHeight: 320 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: A.surface, borderRadius: 14, padding: 40, border: `1px solid ${A.border}`, color: A.muted, minHeight: 320, flexShrink: 0 }}>
         <div style={{ fontSize: 32 }}>📋</div>
         <div style={{ fontSize: 14, fontWeight: 600 }}>No query selected</div>
         <div style={{ fontSize: 11, textAlign: "center", maxWidth: 220, lineHeight: 1.6 }}>
@@ -401,7 +401,7 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: CMSPanelProps) {
   }
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16, background: A.surface, borderRadius: 14, padding: 24, border: `1px solid ${A.border}`, minHeight: 320 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, background: A.surface, borderRadius: 14, padding: 24, border: `1px solid ${A.border}`, minHeight: 320, flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: A.muted, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           CMS Editor · Query #{query.id.slice(-8)}
