@@ -179,10 +179,9 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
             </h1>
 
             {/* Profile Tag */}
-            <div className="inline-flex items-center gap-2 bg-blue-50/70 border border-blue-200/60 px-3.5 py-1.5 rounded-full shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <Shield size={11} className="text-[#0073BB]" />
-              <span className="text-[9.5px] font-bold text-[#0073BB] uppercase tracking-[0.18em]">
+            <div className="inline-flex items-center gap-1.5 bg-slate-100/60 border border-slate-200/60 px-3.5 py-1 rounded-full shadow-sm">
+              <Shield size={12} className="text-slate-500" />
+              <span className="text-[9.5px] font-semibold text-slate-500 uppercase tracking-wider">
                 Region Intelligence Profile
               </span>
             </div>
