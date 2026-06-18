@@ -51,7 +51,7 @@ function PremiumFlipCard({
 
   return (
     <div 
-      className="w-full h-[240px] relative perspective-1000 cursor-pointer select-none"
+      className="w-full h-[208px] relative perspective-1000 cursor-pointer select-none"
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
       onClick={() => setIsFlipped(!isFlipped)}
@@ -62,9 +62,12 @@ function PremiumFlipCard({
         transition={{ type: "spring", stiffness: 120, damping: 16 }}
       >
         {/* FRONT SIDE */}
-        <div className="absolute inset-0 backface-hidden w-full h-full rounded-2xl bg-white border border-slate-100 p-6 flex flex-col gap-4 shadow-sm overflow-hidden">
+        <div className="absolute inset-0 backface-hidden w-full h-full rounded-2xl bg-white border border-slate-100/80 p-5 flex flex-col shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          {/* Top color strip */}
+          <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accentColor }} />
+          
           {/* Icon row */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-3 mt-1">
             <div className="p-2 rounded-xl border border-slate-100 bg-slate-50" style={{ color: accentColor }}>
               {frontIcon}
             </div>
@@ -72,20 +75,23 @@ function PremiumFlipCard({
           </div>
 
           {/* Data rows */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {frontContent}
           </div>
 
           {/* Subtle flip hint */}
-          <div className="flex items-center gap-1 text-[9px] font-medium text-slate-400">
+          <div className="flex items-center gap-1 text-[9px] font-medium text-slate-400 mt-auto">
             <ArrowUpRight size={10} style={{ color: accentColor }} />
             <span>Hover to see details</span>
           </div>
         </div>
 
         {/* BACK SIDE */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 w-full h-full rounded-2xl border border-slate-100 backdrop-blur-xl p-6 flex flex-col gap-3 shadow-sm overflow-y-auto premium-scrollbar" style={{ background: `linear-gradient(135deg, white 0%, ${accentColor}08 100%)` }}>
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+        <div className="absolute inset-0 backface-hidden rotate-y-180 w-full h-full rounded-2xl border border-slate-100 backdrop-blur-xl p-5 flex flex-col gap-3 shadow-sm overflow-y-auto premium-scrollbar" style={{ background: `linear-gradient(135deg, white 0%, ${accentColor}08 100%)` }}>
+          {/* Top color strip */}
+          <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accentColor }} />
+
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 mt-1">
             <div className="p-1.5 rounded-lg" style={{ color: accentColor, backgroundColor: `${accentColor}12` }}>
               {frontIcon}
             </div>
@@ -186,20 +192,20 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
               frontIcon={<Server size={18} />}
               frontTitle="Infrastructure Overview"
               frontContent={
-                <div className="flex flex-col gap-1.5 text-[12px]">
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                <>
+                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">Availability Zones</span>
-                    <span className="text-slate-800 font-bold">{spec.zones}</span>
+                    <span className="text-amber-600 font-bold">{spec.zones}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">Launch Year</span>
-                    <span className="text-slate-800 font-bold">{spec.launchYear}</span>
+                    <span className="text-amber-600 font-bold">{spec.launchYear}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                  <div className="flex justify-between items-center bg-amber-50/40 hover:bg-amber-50/75 border border-amber-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">Primary Location</span>
                     <span className="text-slate-800 font-bold truncate max-w-[120px]">{spec.primaryLocation}</span>
                   </div>
-                </div>
+                </>
               }
               backContent={
                 <div className="flex flex-col gap-3">
@@ -232,20 +238,20 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
               frontIcon={<Cloud size={18} />}
               frontTitle="Regional Service Coverage"
               frontContent={
-                <div className="flex flex-col gap-1.5 text-[12px]">
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                <>
+                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">AWS Services Available</span>
-                    <span className="font-bold" style={{ color: '#0073BB' }}>{spec.totalServices}</span>
+                    <span className="text-[#0073BB] font-bold">{spec.totalServices}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">AI/ML Services</span>
-                    <span className="text-slate-800 font-bold">{spec.aimlServices}</span>
+                    <span className="text-[#0073BB] font-bold">{spec.aimlServices}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                  <div className="flex justify-between items-center bg-blue-50/40 hover:bg-blue-50/75 border border-blue-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">Analytics Services</span>
                     <span className="text-slate-800 font-bold">{spec.analyticsServices}</span>
                   </div>
-                </div>
+                </>
               }
               backContent={
                 <div className="flex flex-col gap-2.5">
@@ -285,31 +291,31 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
 
             {/* CARD 3: Global Connectivity */}
             <PremiumFlipCard
-              accentColor="#0073BB"
+              accentColor="#4F46E5"
               frontIcon={<Network size={18} />}
               frontTitle="Global Connectivity"
               frontContent={
-                <div className="flex flex-col gap-1.5 text-[12px]">
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                <>
+                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">Edge Locations</span>
-                    <span className="text-slate-800 font-bold">{spec.edgeLocations}</span>
+                    <span className="text-indigo-600 font-bold">{spec.edgeLocations}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">Direct Connect</span>
                     <span className="text-emerald-600 font-bold flex items-center gap-1">
                       <CheckCircle2 size={11} /> {spec.directConnect}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2">
+                  <div className="flex justify-between items-center bg-indigo-50/40 hover:bg-indigo-50/75 border border-indigo-100/30 rounded-xl px-3 py-2 transition-colors">
                     <span className="text-slate-500 font-medium">Regional Reach</span>
                     <span className="text-slate-800 font-bold truncate max-w-[120px]">{spec.reach}</span>
                   </div>
-                </div>
+                </>
               }
               backContent={
                 <div className="flex flex-col gap-3">
-                  <div className="p-2 rounded-xl bg-blue-500/5 border border-blue-500/10 flex flex-col gap-0.5">
-                    <span className="text-[9px] text-[#0073BB] font-black uppercase tracking-wider">Latency Benefits</span>
+                  <div className="p-2 rounded-xl bg-indigo-500/5 border border-indigo-500/10 flex flex-col gap-0.5">
+                    <span className="text-[9px] text-indigo-600 font-black uppercase tracking-wider">Latency Benefits</span>
                     <p className="text-[11px] text-slate-700 leading-normal font-semibold">{spec.latency}</p>
                   </div>
                   <div className="flex flex-col gap-1.5">
