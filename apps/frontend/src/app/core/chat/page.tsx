@@ -166,6 +166,11 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
   const [newAnswer, setNewAnswer] = useState("");
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [expandedChips, setExpandedChips] = useState<Record<string, boolean>>({});
+
+  const toggleChip = (id: string) => {
+    setExpandedChips((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const fetchChips = useCallback(async () => {
     try {
@@ -227,16 +232,84 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
       {loading ? (
         <div style={{ fontSize: 12, color: A.muted }}>Loading FAQ chips...</div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16, maxHeight: 240, overflowY: "auto" }}>
-          {chips.map((chip) => (
-            <div key={chip.id} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", background: A.surface2, padding: "8px 12px", borderRadius: 8, border: `1px solid ${A.border}`, gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, color: A.text, fontWeight: 600 }}>{chip.question}</div>
-                <div style={{ fontSize: 10, color: A.muted, marginTop: 4, lineHeight: 1.4 }}>{chip.answer}</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16, maxHeight: 300, overflowY: "auto" }}>
+          {chips.map((chip) => {
+            const isExpanded = !!expandedChips[chip.id];
+            return (
+              <div 
+                key={chip.id} 
+                onClick={() => toggleChip(chip.id)}
+                style={{ 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  background: A.surface2, 
+                  padding: "10px 14px", 
+                  borderRadius: 8, 
+                  border: `1px solid ${A.border}`,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(35, 47, 62, 0.08)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = A.surface2}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ fontSize: 12, color: A.text, fontWeight: 600, flex: 1 }}>
+                    {chip.question}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                    <svg 
+                      width="12" 
+                      height="12" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2.5" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                      style={{ 
+                        transition: "transform 0.2s ease-in-out", 
+                        transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                        color: A.muted
+                      }}
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleDelete(chip.id); }} 
+                      style={{ 
+                        background: "none", 
+                        border: "none", 
+                        color: A.muted, 
+                        cursor: "pointer", 
+                        fontSize: 16, 
+                        padding: 0,
+                        lineHeight: 1
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = A.danger}
+                      onMouseLeave={(e) => e.currentTarget.style.color = A.muted}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+                {isExpanded && (
+                  <div 
+                    style={{ 
+                      fontSize: "10.5px", 
+                      color: A.muted, 
+                      marginTop: 8, 
+                      paddingTop: 8, 
+                      borderTop: `1px dashed ${A.border}`, 
+                      lineHeight: 1.5 
+                    }}
+                  >
+                    {chip.answer}
+                  </div>
+                )}
               </div>
-              <button onClick={() => handleDelete(chip.id)} style={{ background: "none", border: "none", color: A.muted, cursor: "pointer", fontSize: 16, padding: 0 }}>×</button>
-            </div>
-          ))}
+            );
+          })}
           {chips.length === 0 && <div style={{ fontSize: 12, color: A.muted }}>No FAQ chips configured.</div>}
         </div>
       )}
