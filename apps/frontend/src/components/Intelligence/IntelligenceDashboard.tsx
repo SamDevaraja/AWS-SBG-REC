@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Server, Cloud, Trophy, Brain, Cpu, Database, 
-  Network, ArrowUpRight, CheckCircle2, Shield, MapPin, Calendar, HelpCircle
+  Network, ArrowUpRight, CheckCircle2, Shield, MapPin, Calendar, HelpCircle, ChevronLeft
 } from 'lucide-react';
 import { AWSRegionData } from '@/lib/api';
 import FlagImage from '../Layout/FlagImage';
@@ -128,6 +128,15 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
   return (
     <div className="relative w-full h-screen text-slate-800 font-jakarta overflow-hidden bg-slate-50/60 flex flex-col justify-start">
       
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="absolute top-6 left-6 z-30 inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#FF9900] bg-white border border-slate-200 shadow-sm hover:border-[#FF9900]/40 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer group"
+      >
+        <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200 text-slate-400 group-hover:text-[#FF9900]" />
+        <span>Back to Services</span>
+      </button>
+
       {/* 1. LIGHT CLOUD BACKGROUND SYSTEMS */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Soft, modern gradient background */}
@@ -170,9 +179,10 @@ export default function IntelligenceDashboard({ region, onBack }: IntelligenceDa
             </h1>
 
             {/* Profile Tag */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full">
-              <Shield size={9} className="text-[#0073BB]" />
-              <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-[0.2em]">
+            <div className="inline-flex items-center gap-2 bg-blue-50/70 border border-blue-200/60 px-3.5 py-1.5 rounded-full shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <Shield size={11} className="text-[#0073BB]" />
+              <span className="text-[9.5px] font-bold text-[#0073BB] uppercase tracking-[0.18em]">
                 Region Intelligence Profile
               </span>
             </div>
