@@ -254,7 +254,8 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
           onChange={(e) => setNewAnswer(e.target.value)}
           placeholder="Predefined answer..."
           rows={3}
-          style={{ width: "100%", minHeight: "80px", flexShrink: 0, background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none", fontFamily: "inherit", resize: "vertical" }}
+          className="custom-textarea"
+          style={{ minHeight: "90px", padding: "8px 12px", fontSize: "12px", background: A.surface2 }}
         />
         <button
           type="submit"
@@ -449,7 +450,8 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: CMSPanelProps) {
             placeholder="Write the correct answer to save to database..."
             rows={4}
             disabled={saving !== ""}
-            style={{ width: "100%", minHeight: "120px", flexShrink: 0, padding: "12px 16px", borderRadius: 12, border: `1.5px solid ${A.border}`, background: "#fdfdfd", color: A.text, fontSize: 13, outline: "none", fontFamily: "inherit", resize: "vertical" }}
+            className="custom-textarea"
+            style={{ minHeight: "140px", padding: "14px 18px", fontSize: "13.5px" }}
           />
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
@@ -870,6 +872,27 @@ export default function CoreChatPage() {
             height: auto;
             max-height: none;
           }
+        }
+        .custom-textarea {
+          width: 100%;
+          flex-shrink: 0;
+          border-radius: 10px;
+          border: 1.5px solid ${A.border};
+          background: #ffffff;
+          color: ${A.text};
+          font-family: inherit;
+          resize: vertical;
+          transition: all 0.2s ease-in-out;
+          outline: none;
+        }
+        .custom-textarea:focus {
+          border-color: ${A.accent};
+          box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.15);
+        }
+        .custom-textarea:disabled {
+          background: ${A.surface2};
+          color: ${A.muted};
+          cursor: not-allowed;
         }
       `}</style>
 
