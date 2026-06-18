@@ -13,7 +13,7 @@ import {
   Ticket,
   ClipboardList,
   Newspaper,
-  Megaphone,
+  Bell,
   Cpu,
 } from 'lucide-react';
 
@@ -27,7 +27,7 @@ const coreNavItems: NavItem[] = [
 ];
 
 const coreBottomNavItems: NavItem[] = [
-  { icon: <Megaphone className="w-4 h-4" />, label: 'announcements', href: '/core/announcements' },
+  { icon: <Bell className="w-4 h-4" />, label: 'announcements', href: '/core/announcements' },
 ];
 
 export default function CoreSidebarShell({ children }: { children: React.ReactNode }) {
