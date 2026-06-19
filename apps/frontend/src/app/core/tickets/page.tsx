@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useTickets, useEvents, useRegenerateTicket, useEmailTicket } from '@/lib/hooks';
 import TicketDetailsModal from '@/components/TicketDetailsModal';
 import {
@@ -80,10 +81,12 @@ function Avatar({ name }: { name: string }) {
 }
 
 /* ─── Main Page ─────────────────────────────────────────────────── */
-export default function TicketsPage() {
+function TicketsPageContent() {
+  const searchParams = useSearchParams();
+  const initialEventId = searchParams.get('eventId') || '';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [eventFilter, setEventFilter] = useState('');
+  const [eventFilter, setEventFilter] = useState(initialEventId);
   const [page, setPage] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
 
@@ -245,7 +248,7 @@ export default function TicketsPage() {
           
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
             {/* Search Input */}
-            <div className="md:col-span-6 relative">
+            <div className={`${initialEventId ? 'md:col-span-9' : 'md:col-span-6'} relative`}>
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
               <input
                 type="text"
@@ -257,19 +260,21 @@ export default function TicketsPage() {
             </div>
 
             {/* Event Filter */}
-            <div className="md:col-span-3 relative">
-              <select
-                value={eventFilter}
-                onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
-              >
-                <option value="">All Events</option>
-                {events.map((ev) => (
-                  <option key={ev.id} value={ev.id}>{ev.title}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
-            </div>
+            {!initialEventId && (
+              <div className="md:col-span-3 relative">
+                <select
+                  value={eventFilter}
+                  onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+                >
+                  <option value="">All Events</option>
+                  {events.map((ev) => (
+                    <option key={ev.id} value={ev.id}>{ev.title}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              </div>
+            )}
 
             {/* Status Filter */}
             <div className="md:col-span-3 relative">
@@ -457,5 +462,20 @@ export default function TicketsPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function TicketsPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF9900]" />
+          <p className="text-sm text-slate-500">Loading tickets...</p>
+        </div>
+      </div>
+    }>
+      <TicketsPageContent />
+    </Suspense>
   );
 }

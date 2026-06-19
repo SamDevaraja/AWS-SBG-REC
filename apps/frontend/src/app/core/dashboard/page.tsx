@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
-  CalendarPlus, 
   Users, 
   Ticket, 
   BarChart3, 
@@ -14,8 +13,7 @@ import {
   MapPin, 
   Plus, 
   UserCheck,
-  Edit,
-  Award
+  Edit
 } from 'lucide-react';
 import { useEvents } from '@/lib/hooks';
 import type { EventStatus, Event } from '@/lib/types';
@@ -150,15 +148,6 @@ function CoreHeroBanner() {
                   <span>System Analytics</span>
                 </button>
               </Link>
-
-              <Link href="/certifications">
-                <button
-                  className="px-6 py-2.5 rounded-xl bg-white/60 border border-white/80 text-slate-700 font-semibold text-xs flex items-center gap-2 transition-all hover:bg-white/85 shadow-sm"
-                >
-                  <Award className="w-4 h-4 text-brand-orange" />
-                  <span>Manage Certifications</span>
-                </button>
-              </Link>
             </div>
           </div>
         </motion.div>
@@ -287,10 +276,8 @@ export default function DashboardPage() {
   const recentEvents = eventsData?.data ?? [];
 
   const adminActions = [
-    { label: 'New Event', href: '/core/events/create', icon: CalendarPlus, color: 'text-brand-orange bg-brand-orange/10 border border-brand-orange/15' },
     { label: 'Scanner Panel', href: '/core/attendance', icon: UserCheck, color: 'text-indigo-600 bg-indigo-50 border border-indigo-100' },
     { label: 'Generate Report', href: '/core/analytics', icon: BarChart3, color: 'text-teal-600 bg-teal-50 border border-teal-100' },
-    { label: 'Certifications', href: '/certifications', icon: Award, color: 'text-amber-600 bg-amber-50 border border-amber-100' },
   ];
 
   return (

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useRegistrations, useEvents } from '@/lib/hooks';
 import {
   Download, Eye, XCircle, ClipboardList,
   Search, ChevronDown, Calendar, Filter,
-  ChevronLeft, ChevronRight, Users, CheckCircle2,
-  Clock, AlertTriangle, Ticket
+  ChevronLeft, ChevronRight, Users, Ticket
 } from 'lucide-react';
 import { formatDate } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
@@ -15,29 +15,27 @@ import { StatusBadge } from '@/shared/components/StatusBadge';
 /* ─── Loading Skeleton ──────────────────────────────────────────────── */
 function LoadingSkeleton() {
   return (
-    <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/50">
-              {['ID', 'Attendee', 'Email', 'Event', 'Date', 'Status', ''].map((h) => (
-                <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-sm border-collapse">
+        <thead>
+          <tr className="border-b border-slate-100 bg-slate-50/50">
+            {['ID', 'Attendee', 'Email', 'Event', 'Date', 'Status', ''].map((h) => (
+              <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/70">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="animate-pulse">
+              {[16, 28, 36, 32, 24, 20, 12].map((w, j) => (
+                <td key={j} className="px-6 py-4.5">
+                  <div className="h-3.5 rounded bg-slate-100" style={{ width: `${w * 4}px` }} />
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100/70">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <tr key={i} className="animate-pulse">
-                {[16, 28, 36, 32, 24, 20, 12].map((w, j) => (
-                  <td key={j} className="px-6 py-4.5">
-                    <div className="h-3.5 rounded bg-slate-100" style={{ width: `${w * 4}px` }} />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -45,10 +43,10 @@ function LoadingSkeleton() {
 /* ─── Empty State ────────────────────────────────────────────────────── */
 function EmptyState() {
   return (
-    <div className="border border-dashed border-slate-200/80 rounded-2xl p-16 text-center bg-white/60 backdrop-blur-sm relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,153,0,0.025)_0%,transparent_70%)] pointer-events-none" />
+    <div className="py-20 text-center bg-white/60 backdrop-blur-sm relative overflow-hidden flex flex-col items-center justify-center">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,153,0,0.015)_0%,transparent_70%)] pointer-events-none" />
       <div className="relative z-10">
-        <div className="mx-auto w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center mb-4 text-slate-400">
+        <div className="mx-auto w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center mb-4 text-slate-400 shadow-sm">
           <ClipboardList size={22} />
         </div>
         <h3 className="text-[15px] font-bold text-slate-800 mb-1">No registrations found</h3>
@@ -78,10 +76,12 @@ function Avatar({ name }: { name: string }) {
 }
 
 /* ─── Main Page ──────────────────────────────────────────────────────── */
-export default function RegistrationsPage() {
+function RegistrationsPageContent() {
+  const searchParams = useSearchParams();
+  const initialEventId = searchParams.get('eventId') || '';
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [eventFilter, setEventFilter] = useState('');
+  const [eventFilter, setEventFilter] = useState(initialEventId);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
@@ -99,46 +99,9 @@ export default function RegistrationsPage() {
     ...(dateTo && { endDate: dateTo }),
   });
 
-  // Query global/filtered statistics based on active dropdown/date filters
-  const { data: statsTotalData } = useRegistrations({
-    limit: 1,
-    ...(eventFilter && { eventId: eventFilter }),
-    ...(dateFrom && { startDate: dateFrom }),
-    ...(dateTo && { endDate: dateTo }),
-  });
-
-  const { data: statsConfirmedData } = useRegistrations({
-    limit: 1,
-    status: 'CONFIRMED',
-    ...(eventFilter && { eventId: eventFilter }),
-    ...(dateFrom && { startDate: dateFrom }),
-    ...(dateTo && { endDate: dateTo }),
-  });
-
-  const { data: statsPendingData } = useRegistrations({
-    limit: 1,
-    status: 'PENDING',
-    ...(eventFilter && { eventId: eventFilter }),
-    ...(dateFrom && { startDate: dateFrom }),
-    ...(dateTo && { endDate: dateTo }),
-  });
-
-  const { data: statsCancelledData } = useRegistrations({
-    limit: 1,
-    status: 'CANCELLED',
-    ...(eventFilter && { eventId: eventFilter }),
-    ...(dateFrom && { startDate: dateFrom }),
-    ...(dateTo && { endDate: dateTo }),
-  });
-
   const registrations = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
   const totalCount = data?.total ?? 0;
-
-  const statsTotal = statsTotalData?.total ?? 0;
-  const statsConfirmed = statsConfirmedData?.total ?? 0;
-  const statsPending = statsPendingData?.total ?? 0;
-  const statsCancelled = statsCancelledData?.total ?? 0;
 
   function handleExportCsv() {
     const rows = [['ID', 'Name', 'Email', 'Event', 'Date', 'Status']];
@@ -215,271 +178,234 @@ export default function RegistrationsPage() {
           </div>
         </div>
 
-        {/* ── Stats Cards Row ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(0,115,187,0.04)_0%,transparent_60%)]" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
-              <Users size={18} className="group-hover:text-[#0073BB] transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Total Registrations</span>
-              <span className="text-xl font-bold text-slate-800">{statsTotal}</span>
-            </div>
-          </div>
 
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(16,185,129,0.04)_0%,transparent_60%)]" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors">
-              <CheckCircle2 size={18} className="group-hover:text-emerald-500 transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Confirmed</span>
-              <span className="text-xl font-bold text-slate-800">{statsConfirmed}</span>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(245,158,11,0.04)_0%,transparent_60%)]" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
-              <Clock size={18} className="group-hover:text-amber-500 transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Pending</span>
-              <span className="text-xl font-bold text-slate-800">{statsPending}</span>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(239,68,68,0.04)_0%,transparent_60%)]" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-rose-50 group-hover:border-rose-100 transition-colors">
-              <AlertTriangle size={18} className="group-hover:text-rose-500 transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Cancelled</span>
-              <span className="text-xl font-bold text-slate-800">{statsCancelled}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Filters Panel Card ── */}
-        <div className="bg-white border border-slate-100 rounded-2xl px-6 py-5 shadow-sm flex flex-col gap-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.015)_0%,transparent_55%)] pointer-events-none" />
+        {/* ── Unified Registrations Data Table Container ── */}
+        <div className="bg-white border border-slate-200/60 rounded-[24px] shadow-sm overflow-hidden flex flex-col relative">
           
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            {/* Search Input */}
-            <div className="md:col-span-6 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-              <input
-                type="text"
-                placeholder="Search registrations by attendee name or email..."
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
-              />
+          {/* Filters Toolbar */}
+          <div className="px-6 py-5 bg-slate-50/20 border-b border-slate-100 flex flex-col gap-4 relative">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.01)_0%,transparent_55%)] pointer-events-none" />
+            
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+              {/* Search Input */}
+              <div className={`${initialEventId ? 'md:col-span-9' : 'md:col-span-6'} relative`}>
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                <input
+                  type="text"
+                  placeholder="Search registrations by attendee name or email..."
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
+                />
+              </div>
+
+              {/* Event Dropdown */}
+              {!initialEventId && (
+                <div className="md:col-span-3 relative">
+                  <select
+                    value={eventFilter}
+                    onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+                  >
+                    <option value="">All Events</option>
+                    {events.map((ev) => (
+                      <option key={ev.id} value={ev.id}>
+                        {ev.title}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                </div>
+              )}
+
+              {/* Status Dropdown */}
+              <div className="md:col-span-3 relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="CONFIRMED">Confirmed</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              </div>
             </div>
 
-            {/* Event Dropdown */}
-            <div className="md:col-span-3 relative">
-              <select
-                value={eventFilter}
-                onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
-              >
-                <option value="">All Events</option>
-                {events.map((ev) => (
-                  <option key={ev.id} value={ev.id}>
-                    {ev.title}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
-            </div>
+            {/* Date Filters & Clear button */}
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100/80">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                  <Calendar size={13} className="text-slate-400" />
+                  <span>Registration Date Range</span>
+                </div>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
+                />
+                <span className="text-slate-400 text-xs font-medium">to</span>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
+                />
+              </div>
 
-            {/* Status Dropdown */}
-            <div className="md:col-span-3 relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
-              >
-                <option value="">All Statuses</option>
-                <option value="CONFIRMED">Confirmed</option>
-                <option value="PENDING">Pending</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              {hasActiveFilter && (
+                <button
+                  onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setDateFrom(''); setDateTo(''); setPage(1); }}
+                  className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer"
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Date Filters & Clear button */}
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100/80">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                <Calendar size={13} className="text-slate-400" />
-                <span>Registration Date Range</span>
+          {/* Content Section */}
+          <div className="flex-grow">
+            {isLoading ? (
+              <LoadingSkeleton />
+            ) : registrations.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <div className="relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.005)_0%,transparent_50%)] pointer-events-none" />
+                <div className="overflow-x-auto relative z-10">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50">
+                        {['ID', 'Attendee', 'Email', 'Event', 'Date', 'Status', 'Actions'].map((h) => (
+                          <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100/70">
+                      {registrations.map((reg) => (
+                        <tr
+                          key={reg.id}
+                          className="hover:bg-slate-50/40 transition-all duration-200 group"
+                        >
+                          <td className="px-6 py-4.5 whitespace-nowrap">
+                            <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-lg px-2.5 py-1 text-slate-500 font-medium">
+                              {reg.id.length > 8 ? reg.id.slice(0, 8) + '…' : reg.id}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4.5 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <Avatar name={reg.name} />
+                              <span className="text-[13.5px] font-bold text-slate-800">{reg.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-500">
+                            {reg.email}
+                          </td>
+                          <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
+                            {reg.event?.title ?? '—'}
+                          </td>
+                          <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-500">
+                            {formatDate(reg.registrationDate)}
+                          </td>
+                          <td className="px-6 py-4.5 whitespace-nowrap">
+                            <StatusBadge status={reg.status} />
+                          </td>
+                          <td className="px-6 py-4.5 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5">
+                              <Link
+                                href={`/registrations/${reg.id}`}
+                                title="View Details"
+                                className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all"
+                              >
+                                <Eye size={14} />
+                              </Link>
+                              {reg.status !== 'CANCELLED' && (
+                                <Link
+                                  href={`/registrations/${reg.id}?action=cancel`}
+                                  title="Cancel Registration"
+                                  className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all"
+                                >
+                                  <XCircle size={14} />
+                                </Link>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-                className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
-              />
-              <span className="text-slate-400 text-xs font-medium">to</span>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-                className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
-              />
-            </div>
-
-            {hasActiveFilter && (
-              <button
-                onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-                className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer"
-              >
-                Clear all filters
-              </button>
             )}
           </div>
-        </div>
 
-        {/* ── Grid/Table View ── */}
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : registrations.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden relative">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
-            
-            <div className="overflow-x-auto relative z-10">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50">
-                    {['ID', 'Attendee', 'Email', 'Event', 'Date', 'Status', 'Actions'].map((h) => (
-                      <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100/70">
-                  {registrations.map((reg) => (
-                    <tr
-                      key={reg.id}
-                      className="hover:bg-slate-50/40 transition-all duration-200 group"
+          {/* Footer Pagination inside unified container */}
+          {!isLoading && totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-slate-50/30 border-t border-slate-100 relative z-10">
+              <p className="text-[12px] text-slate-400 font-medium">
+                Showing page <span className="font-bold text-slate-700">{page}</span> of <span className="font-bold text-slate-700">{totalPages}</span> ({totalCount} total registrations)
+              </p>
+              
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  disabled={page === 1}
+                  className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer font-bold"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                
+                {pages.map((p, idx) =>
+                  typeof p === 'string' ? (
+                    <span key={`el-${idx}`} className="text-slate-400 text-xs px-2 select-none">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`min-w-[36px] h-9 rounded-xl text-[12.5px] font-bold border transition-all flex items-center justify-center cursor-pointer ${
+                        p === page
+                          ? 'bg-gradient-to-r from-[#FF9900] to-[#F7BA45] border-[#FF9900] text-white shadow-sm shadow-orange-500/20'
+                          : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                      }`}
                     >
-                      {/* ID */}
-                      <td className="px-6 py-4.5 whitespace-nowrap">
-                        <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-lg px-2.5 py-1 text-slate-500 font-medium">
-                          {reg.id.length > 8 ? reg.id.slice(0, 8) + '…' : reg.id}
-                        </span>
-                      </td>
-
-                      {/* Attendee */}
-                      <td className="px-6 py-4.5 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <Avatar name={reg.name} />
-                          <span className="text-[13.5px] font-bold text-slate-800">{reg.name}</span>
-                        </div>
-                      </td>
-
-                      {/* Email */}
-                      <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-500">
-                        {reg.email}
-                      </td>
-
-                      {/* Event */}
-                      <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
-                        {reg.event?.title ?? '—'}
-                      </td>
-
-                      {/* Date */}
-                      <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-500">
-                        {formatDate(reg.registrationDate)}
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-6 py-4.5 whitespace-nowrap">
-                        <StatusBadge status={reg.status} />
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-6 py-4.5 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <Link
-                            href={`/registrations/${reg.id}`}
-                            title="View Details"
-                            className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all"
-                          >
-                            <Eye size={14} />
-                          </Link>
-                          {reg.status !== 'CANCELLED' && (
-                            <Link
-                              href={`/registrations/${reg.id}?action=cancel`}
-                              title="Cancel Registration"
-                              className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all"
-                            >
-                              <XCircle size={14} />
-                            </Link>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      {p}
+                    </button>
+                  )
+                )}
+                
+                <button
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
+                  disabled={page === totalPages}
+                  className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer font-bold"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* ── Pagination ── */}
-        {!isLoading && totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
-            <p className="text-[12px] text-slate-400 font-medium">
-              Showing page <span className="font-bold text-slate-700">{page}</span> of <span className="font-bold text-slate-700">{totalPages}</span> ({totalCount} total registrations)
-            </p>
-            
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              
-              {pages.map((p, idx) =>
-                typeof p === 'string' ? (
-                  <span key={`el-${idx}`} className="text-slate-400 text-xs px-2 select-none">…</span>
-                ) : (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`min-w-[36px] h-9 rounded-xl text-[12.5px] font-bold border transition-all flex items-center justify-center cursor-pointer ${
-                      p === page
-                        ? 'bg-gradient-to-r from-[#FF9900] to-[#F7BA45] border-[#FF9900] text-white shadow-sm shadow-orange-500/20'
-                        : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                )
-              )}
-              
-              <button
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages}
-                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function RegistrationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF9900]" />
+          <p className="text-sm text-slate-500">Loading registrations...</p>
+        </div>
+      </div>
+    }>
+      <RegistrationsPageContent />
+    </Suspense>
   );
 }

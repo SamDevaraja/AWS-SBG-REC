@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
+  Ticket,
 } from 'lucide-react';
 import type { Event, EventStatus, EventMode } from '@/lib/types';
 
@@ -117,6 +118,20 @@ function ActionsDropdown({
             <Edit className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
             <span>Edit Event</span>
           </button>
+          <Link
+            href={`/core/registrations?eventId=${event.id}`}
+            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
+          >
+            <Users className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
+            <span>View Registrations</span>
+          </Link>
+          <Link
+            href={`/core/tickets?eventId=${event.id}`}
+            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
+          >
+            <Ticket className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
+            <span>View Tickets</span>
+          </Link>
           {canPublish && (
             <button
               onClick={() => {
@@ -586,6 +601,23 @@ export default function EventsPage() {
                           <span className="text-slate-400">/ {event.capacity}</span>
                         )}
                       </div>
+                    </div>
+
+                    {/* Registrations & Tickets Buttons */}
+                    <div className="flex items-center gap-2 pt-3 border-t border-slate-100/80">
+                      <Link
+                        href={`/core/registrations?eventId=${event.id}`}
+                        className="flex-1 inline-flex items-center justify-center bg-white border border-slate-200 hover:border-[#FF9900]/40 hover:bg-slate-50 text-slate-700 font-semibold text-xs py-2.5 px-3 rounded-xl shadow-sm transition-all text-center"
+                      >
+                        Registrations
+                      </Link>
+                      <Link
+                        href={`/core/tickets?eventId=${event.id}`}
+                        className="p-2.5 bg-white border border-slate-200 hover:border-[#FF9900]/40 hover:bg-slate-50 text-slate-500 hover:text-[#FF9900] rounded-xl transition-all shadow-sm flex items-center justify-center"
+                        title="View Tickets"
+                      >
+                        <Ticket className="h-4 w-4" />
+                      </Link>
                     </div>
                   </div>
                 </div>
