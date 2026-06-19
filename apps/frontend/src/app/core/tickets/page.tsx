@@ -9,7 +9,7 @@ import {
   Eye, RefreshCw, Mail, Ticket,
   Search, ChevronDown, Filter,
   ChevronLeft, ChevronRight, CheckCircle2,
-  Clock, AlertTriangle, ClipboardList, XCircle
+  Clock, AlertTriangle, ClipboardList, XCircle, X
 } from 'lucide-react';
 import type { Ticket as TicketType } from '@/lib/types';
 import { formatDate } from '@/shared/utils/formatDate';
@@ -305,7 +305,7 @@ function TicketsPageContent() {
                 onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setPage(1); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-[#FF9900] hover:bg-orange-50/60 rounded-lg transition-all duration-200 cursor-pointer shrink-0 group"
               >
-                <XCircle size={14} className="text-slate-400 group-hover:text-[#FF9900] transition-colors" />
+                <X size={14} className="text-slate-400 group-hover:text-[#FF9900] transition-colors" />
                 Clear filters
               </button>
             )}
