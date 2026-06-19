@@ -164,13 +164,13 @@ function TicketsPageContent() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
           <div>
             {/* Breadcrumb Path */}
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 mb-2.5">
-              <Link href="/core/dashboard" className="hover:text-slate-600 transition-colors">Admin</Link>
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2.5">
+              <Link href="/core/dashboard" className="hover:text-slate-800 transition-colors">Admin</Link>
               <span className="text-slate-300">/</span>
               {eventTitle ? (
-                <Link href="/core/tickets" className="hover:text-slate-600 transition-colors">Tickets</Link>
+                <Link href="/core/tickets" className="hover:text-slate-800 transition-colors">Tickets</Link>
               ) : (
-                <span className="text-slate-600 font-semibold">Tickets</span>
+                <span className="text-slate-700 font-semibold">Tickets</span>
               )}
             </div>
             
@@ -182,7 +182,7 @@ function TicketsPageContent() {
                 {totalCount}
               </span>
             </div>
-            <p className="text-[13px] text-slate-400 font-normal mt-2.5">
+            <p className="text-[13px] text-slate-500 font-normal mt-2.5">
               {eventTitle 
                 ? 'Manage, verify, and monitor secure entry passes for this event.' 
                 : 'Manage, verify, and monitor secure entry passes for registered cloud events.'}
