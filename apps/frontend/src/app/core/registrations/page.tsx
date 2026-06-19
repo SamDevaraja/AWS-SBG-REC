@@ -44,9 +44,9 @@ function LoadingSkeleton() {
 function EmptyState() {
   return (
     <div className="py-20 text-center bg-white/60 backdrop-blur-sm relative overflow-hidden flex flex-col items-center justify-center">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,153,0,0.015)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,153,0,0.03)_0%,transparent_70%)] pointer-events-none" />
       <div className="relative z-10">
-        <div className="mx-auto w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center mb-4 text-slate-400 shadow-sm">
+        <div className="mx-auto w-12 h-12 rounded-xl bg-orange-50/60 border border-orange-100/80 flex items-center justify-center mb-4 text-[#FF9900] shadow-sm">
           <ClipboardList size={22} />
         </div>
         <h3 className="text-[15px] font-bold text-slate-800 mb-1">No registrations found</h3>
@@ -154,7 +154,7 @@ function RegistrationsPageContent() {
               <h1 className="text-[28px] font-extrabold text-slate-900 tracking-tight leading-none">
                 {eventTitle || 'Registrations'}
               </h1>
-              <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full text-xs font-semibold">
+              <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-full text-xs font-semibold">
                 {totalCount}
               </span>
             </div>
@@ -241,7 +241,7 @@ function RegistrationsPageContent() {
 
                 {/* Date range filter */}
                 <div className="flex items-center gap-1.5 border border-slate-200 bg-slate-50 rounded-xl px-3 py-1.5 transition-all focus-within:bg-white focus-within:border-[#FF9900] shrink-0">
-                  <Calendar size={13} className="text-slate-400 shrink-0" />
+                  <Calendar size={13} className="text-[#FF9900] shrink-0" />
                   <input
                     type="date"
                     value={dateFrom}
