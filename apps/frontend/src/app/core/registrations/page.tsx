@@ -262,9 +262,9 @@ function RegistrationsPageContent() {
               {hasActiveFilter && (
                 <button
                   onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-[#FF9900] hover:bg-orange-50/60 rounded-lg transition-all duration-200 cursor-pointer shrink-0 group"
                 >
-                  <XCircle size={14} className="text-slate-400" />
+                  <XCircle size={14} className="text-slate-400 group-hover:text-[#FF9900] transition-colors" />
                   Clear filters
                 </button>
               )}
