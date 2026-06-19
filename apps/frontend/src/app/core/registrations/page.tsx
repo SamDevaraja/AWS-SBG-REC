@@ -141,12 +141,12 @@ function RegistrationsPageContent() {
           <div>
             {/* Breadcrumb Path */}
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2.5">
-              <Link href="/core/dashboard" className="hover:text-slate-800 transition-colors">Admin</Link>
+              <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors">Admin</Link>
               <span className="text-slate-300">/</span>
               {eventTitle ? (
-                <Link href="/core/registrations" className="hover:text-slate-800 transition-colors">Registrations</Link>
+                <Link href="/core/registrations" className="text-[#FF9900] hover:text-orange-600 font-semibold transition-colors">Registrations</Link>
               ) : (
-                <span className="text-slate-700 font-semibold">Registrations</span>
+                <span className="text-[#FF9900] font-semibold">Registrations</span>
               )}
             </div>
             
