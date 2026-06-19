@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 // Helper to derive avatar from name
 function generateAvatar(name: string) {
-  const colors = ["#FF9900", "#8F7CF2", "#10b981", "#ef4444", "#3b82f6", "#f59e0b"];
+  const colors = ["#232F3E", "#334155", "#475569", "#1A222D", "#64748B", "#161D26"];
   const idx = name.charCodeAt(0) % colors.length;
   return { initials: name.slice(0, 2).toUpperCase(), color: colors[idx] };
 }
@@ -51,7 +51,7 @@ export async function GET() {
           avatar: {
             photo: row.avatar,
             initials: initials,
-            color: mappedRole === 'core' ? '#FF9900' : '#8F7CF2'
+            color: mappedRole === 'core' ? '#232F3E' : '#475569'
           },
           banned: !row.isActive,
         };

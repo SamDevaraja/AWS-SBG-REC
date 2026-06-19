@@ -205,7 +205,7 @@ export default function Sidebar({
         {/* Nav items */}
         <nav className={cn("flex-1 py-3 overflow-y-auto no-scrollbar", isOpen ? "space-y-0.5" : "px-3 space-y-1.5")}>
           {navItems.map((item) => {
-            const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/');
+            const isActive = !isHome && (currentPath === item.href || currentPath.startsWith(item.href + '/'));
             return (
               <div
                 key={item.label}
@@ -260,7 +260,7 @@ export default function Sidebar({
         <div className="border-t border-white/5 shrink-0 py-3 px-3 space-y-1">
           {/* Bottom nav items (e.g. Incidents) — sit just above sign-out */}
           {bottomNavItems && bottomNavItems.map((item) => {
-            const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/');
+            const isActive = !isHome && (currentPath === item.href || currentPath.startsWith(item.href + '/'));
             return (
               <div
                 key={item.label}

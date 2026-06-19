@@ -77,11 +77,29 @@ export default function LearnPage() {
       router.replace('/login');
       return;
     }
-    setUserRole(session.role);
+    const roleStr = session.role;
+    setUserRole(roleStr);
+
+    if (roleStr !== 'core' && session.user && (session.user as any).id) {
+      const uId = (session.user as any).id;
+      fetch(`/api/auth/permissions/check?userId=${uId}&permission=manage_announcements`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.hasPermission) {
+            setUserRole('core');
+          }
+        })
+        .catch(err => console.error("Learn page permission check failed:", err));
+    }
 
     let active = true;
     const fetchTopics = async () => {
       try {
+        console.log("fetchTopics debug info:", {
+          NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+          accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
+          aws_sgb_rec_user: typeof window !== 'undefined' ? localStorage.getItem('aws_sgb_rec_user') : null,
+        });
         setLoading(true);
         const [data, continueData, progressData] = await Promise.all([
           learningService.getTopicList(),
@@ -122,7 +140,12 @@ export default function LearnPage() {
         setUserXP(progressData.currentXP);
       } catch (err) {
         if (!active) return;
-        console.error('Failed to load topics:', err);
+        console.error('Failed to load topics: error details =', {
+          message: (err as any)?.message,
+          status: (err as any)?.status,
+          errors: (err as any)?.errors,
+          raw: err
+        });
         setError('Failed to load learning topics. Please try again.');
       } finally {
         if (active) setLoading(false);

@@ -118,13 +118,14 @@ export default function SidebarLayout({
     if (!pathname) return false;
     if (pathname === homeHref) return false;
 
-    // Hide global back button on roadmap builder and module content/quiz editors
-    // since they render their own page-specific back buttons
+    // Hide global back button on roadmap builder, module content/quiz editors,
+    // and event details/management pages since they render page-specific back buttons
     if (
       pathname.includes('/roadmap') ||
       pathname.includes('/content') ||
       pathname.includes('/quiz') ||
-      pathname.includes('/register')
+      pathname.includes('/register') ||
+      pathname.includes('/events/')
     ) {
       return false;
     }

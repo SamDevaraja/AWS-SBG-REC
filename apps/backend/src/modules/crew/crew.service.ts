@@ -315,6 +315,13 @@ export class CrewService {
 
   async getAnnouncements() {
     return this.prisma.announcement.findMany({
+      where: {
+        NOT: {
+          id: {
+            startsWith: 'ann-seed',
+          },
+        },
+      },
       include: {
         event: { select: { title: true } },
       },

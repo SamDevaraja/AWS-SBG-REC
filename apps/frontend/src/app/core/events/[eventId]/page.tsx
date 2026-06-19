@@ -405,7 +405,7 @@ export default function EventDetailsPage() {
         {event.agenda && event.agenda.length > 0 && (
           <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
             <h2 className="text-sm font-semibold text-slate-800 mb-4">Agenda</h2>
-            <div className="space-y-3">
+            <div className={`space-y-3 ${event.agenda.length > 5 ? 'max-h-[420px] overflow-y-auto pr-1' : ''}`}>
               {event.agenda.map((item) => (
                 <div key={item.id} className="bg-white border border-slate-200 rounded-[10px] p-4">
                   <div className="flex items-start justify-between gap-4">
@@ -657,7 +657,7 @@ export default function EventDetailsPage() {
           {announcements.length === 0 ? (
             <p className="text-xs text-slate-500 text-center py-4">No announcements yet.</p>
           ) : (
-            <div className="space-y-2">
+            <div className={`space-y-2 ${announcements.length > 3 ? 'max-h-[380px] overflow-y-auto pr-1' : ''}`}>
               {announcements.map((ann) => (
                 <div key={ann.id} className="border border-slate-200 rounded-[10px] p-4">
                   <div className="flex items-start justify-between gap-3">

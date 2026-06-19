@@ -32,7 +32,19 @@ export default function Home() {
       const raw = localStorage.getItem("aws_sgb_rec_user");
       if (raw) {
         const parsed = JSON.parse(raw);
-        setUserRole((parsed?.role ?? "").toLowerCase().trim());
+        const roleStr = (parsed?.role ?? "").toLowerCase().trim();
+        setUserRole(roleStr);
+
+        if (roleStr !== "core" && parsed?.id) {
+          fetch(`/api/auth/permissions/check?userId=${parsed.id}&permission=edit_event`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.hasPermission) {
+                setUserRole("core");
+              }
+            })
+            .catch(err => console.error("Services page permission check failed:", err));
+        }
       }
     } catch { /* ignore */ }
   }, []);

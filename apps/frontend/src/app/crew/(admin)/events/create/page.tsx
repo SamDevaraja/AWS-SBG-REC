@@ -1085,15 +1085,60 @@ export default function CreateEventPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [userId, setUserId] = useState<string>('');
 
+  // Temporary Permissions verification
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [expiryTime, setExpiryTime] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<string>('');
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem('aws_sgb_rec_user');
       if (raw) {
         const parsed = JSON.parse(raw);
         setUserId(parsed.id || '');
+      } else {
+        setHasPermission(false);
       }
-    } catch { /* ignore */ }
+    } catch { 
+      setHasPermission(false);
+    }
   }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    async function checkPermission() {
+      try {
+        const res = await fetch(`/api/auth/permissions/check?userId=${userId}&permission=create_event`);
+        const data = await res.json();
+        setHasPermission(!!data.hasPermission);
+        if (data.hasPermission && data.expiresAt) {
+          setExpiryTime(data.expiresAt);
+        }
+      } catch (err) {
+        console.error("Failed to check event creation permission:", err);
+        setHasPermission(false);
+      }
+    }
+    checkPermission();
+  }, [userId]);
+
+  useEffect(() => {
+    if (!expiryTime) return;
+    const interval = setInterval(() => {
+      const diff = new Date(expiryTime).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft('Expired');
+        setHasPermission(false);
+        clearInterval(interval);
+      } else {
+        const totalSecs = Math.floor(diff / 1000);
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+        setTimeLeft(`${mins}m ${secs}s remaining`);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expiryTime]);
 
   const [formData, setFormData] = useState<CreateEventDto>({
     organizerId: '',
@@ -1180,9 +1225,51 @@ export default function CreateEventPage() {
 
   const isLastStep = currentStep === STEPS.length - 1;
 
+  if (hasPermission === null) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-[#232F3E] border-t-transparent animate-spin" />
+        <span className="text-xs text-slate-500 font-semibold">Verifying delegation credentials...</span>
+      </div>
+    );
+  }
+
+  if (hasPermission === false) {
+    return (
+      <div className="max-w-md mx-auto my-12 p-8 bg-white border border-slate-200 rounded-3xl text-center shadow-sm">
+        <div className="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100">
+          <Trash2 size={24} />
+        </div>
+        <h3 className="text-slate-900 font-bold text-lg mb-2">Access Revoked or Expired</h3>
+        <p className="text-slate-500 text-xs font-semibold leading-relaxed mb-6 uppercase tracking-wider">
+          You do not have active temporary permissions to create events. Ask a Core Administrator to grant you the "Create Event" permission.
+        </p>
+        <button
+          onClick={() => router.push('/crew/events')}
+          className="px-6 py-2.5 bg-[#232F3E] hover:bg-[#1a232f] text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+        >
+          Return to Events
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-transparent p-6 lg:p-8">
       <div className="w-full space-y-6">
+        {/* Expiry Warning Banner */}
+        {timeLeft && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 flex items-center justify-between text-xs font-bold shadow-xs">
+            <span className="flex items-center gap-2">
+              <ChevronRight className="w-4 h-4 text-amber-500 shrink-0" />
+              <span>Temporary Event Creation Authority is active. Please complete before expiry.</span>
+            </span>
+            <span className="bg-amber-100 border border-amber-200 px-3 py-1 rounded-lg text-amber-700 animate-pulse">
+              {timeLeft}
+            </span>
+          </div>
+        )}
+
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Create Event</h1>

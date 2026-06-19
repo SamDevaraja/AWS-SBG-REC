@@ -3,3 +3,5 @@ uploads/
 *.log
 .env
 .vscode/
+chroma/
+*.sqlite3

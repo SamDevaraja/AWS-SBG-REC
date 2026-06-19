@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { Send, Paperclip, FileText, Download, X, CheckCheck, Shield, Wrench, User } from "lucide-react";
 
 const COLORS = {
   bg: "#F8FAFC",
@@ -18,6 +20,26 @@ const COLORS = {
   coreColor: "#FF9900",
   crewColor: "#8b5cf6",
 };
+
+const AVATAR_PALETTE = [
+  "#232F3E", // Deep Navy
+  "#334155", // Slate Blue
+  "#475569", // Slate
+  "#1A222D", // Dark Slate
+  "#64748B", // Cool Grey
+  "#161D26", // Dark Navy
+  "#4A5568", // Charcoal Grey
+  "#718096", // Steel Grey
+];
+
+export function getAvatarColor(name: string) {
+  if (!name) return AVATAR_PALETTE[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
+}
 
 interface Attachment {
   type: string;
@@ -44,10 +66,10 @@ interface AvatarProps {
   color?: string;
   photo?: string | null;
   size?: number;
+  role?: string;
 }
 
-function Avatar({ initials, color, photo, size = 36 }: AvatarProps) {
-  // If photo is an object, attempt to extract its photo string
+function Avatar({ initials, color, photo, size = 36, role }: AvatarProps) {
   const src = typeof photo === 'object' && photo !== null ? (photo as any).photo : photo;
 
   const isValidPhoto = src && 
@@ -62,56 +84,28 @@ function Avatar({ initials, color, photo, size = 36 }: AvatarProps) {
       <img
         src={src}
         alt={initials}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          objectFit: "cover",
-          flexShrink: 0,
-          userSelect: "none",
-        }}
+        className="rounded-full object-cover shrink-0 select-none shadow-sm border border-white/80"
+        style={{ width: size, height: size }}
       />
     );
   }
+
+  // Use a user/human icon for standard placeholder
+  const IconComponent = User;
+
+  const iconSize = Math.floor(size * 0.52);
+
   return (
     <div
+      className="rounded-full flex items-center justify-center text-white shrink-0 select-none shadow-sm border border-white/80"
       style={{
         width: size,
         height: size,
-        borderRadius: "50%",
-        background: color || COLORS.gold,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: 700,
-        fontSize: Math.floor(size * 0.38),
-        color: "#fff",
-        flexShrink: 0,
-        userSelect: "none",
+        background: color || "#232F3E",
       }}
     >
-      {initials}
+      <IconComponent style={{ width: iconSize, height: iconSize }} strokeWidth={2.2} />
     </div>
-  );
-}
-
-function RoleBadge({ role }: { role: string }) {
-  const isCore = role === "core" || role === "admin" || role === "super_admin";
-  return (
-    <span
-      style={{
-        fontSize: 9,
-        fontWeight: 700,
-        letterSpacing: "0.05em",
-        padding: "2px 6px",
-        borderRadius: 20,
-        background: isCore ? `${COLORS.coreColor}20` : `${COLORS.crewColor}20`,
-        color: isCore ? COLORS.coreColor : COLORS.crewColor,
-        textTransform: "uppercase",
-      }}
-    >
-      {isCore ? "⭐ Core" : "👥 Crew"}
-    </span>
   );
 }
 
@@ -171,6 +165,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const fetchMessages = async () => {
     try {
@@ -214,8 +209,13 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
+  }, [messages]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -300,7 +300,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
       id: `opt_${Date.now()}`,
       senderName: user.fullName,
       senderRole: user.role,
-      avatarColor: COLORS.gold,
+      avatarColor: getAvatarColor(user.fullName),
       avatarInitials: initials,
       avatarPhoto: user.avatar || null,
       text,
@@ -317,7 +317,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         body: JSON.stringify({
           senderName: user.fullName,
           senderRole: user.role,
-          avatarColor: COLORS.gold,
+          avatarColor: getAvatarColor(user.fullName),
           avatarInitials: initials,
           avatarPhoto: user.avatar || null,
           text,
@@ -339,6 +339,20 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         hour: "2-digit",
         minute: "2-digit",
       });
+    } catch {
+      return "";
+    }
+  };
+
+  const formatDateTime = (iso: string) => {
+    try {
+      const d = new Date(iso);
+      const timeStr = d.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      return timeStr;
     } catch {
       return "";
     }
@@ -379,202 +393,117 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
-        height: "100%",
-        background: "transparent",
-        position: "relative",
-      }}
-    >
+    <div className="flex flex-col flex-1 h-full bg-transparent relative text-[#1A1C1E]">
       <style>{`
-        .gc-bubble-wrap {
-          display: flex;
-          align-items: flex-end;
-          gap: 8px;
-          margin-bottom: 4px;
-          animation: gcfadeIn 0.2s ease-out;
-        }
-        .gc-bubble-wrap.sent { flex-direction: row-reverse; }
-        .gc-bubble {
-          max-width: 100%;
-          padding: 9px 13px;
-          border-radius: 18px;
-          font-size: 13.5px;
-          line-height: 1.55;
-          word-break: break-word;
-          white-space: pre-wrap;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .gc-bubble.sent {
-          background: #e8f0fe;
-          border-bottom-right-radius: 4px;
-          color: #1e40af;
-          border: 1px solid rgba(37, 99, 235, 0.12);
-        }
-        .gc-bubble.recv {
-          background: #ffffff;
-          border-bottom-left-radius: 4px;
-          color: ${COLORS.sidebar};
-          border: 1px solid rgba(35, 47, 62, 0.09);
-        }
-        .gc-date-divider {
-          display: flex; align-items: center; gap: 12px;
-          margin: 16px 0 10px;
-        }
-        .gc-date-divider::before, .gc-date-divider::after {
-          content: ""; flex: 1; height: 1px; background: rgba(0,0,0,0.07);
-        }
-        .gc-send-btn {
-          box-shadow: 0 3px 0 #CC7A00;
-          transition: background 0.2s, transform 0.1s, box-shadow 0.1s !important;
-          border-radius: 9999px !important;
-        }
-        .gc-send-btn:hover { background: #e08500 !important; transform: translateY(-1px); box-shadow: 0 4px 0 #CC7A00; }
-        .gc-send-btn:active { transform: translateY(2px) !important; box-shadow: 0 1px 0 #CC7A00; }
-        .gc-send-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-        .gc-input:focus { border-color: ${COLORS.gold}; box-shadow: 0 0 0 3px ${COLORS.gold}22; }
-        @keyframes gcfadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
+        .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
       `}</style>
 
       {/* Chat body */}
       <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "16px 24px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-end",
-        }}
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 premium-scrollbar bg-transparent"
       >
-        {loading ? (
-          <div style={{ textAlign: "center", color: COLORS.muted, fontSize: 13, paddingTop: 40 }}>
-            Loading messages...
-          </div>
-        ) : messages.length === 0 ? (
-          <div
-            style={{
-              alignSelf: "center",
-              background: "rgba(255,255,255,0.75)",
-              border: "1px solid rgba(255,255,255,0.5)",
-              borderRadius: 16,
-              padding: "20px 28px",
-              textAlign: "center",
-              marginTop: 40,
-              maxWidth: 280,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
-            }}
-          >
-            <div style={{ fontSize: 32, marginBottom: 10 }}>👋</div>
-            <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.sidebar, marginBottom: 6 }}>
-              No messages yet
+        <div className="flex flex-col justify-end min-h-full gap-4">
+          {loading ? (
+            <div className="text-center text-slate-500 text-xs font-bold uppercase tracking-wider py-10 animate-pulse">
+              Loading messages...
             </div>
-            <div style={{ fontSize: 12, color: COLORS.muted, lineHeight: 1.5 }}>
-              Start the conversation! Core and Crew members can chat here together.
+          ) : messages.length === 0 ? (
+            <div className="self-center bg-white/80 border border-slate-200/50 rounded-2xl p-6 text-center mt-10 max-w-sm shadow-xs backdrop-blur-xs select-none">
+              <div className="text-3xl mb-2.5">👋</div>
+              <div className="font-extrabold text-[13.5px] text-[#232F3E] mb-1.5 uppercase tracking-wide">
+                No messages yet
+              </div>
+              <div className="text-xs text-slate-500 leading-relaxed font-sans">
+                Start the conversation! Core and Crew members can chat here together.
+              </div>
             </div>
-          </div>
-        ) : (
-          grouped.map((item) => {
-            if (item.type === "divider") {
-              return (
-                <div key={item.key} className="gc-date-divider">
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: COLORS.muted,
-                      background: "rgba(255, 255, 255, 0.75)",
-                      padding: "2px 10px",
-                      borderRadius: 20,
-                      border: "1px solid rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                </div>
-              );
-            }
+          ) : (
+            grouped.map((item) => {
+              if (item.type === "divider") {
+                return (
+                   <div key={item.key} className="flex items-center gap-4 my-5 justify-center relative select-none">
+                     <div className="h-[1px] flex-1 bg-slate-200/60" />
+                     <span className="text-[11px] font-semibold text-slate-500 font-sans tracking-wide">
+                       {item.label}
+                     </span>
+                     <div className="h-[1px] flex-1 bg-slate-200/60" />
+                   </div>
+                );
+              }
 
-            const { msg } = item;
-            const isMe = user && msg.senderName === user.fullName && msg.senderRole === user.role;
-            return (
-              <div key={msg.id} className={`gc-bubble-wrap ${isMe ? "sent" : ""}`}>
-                {/* Avatar — only for received messages, aligned to bottom */}
-                {!isMe && (
+              const { msg } = item;
+              const isMe = user && msg.senderName === user.fullName && msg.senderRole === user.role;
+              return (
+                <div 
+                  key={msg.id} 
+                  className="flex gap-4 px-4 py-2 hover:bg-slate-900/[0.03] transition-colors items-start w-full animate-fadeIn group rounded-lg"
+                >
                   <Avatar
                     initials={msg.avatarInitials}
-                    color={msg.avatarColor}
+                    color={getAvatarColor(msg.senderName)}
                     photo={userPhotos[`${msg.senderName.toLowerCase()}_${msg.senderRole.toLowerCase()}`] || msg.avatarPhoto}
-                    size={30}
+                    size={38}
+                    role={msg.senderRole}
                   />
-                )}
 
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: isMe ? "flex-end" : "flex-start",
-                    maxWidth: "60%",
-                  }}
-                >
-                  {/* Sender name + role badge — only for received */}
-                  {!isMe && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3, paddingLeft: 2 }}>
-                      <span style={{ fontSize: 11.5, fontWeight: 700, color: msg.avatarColor }}>
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <div className="flex items-baseline gap-2 mb-0.5 select-none">
+                      <span className="text-[14px] font-semibold text-slate-900 font-sans tracking-tight">
                         {msg.senderName}
                       </span>
-                      <RoleBadge role={msg.senderRole} />
+                      <span className="text-[11px] text-slate-400 font-medium font-sans flex items-center gap-1">
+                        {formatDateTime(msg.timestamp)}
+                        {isMe && (
+                          <CheckCheck className="w-3.5 h-3.5 text-[#34b7f1] shrink-0" />
+                        )}
+                      </span>
                     </div>
-                  )}
 
-                  {/* Message bubble */}
-                  <div className={`gc-bubble ${isMe ? "sent" : "recv"}`}>
+                    {/* Message text */}
                     {msg.text && (
-                      <span>{msg.text}</span>
+                      <div className="text-[14px] text-slate-850 leading-relaxed font-sans whitespace-pre-wrap break-words">
+                        {msg.text}
+                      </div>
                     )}
 
+                    {/* Attachments */}
                     {msg.attachments && msg.attachments.length > 0 && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: msg.text ? 8 : 0 }}>
+                      <div className="flex flex-col gap-2 mt-2">
                         {msg.attachments.map((att, attIdx) => (
                           <div
                             key={attIdx}
-                            style={{
-                              borderRadius: 8,
-                              overflow: "hidden",
-                              maxWidth: 240,
-                              border: att.type !== "file" ? "1px solid rgba(0,0,0,0.08)" : "none",
-                              background: att.type !== "file" ? "#eee" : "transparent",
-                            }}
+                            className="rounded-lg overflow-hidden max-w-xs border border-slate-200 bg-white shadow-sm"
                           >
                             {att.type === "image" ? (
                               <img
                                 src={att.url}
                                 alt="attachment"
-                                style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "contain", cursor: "zoom-in" }}
+                                className="w-full max-h-48 object-contain cursor-zoom-in bg-slate-900/5 hover:opacity-95 transition-opacity"
                                 onClick={() => {
                                   const w = window.open();
                                   w?.document.write(`<img src="${att.url}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
                                 }}
                               />
                             ) : att.type === "video" ? (
-                              <video src={att.url} controls style={{ width: "100%", display: "block", maxHeight: 200 }} />
+                              <video src={att.url} controls className="w-full max-h-48" />
                             ) : (
                               <a
                                 href={att.url}
                                 download={att.name || "file"}
-                                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: isMe ? "rgba(0,0,0,0.05)" : "#f0f2f5", borderRadius: 10, textDecoration: "none", color: COLORS.sidebar, border: "1px solid rgba(0,0,0,0.06)", transition: "background 0.2s" }}
-                                onMouseEnter={(e) => (e.currentTarget.style.background = isMe ? "rgba(0,0,0,0.08)" : "#e4e6eb")}
-                                onMouseLeave={(e) => (e.currentTarget.style.background = isMe ? "rgba(0,0,0,0.05)" : "#f0f2f5")}
+                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold border border-slate-200 text-slate-750 bg-slate-55 hover:bg-slate-100 transition-all duration-150 select-none"
                               >
-                                <span style={{ fontSize: 22 }}>📄</span>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{att.name || "Document"}</div>
-                                  <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>{att.size ? `${(att.size / 1024).toFixed(1)} KB` : "File"}</div>
+                                <FileText className="w-4.5 h-4.5 text-slate-400 shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-bold truncate">{att.name || "Document"}</div>
+                                  <div className="text-[10px] text-slate-400 mt-0.5">
+                                    {att.size ? `${(att.size / 1024).toFixed(1)} KB` : "File"}
+                                  </div>
                                 </div>
-                                <span style={{ fontSize: 13, color: COLORS.muted }}>⬇️</span>
+                                <Download className="w-3.5 h-3.5 text-slate-450 hover:text-slate-650 transition-colors shrink-0" />
                               </a>
                             )}
                           </div>
@@ -582,77 +511,34 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
                       </div>
                     )}
                   </div>
-
-                  {/* Timestamp + read tick — below the bubble */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 3, paddingLeft: isMe ? 0 : 2, paddingRight: isMe ? 2 : 0 }}>
-                    <span style={{ fontSize: 10, color: COLORS.muted }}>{formatTime(msg.timestamp)}</span>
-                    {isMe && <span style={{ fontSize: 11, color: "#34b7f1", fontWeight: 700, lineHeight: 1 }}>✓✓</span>}
-                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={bottomRef} />
+              );
+            })
+          )}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* File Previews Area */}
       {selectedFiles.length > 0 && (
-        <div
-          style={{
-            background: COLORS.surface,
-            borderTop: `1px solid ${COLORS.mint}`,
-            padding: "10px 16px",
-            display: "flex",
-            gap: 12,
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="bg-white/80 backdrop-blur-xs border-t border-slate-200/60 p-3.5 flex gap-3 flex-wrap">
           {selectedFiles.map((item, idx) => (
             <div
               key={idx}
-              style={{
-                position: "relative",
-                width: 70,
-                height: 70,
-                borderRadius: 8,
-                border: `1px solid ${COLORS.mint}`,
-                overflow: "hidden",
-                background: "#000",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              className="relative w-16 h-16 rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center overflow-hidden shadow-sm animate-fadeIn"
             >
               {item.type === "image" ? (
                 <img
                   src={item.previewUrl}
                   alt="preview"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  className="w-full h-full object-cover"
                 />
               ) : item.type === "video" ? (
-                <video src={item.previewUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <video src={item.previewUrl} className="w-full h-full object-cover" />
               ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    padding: 6,
-                    color: "#fff",
-                    textAlign: "center",
-                  }}
-                >
-                  <span style={{ fontSize: 24, marginBottom: 2 }}>📄</span>
-                  <div
-                    style={{
-                      fontSize: 8,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      width: 60,
-                    }}
-                  >
+                <div className="flex flex-col items-center p-1.5 text-white text-center">
+                  <FileText className="w-6 h-6 text-slate-300 mb-1" />
+                  <div className="text-[7.5px] truncate w-12 font-bold font-mono">
                     {item.name}
                   </div>
                 </div>
@@ -660,26 +546,9 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
               <button
                 type="button"
                 onClick={() => removeSelectedFile(idx)}
-                style={{
-                  position: "absolute",
-                  top: 2,
-                  right: 2,
-                  width: 18,
-                  height: 18,
-                  borderRadius: "50%",
-                  background: "rgba(0,0,0,0.6)",
-                  border: "none",
-                  color: "#fff",
-                  fontSize: 10,
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  outline: "none",
-                }}
+                className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-black/60 hover:bg-black/80 border-none text-white flex items-center justify-center cursor-pointer transition-colors"
               >
-                ✕
+                <X className="w-2.5 h-2.5" />
               </button>
             </div>
           ))}
@@ -689,103 +558,54 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
       {/* Input bar */}
       <form
         onSubmit={handleSend}
-        style={{
-          background: COLORS.surface,
-          padding: "12px 16px",
-          borderTop: `1px solid ${COLORS.mint}`,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
+        className="p-4 border-t border-slate-200/60 bg-white/40 backdrop-blur-xs flex items-center gap-3.5 shrink-0"
       >
         <Avatar
           initials={user.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-          color={COLORS.gold}
+          color={getAvatarColor(user.fullName)}
           photo={user.avatar}
           size={34}
+          role={user.role}
         />
 
         {/* Attachment Button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: COLORS.muted,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 8,
-            borderRadius: "50%",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f2f5")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+          className="text-slate-400 hover:text-[#FF9900] bg-transparent hover:bg-slate-100/50 p-2 rounded-xl transition-all duration-150 shrink-0 cursor-pointer flex items-center justify-center"
           title="Attach photo or video"
         >
-          <PaperclipIcon />
+          <Paperclip className="w-4.5 h-4.5" />
         </button>
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
           multiple
-          style={{ display: "none" }}
+          className="hidden"
         />
 
         <textarea
           ref={inputRef}
-          className="gc-input"
           value={inputText}
           onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
-          rows={2}
-          style={{
-            flex: 1,
-            padding: "11px 18px",
-            borderRadius: 14,
-            border: `1.5px solid ${COLORS.mint}`,
-            fontSize: 14,
-            fontFamily: "inherit",
-            outline: "none",
-            background: "#f8f8f8",
-            color: COLORS.sidebar,
-            transition: "border-color 0.2s, box-shadow 0.2s",
-            resize: "none",
-            maxHeight: 200,
-            lineHeight: 1.4,
-          }}
+          rows={1}
+          className="flex-1 bg-white border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:ring-2 focus:ring-[#FF9900]/10 rounded-xl px-4 py-2.5 text-xs sm:text-[13px] text-[#232F3E] placeholder-slate-400 shadow-inner focus:outline-none resize-none max-h-36 leading-relaxed transition-all"
         />
 
         <button
           type="submit"
           disabled={(!inputText.trim() && selectedFiles.length === 0) || sending}
-          className="gc-send-btn"
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: "50%",
-            background: COLORS.gold,
-            border: "none",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor:
-              (!inputText.trim() && selectedFiles.length === 0) || sending
-                ? "not-allowed"
-                : "pointer",
-            opacity: (!inputText.trim() && selectedFiles.length === 0) || sending ? 0.55 : 1,
-            flexShrink: 0,
-            position: "relative",
-          }}
+          className="flex items-center justify-center w-9 h-9 bg-[#232F3E] hover:bg-[#FF9900] text-white rounded-xl shadow-sm hover:shadow transition-all duration-150 disabled:bg-slate-300 disabled:cursor-not-allowed cursor-pointer shrink-0 hover:scale-102"
         >
-          <SendIcon />
+          <Send className="w-4 h-4" />
         </button>
       </form>
     </div>
   );
 }
+
+
+

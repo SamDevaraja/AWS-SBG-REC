@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEventDetails, useRegister } from '../shared/hooks/useCloudEnthusiasts';
 import { EC2ConsoleLoader, ErrorAlert } from '../shared/components/Animations';
-import { ArrowLeft, ArrowRight, Check, User, Mail, GraduationCap, ClipboardList, RefreshCw, AlertCircle, FileUp, ChevronDown, Calendar, MapPin, Clock, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, User, Mail, GraduationCap, ClipboardList, RefreshCw, AlertCircle, FileUp, ChevronDown, Calendar, MapPin, Clock, Users, Pencil } from 'lucide-react';
 import { STORAGE_KEYS } from '../../../context/mockData';
 import { cn } from '@/lib/utils';
 
@@ -212,11 +212,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] flex flex-col justify-center items-center font-sans relative py-12 px-4 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] font-sans relative py-5 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-8 overflow-y-auto premium-scrollbar scroll-smooth">
       {/* Background ambient glow (matches events page style) */}
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.07)_0%,rgba(255,153,0,0.03)_40%,transparent_70%)] pointer-events-none z-0" />
 
-      <div className="max-w-5xl w-full z-10 relative">
+      <div className="max-w-screen-xl w-full mx-auto z-10 relative">
+        {/* Top Header & Breadcrumbs / Cancel & Back */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <Link
+            href={`/events/${eventId}`}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 font-bold rounded-lg text-xs shadow-sm transition-all duration-150 group cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-150 text-slate-500" />
+            <span className="tracking-wide">Cancel & Back</span>
+          </Link>
+        </div>
+
         {/* Wizard Form Card */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
               {/* Glow accent */}
@@ -225,21 +236,11 @@ export default function RegisterPage() {
               <div className="relative z-10">
                 {/* Form header */}
                 <div className="mb-6 border-b border-slate-100 pb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <Link
-                      href={`/events/${eventId}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors uppercase tracking-wider cursor-pointer"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Cancel & Back</span>
-                    </Link>
-                  </div>
-
                   <div>
-                    <span className="text-[10px] font-semibold text-[#FF9900] uppercase tracking-widest block mb-1">
+                    <span className="text-[11px] font-semibold text-[#FF9900] uppercase tracking-wider font-sans block mb-1">
                       Event Pass Application
                     </span>
-                    <h2 className="text-xl font-bold text-[#232F3E] tracking-tight">
+                    <h2 className="text-3xl font-bold text-[#232F3E] tracking-tight">
                       Secure Your Ticket
                     </h2>
                   </div>
@@ -266,7 +267,7 @@ export default function RegisterPage() {
                         </div>
                         <div>
                           <span className={cn(
-                            "text-[13px] font-semibold font-sans tracking-tight block",
+                            "text-[16px] font-semibold font-sans tracking-tight block",
                             currentStep === 1 ? "text-slate-900" : "text-slate-500"
                           )}>
                             Contact Info
@@ -282,9 +283,10 @@ export default function RegisterPage() {
                         <button
                           type="button"
                           onClick={() => setCurrentStep(1)}
-                          className="text-[10px] font-semibold text-slate-500 hover:text-[#FF9900] hover:border-[#FF9900] transition-colors uppercase tracking-wider cursor-pointer border border-slate-200 px-2.5 py-1 rounded-lg bg-white shadow-sm font-sans"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-650 hover:text-[#232F3E] font-bold rounded-lg text-[10.5px] uppercase tracking-wider shadow-sm transition-all duration-200 cursor-pointer font-sans group"
                         >
-                          Edit
+                          <Pencil className="w-3 h-3 text-slate-400 group-hover:text-[#FF9900] transition-colors duration-200" />
+                          <span>Edit</span>
                         </button>
                       )}
                     </div>
@@ -295,7 +297,7 @@ export default function RegisterPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                           {/* Full Name */}
                           <div className="space-y-1.5">
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
                               Full Name <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
@@ -308,19 +310,22 @@ export default function RegisterPage() {
                                 value={formData.fullName}
                                 onChange={(e) => handleFixedChange('fullName', e.target.value)}
                                 placeholder="Enter your full name"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                   validationErrors.fullName ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
                                 }`}
                               />
                             </div>
                             {validationErrors.fullName && (
-                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.fullName}</p>
+                              <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1.5 animate-fadeIn">
+                                <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                <span>{validationErrors.fullName}</span>
+                              </p>
                             )}
                           </div>
 
                           {/* Roll Number */}
                           <div className="space-y-1.5">
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
                               Registration / Roll Number <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
@@ -333,19 +338,22 @@ export default function RegisterPage() {
                                 value={formData.rollNumber}
                                 onChange={(e) => handleFixedChange('rollNumber', e.target.value)}
                                 placeholder="Enter your college registration number"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                   validationErrors.rollNumber ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
                                 }`}
                               />
                             </div>
                             {validationErrors.rollNumber && (
-                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.rollNumber}</p>
+                              <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1.5 animate-fadeIn">
+                                <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                <span>{validationErrors.rollNumber}</span>
+                              </p>
                             )}
                           </div>
 
                           {/* Department */}
                           <div className="space-y-1.5">
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
                               Department <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
@@ -358,19 +366,22 @@ export default function RegisterPage() {
                                 value={formData.department}
                                 onChange={(e) => handleFixedChange('department', e.target.value)}
                                 placeholder="e.g. Computer Science & Engineering"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                   validationErrors.department ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
                                 }`}
                               />
                             </div>
                             {validationErrors.department && (
-                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.department}</p>
+                              <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1.5 animate-fadeIn">
+                                <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                <span>{validationErrors.department}</span>
+                              </p>
                             )}
                           </div>
 
                           {/* Email */}
                           <div className="space-y-1.5">
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
                               Email Address <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
@@ -383,13 +394,16 @@ export default function RegisterPage() {
                                 value={formData.email}
                                 onChange={(e) => handleFixedChange('email', e.target.value)}
                                 placeholder="yourname@rajalakshmi.edu.in"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                   validationErrors.email ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
                                 }`}
                               />
                             </div>
                             {validationErrors.email && (
-                              <p className="text-[10px] text-rose-500 font-bold">{validationErrors.email}</p>
+                              <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1.5 animate-fadeIn">
+                                <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                <span>{validationErrors.email}</span>
+                              </p>
                             )}
                           </div>
                         </div>
@@ -434,7 +448,7 @@ export default function RegisterPage() {
                           </div>
                           <div>
                             <span className={cn(
-                              "text-[13px] font-semibold font-sans tracking-tight block",
+                              "text-[16px] font-semibold font-sans tracking-tight block",
                               currentStep === 2 ? "text-slate-900" : "text-slate-500"
                             )}>
                               Custom Fields
@@ -455,9 +469,10 @@ export default function RegisterPage() {
                           <button
                             type="button"
                             onClick={() => setCurrentStep(2)}
-                            className="text-[10px] font-semibold text-slate-500 hover:text-[#FF9900] hover:border-[#FF9900] transition-colors uppercase tracking-wider cursor-pointer border border-slate-200 px-2.5 py-1 rounded-lg bg-white shadow-sm font-sans"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-650 hover:text-[#232F3E] font-bold rounded-lg text-[10.5px] uppercase tracking-wider shadow-sm transition-all duration-200 cursor-pointer font-sans group"
                           >
-                            Edit
+                            <Pencil className="w-3 h-3 text-slate-400 group-hover:text-[#FF9900] transition-colors duration-200" />
+                            <span>Edit</span>
                           </button>
                         )}
                       </div>
@@ -474,7 +489,7 @@ export default function RegisterPage() {
 
                               return (
                                 <div key={field.field_id} className={cn("space-y-1.5", isFullWidth && "md:col-span-2")}>
-                                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                                  <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
                                     {field.field_label} {isRequired && <span className="text-red-500">*</span>}
                                   </label>
 
@@ -485,7 +500,7 @@ export default function RegisterPage() {
                                         required={isRequired}
                                         value={value}
                                         onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
-                                        className={`w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 cursor-pointer transition-all appearance-none ${
+                                        className={`w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] cursor-pointer transition-all appearance-none ${
                                           errorText ? 'border-rose-300 focus:border-rose-500' : ''
                                         }`}
                                       >
@@ -502,7 +517,7 @@ export default function RegisterPage() {
                                   {field.field_type === 'radio' && (
                                     <div className="space-y-2 py-1">
                                       {field.select_options?.map(opt => (
-                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-slate-700 hover:text-slate-900 transition-colors">
+                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-[#232F3E] hover:text-slate-900 transition-colors">
                                           <input
                                             type="radio"
                                             name={field.field_id}
@@ -521,7 +536,7 @@ export default function RegisterPage() {
                                   {field.field_type === 'checkbox' && (
                                     <div className="space-y-2 py-1">
                                       {field.select_options?.map(opt => (
-                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-slate-700 hover:text-slate-900 transition-colors">
+                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-[#232F3E] hover:text-slate-900 transition-colors">
                                           <input
                                             type="checkbox"
                                             name={field.field_id}
@@ -544,7 +559,7 @@ export default function RegisterPage() {
                                       rows={3}
                                       onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
                                       placeholder={`Enter your answer for ${field.field_label.toLowerCase()}...`}
-                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                         errorText ? 'border-rose-300 focus:border-rose-500' : ''
                                       }`}
                                     />
@@ -583,14 +598,17 @@ export default function RegisterPage() {
                                       value={value}
                                       onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
                                       placeholder={`Enter ${field.field_label.toLowerCase()}`}
-                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all font-medium ${
+                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                         errorText ? 'border-rose-300 focus:border-rose-500' : ''
                                       }`}
                                     />
                                   )}
 
                                   {errorText && (
-                                    <p className="text-[10px] text-rose-500 font-bold">{errorText}</p>
+                                    <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1.5 animate-fadeIn">
+                                      <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                      <span>{errorText}</span>
+                                    </p>
                                   )}
                                 </div>
                               );
@@ -642,7 +660,7 @@ export default function RegisterPage() {
                         </div>
                         <div>
                           <span className={cn(
-                            "text-[13px] font-semibold font-sans tracking-tight block",
+                            "text-[16px] font-semibold font-sans tracking-tight block",
                             currentStep === 3 ? "text-slate-900" : "text-slate-500"
                           )}>
                             Review & Submit
@@ -667,31 +685,34 @@ export default function RegisterPage() {
                         )}
 
                         <div className="bg-slate-50/50 border border-slate-200/60 rounded-2xl p-5 space-y-4">
-                          <h4 className="text-slate-450 font-semibold text-[10px] uppercase tracking-widest border-b border-slate-200/60 pb-2.5">
-                            Confirm Application Details
-                          </h4>
+                          <div className="flex items-center gap-2 border-b border-slate-200/60 pb-2.5">
+                            <ClipboardList className="w-3.5 h-3.5 text-slate-400" />
+                            <h4 className="text-slate-500 font-bold text-[11px] uppercase tracking-wider font-sans">
+                              Confirm Application Details
+                            </h4>
+                          </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1 text-sm leading-relaxed text-slate-700">
                             <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
-                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Name</span>
+                              <span className="text-[#FF9900] text-xs font-bold uppercase tracking-wider font-sans shrink-0">Name</span>
                               <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.fullName}</span>
                             </div>
                             <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
-                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Roll Number</span>
+                              <span className="text-[#FF9900] text-xs font-bold uppercase tracking-wider font-sans shrink-0">Roll Number</span>
                               <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.rollNumber}</span>
                             </div>
                             <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
-                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Department</span>
+                              <span className="text-[#FF9900] text-xs font-bold uppercase tracking-wider font-sans shrink-0">Department</span>
                               <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.department}</span>
                             </div>
                             <div className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
-                              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">Email</span>
+                              <span className="text-[#FF9900] text-xs font-bold uppercase tracking-wider font-sans shrink-0">Email</span>
                               <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{formData.email}</span>
                             </div>
 
                             {customFields.map((field) => (
                               <div key={field.field_id} className="flex justify-between py-2.5 border-b border-slate-100 gap-4 items-center">
-                                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">{field.field_label}</span>
+                                <span className="text-[#FF9900] text-xs font-bold uppercase tracking-wider font-sans shrink-0">{field.field_label}</span>
                                 <span className="font-semibold text-[#232F3E] text-right truncate flex-1 min-w-0">{responses[field.field_label] || 'N/A'}</span>
                               </div>
                             ))}

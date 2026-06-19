@@ -2,11 +2,42 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAuthSession } from '@/lib/authHelper';
 
 export default function RoadmapRedirect() {
   const router = useRouter();
 
   useEffect(() => {
+    const session = getAuthSession();
+    if (!session.isAuthenticated) {
+      router.replace('/learn');
+      return;
+    }
+
+    const role = (session.role || '').toLowerCase().trim();
+    if (role === 'core') {
+      router.replace('/core/topics');
+      return;
+    }
+
+    if (role === 'crew' && session.user && (session.user as any).id) {
+      const uId = (session.user as any).id;
+      fetch(`/api/auth/permissions/check?userId=${uId}&permission=manage_announcements`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.hasPermission) {
+            router.replace('/core/topics');
+          } else {
+            router.replace('/learn');
+          }
+        })
+        .catch(err => {
+          console.error("Roadmap redirect permission check failed:", err);
+          router.replace('/learn');
+        });
+      return;
+    }
+
     router.replace('/learn');
   }, [router]);
 

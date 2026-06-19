@@ -41,13 +41,27 @@ export class AnnouncementsService {
 
   async findByEvent(eventId: string) {
     return this.prisma.announcement.findMany({
-      where: { eventId },
+      where: {
+        eventId,
+        NOT: {
+          id: {
+            startsWith: 'ann-seed',
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   async findAll() {
     return this.prisma.announcement.findMany({
+      where: {
+        NOT: {
+          id: {
+            startsWith: 'ann-seed',
+          },
+        },
+      },
       include: { event: true },
       orderBy: { createdAt: 'desc' },
     });

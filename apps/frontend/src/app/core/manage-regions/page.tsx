@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Shield, CheckCircle, AlertCircle, RefreshCw, X, Trash2, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { 
   fetchCategories, fetchRegions, createRegion, updateRegion, deleteRegion,
   AWSRegionData, CategoryData
@@ -18,10 +19,52 @@ interface ToastState {
 }
 
 export default function ManageRegionsPage() {
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState<boolean>(false);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
   const [regions, setRegions] = useState<AWSRegionData[]>([]);
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Security authentication validation
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("aws_sgb_rec_user");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const role = (parsed?.role ?? "").toLowerCase().trim();
+        if (role === "core") {
+          setAuthorized(true);
+          setCheckingAuth(false);
+        } else if (parsed.id) {
+          fetch(`/api/auth/permissions/check?userId=${parsed.id}&permission=edit_event`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.hasPermission) {
+                setAuthorized(true);
+              } else {
+                router.replace('/crew/dashboard');
+              }
+              setCheckingAuth(false);
+            })
+            .catch(() => {
+              router.replace('/crew/dashboard');
+              setCheckingAuth(false);
+            });
+        } else {
+          router.replace('/login');
+          setCheckingAuth(false);
+        }
+      } else {
+        router.replace('/login');
+        setCheckingAuth(false);
+      }
+    } catch {
+      router.replace('/login');
+      setCheckingAuth(false);
+    }
+  }, [router]);
   
   // Form modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -148,6 +191,19 @@ export default function ManageRegionsPage() {
       showToast(err.message || "Failed to delete region", "error");
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
+        <RefreshCw className="animate-spin text-[#FF9900]" size={32} />
+        <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Verifying Security Credentials...</span>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return null;
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>

@@ -15,6 +15,7 @@ import {
   Newspaper,
   Bell,
   Cpu,
+  KeyRound,
 } from 'lucide-react';
 
 const coreNavItems: NavItem[] = [
@@ -24,6 +25,7 @@ const coreNavItems: NavItem[] = [
   { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/core/chat' },
   { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
   { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
+  { icon: <KeyRound className="w-4 h-4" />, label: 'access control', href: '/core/access-control' },
 ];
 
 const coreBottomNavItems: NavItem[] = [

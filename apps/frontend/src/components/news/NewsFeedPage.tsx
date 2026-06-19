@@ -68,7 +68,7 @@ export function NewsFeedPage() {
 
       <div className="mx-auto max-w-[1440px]">
         <header className="mb-4 max-w-4xl">
-          <p className="brand-note-text text-[10px] uppercase tracking-[0.24em]">
+          <p className="brand-note-text text-[10px] uppercase tracking-[0.08em]">
             AWS Community Newsroom
           </p>
           <p className="mt-2 max-w-[calc(100vw-2rem)] break-words font-display text-2xl font-semibold leading-tight tracking-tight text-foreground [overflow-wrap:anywhere] sm:max-w-full sm:text-3xl">

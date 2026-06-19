@@ -64,7 +64,7 @@ function EmptyState() {
 function Avatar({ name }: { name: string }) {
   const initials = name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
   const palettes = [
-    { bg: 'from-amber-400 to-orange-500', text: 'text-white' },
+    { bg: 'from-cyan-400 to-teal-500', text: 'text-white' },
     { bg: 'from-blue-400 to-indigo-500', text: 'text-white' },
     { bg: 'from-emerald-400 to-teal-500', text: 'text-white' },
     { bg: 'from-rose-400 to-red-500', text: 'text-white' },

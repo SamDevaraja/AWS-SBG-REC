@@ -32,6 +32,7 @@ const crewBottomNavItems: NavItem[] = [
 
 export default function CrewSidebarShell({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SidebarUser | undefined>();
+  const [activePermissions, setActivePermissions] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -46,13 +47,42 @@ export default function CrewSidebarShell({ children }: { children: React.ReactNo
           .toUpperCase()
           .slice(0, 2);
         setUser({ name, initials, badge: 'Crew' });
+
+        if (parsed.id) {
+          fetch(`/api/auth/permissions/check?userId=${parsed.id}`)
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success && data.permissions) {
+                setActivePermissions(data.permissions);
+              }
+            })
+            .catch((err) => console.error('Error fetching permissions for crew sidebar:', err));
+        }
       }
     } catch { /* ignore */ }
   }, []);
 
+  const navItems = React.useMemo(() => {
+    return crewNavItems.map(item => {
+      if (item.label === 'events' && activePermissions.includes('create_event')) {
+        return { ...item, href: '/core/events' };
+      }
+      if (item.label === 'chat' && activePermissions.includes('scan_ticket')) {
+        return { ...item, href: '/core/chat' };
+      }
+      if (item.label === 'roadmap' && activePermissions.includes('manage_announcements')) {
+        return { ...item, href: '/core/topics' };
+      }
+      if (item.label === 'services' && activePermissions.includes('edit_event')) {
+        return { ...item, href: '/core/services' };
+      }
+      return item;
+    });
+  }, [activePermissions]);
+
   return (
     <SidebarLayout
-      navItems={crewNavItems}
+      navItems={navItems}
       bottomNavItems={crewBottomNavItems}
       user={user}
       brandTitle={user?.name || 'Crew Member'}

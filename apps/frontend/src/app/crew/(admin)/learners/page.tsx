@@ -23,6 +23,7 @@ export default function CrewLearnersDirectoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activePermissions, setActivePermissions] = useState<string[]>([]);
 
   const [roleFilter, setRoleFilter] = useState<'all' | 'CREW' | 'ENTHUSIAST'>('all');
   const [moduleFilterType, setModuleFilterType] = useState<'all' | 'above' | 'below'>('all');
@@ -41,6 +42,17 @@ export default function CrewLearnersDirectoryPage() {
       }
     };
     fetchLearners();
+
+    if (session.user && (session.user as any).id) {
+      fetch(`/api/auth/permissions/check?userId=${(session.user as any).id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.permissions) {
+            setActivePermissions(data.permissions);
+          }
+        })
+        .catch((err) => console.error('Error fetching permissions for crew learners:', err));
+    }
   }, []);
 
   const filteredLearners = learners.filter((learner) => {
@@ -79,12 +91,21 @@ export default function CrewLearnersDirectoryPage() {
           >
             Learners Directory
           </Link>
-          <Link
-            href="/learn"
-            className="transition-all duration-150 h-full flex items-center px-1 border-b border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300 font-bold"
-          >
-            Back to Topics
-          </Link>
+          {activePermissions.includes('manage_announcements') ? (
+            <Link
+              href="/core/topics"
+              className="transition-all duration-150 h-full flex items-center px-1 border-b border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300 font-bold"
+            >
+              Roadmap Builder
+            </Link>
+          ) : (
+            <Link
+              href="/learn"
+              className="transition-all duration-150 h-full flex items-center px-1 border-b border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300 font-bold"
+            >
+              Back to Topics
+            </Link>
+          )}
         </div>
 
         <div className="relative w-72 flex-shrink-0">

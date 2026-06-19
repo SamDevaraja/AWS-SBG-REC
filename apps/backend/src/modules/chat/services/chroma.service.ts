@@ -16,8 +16,10 @@ export class ChromaService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      console.log('[chroma] Initializing ChromaClient connecting to http://localhost:8001');
-      this.client = new ChromaClient({ host: 'localhost', port: 8001 });
+      const host = process.env.CHROMA_HOST || 'localhost';
+      const port = parseInt(process.env.CHROMA_PORT || '8001', 10);
+      console.log(`[chroma] Initializing ChromaClient connecting to http://${host}:${port}`);
+      this.client = new ChromaClient({ host, port });
       this.knowledgeCollection = await this.client.getOrCreateCollection({
         name: 'aws_knowledge_base',
         metadata: { 'hnsw:space': 'cosine' },
@@ -30,13 +32,17 @@ export class ChromaService implements OnModuleInit {
       });
       console.log('[chroma] Collections ready.');
     } catch (err) {
-      console.error('[chroma] Failed to connect to ChromaDB server at http://localhost:8001:', err.message);
+      const host = process.env.CHROMA_HOST || 'localhost';
+      const port = parseInt(process.env.CHROMA_PORT || '8001', 10);
+      console.error(`[chroma] Failed to connect to ChromaDB server at http://${host}:${port}:`, err.message);
     }
   }
 
   private async ensureCollections() {
     if (!this.client) {
-      this.client = new ChromaClient({ host: 'localhost', port: 8001 });
+      const host = process.env.CHROMA_HOST || 'localhost';
+      const port = parseInt(process.env.CHROMA_PORT || '8001', 10);
+      this.client = new ChromaClient({ host, port });
     }
     if (!this.knowledgeCollection) {
       this.knowledgeCollection = await this.client.getOrCreateCollection({

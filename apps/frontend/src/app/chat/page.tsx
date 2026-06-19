@@ -1,6 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { 
+  Bot, 
+  Send, 
+  HelpCircle, 
+  Sparkles, 
+  AlertCircle, 
+  Check, 
+  MessageSquare, 
+  RefreshCw, 
+  X,
+  User,
+  CheckCheck
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -11,18 +25,6 @@ const useIsMobile = () => {
     return () => window.removeEventListener("resize", handler);
   }, []);
   return isMobile;
-};
-
-const COLORS = {
-  bg: "#F8FAFC",          // Clean light slate background
-  sidebar: "#232F3E",     // AWS Navy/Charcoal
-  sidebarDark: "#1A222D", // Darker AWS charcoal
-  teal: "#475569",        // Slate gray for muted labels
-  mint: "rgba(255, 255, 255, 0.5)", // White highlight borders
-  gold: "#FF9900",        // AWS Orange
-  text: "#0F172A",        // Slate-900 for text
-  surface: "rgba(255, 255, 255, 0.55)", // Frosted white glass face
-  purple: "#7C4DFF",      // Professional purple accent
 };
 
 interface FAQChip {
@@ -40,42 +42,6 @@ interface Message {
   isConfirmation?: boolean;
   status?: string;
 }
-
-const Icon = ({ name, size = 16, color = "currentColor" }: { name: string; size?: number; color?: string }) => {
-  const icons: Record<string, React.ReactNode> = {
-    cloud: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" /></svg>,
-    calendar: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>,
-    map: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg>,
-    award: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7" /><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" /></svg>,
-    "message-circle": <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>,
-    users: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
-    trophy: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="8 19 12 15 16 19" /><line x1="12" y1="15" x2="12" y2="22" /><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29" /></svg>,
-    plus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>,
-    mic: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>,
-    code: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>,
-    shield: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>,
-    x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
-    check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>,
-    "check-circle": <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>,
-    loader: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="2" x2="12" y2="6" /><line x1="12" y1="18" x2="12" y2="22" /><line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /><line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /><line x1="2" y1="12" x2="6" y2="12" /><line x1="18" y1="12" x2="22" y2="12" /><line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /><line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /></svg>,
-    lock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>,
-    "play-circle": <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></svg>,
-    "file-text": <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>,
-    "book-open": <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>,
-    terminal: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" /></svg>,
-    circle: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /></svg>,
-    layers: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg>,
-    settings: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14M16.24 7.76a6 6 0 0 1 0 8.49M4.93 4.93a10 10 0 0 0 0 14.14M7.76 7.76a6 6 0 0 0 0 8.49" /></svg>,
-    building: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><line x1="9" y1="22" x2="9" y2="12" /><line x1="15" y1="22" x2="15" y2="12" /><path d="M8 7h8M8 11h8" /></svg>,
-    "git-branch": <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="3" x2="6" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" /></svg>,
-    brain: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.14Z" /><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.14Z" /></svg>,
-    database: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></svg>,
-    network: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1" /><rect x="2" y="16" width="6" height="6" rx="1" /><rect x="9" y="2" width="6" height="6" rx="1" /><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" /><line x1="12" y1="12" x2="12" y2="8" /></svg>,
-    bot: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /><line x1="8" y1="16" x2="8" y2="16" /><line x1="16" y1="16" x2="16" y2="16" /></svg>,
-    send: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>,
-  };
-  return icons[name] || null;
-};
 
 // LiveChat Escalation Button Component
 function LiveChatEscalationBtn({ 
@@ -98,9 +64,9 @@ function LiveChatEscalationBtn({
 
   if (escalated) {
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, padding: "8px 12px", borderRadius: 10, background: "rgba(46, 125, 50, 0.25)", border: "1px solid rgba(76, 175, 80, 0.5)", width: "fit-content", backdropFilter: "blur(5px)" }}>
-        <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="#4caf50" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-        <span style={{ fontSize: 11, color: "#4caf50", fontWeight: 700 }}>Request Sent to Team!</span>
+      <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200/60 rounded-xl text-emerald-700 shadow-xs">
+        <Check className="w-3.5 h-3.5 text-emerald-500" />
+        <span className="text-[11px] font-bold tracking-wide">Doubt Sent to Team!</span>
       </div>
     );
   }
@@ -109,39 +75,31 @@ function LiveChatEscalationBtn({
     <button
       onClick={handleClick}
       disabled={loading}
-      className="btn-3d-light text-[11px]"
-      style={{
-        marginTop: 10,
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "7px 13px",
-        borderRadius: 10,
-        cursor: loading ? "default" : "pointer",
-        opacity: loading ? 0.7 : 1,
-      }}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-350 text-slate-650 hover:text-slate-800 font-bold rounded-lg text-[10.5px] uppercase tracking-wider shadow-sm transition-all duration-150 cursor-pointer group mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {loading ? (
-        <>
-          <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="#FF9900" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}>
-            <line x1="12" y1="2" x2="12" y2="6" /><line x1="12" y1="18" x2="12" y2="22" />
-            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /><line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
-            <line x1="2" y1="12" x2="6" y2="12" /><line x1="18" y1="12" x2="22" y2="12" />
-            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /><line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
-          </svg>
-          Connecting...
-        </>
+        <RefreshCw className="w-3 h-3 text-[#FF9900] animate-spin" />
       ) : (
-        <>
-          <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="#FF9900" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          Not satisfied? Chat live with Team →
-        </>
+        <MessageSquare className="w-3 h-3 text-slate-400 group-hover:text-[#FF9900] transition-colors" />
       )}
+      <span>{loading ? "Connecting..." : "Not satisfied? Ask Live Team"}</span>
     </button>
   );
 }
+
+// AWS Brand Logo Component (Standalone Orange Smile)
+const AWSBrandLogo = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 120 503 240" 
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g transform="matrix(1.672925,0,0,1.668521,-2.790411,-1.835373)" fill="#FF9900">
+      <path d="M273.5,143.7C240.6,168 192.8,180.9 151.7,180.9C94.1,180.9 42.2,159.6 3,124.2C-0.1,121.4 2.7,117.6 6.4,119.8C48.8,144.4 101.1,159.3 155.2,159.3C191.7,159.3 231.8,151.7 268.7,136.1C274.2,133.6 278.9,139.7 273.5,143.7Z" />
+      <path d="M287.2,128.1C283,122.7 259.4,125.5 248.7,126.8C245.5,127.2 245,124.4 247.9,122.3C266.7,109.1 297.6,112.9 301.2,117.3C304.8,121.8 300.2,152.7 282.6,167.5C279.9,169.8 277.3,168.6 278.5,165.6C282.5,155.7 291.4,133.4 287.2,128.1Z" />
+    </g>
+  </svg>
+);
 
 // ChatTab component
 const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
@@ -189,6 +147,7 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
@@ -201,14 +160,11 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   const allMessages = [...systemMessages, ...userPendingMessages].sort((a, b) => a.timestamp - b.timestamp);
 
   useEffect(() => {
-    if (bottomRef.current) {
-      const container = bottomRef.current.parentElement;
-      if (container) {
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: "smooth"
-        });
-      }
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
     }
   }, [allMessages]);
 
@@ -409,215 +365,102 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   };
 
   return (
-    <div style={{
-      position: "relative",
-      height: isMobile ? "calc(100vh - 120px)" : "calc(100vh - 160px)",
-      borderRadius: 16,
-      overflow: "hidden",
-      background: "linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%)",
-      padding: "12px",
-      display: "flex",
-      flexDirection: "column",
-      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
-      color: COLORS.text,
-      fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif"
-    }}>
+    <div 
+      className="relative flex flex-col overflow-hidden bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] font-sans shadow-lg border border-slate-200/80 rounded-2xl w-full flex-1"
+    >
       <style>{`
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: ${COLORS.bg}; }
-        ::-webkit-scrollbar-thumb { background: ${COLORS.sidebar}; border-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.985) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes guideSlideUp {
-          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        @keyframes countdown {
-          from { width: 100%; }
-          to   { width: 0%; }
-        }
-
-        /* 3D Push Effect */
-        .btn-3d {
-          transform: translateY(0);
-          background: rgba(255, 255, 255, 0.35) !important;
-          border: 1px solid rgba(255, 255, 255, 0.6) !important;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          color: #232F3E !important;
-          font-weight: 700 !important;
-          box-shadow: 
-            0 4px 10px rgba(0, 0, 0, 0.04), 
-            0 12px 25px rgba(255, 153, 0, 0.25), 
-            inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
-          transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-          cursor: pointer;
-        }
-        .btn-3d:hover {
-          transform: translateY(-2px);
-          background: rgba(255, 255, 255, 0.45) !important;
-          box-shadow: 
-            0 6px 15px rgba(0, 0, 0, 0.06), 
-            0 16px 35px rgba(255, 153, 0, 0.35), 
-            inset 0 1.5px 0 rgba(255, 255, 255, 0.8) !important;
-        }
-        .btn-3d:active {
-          transform: translateY(1px);
-          background: rgba(255, 255, 255, 0.2) !important;
-          box-shadow: 
-            0 2px 4px rgba(0, 0, 0, 0.04), 
-            0 8px 15px rgba(255, 153, 0, 0.2), 
-            inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
-        }
-        .btn-3d-light {
-          transform: translateY(0);
-          background: rgba(255, 255, 255, 0.2) !important;
-          border: 1px solid rgba(255, 255, 255, 0.4) !important;
-          backdrop-filter: blur(15px);
-          -webkit-backdrop-filter: blur(15px);
-          color: #232F3E !important;
-          font-weight: 600 !important;
-          box-shadow: 
-            0 4px 8px rgba(0, 0, 0, 0.03), 
-            0 10px 20px rgba(35, 47, 62, 0.06), 
-            inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-          transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-          cursor: pointer;
-        }
-        .btn-3d-light:hover {
-          transform: translateY(-2px);
-          background: rgba(255, 255, 255, 0.3) !important;
-          box-shadow: 
-            0 6px 12px rgba(0, 0, 0, 0.05), 
-            0 14px 28px rgba(35, 47, 62, 0.12), 
-            inset 0 1.5px 0 rgba(255, 255, 255, 0.65) !important;
-        }
-        .btn-3d-light:active {
-          transform: translateY(1px);
-          background: rgba(255, 255, 255, 0.15) !important;
-          box-shadow: 
-            0 2px 4px rgba(0, 0, 0, 0.02), 
-            0 6px 12px rgba(35, 47, 62, 0.08), 
-            inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-        }
-        .chat-input::placeholder {
-          color: rgba(35, 47, 62, 0.45) !important;
-        }
-        @media (max-width: 767px) {
-          .query-grid > button { flex: 1 1 100% !important; }
-        }
+        @keyframes countdown { from { width: 100%; } to { width: 0%; } }
+        .animate-fadeIn { animation: fadeIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+        .animate-slideUp { animation: slideUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+        .animate-countdown { animation: countdown 5s linear forwards; }
+        
+        .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
+        .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
       `}</style>
 
-      {/* Liquid Blobs */}
-      <div style={{
-        position: "absolute",
-        top: "-10%",
-        left: "-10%",
-        width: "60%",
-        height: "60%",
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(255, 153, 0, 0.16) 0%, rgba(255, 153, 0, 0) 70%)",
-        filter: "blur(40px)",
-        pointerEvents: "none",
-        zIndex: 0
-      }} />
-      <div style={{
-        position: "absolute",
-        bottom: "-10%",
-        right: "-10%",
-        width: "60%",
-        height: "60%",
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(35, 47, 62, 0.12) 0%, rgba(35, 47, 62, 0) 70%)",
-        filter: "blur(40px)",
-        pointerEvents: "none",
-        zIndex: 0
-      }} />
-      <div style={{
-        position: "absolute",
-        top: "30%",
-        left: "30%",
-        width: "40%",
-        height: "40%",
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%)",
-        filter: "blur(30px)",
-        pointerEvents: "none",
-        zIndex: 0
-      }} />
+      {/* Background ambient glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.06)_0%,rgba(255,153,0,0.02)_40%,transparent_70%)] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(35,47,62,0.04)_0%,rgba(35,47,62,0.01)_40%,transparent_70%)] pointer-events-none z-0" />
 
       {/* Main Glass Panel */}
-      <div style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        background: "linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.2) 100%)",
-        backdropFilter: "blur(30px) saturate(180%)",
-        WebkitBackdropFilter: "blur(30px) saturate(180%)",
-        border: "1px solid rgba(255, 255, 255, 0.5)",
-        borderRadius: 14,
-        boxShadow: "0 15px 35px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.4)",
-        overflow: "hidden",
-        zIndex: 1,
-        position: "relative",
-        minHeight: 0
-      }}>
+      <div className="relative flex-1 flex flex-col bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden z-10">
+        
         {/* Header */}
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(0, 0, 0, 0.08)", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 12, background: "linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2))", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255, 255, 255, 0.6)" }}>
-            <Icon name="bot" size={18} color={COLORS.sidebar} />
+        <div className="flex items-center gap-3.5 px-6 py-4 border-b border-slate-200/60 bg-white/40 backdrop-blur-xs select-none">
+          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#232F3E] to-[#1A222D] flex items-center justify-center border border-slate-200/50 shadow-xs">
+            <AWSBrandLogo className="w-8 h-[19px]" />
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: COLORS.sidebar, fontSize: 14 }}>Chat Box</div>
-            <div style={{ color: "#16a34a", fontWeight: 600, fontSize: 11 }}>● Online</div>
+            <h3 className="font-bold text-[#232F3E] text-[15px] tracking-tight leading-none">Cloud Chat Assistant</h3>
+            <span className="text-[11px] text-slate-500 font-semibold mt-1.5 inline-block">Online • Powered by AWS Q Agent</span>
           </div>
         </div>
 
         {/* Content Feed/Chat */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
-            <div
-              className="wa-chat-container"
-              style={{
-                flex: 1, overflowY: "auto", overflowX: "hidden", minHeight: 0,
-                padding: "20px 24px", display: "flex", flexDirection: "column",
-                gap: 12, background: "transparent",
-              }}
-            >
+        <div className="flex-1 flex flex-col min-h-0 relative">
+          <div 
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 p-5 sm:p-6 bg-transparent premium-scrollbar"
+          >
+            <div className="flex flex-col justify-end min-h-full gap-4">
               {allMessages.map((m, i) => {
                 const isUser = m.role === "user";
                 return (
-                  <div key={i} style={{
-                    display: "flex", flexDirection: "column",
-                    alignItems: isUser ? "flex-end" : "flex-start",
-                    animation: "slideUp 0.3s ease", width: "100%"
-                  }}>
-                    <div style={{
-                      position: "relative", maxWidth: "75%",
-                      padding: "8px 12px 14px", borderRadius: "12px",
-                      marginBottom: "4px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                      fontSize: "13px", lineHeight: "1.5",
-                      background: isUser ? "#e7f3e8" : "#ffffff",
-                      backdropFilter: "blur(5px)", WebkitBackdropFilter: "blur(5px)",
-                      color: "#1a1a1a", alignSelf: isUser ? "flex-end" : "flex-start",
-                      border: isUser ? "1px solid rgba(46, 204, 113, 0.25)" : "1px solid rgba(0, 0, 0, 0.08)",
-                      borderTopRightRadius: isUser ? 0 : "12px",
-                      borderTopLeftRadius: isUser ? "12px" : 0,
-                      borderLeft: m.isAdminReply ? "4px solid #ff9900" : (isUser ? "1px solid rgba(46, 204, 113, 0.25)" : "1px solid rgba(0, 0, 0, 0.08)"),
-                    }}>
-                      <div style={{ fontWeight: 700, fontSize: "10px", color: isUser ? "#047857" : m.isAdminReply ? "#d97706" : "#6d28d9", marginBottom: 4 }}>
-                        {isUser ? "You" : m.isAdminReply ? "Core Team" : "Study Bot"}
+                  <div 
+                    key={i} 
+                    className={cn(
+                      "flex flex-col w-full animate-fadeIn",
+                      isUser ? "items-end" : "items-start"
+                    )}
+                  >
+                    <div 
+                      className={cn(
+                        "relative max-w-[78%] px-4 py-3 rounded-2xl shadow-xs text-xs sm:text-[13px] leading-relaxed transition-all",
+                        isUser 
+                          ? "bg-[#232F3E] text-white rounded-tr-none border border-slate-800" 
+                          : cn(
+                              "bg-white text-slate-800 rounded-tl-none border border-slate-200/60",
+                              m.isAdminReply && "border-l-4 border-l-[#FF9900]"
+                            )
+                      )}
+                    >
+                      <div 
+                        className={cn(
+                          "font-semibold text-[12px] tracking-tight mb-1 font-sans",
+                          isUser 
+                            ? "text-[#FF9900]" 
+                            : m.isAdminReply 
+                              ? "text-[#FF9900]" 
+                              : "text-[#0073BB]"
+                        )}
+                      >
+                        {isUser ? "You" : m.isAdminReply ? "Core Team" : "Chat Assistant"}
                       </div>
-                      <div style={{ wordBreak: "break-word" }}>{m.text}</div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginTop: 4, fontSize: "9px", color: "rgba(0, 0, 0, 0.45)", gap: 4 }}>
+                      <div className="word-break whitespace-pre-wrap">{m.text}</div>
+                      
+                      <div className="flex items-center justify-end mt-1.5 text-[9px] text-slate-450 gap-1 select-none">
                         <span>{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         {isUser && (
-                          <span style={{ color: m.status === "Sending..." ? "rgba(0, 0, 0, 0.3)" : "#34b7f1", fontSize: "13px", fontWeight: "bold" }}>✓✓</span>
+                          <CheckCheck 
+                            className={cn(
+                              "w-3.5 h-3.5",
+                              m.status === "Sending..." ? "text-slate-400 opacity-50" : "text-sky-450"
+                            )} 
+                          />
                         )}
                       </div>
                     </div>
                     {m.role === "bot" && m.showEscalate && (
-                      <div style={{ paddingLeft: 12, marginTop: 2, marginBottom: 8 }}>
-                        <LiveChatEscalationBtn msgTimestamp={m.timestamp} onEscalate={handleEscalate} escalated={escalatedMsgs.has(m.timestamp)} />
+                      <div className="pl-3 mt-1.5 mb-2.5">
+                        <LiveChatEscalationBtn 
+                          msgTimestamp={m.timestamp} 
+                          onEscalate={handleEscalate} 
+                          escalated={escalatedMsgs.has(m.timestamp)} 
+                        />
                       </div>
                     )}
                   </div>
@@ -625,124 +468,110 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
               })}
               <div ref={bottomRef} />
             </div>
+          </div>
 
-            {/* Guide Dialog Overlay */}
-            {showGuideDialog && (
-              <div style={{
-                position: "absolute", bottom: 70, left: "50%",
-                transform: "translateX(-50%)", zIndex: 200,
-                width: "calc(100% - 48px)", maxWidth: 420,
-                animation: "guideSlideUp 0.35s cubic-bezier(0.34,1.56,0.64,1) both",
-                pointerEvents: "all",
-              }}>
-                <div style={{ background: "rgba(23, 34, 48, 0.96)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", borderRadius: 16, boxShadow: "0 12px 40px rgba(0,0,0,0.4)", overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)" }}>
-                  <div style={{ height: 4, background: "rgba(255,255,255,0.08)" }}>
-                    <div style={{ height: "100%", background: COLORS.gold, width: "100%", animation: "countdown 5s linear forwards", borderRadius: 2 }} />
-                  </div>
-                  <div style={{ padding: "16px 18px 14px" }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${COLORS.gold}, #ff6b35)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0, boxShadow: `0 3px 10px ${COLORS.gold}44` }}>💡</div>
-                        <div>
-                          <div style={{ fontWeight: 800, fontSize: 13, color: "#ffffff", lineHeight: 1.2 }}>Structured Questions Only</div>
-                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>For the best response from the Core team</div>
-                        </div>
-                      </div>
-                      <button onClick={() => { setShowGuideDialog(false); if (guideTimerRef.current) clearTimeout(guideTimerRef.current); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", fontSize: 17, cursor: "pointer", padding: "0 2px", lineHeight: 1, flexShrink: 0 }}>✕</button>
-                    </div>
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "10px 0" }} />
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.6, marginBottom: 10 }}>
-                      Please ask clear, specific questions to get the best answers from the Core team. Avoid vague or one-word messages.
-                    </div>
-                    <div style={{ background: "rgba(255,153,0,0.12)", border: "1px solid rgba(255,153,0,0.3)", borderRadius: 10, padding: "10px 13px", display: "flex", alignItems: "flex-start", gap: 8 }}>
-                      <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>✅</span>
-                      <div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: "#ffb74d", letterSpacing: "0.06em", marginBottom: 4, textTransform: "uppercase" }}>Example of a good question</div>
-                        <div style={{ fontSize: 12, color: "#ffffff", fontWeight: 600, lineHeight: 1.5, fontStyle: "italic" }}>"What is the difference between Associate and Pro certs?"</div>
-                      </div>
-                    </div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", textAlign: "center", marginTop: 10 }}>⏱ This notice will disappear in 5 seconds</div>
-                  </div>
-                </div>
+          {/* Guide Dialog Overlay */}
+          {showGuideDialog && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-32px)] max-w-sm bg-[#1A222D]/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-700 p-4 animate-slideUp">
+              <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-3">
+                <div className="h-full bg-[#FF9900] w-full animate-countdown" />
               </div>
-            )}
-
-            {/* Input bar */}
-            <div style={{
-              padding: !isCustomTyping ? 16 : 0,
-              borderTop: "1px solid rgba(0, 0, 0, 0.08)",
-              background: "transparent",
-              flexShrink: 0
-            }}>
-              {!isCustomTyping ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div className="query-grid" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {faqChips.map((chip) => (
-                      <button key={chip.id} onClick={() => handleQueryClick(chip)} disabled={isWaitingForAdmin} className="btn-3d-light text-[11px]"
-                        style={{ flex: "1 1 calc(50% - 4px)", minWidth: 0, borderRadius: 14, padding: "10px 12px", cursor: isWaitingForAdmin ? "not-allowed" : "pointer", opacity: isWaitingForAdmin ? 0.5 : 1, textAlign: "left", fontFamily: "inherit" }}>
-                        {chip.question}
-                      </button>
-                    ))}
-                  </div>
-                  <button onClick={openCustomTyping} disabled={isWaitingForAdmin} className="btn-3d text-xs"
-                    style={{ width: "100%", borderRadius: 12, padding: "12px", cursor: isWaitingForAdmin ? "not-allowed" : "pointer", opacity: isWaitingForAdmin ? 0.5 : 1, textAlign: "center", fontFamily: "inherit" }}>
-                    Other (Custom Doubt)
-                  </button>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#FF9900]" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider font-sans">Structured Questions Only</span>
                 </div>
-              ) : (
-                <form onSubmit={send} style={{ display: "flex", gap: 10, background: "rgba(0, 0, 0, 0.02)", padding: "12px 18px 16px", borderRadius: "0 0 14px 14px", alignItems: "center" }}>
-                  <div style={{ fontSize: "18px", color: COLORS.teal, cursor: "pointer" }}>😊</div>
-                  <textarea
-                    ref={inputRef}
-                    className="text-xs chat-input"
-                    value={input}
-                    onChange={handleTextareaChange}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        send(e);
-                      }
-                    }}
+                <button 
+                  onClick={() => { setShowGuideDialog(false); if (guideTimerRef.current) clearTimeout(guideTimerRef.current); }}
+                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-350 mt-2 leading-relaxed font-sans">
+                Please ask clear, specific questions to get the best answers from the Core team. Avoid vague or one-word messages.
+              </p>
+              <div className="mt-3 p-2.5 bg-white/5 rounded-lg border border-white/10 font-sans">
+                <span className="text-[9px] font-bold text-[#FF9900] uppercase tracking-wider block">Example Query</span>
+                <span className="text-xs text-white italic mt-1 block">"What is the difference between Associate and Pro certs?"</span>
+              </div>
+            </div>
+          )}
+
+          {/* Input bar */}
+          <div className="p-4 border-t border-slate-200/60 bg-white/40 backdrop-blur-xs flex-shrink-0">
+            {!isCustomTyping ? (
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {faqChips.map((chip) => (
+                    <button
+                      key={chip.id}
+                      onClick={() => handleQueryClick(chip)}
+                      disabled={isWaitingForAdmin}
+                      className="flex items-start gap-2 px-3.5 py-3 bg-white hover:bg-slate-50/50 border border-slate-200/80 hover:border-[#FF9900] text-slate-700 hover:text-[#232F3E] rounded-xl text-left text-xs font-bold shadow-xs hover:shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
+                    >
+                      <HelpCircle className="w-4 h-4 text-slate-400 group-hover:text-[#FF9900] shrink-0 mt-0.5 transition-colors" />
+                      <span className="leading-snug">{chip.question}</span>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={openCustomTyping}
+                  disabled={isWaitingForAdmin}
+                  className="w-full flex items-center justify-center gap-1.5 px-4 py-3 bg-[#232F3E] hover:bg-[#FF9900] text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-sm hover:shadow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <MessageSquare className="w-4.5 h-4.5" />
+                  <span>Other (Custom Doubt)</span>
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={send} className="flex gap-3 items-center">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={handleTextareaChange}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      send(e);
+                    }
+                  }}
+                  disabled={isWaitingForAdmin}
+                  placeholder={isWaitingForAdmin ? "Waiting for Core response..." : "Type your custom doubt..."}
+                  rows={1}
+                  className="flex-1 bg-white border border-slate-250/80 focus:border-[#FF9900] rounded-xl px-4 py-2.5 text-xs text-[#232F3E] placeholder-slate-400 shadow-inner focus:outline-none resize-none max-h-36 leading-relaxed transition-all"
+                />
+                
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    type="submit"
                     disabled={isWaitingForAdmin}
-                    placeholder={isWaitingForAdmin ? "Waiting for Core response..." : "Type a doubt to Core..."}
-                    rows={1}
-                    style={{
-                      flex: 1,
-                      background: "rgba(255, 255, 255, 0.75)",
-                      border: "1px solid rgba(0, 0, 0, 0.12)",
-                      borderRadius: 16,
-                      padding: "10px 16px",
-                      color: COLORS.text,
-                      outline: "none",
-                      fontFamily: "inherit",
-                      cursor: isWaitingForAdmin ? "not-allowed" : "text",
-                      boxShadow: "inset 0 1px 2px rgba(0,0,0,0.05)",
-                      resize: "none",
-                      maxHeight: 160,
-                      lineHeight: 1.4,
-                    }}
-                  />
-                  <button type="submit" disabled={isWaitingForAdmin} className="btn-3d"
-                    style={{ borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: isWaitingForAdmin ? "not-allowed" : "pointer", opacity: isWaitingForAdmin ? 0.5 : 1, padding: 0 }}>
-                    <Icon name="send" size={16} color="#000" />
+                    className="flex items-center justify-center w-9 h-9 bg-[#232F3E] hover:bg-[#FF9900] text-white rounded-xl shadow-sm hover:shadow transition-all duration-150 disabled:bg-slate-350 disabled:cursor-not-allowed cursor-pointer hover:scale-102"
+                  >
+                    <Send className="w-4 h-4" />
                   </button>
-                  <button type="button" onClick={() => setIsCustomTyping(false)} className="btn-3d-light text-[11px]"
-                    style={{ borderRadius: 20, padding: "8px 14px", cursor: "pointer", fontFamily: "inherit" }}>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomTyping(false)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs shadow-sm transition-all duration-150 cursor-pointer uppercase tracking-wider"
+                  >
                     Back
                   </button>
-                </form>
-              )}
-            </div>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>
+    </div>
   );
 };
 
 export default function ChatPage() {
   const isMobile = useIsMobile();
   return (
-    <div style={{ padding: isMobile ? "12px" : "24px", height: "100%", width: "100%", boxSizing: "border-box" }}>
+    <div className="p-4 md:p-6 h-[calc(100vh-32px)] md:h-[calc(100vh-48px)] w-full box-border select-none flex flex-col overflow-hidden">
       <ChatTab isMobile={isMobile} />
     </div>
   );

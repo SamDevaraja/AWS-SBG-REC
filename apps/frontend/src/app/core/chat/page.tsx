@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import GroupChatPanel from "@/components/chat/GroupChatPanel";
-import E2ECChatPanel from "@/components/chat/E2ECChatPanel";
 
 // Design tokens
 const A = {
@@ -17,7 +17,7 @@ const A = {
   danger: "#ef4444",
   text: "#0F172A",
   muted: "#475569",
-  highlight: "#8b5cf6",
+  highlight: "#232F3E",
 };
 
 const relativeTime = (isoStr: string) => {
@@ -767,6 +767,9 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
 
 // Core Admin Chat Page Main Export
 export default function CoreChatPage() {
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState<boolean>(false);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
   const [activeView, setActiveView] = useState<"queries" | "crew_chats" | "manage_users">("queries");
   const [queries, setQueries] = useState<Query[]>([]);
   const [stats, setStats] = useState<{ live: number; pending: number; resolved: number; dismissed: number; kb_docs: number }>();
@@ -815,23 +818,51 @@ export default function CoreChatPage() {
   }, [showToast]);
 
   useEffect(() => {
+    if (!authorized) return;
     fetchData();
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [fetchData, authorized]);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("aws_sgb_rec_user");
       if (raw) {
-        setUser(JSON.parse(raw));
+        const parsed = JSON.parse(raw);
+        setUser(parsed);
+        const role = (parsed?.role ?? "").toLowerCase().trim();
+        if (role === "core") {
+          setAuthorized(true);
+          setCheckingAuth(false);
+        } else if (parsed.id) {
+          fetch(`/api/auth/permissions/check?userId=${parsed.id}&permission=scan_ticket`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.hasPermission) {
+                setAuthorized(true);
+              } else {
+                router.replace('/crew/dashboard');
+              }
+              setCheckingAuth(false);
+            })
+            .catch(() => {
+              router.replace('/crew/dashboard');
+              setCheckingAuth(false);
+            });
+        } else {
+          router.replace('/login');
+          setCheckingAuth(false);
+        }
       } else {
-        setUser({ id: "dev_core", fullName: "Core Administrator", role: "core", email: "admin@awsclub.dev" });
+        router.replace('/login');
+        setCheckingAuth(false);
       }
     } catch {
       setUser({ id: "dev_core", fullName: "Core Administrator", role: "core", email: "admin@awsclub.dev" });
+      setAuthorized(true);
+      setCheckingAuth(false);
     }
-  }, []);
+  }, [router]);
 
   const handleSaved = useCallback(() => {
     fetchData();
@@ -860,6 +891,24 @@ export default function CoreChatPage() {
     { key: "dismissed", label: "Dismissed", color: A.muted },
     { key: "all", label: "All", color: A.accent },
   ];
+
+  if (checkingAuth) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 12, background: A.bg }}>
+        <div style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${A.accent}`, borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
+        <span style={{ fontSize: 11, color: A.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Verifying Security Credentials...</span>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return null;
+  }
 
   return (
     <div className="admin-chat-container">
@@ -981,8 +1030,10 @@ export default function CoreChatPage() {
           {/* View Navigation */}
           <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.04)", padding: "3px 4px", borderRadius: 9999 }}>
             <button onClick={() => setActiveView("queries")} className={`tab-btn ${activeView === "queries" ? "active-admin" : "inactive"}`}>Unhandled Queries & KB</button>
-            <button onClick={() => setActiveView("crew_chats")} className={`tab-btn ${activeView === "crew_chats" ? "active-admin" : "inactive"}`}>Crew General & E2EE Chat</button>
-            <button onClick={() => setActiveView("manage_users")} className={`tab-btn ${activeView === "manage_users" ? "active-admin" : "inactive"}`}>Manage Members</button>
+            <button onClick={() => setActiveView("crew_chats")} className={`tab-btn ${activeView === "crew_chats" ? "active-admin" : "inactive"}`}>Crew General Chat</button>
+            {user?.role === "core" && (
+              <button onClick={() => setActiveView("manage_users")} className={`tab-btn ${activeView === "manage_users" ? "active-admin" : "inactive"}`}>Manage Members</button>
+            )}
           </div>
         </div>
 
@@ -1007,21 +1058,21 @@ export default function CoreChatPage() {
               display: "flex",
               flexDirection: "column",
               height: "100%",
-              background: "#fff",
+              background: A.surface,
               borderRadius: 14,
               border: `1px solid ${A.border}`,
               overflow: "hidden",
             }}
           >
             {/* Header selection between E2EE and general for admin */}
-            <div style={{ background: "#f0f2f5", padding: "10px 20px", borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ background: "rgba(35, 47, 62, 0.03)", color: A.text, padding: "10px 20px", borderBottom: `1px solid ${A.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ fontSize: 12, fontWeight: 700 }}>AWS Club General Core-Crew Chat</div>
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
               <GroupChatPanel user={user} />
             </div>
           </div>
-        ) : activeView === "manage_users" ? (
+        ) : activeView === "manage_users" && user?.role === "core" ? (
           <div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
             <ManageUsersPanel showToast={showToast} />
           </div>

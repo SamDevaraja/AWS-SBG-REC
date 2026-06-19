@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCrewEvents } from '@/lib/hooks';
-import { Search, Calendar, MapPin, Users, QrCode, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { Search, Calendar, MapPin, Users, QrCode, ChevronRight, Image as ImageIcon, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { EventStatus, EventMode } from '@/lib/types';
 
@@ -43,6 +43,23 @@ export default function AssignedEventsPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const { data: events, isLoading } = useCrewEvents();
+  const [canCreateEvent, setCanCreateEvent] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('aws_sgb_rec_user');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const userId = parsed.id;
+        if (userId) {
+          fetch(`/api/auth/permissions/check?userId=${userId}&permission=create_event`)
+            .then((res) => res.json())
+            .then((data) => setCanCreateEvent(!!data.hasPermission))
+            .catch((err) => console.error(err));
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   const filteredEvents = (events ?? []).filter((e) =>
     e.title.toLowerCase().includes(search.toLowerCase()),
@@ -66,6 +83,32 @@ export default function AssignedEventsPage() {
             <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>
               Browse and monitor your operational assignments
             </p>
+            {canCreateEvent && (
+              <div style={{ marginTop: 16 }}>
+                <Link
+                  href="/crew/events/create"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#232F3E',
+                    color: '#ffffff',
+                    padding: '8px 16px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    boxShadow: '0 4px 12px rgba(35,47,62,0.15)',
+                    transition: 'all 0.2s',
+                    textDecoration: 'none',
+                  }}
+                  className="hover:bg-[#1a232f] hover:-translate-y-0.5"
+                >
+                  <Plus style={{ width: 14, height: 14 }} /> Create Event (Delegated)
+                </Link>
+              </div>
+            )}
           </div>
           <div style={{ marginTop: 24, width: '100%', maxWidth: 320 }}>
             <div style={{ position: 'relative' }}>
@@ -128,12 +171,9 @@ export default function AssignedEventsPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.04 }}
-                whileHover={{ y: -1 }}
                 style={{ background: 'linear-gradient(135deg, rgba(255, 153, 0, 0.04), rgba(35, 47, 62, 0.06))' }}
-                className="rounded-2xl p-3 md:p-4 border border-transparent hover:border-brand-orange/30 shadow-sm hover:shadow-md transition-all group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 relative"
+                className="rounded-2xl p-3 md:p-4 border border-transparent hover:border-brand-orange/30 shadow-sm hover:shadow-lg hover:-translate-y-[1px] transition-all duration-200 group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 relative"
               >
-                {/* Subtle highlight edge */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-orange opacity-0 group-hover:opacity-100 rounded-l-2xl transition-opacity" />
 
                 {/* Left: Thumbnail Avatar */}
                 <div className="w-16 h-16 md:w-20 md:h-20 shrink-0 bg-slate-50 rounded-xl border border-slate-100 overflow-hidden relative shadow-inner">

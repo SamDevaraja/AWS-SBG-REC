@@ -22,6 +22,9 @@ export default function TopicsDirectoryPage() {
   const [editingTopic, setEditingTopic] = useState<TopicData | null>(null);
   const [deletingTopic, setDeletingTopic] = useState<TopicData | null>(null);
 
+  const [authorized, setAuthorized] = useState<boolean>(false);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
+
   const handleApiError = (err: any) => {
     const apiError = err as ApiError;
     if (apiError.status === 401) {
@@ -41,7 +44,12 @@ export default function TopicsDirectoryPage() {
       setTopics(data);
       setError(null);
     } catch (err: any) {
-      console.error('Failed to load topics:', err);
+      console.error('Failed to load topics: error details =', {
+        message: err?.message,
+        status: err?.status,
+        errors: err?.errors,
+        raw: err
+      });
       setError(err?.message || 'Failed to load topics');
     } finally {
       setLoading(false);
@@ -49,8 +57,44 @@ export default function TopicsDirectoryPage() {
   };
 
   useEffect(() => {
-    loadTopics();
-  }, []);
+    try {
+      const raw = localStorage.getItem("aws_sgb_rec_user");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const role = (parsed?.role ?? "").toLowerCase().trim();
+        if (role === "core") {
+          setAuthorized(true);
+          setCheckingAuth(false);
+          loadTopics();
+        } else if (parsed.id) {
+          fetch(`/api/auth/permissions/check?userId=${parsed.id}&permission=manage_announcements`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.hasPermission) {
+                setAuthorized(true);
+                loadTopics();
+              } else {
+                router.replace('/crew/dashboard');
+              }
+              setCheckingAuth(false);
+            })
+            .catch(() => {
+              router.replace('/crew/dashboard');
+              setCheckingAuth(false);
+            });
+        } else {
+          router.replace('/login');
+          setCheckingAuth(false);
+        }
+      } else {
+        router.replace('/login');
+        setCheckingAuth(false);
+      }
+    } catch {
+      router.replace('/login');
+      setCheckingAuth(false);
+    }
+  }, [router]);
 
   const handleCreateTopic = async (name: string, description: string) => {
     try {
@@ -82,6 +126,19 @@ export default function TopicsDirectoryPage() {
       handleApiError(err);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
+        <Icons.RefreshCw className="animate-spin text-[#FF9900]" size={32} />
+        <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Verifying Security Credentials...</span>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return null;
+  }
 
   if (error) {
     return (

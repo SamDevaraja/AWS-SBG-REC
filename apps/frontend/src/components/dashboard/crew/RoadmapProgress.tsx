@@ -49,6 +49,7 @@ export default function RoadmapProgress() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasRoadmapAccess, setHasRoadmapAccess] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -72,6 +73,27 @@ export default function RoadmapProgress() {
       }
     };
     load();
+
+    try {
+      const raw = localStorage.getItem('aws_sgb_rec_user');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const role = (parsed.role || '').toLowerCase().trim();
+        if (role === 'core') {
+          setHasRoadmapAccess(true);
+        } else if (parsed.id) {
+          fetch(`/api/auth/permissions/check?userId=${parsed.id}&permission=manage_announcements`)
+            .then(res => res.json())
+            .then(data => {
+              if (active && data.success && data.hasPermission) {
+                setHasRoadmapAccess(true);
+              }
+            })
+            .catch(err => console.error("Error checking permissions in RoadmapProgress:", err));
+        }
+      }
+    } catch {}
+
     return () => { active = false; };
   }, []);
 
@@ -215,9 +237,9 @@ export default function RoadmapProgress() {
                     {/* Go arrow */}
                     {topic.unlocked && (
                       <Link
-                        href={`/learn/${topic.slug}`}
+                        href={hasRoadmapAccess ? `/core/topics/${topic.id}/roadmap` : `/learn/${topic.slug}`}
                         className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 hover:bg-amber-500 hover:text-white text-slate-500 flex items-center justify-center transition-all duration-200 cursor-pointer"
-                        title={`Go to ${topic.name}`}
+                        title={hasRoadmapAccess ? `Edit ${topic.name}` : `Go to ${topic.name}`}
                       >
                         <ChevronRight className="w-4 h-4" />
                       </Link>
@@ -232,14 +254,18 @@ export default function RoadmapProgress() {
           {continueModule && (
             <div className="mt-auto pt-3">
               <Link
-                href={`/learn/${continueModule.topicSlug}`}
+                href={hasRoadmapAccess ? `/core/topics` : `/learn/${continueModule.topicSlug}`}
                 className="flex items-center justify-between w-full bg-white/70 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-2xl px-4 py-3.5 group cursor-pointer transition-all duration-200 hover:shadow-sm active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
                   <Trophy className="w-4 h-4 text-amber-500 flex-shrink-0" />
                   <div>
-                    <p className="text-[10px] font-semibold text-slate-400 leading-none mb-0.5 uppercase tracking-wide">Continue learning</p>
-                    <p className="text-sm font-bold text-slate-800 leading-tight">{continueModule.name}</p>
+                    <p className="text-[10px] font-semibold text-slate-400 leading-none mb-0.5 uppercase tracking-wide">
+                      {hasRoadmapAccess ? "Manage Roadmaps" : "Continue learning"}
+                    </p>
+                    <p className="text-sm font-bold text-slate-800 leading-tight">
+                      {hasRoadmapAccess ? "Roadmap Builder" : continueModule.name}
+                    </p>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0" />

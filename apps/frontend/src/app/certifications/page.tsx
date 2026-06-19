@@ -81,13 +81,25 @@ export default function CertificationsPage() {
     { title: "Cloud Concepts", pct: 25, topics: "Benefits, Shared Responsibility" }
   ]);
 
-  // Detect user role
+  // Detect user role and check permissions for dynamic elevation
   useEffect(() => {
     try {
       const raw = localStorage.getItem('aws_sgb_rec_user');
       if (raw) {
         const user = JSON.parse(raw);
-        setRole((user?.role ?? '').toLowerCase().trim());
+        const userRole = (user?.role ?? '').toLowerCase().trim();
+        setRole(userRole);
+
+        if (userRole !== 'core' && user?.id) {
+          fetch(`/api/auth/permissions/check?userId=${user.id}&permission=view_analytics`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.hasPermission) {
+                setRole('core');
+              }
+            })
+            .catch(err => console.error("Certifications permission check failed:", err));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -95,22 +107,34 @@ export default function CertificationsPage() {
   }, []);
 
   const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch("/api/certifications");
-      if (!res.ok) {
-        throw new Error("Failed to load certifications data.");
+    const attempts = 5;
+    const delay = 1500;
+    
+    setLoading(true);
+    setError(null);
+    
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const res = await fetch("/api/certifications");
+        if (!res.ok) {
+          throw new Error("Failed to load certifications data.");
+        }
+        const resData = await res.json();
+        const arrayData = Array.isArray(resData) ? resData : (resData.data || []);
+        setCerts(arrayData);
+        setError(null);
+        setLoading(false);
+        return; // Success, exit early
+      } catch (err: any) {
+        console.warn(`Attempt ${i + 1} to load certifications failed:`, err);
+        if (i === attempts - 1) {
+          setError(err.message || "Something went wrong while fetching data.");
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
       }
-      const resData = await res.json();
-      const arrayData = Array.isArray(resData) ? resData : (resData.data || []);
-      setCerts(arrayData);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Something went wrong while fetching data.");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   useEffect(() => {

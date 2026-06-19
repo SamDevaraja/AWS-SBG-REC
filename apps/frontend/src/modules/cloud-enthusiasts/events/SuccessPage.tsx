@@ -86,8 +86,8 @@ export default function SuccessPage() {
           <h1 className="text-2xl font-extrabold text-[#232F3E] tracking-tight">
             Registration Successful!
           </h1>
-          <p className="text-slate-550 mt-2 text-xs font-normal max-w-sm mx-auto leading-relaxed">
-            Your seat is reserved. A confirmation email has been dispatched via Gmail SMTP.
+          <p className="text-slate-550 mt-2 text-xs font-normal max-w-xl mx-auto leading-relaxed">
+            Seat reserved successfully ! A confirmation email has been sent to your inbox.
           </p>
         </div>
 
