@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
-import { DateRangePicker } from '@/shared/components/DateRangePicker';
 
 /* ─── Loading Skeleton ──────────────────────────────────────────────── */
 function LoadingSkeleton() {
@@ -241,20 +240,31 @@ function RegistrationsPageContent() {
                 </div>
 
                 {/* Date range filter */}
-                <DateRangePicker
-                  startDate={dateFrom}
-                  endDate={dateTo}
-                  onStartChange={(d) => { setDateFrom(d); setPage(1); }}
-                  onEndChange={(d) => { setDateTo(d); setPage(1); }}
-                />
+                <div className="flex items-center gap-1.5 border border-slate-200 bg-slate-50 rounded-xl px-3 py-1.5 transition-all focus-within:bg-white focus-within:border-[#FF9900] shrink-0">
+                  <Calendar size={13} className="text-slate-400 shrink-0" />
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                    className="bg-transparent text-[11px] text-slate-600 focus:outline-none cursor-pointer border-none p-0 w-28"
+                  />
+                  <span className="text-slate-400 text-[10px] font-medium shrink-0">to</span>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                    className="bg-transparent text-[11px] text-slate-600 focus:outline-none cursor-pointer border-none p-0 w-28"
+                  />
+                </div>
               </div>
 
               {/* Right Group: Clear filters */}
               {hasActiveFilter && (
                 <button
                   onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-                  className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer shrink-0"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0"
                 >
+                  <XCircle size={14} className="text-slate-400" />
                   Clear filters
                 </button>
               )}
