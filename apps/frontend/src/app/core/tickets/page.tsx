@@ -179,15 +179,17 @@ function TicketsPageContent() {
             </div>
             
             <div className="flex items-center gap-3">
-              <h1 className="text-[26px] font-bold text-slate-900 tracking-tight leading-none">
-                Tickets
+              <h1 className="text-[28px] font-extrabold text-slate-900 tracking-tight leading-none">
+                {eventTitle || 'Tickets'}
               </h1>
-              <span className="inline-flex items-center justify-center rounded-full bg-slate-100 border border-slate-200/60 px-3 py-0.5 text-xs font-bold text-slate-600">
+              <span className="inline-flex items-center justify-center rounded-lg bg-slate-100/80 border border-slate-200/50 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500">
                 {totalCount}
               </span>
             </div>
-            <p className="text-[12px] text-slate-400 font-normal mt-2">
-              Manage, verify, and monitor secure entry passes for registered cloud events.
+            <p className="text-[13px] text-slate-400 font-normal mt-2.5">
+              {eventTitle 
+                ? `Manage, verify, and monitor secure entry passes for ${eventTitle}.` 
+                : 'Manage, verify, and monitor secure entry passes for registered cloud events.'}
             </p>
           </div>
 
