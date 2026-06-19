@@ -249,65 +249,66 @@ function TicketsPageContent() {
         </div>
 
         {/* ── Filters Panel Card ── */}
-        <div className="bg-white border border-slate-100 rounded-2xl px-6 py-5 shadow-sm flex flex-col gap-4 relative overflow-hidden">
+        <div className="bg-white border border-slate-100 rounded-2xl px-6 py-4 shadow-sm relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.015)_0%,transparent_55%)] pointer-events-none" />
           
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            {/* Search Input */}
-            <div className={`${initialEventId ? 'md:col-span-9' : 'md:col-span-6'} relative`}>
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-              <input
-                type="text"
-                placeholder="Search tickets by code or attendee name..."
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
-              />
-            </div>
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+            {/* Left Group: Search, Event selector, and Status */}
+            <div className="flex flex-wrap items-center gap-3 flex-grow">
+              {/* Search Input */}
+              <div className="relative min-w-[240px] flex-grow md:flex-grow-0 md:w-80">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                <input
+                  type="text"
+                  placeholder="Search tickets by code or attendee name..."
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
+                />
+              </div>
 
-            {/* Event Filter */}
-            {!initialEventId && (
-              <div className="md:col-span-3 relative">
+              {/* Event Filter */}
+              {!initialEventId && (
+                <div className="relative w-48 shrink-0">
+                  <select
+                    value={eventFilter}
+                    onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
+                  >
+                    <option value="">All Events</option>
+                    {events.map((ev) => (
+                      <option key={ev.id} value={ev.id}>{ev.title}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                </div>
+              )}
+
+              {/* Status Filter */}
+              <div className="relative w-40 shrink-0">
                 <select
-                  value={eventFilter}
-                  onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+                  value={statusFilter}
+                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
                 >
-                  <option value="">All Events</option>
-                  {events.map((ev) => (
-                    <option key={ev.id} value={ev.id}>{ev.title}</option>
-                  ))}
+                  <option value="">All Statuses</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="USED">Used</option>
+                  <option value="CANCELLED">Cancelled</option>
                 </select>
                 <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
-            )}
-
-            {/* Status Filter */}
-            <div className="md:col-span-3 relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
-              >
-                <option value="">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="USED">Used</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
             </div>
-          </div>
 
-          {hasFilter && (
-            <div className="relative z-10 flex justify-end pt-2 border-t border-slate-100/80">
+            {hasFilter && (
               <button
                 onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setPage(1); }}
-                className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer"
+                className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer shrink-0"
               >
-                Clear all filters
+                Clear filters
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ── Table Grid Card ── */}

@@ -183,91 +183,88 @@ function RegistrationsPageContent() {
           </div>
         </div>
 
-
-
         {/* ── Unified Registrations Data Table Container ── */}
         <div className="bg-white border border-slate-200/60 rounded-[24px] shadow-sm overflow-hidden flex flex-col relative">
           
           {/* Filters Toolbar */}
-          <div className="px-6 py-5 bg-slate-50/20 border-b border-slate-100 flex flex-col gap-4 relative">
+          <div className="px-6 py-4 bg-slate-50/20 border-b border-slate-100 relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.01)_0%,transparent_55%)] pointer-events-none" />
             
-            <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-              {/* Search Input */}
-              <div className={`${initialEventId ? 'md:col-span-9' : 'md:col-span-6'} relative`}>
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-                <input
-                  type="text"
-                  placeholder="Search registrations by attendee name or email..."
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
-                />
-              </div>
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+              {/* Left Group: Search, Event selector, Status, and Date Range */}
+              <div className="flex flex-wrap items-center gap-3 flex-grow">
+                {/* Search Input */}
+                <div className="relative min-w-[240px] flex-grow md:flex-grow-0 md:w-80">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                  <input
+                    type="text"
+                    placeholder="Search registrations by name or email..."
+                    value={search}
+                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
+                  />
+                </div>
 
-              {/* Event Dropdown */}
-              {!initialEventId && (
-                <div className="md:col-span-3 relative">
+                {/* Event Dropdown */}
+                {!initialEventId && (
+                  <div className="relative w-48 shrink-0">
+                    <select
+                      value={eventFilter}
+                      onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
+                    >
+                      <option value="">All Events</option>
+                      {events.map((ev) => (
+                        <option key={ev.id} value={ev.id}>
+                          {ev.title}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                  </div>
+                )}
+
+                {/* Status Dropdown */}
+                <div className="relative w-40 shrink-0">
                   <select
-                    value={eventFilter}
-                    onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+                    value={statusFilter}
+                    onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
                   >
-                    <option value="">All Events</option>
-                    {events.map((ev) => (
-                      <option key={ev.id} value={ev.id}>
-                        {ev.title}
-                      </option>
-                    ))}
+                    <option value="">All Statuses</option>
+                    <option value="CONFIRMED">Confirmed</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="CANCELLED">Cancelled</option>
                   </select>
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
                 </div>
-              )}
 
-              {/* Status Dropdown */}
-              <div className="md:col-span-3 relative">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
-                >
-                  <option value="">All Statuses</option>
-                  <option value="CONFIRMED">Confirmed</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </select>
-                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
-              </div>
-            </div>
-
-            {/* Date Filters & Clear button */}
-            <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100/80">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                  <Calendar size={13} className="text-slate-400" />
-                  <span>Registration Date Range</span>
+                {/* Date range filter */}
+                <div className="flex items-center gap-1.5 border border-slate-200 bg-slate-50 rounded-xl px-3 py-1.5 transition-all focus-within:bg-white focus-within:border-[#FF9900] shrink-0">
+                  <Calendar size={13} className="text-slate-400 shrink-0" />
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                    className="bg-transparent text-[11px] text-slate-600 focus:outline-none cursor-pointer border-none p-0 w-28"
+                  />
+                  <span className="text-slate-400 text-[10px] font-medium shrink-0">to</span>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                    className="bg-transparent text-[11px] text-slate-600 focus:outline-none cursor-pointer border-none p-0 w-28"
+                  />
                 </div>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
-                />
-                <span className="text-slate-400 text-xs font-medium">to</span>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-lg text-xs text-slate-600 transition-all cursor-pointer"
-                />
               </div>
 
+              {/* Right Group: Clear filters */}
               {hasActiveFilter && (
                 <button
                   onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setDateFrom(''); setDateTo(''); setPage(1); }}
-                  className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer"
+                  className="text-xs font-bold text-[#FF9900] hover:text-orange-600 transition-colors underline underline-offset-4 decoration-2 cursor-pointer shrink-0"
                 >
-                  Clear all filters
+                  Clear filters
                 </button>
               )}
             </div>
