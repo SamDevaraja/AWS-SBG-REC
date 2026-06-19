@@ -157,43 +157,39 @@ function TicketsPageContent() {
 
       <div className="max-w-7xl w-full mx-auto flex flex-col gap-6 z-10 relative">
 
-        {/* ── Header Card ── */}
-        <div className="relative overflow-hidden bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
-          {/* Ambient background glow inside the header card */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[radial-gradient(circle_at_70%_20%,rgba(255,153,0,0.08)_0%,transparent_60%)] pointer-events-none" />
-          
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              {/* Pill Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200/50 rounded-full mb-3 shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Admin · Tickets</span>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <h1 className="text-[26px] font-bold text-slate-900 tracking-tight leading-none">
-                  Tickets
-                </h1>
-                <span className="inline-flex items-center justify-center rounded-full bg-slate-100 border border-slate-200/60 px-3 py-0.5 text-xs font-bold text-slate-600">
-                  {totalCount}
-                </span>
-              </div>
-              <p className="text-[12px] text-slate-400 font-normal mt-2">
-                Manage, verify, and monitor secure entry passes for registered cloud events.
-              </p>
+        {/* ── Header Section ── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
+          <div>
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200/50 rounded-full mb-3 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Admin · Tickets</span>
             </div>
+            
+            <div className="flex items-center gap-3">
+              <h1 className="text-[26px] font-bold text-slate-900 tracking-tight leading-none">
+                Tickets
+              </h1>
+              <span className="inline-flex items-center justify-center rounded-full bg-slate-100 border border-slate-200/60 px-3 py-0.5 text-xs font-bold text-slate-600">
+                {totalCount}
+              </span>
+            </div>
+            <p className="text-[12px] text-slate-400 font-normal mt-2">
+              Manage, verify, and monitor secure entry passes for registered cloud events.
+            </p>
+          </div>
 
-            <div className="flex items-center gap-3 shrink-0">
-              <Link
-                href="/core/attendance"
-                className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-xl text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
-              >
-                <ClipboardList size={14} className="text-[#FF9900]" />
-                View Attendance
-              </Link>
-            </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              href="/core/attendance"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-xl text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 uppercase tracking-wider cursor-pointer"
+            >
+              <ClipboardList size={14} className="text-[#FF9900]" />
+              View Attendance
+            </Link>
           </div>
         </div>
+
 
         {/* ── Stats Cards Row ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
