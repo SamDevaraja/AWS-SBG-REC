@@ -174,11 +174,11 @@ function TicketsPageContent() {
               )}
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <h1 className="text-[28px] font-extrabold text-slate-900 tracking-tight leading-none">
                 {eventTitle || 'Tickets'}
               </h1>
-              <span className="inline-flex items-center justify-center rounded-lg bg-slate-100/80 border border-slate-200/50 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500">
+              <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full text-xs font-semibold">
                 {totalCount}
               </span>
             </div>
