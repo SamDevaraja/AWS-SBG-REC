@@ -144,11 +144,7 @@ function RegistrationsPageContent() {
               <Link href="/core/dashboard" className="hover:text-slate-600 transition-colors">Admin</Link>
               <span className="text-slate-300">/</span>
               {eventTitle ? (
-                <>
-                  <Link href="/core/registrations" className="hover:text-slate-600 transition-colors">Registrations</Link>
-                  <span className="text-slate-300">/</span>
-                  <span className="text-slate-600 font-semibold">{eventTitle}</span>
-                </>
+                <Link href="/core/registrations" className="hover:text-slate-600 transition-colors">Registrations</Link>
               ) : (
                 <span className="text-slate-600 font-semibold">Registrations</span>
               )}
@@ -164,7 +160,7 @@ function RegistrationsPageContent() {
             </div>
             <p className="text-[13px] text-slate-400 font-normal mt-2.5">
               {eventTitle 
-                ? `Manage and monitor registrations for ${eventTitle}.` 
+                ? 'Manage and monitor registrations for this event.' 
                 : 'Manage and monitor all event registrations across the platform.'}
             </p>
           </div>

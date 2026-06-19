@@ -168,11 +168,7 @@ function TicketsPageContent() {
               <Link href="/core/dashboard" className="hover:text-slate-600 transition-colors">Admin</Link>
               <span className="text-slate-300">/</span>
               {eventTitle ? (
-                <>
-                  <Link href="/core/tickets" className="hover:text-slate-600 transition-colors">Tickets</Link>
-                  <span className="text-slate-300">/</span>
-                  <span className="text-slate-600 font-semibold">{eventTitle}</span>
-                </>
+                <Link href="/core/tickets" className="hover:text-slate-600 transition-colors">Tickets</Link>
               ) : (
                 <span className="text-slate-600 font-semibold">Tickets</span>
               )}
@@ -188,7 +184,7 @@ function TicketsPageContent() {
             </div>
             <p className="text-[13px] text-slate-400 font-normal mt-2.5">
               {eventTitle 
-                ? `Manage, verify, and monitor secure entry passes for ${eventTitle}.` 
+                ? 'Manage, verify, and monitor secure entry passes for this event.' 
                 : 'Manage, verify, and monitor secure entry passes for registered cloud events.'}
             </p>
           </div>
