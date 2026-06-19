@@ -139,18 +139,20 @@ function RegistrationsPageContent() {
         {/* ── Header Section ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
           <div>
-            {/* Pill Badge */}
-            {eventTitle ? (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-orange-50 border border-orange-200/40 rounded-full mb-3 shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#FF9900] animate-pulse" />
-                <span className="text-[10.5px] font-bold text-slate-700 tracking-normal">{eventTitle}</span>
-              </div>
-            ) : (
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200/50 rounded-full mb-3 shadow-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-normal">Admin · Registrations</span>
-              </div>
-            )}
+            {/* Breadcrumb Path */}
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 mb-2.5">
+              <Link href="/core/dashboard" className="hover:text-slate-600 transition-colors">Admin</Link>
+              <span className="text-slate-300">/</span>
+              {eventTitle ? (
+                <>
+                  <Link href="/core/registrations" className="hover:text-slate-600 transition-colors">Registrations</Link>
+                  <span className="text-slate-300">/</span>
+                  <span className="text-slate-600 font-semibold">{eventTitle}</span>
+                </>
+              ) : (
+                <span className="text-slate-600 font-semibold">Registrations</span>
+              )}
+            </div>
             
             <div className="flex items-center gap-3">
               <h1 className="text-[26px] font-bold text-slate-900 tracking-tight leading-none">
