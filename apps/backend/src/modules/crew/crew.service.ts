@@ -4,10 +4,14 @@ import { CreateIncidentDto } from './dto/create-incident.dto';
 import { MarkAttendanceDto } from './dto/mark-attendance.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TicketStatus } from '@prisma/client';
+import { AttendanceService } from '../attendance/attendance.service';
 
 @Injectable()
 export class CrewService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly attendanceService: AttendanceService,
+  ) {}
 
   async getDashboard() {
     const startOfDay = new Date();
@@ -242,47 +246,16 @@ export class CrewService {
   }
 
   async markAttendance(dto: MarkAttendanceDto) {
-    const verification = await this.verifyTicket(dto.ticketCode);
-
-    if (!verification.valid) {
-      // Returns verification failure status directly (Ticket Not Found, Ticket Cancelled, Ticket Already Used)
-      return {
-        success: false,
-        status: verification.status,
-      };
-    }
-
-    const ticket = verification.ticket!;
-    const scannerId = dto.scannerId || 'default-crew-scanner';
-
-    // Perform check-in transaction
-    const [updatedTicket] = await this.prisma.$transaction([
-      this.prisma.ticket.update({
-        where: { id: ticket.id },
-        data: {
-          status: TicketStatus.USED,
-          scannedAt: new Date(),
-          scannerId,
-        },
-        include: {
-          event: { select: { title: true, date: true } },
-          registration: true,
-        },
-      }),
-      this.prisma.attendanceLog.create({
-        data: {
-          ticketId: ticket.id,
-          userId: ticket.registration.userId,
-          eventId: ticket.eventId,
-          scannerId,
-        },
-      }),
-    ]);
+    const result = await this.attendanceService.verifyTicket({
+      ticketCode: dto.ticketCode,
+      scannerId: dto.scannerId || 'crew-scanner',
+    });
 
     return {
-      success: true,
-      status: 'Attendance Marked Successfully',
-      ticket: updatedTicket,
+      success: result.valid,
+      valid: result.valid,
+      status: result.status === 'Valid Ticket' ? 'Attendance Marked Successfully' : result.status,
+      ticket: result.ticket,
     };
   }
 

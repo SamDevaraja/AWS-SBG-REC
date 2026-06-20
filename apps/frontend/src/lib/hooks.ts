@@ -378,6 +378,8 @@ export function useMarkCrewAttendance() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['crew', 'dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['crew', 'attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
     },
   });
 }

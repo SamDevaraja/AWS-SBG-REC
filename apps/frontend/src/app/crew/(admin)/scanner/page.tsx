@@ -3,7 +3,7 @@
 import { useState, Suspense, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEvents, useAttendance, useVerifyTicket } from '@/lib/hooks';
+import { useEvents, useAttendance, useMarkCrewAttendance } from '@/lib/hooks';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import {
@@ -245,7 +245,7 @@ function TicketScannerPageContent() {
   const statsAbsent = statsAbsentData?.total ?? 0;
   const attendanceRate = statsTotal > 0 ? Math.round((statsAttended / statsTotal) * 100) : 0;
 
-  const verifyMutation = useVerifyTicket();
+  const verifyMutation = useMarkCrewAttendance();
 
   function handleScanSubmit(e: React.FormEvent) {
     e.preventDefault();
