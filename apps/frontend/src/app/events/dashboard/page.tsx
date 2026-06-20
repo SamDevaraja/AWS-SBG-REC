@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import StatsCard from "@/components/StatsCard";
 import UpcomingEvent from "@/components/UpcomingEvent";
 import Announcements from "@/components/Announcements";
-import LeaderboardTable from "@/components/LeaderboardTable";
-import GlassCard from "@/components/GlassCard";
+import LeaderboardModal from "@/components/leaderboard/LeaderboardModal";
 import { useTickets, useEvents } from "@/modules/cloud-enthusiasts/shared/hooks/useCloudEnthusiasts";
 import {
   DynamicHeroBanner,
@@ -92,20 +91,11 @@ export default function Home() {
         </section>
       </div>
       {leaderboardOpen && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setLeaderboardOpen(false)} />
-          <div className="relative z-10 w-full max-w-3xl">
-            <GlassCard className="overflow-hidden p-0 leaderboard-modal-panel" hoverEffect={false}>
-              <div className="p-4 border-b border-black/5 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-foreground font-display">Leaderboard</h3>
-                <button onClick={() => setLeaderboardOpen(false)} className="text-foreground/60 p-2 rounded-lg hover:bg-black/5">Close</button>
-              </div>
-              <div className="p-4">
-                <LeaderboardTable />
-              </div>
-            </GlassCard>
-          </div>
-        </div>
+        <LeaderboardModal
+          isOpen={leaderboardOpen}
+          onClose={() => setLeaderboardOpen(false)}
+          token={typeof window !== "undefined" ? localStorage.getItem("accessToken") : null}
+        />
       )}
     </div>
   );

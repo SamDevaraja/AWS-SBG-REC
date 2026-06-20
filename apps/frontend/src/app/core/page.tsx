@@ -1,13 +1,10 @@
-import { MeshBackground } from '@/components/MeshBackground';
 import { LoginCard } from '@/components/LoginCard';
+import { AuthLayout } from '@/components/AuthLayout';
 
 export default function CoreLoginPage() {
   return (
-    <main className="relative min-h-screen flex items-center justify-center p-4 py-8 bg-[#d6d4cf] overflow-y-auto">
-      <MeshBackground />
-      <div className="relative z-10 w-full flex items-center justify-center">
-        <LoginCard />
-      </div>
-    </main>
+    <AuthLayout>
+      <LoginCard />
+    </AuthLayout>
   );
 }

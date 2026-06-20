@@ -44,6 +44,7 @@ model User {
   updatedAt     DateTime       @updatedAt
   role          String         @default("enthusiasts")
   xp            Int            @default(0)
+  eventxp       Int            @default(0)
   auditLogs     AuditLog[]
   notifications Notification[]
   roles         UserRole[]

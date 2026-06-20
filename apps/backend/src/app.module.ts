@@ -31,6 +31,7 @@ import { RoadmapSlidesModule } from '@/modules/slides/slides.module';
 import { RoadmapQuestionsModule } from '@/modules/questions/questions.module';
 import { RoadmapLearningModule } from '@/modules/learning/learning.module';
 import { RoadmapUploadsModule } from '@/modules/uploads/uploads.module';
+import { LeaderboardModule } from '@/modules/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { RoadmapUploadsModule } from '@/modules/uploads/uploads.module';
     RoadmapQuestionsModule,
     RoadmapLearningModule,
     RoadmapUploadsModule,
+    LeaderboardModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

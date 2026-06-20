@@ -95,95 +95,84 @@ export const LoginCard = () => {
 
 
   return (
-    <div className="relative z-10 w-full max-w-[480px]">
-      <div className="bg-white shadow-premium rounded-[16px] py-8 px-6 flex flex-col items-center overflow-hidden border border-slate-200 w-full">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center mb-6 w-full">
-          <div className="flex items-center gap-2 mb-4 justify-center">
-            <img src="/brand-logo.png" alt="Logo" className="w-5 h-5 object-contain" />
-            <span className="brand-note-text text-[10px] uppercase tracking-wider">
-              AWS Student Builders Group REC
-            </span>
-          </div>
-          <h1 className="text-slate-900 text-2xl font-semibold tracking-tight mb-1 font-display">
-            Welcome Back
-          </h1>
-          <p className="text-slate-500 text-xs sm:text-sm font-normal leading-relaxed">
-            Log in to your cloud dashboard.
-          </p>
-        </div>
+    <div className="relative z-10 w-full max-w-[460px] bg-white/85 backdrop-blur-md border border-slate-300 rounded-2xl p-8 sm:p-10">
+      {/* Header */}
+      <div className="flex flex-col items-start text-left mb-5 w-full">
+        <h1 className="text-slate-900 text-3xl font-bold tracking-tight mb-1.5 font-display auth-card-heading">
+          Welcome Back
+        </h1>
+        <p className="text-slate-500 text-sm font-normal leading-relaxed">
+          Log in to your cloud dashboard.
+        </p>
+      </div>
 
-        {/* Form */}
-        <form className="w-full space-y-5" onSubmit={handleSubmit}>
+      {/* Form */}
+      <form className="w-full space-y-4" onSubmit={handleSubmit}>
+        <InputField
+          label="Email Address"
+          type="email"
+          name="email"
+          icon={Mail}
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <div className="space-y-2">
           <InputField
-            label="Email Address"
-            type="email"
-            name="email"
-            icon={Mail}
-            value={formData.email}
+            label="Password"
+            type="password"
+            name="password"
+            icon={Lock}
+            value={formData.password}
             onChange={handleChange}
             required
           />
-
-          <div className="space-y-2">
-            <InputField
-              label="Password"
-              type="password"
-              name="password"
-              icon={Lock}
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-            <div className="flex justify-end px-1">
-              <Link href="/forgot-password" className="text-xs font-normal text-slate-500 hover:text-[#232F3E] transition-colors">
-                Forgot Password?
-              </Link>
-            </div>
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-xs font-normal text-slate-500 hover:text-[#E47911] transition-colors">
+              Forgot Password?
+            </Link>
           </div>
+        </div>
 
-          {status && (
-            <div
-              className={cn(
-                "p-3 rounded-lg text-[13px] font-semibold text-center border",
-                status.type === "success"
-                  ? "bg-green-50 border-green-200 text-green-700"
-                  : "bg-red-50 border-red-200 text-red-700"
-              )}
-            >
-              {status.message}
-            </div>
-          )}
-
-          <button
-            disabled={isLoading}
-            type="submit"
+        {status && (
+          <div
             className={cn(
-              "relative w-full h-11 mt-6 overflow-hidden rounded-lg",
-              "bg-[#232F3E] hover:bg-[#161e27] transition-all duration-300",
-              "text-white font-medium text-[15px] font-display tracking-wide capitalize",
-              "shadow-sm",
-              "disabled:opacity-50 disabled:cursor-not-allowed group"
+              "p-3 rounded-lg text-[13px] font-semibold text-center border",
+              status.type === "success"
+                ? "bg-green-50 border-green-200 text-green-700"
+                : "bg-red-50 border-red-200 text-red-700"
             )}
           >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative flex items-center justify-center gap-2">
-              {isLoading ? "Signing In..." : "Sign In"}
-              <LogIn size={16} className={cn("transition-transform", !isLoading && "group-hover:translate-x-1")} />
-            </div>
-          </button>
-        </form>
+            {status.message}
+          </div>
+        )}
 
+        <button
+          disabled={isLoading}
+          type="submit"
+          className={cn(
+            "relative w-full h-11 mt-4 overflow-hidden rounded-lg",
+            "bg-[#232F3E] hover:bg-slate-800 transition-colors duration-300",
+            "text-white font-medium text-[15px] font-display tracking-wide capitalize",
+            "shadow-sm",
+            "disabled:opacity-50 disabled:cursor-not-allowed group"
+          )}
+        >
+          <div className="relative flex items-center justify-center gap-2">
+            {isLoading ? "Signing In..." : "Sign In"}
+            <LogIn size={16} className={cn("transition-transform", !isLoading && "group-hover:translate-x-1")} />
+          </div>
+        </button>
+      </form>
 
-
-        <div className="mt-5 text-center">
-          <p className="text-slate-500 text-xs font-normal">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-[#232F3E] hover:underline font-medium inline-block relative group transition-colors">
-              Create Account
-            </Link>
-          </p>
-        </div>
+      <div className="mt-6 text-center">
+        <p className="text-slate-500 text-sm font-normal">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup" className="text-[#E47911] hover:underline font-semibold transition-colors">
+            Create Account
+          </Link>
+        </p>
       </div>
     </div>
   );

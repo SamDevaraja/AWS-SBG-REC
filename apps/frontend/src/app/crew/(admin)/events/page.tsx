@@ -408,19 +408,17 @@ export default function AssignedEventsPage() {
                     })()}
 
                     {/* Footer / Buttons */}
-                    <div className="flex items-center justify-between gap-2.5">
+                    <div className="flex items-center justify-between gap-3">
                       <Link href={`/crew/events/${event.id}`}
-                        style={{ background: '#232F3E' }}
-                        className="flex-grow h-10 text-white font-semibold text-sm tracking-wide rounded-lg hover:opacity-95 hover:shadow-md hover:shadow-slate-900/10 transition-all duration-200 text-center text-decoration-none flex items-center justify-center gap-1.5 group hover:-translate-y-0.5">
-                        Details
-                        <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                        className="group flex-1 h-10 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-355 text-slate-700 font-semibold text-sm rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-2 shadow-sm hover:shadow active:scale-[0.98]">
+                        <span>View Details</span>
+                        <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
                       
                       <Link href={`/crew/scanner?eventId=${event.id}`}
-                        style={{ background: '#ffffff', border: '1.5px solid rgba(35,47,62,0.22)' }}
-                        className="w-10 h-10 text-[#232F3E] hover:text-[#FF9900] hover:border-[#FF9900]/40 rounded-lg transition-all duration-200 flex items-center justify-center text-decoration-none hover:-translate-y-0.5 shrink-0"
-                        title="Scanner">
+                        className="flex-1 h-10 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-sm rounded-lg transition-all duration-200 text-decoration-none flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
                         <QrCode className="h-4 w-4" />
+                        <span>Scan Tickets</span>
                       </Link>
                     </div>
                   </div>
@@ -634,12 +632,14 @@ export default function AssignedEventsPage() {
 
                                 <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
                                   <Link href={`/crew/events/${event.id}`}
-                                    className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold text-[11.5px] rounded-[6px] text-center transition-colors text-decoration-none">
-                                    View Details
+                                    className="group flex-1 h-8 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow active:scale-[0.98]">
+                                    <span>View Details</span>
+                                    <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                                   </Link>
                                   <Link href={`/crew/scanner?eventId=${event.id}`}
-                                    className="flex-1 py-1.5 bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-[11.5px] rounded-[6px] text-center transition-colors text-decoration-none">
-                                    Scanner
+                                    className="flex-1 h-8 bg-[#232F3E] hover:bg-[#1a232f] text-white font-semibold text-[11.5px] rounded-[6px] transition-all duration-200 text-decoration-none flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]">
+                                    <QrCode className="h-3.5 w-3.5" />
+                                    <span>Scanner</span>
                                   </Link>
                                 </div>
                               </div>
