@@ -1,703 +1,779 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useMarkCrewAttendance } from '@/lib/hooks';
-import type { Ticket } from '@/lib/types';
-import {
-  Search,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  User,
-  Calendar,
-  Tag,
-  QrCode,
-  Keyboard,
-  FlipHorizontal,
-  Clock,
-  Trash2,
-  Activity,
-} from 'lucide-react';
+import { useState, Suspense, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEvents, useAttendance, useVerifyTicket } from '@/lib/hooks';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Scanner } from '@yudiel/react-qr-scanner';
+import {
+  QrCode, CheckCircle, XCircle, AlertTriangle,
+  ChevronDown, Calendar, Filter,
+  ChevronLeft, ChevronRight, Download, Users,
+  CheckCircle2, Clock, BarChart2, X, Keyboard, FlipHorizontal
+} from 'lucide-react';
+import type { Ticket } from '@/lib/types';
+import { formatDateTime } from '@/shared/utils/formatDate';
+import { StatusBadge } from '@/shared/components/StatusBadge';
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-type ScanStatus = 'success' | 'already' | 'error';
-
-interface ScanRecord {
-  id: string;
-  ticketCode: string;
-  status: ScanStatus;
-  statusMessage: string;
-  attendeeName?: string;
-  eventTitle?: string;
-  ticketId?: string;
-  scannedAt: Date;
+/* ─── Loading Skeleton ──────────────────────────────────────────── */
+function LoadingSkeleton() {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50/50">
+            {['Attendee', 'Event', 'Ticket Code', 'Scanned At', 'Scanner', 'Status'].map((h) => (
+              <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/70">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="animate-pulse">
+              {[28, 32, 24, 28, 20, 16].map((w, j) => (
+                <td key={j} className="px-6 py-4.5">
+                  <div className="h-3.5 rounded bg-slate-100" style={{ width: `${w * 4}px` }} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
-interface ToastNotification {
-  id: string;
-  status: ScanStatus;
-  message: string;
-  attendeeName?: string;
+/* ─── Stats Modal Component ────────────────────────────────────────── */
+interface StatsModalProps {
+  onClose: () => void;
+  stats: {
+    total: number;
+    attended: number;
+    absent: number;
+    rate: number;
+  };
+  eventTitle: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const total = stats.total;
+
+  const chartData = total > 0 
+    ? [
+        { name: 'Attended', value: stats.attended, color: '#10B981' },
+        { name: 'Absent', value: stats.absent, color: '#EF4444' },
+      ].filter(item => item.value > 0)
+    : [
+        { name: 'No Records', value: 1, color: '#F1F5F9' }
+      ];
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl p-6.5 max-w-[340px] w-full border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
+        >
+          <X size={18} />
+        </button>
+
+        {/* Header */}
+        <div className="mb-5">
+          <h2 className="text-base font-bold text-slate-950 leading-tight">Attendance Distribution</h2>
+          <p className="text-[11.5px] text-slate-400 font-medium mt-1 truncate">
+            {eventTitle || 'All Events Overview'}
+          </p>
+        </div>
+
+        {/* Chart Container */}
+        <div className="relative h-48 w-full flex items-center justify-center mb-5">
+          {mounted && (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={68}
+                  outerRadius={78}
+                  paddingAngle={total > 0 ? 3 : 0}
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: any, name: any) => [value, name]} 
+                  contentStyle={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+
+          {/* Center Info Overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-[9px] text-slate-400 font-bold tracking-widest uppercase mb-0.5">Attendance Rate</span>
+            <span className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums">{stats.rate}%</span>
+          </div>
+        </div>
+
+        {/* Metrics List Layout */}
+        <div className="space-y-2.5 mt-2 pt-4.5 border-t border-slate-200">
+          <div className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0" />
+              <span className="text-slate-600 font-semibold">Total Registered</span>
+            </div>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.total}</span>
+          </div>
+          <div className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+              <span className="text-slate-600 font-semibold">Attended</span>
+            </div>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.attended}</span>
+          </div>
+          <div className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+              <span className="text-slate-600 font-semibold">Absent</span>
+            </div>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.absent}</span>
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <button
+          onClick={onClose}
+          className="w-full mt-5 py-2.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-650 hover:text-slate-800 border border-slate-200/50 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
 }
 
-function statusColor(status: ScanStatus) {
-  return {
-    success: {
-      bg: 'bg-emerald-50/40 hover:bg-emerald-50/60',
-      border: 'border-emerald-100/60',
-      text: 'text-emerald-800',
-      badge: 'bg-emerald-100/70 text-emerald-800 border-emerald-200/40',
-      icon: 'text-emerald-600 bg-emerald-50 border-emerald-100',
-      leftAccent: 'bg-emerald-500',
-    },
-    already: {
-      bg: 'bg-amber-50/40 hover:bg-amber-50/60',
-      border: 'border-amber-100/60',
-      text: 'text-amber-800',
-      badge: 'bg-amber-100/70 text-amber-800 border-amber-200/40',
-      icon: 'text-amber-600 bg-amber-50 border-amber-100',
-      leftAccent: 'bg-amber-500',
-    },
-    error: {
-      bg: 'bg-rose-50/40 hover:bg-rose-50/60',
-      border: 'border-rose-100/60',
-      text: 'text-rose-800',
-      badge: 'bg-rose-100/70 text-rose-800 border-rose-200/40',
-      icon: 'text-rose-600 bg-rose-50 border-rose-100',
-      leftAccent: 'bg-rose-500',
-    },
-  }[status];
+/* ─── Empty State ───────────────────────────────────────────────── */
+function EmptyState() {
+  return (
+    <div className="border border-dashed border-slate-200/80 rounded-2xl p-16 text-center bg-white/60 backdrop-blur-sm relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,153,0,0.025)_0%,transparent_70%)] pointer-events-none" />
+      <div className="relative z-10">
+        <div className="mx-auto w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center mb-4 text-slate-400">
+          <QrCode size={22} />
+        </div>
+        <h3 className="text-[15px] font-bold text-slate-800 mb-1">No attendance records found</h3>
+        <p className="text-[12.5px] text-slate-400 max-w-xs mx-auto">Scan a ticket or adjust your filters to view results.</p>
+      </div>
+    </div>
+  );
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
-export default function TicketScannerPage() {
+/* ─── Main Page Content ─────────────────────────────────────────── */
+function TicketScannerPageContent() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [mode, setMode] = useState<'manual' | 'camera'>('manual');
+  const searchParams = useSearchParams();
+  const initialEventId = searchParams.get('eventId') || '';
+  const [eventFilter, setEventFilter] = useState(initialEventId);
+  const [dateFilter, setDateFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [scanModalOpen, setScanModalOpen] = useState(false);
+  const [ticketCode, setTicketCode] = useState('');
+  const [scanResult, setScanResult] = useState<{
+    status: 'valid' | 'already_scanned' | 'invalid';
+    message: string;
+  } | null>(null);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [scanMode, setScanMode] = useState<'camera' | 'manual'>('camera');
   const [isMirrored, setIsMirrored] = useState(true);
 
-  // Last single scan result (for manual mode result panel)
-  const [manualResult, setManualResult] = useState<{
-    success: boolean;
-    status: string;
-    ticket?: Ticket;
-  } | null>(null);
-
-  // Toast notifications (camera mode)
-  const [toasts, setToasts] = useState<ToastNotification[]>([]);
-
-  // Scan history list
-  const [scanHistory, setScanHistory] = useState<ScanRecord[]>([]);
-
-  // Debounce: prevent the same QR code from being re-scanned within 2s
   const lastScannedCode = useRef<string | null>(null);
   const lastScannedTime = useRef<number>(0);
 
-  const checkInMutation = useMarkCrewAttendance();
+  const { data: eventsData } = useEvents({ limit: 200 });
+  const events = eventsData?.data ?? [];
 
-  // ── Toast helpers ─────────────────────────────────────────────────────────
+  const currentEvent = events.find((ev) => ev.id === eventFilter);
+  const eventTitle = currentEvent?.title || '';
 
-  function addToast(toast: Omit<ToastNotification, 'id'>) {
-    const id = crypto.randomUUID();
-    setToasts((prev) => [{ ...toast, id }, ...prev.slice(0, 2)]); // max 3 toasts
-    // Auto-dismiss after 3.5 s
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
-  }
+  const { data, isLoading } = useAttendance({
+    page,
+    limit: 15,
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(statusFilter && { status: statusFilter }),
+    ...(dateFilter && { startDate: dateFilter, endDate: dateFilter }),
+  });
 
-  // ── Scan handler ──────────────────────────────────────────────────────────
+  // Query statistics based on active filters
+  const { data: statsTotalData } = useAttendance({
+    limit: 1,
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(dateFilter && { startDate: dateFilter, endDate: dateFilter }),
+  });
 
-  function handleScan(codeToScan: string) {
-    if (!codeToScan.trim()) return;
+  const { data: statsAttendedData } = useAttendance({
+    limit: 1,
+    status: 'attended',
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(dateFilter && { startDate: dateFilter, endDate: dateFilter }),
+  });
 
-    // Debounce: same code within 2 s → skip
-    const now = Date.now();
-    if (codeToScan === lastScannedCode.current && now - lastScannedTime.current < 2000) return;
-    lastScannedCode.current = codeToScan;
-    lastScannedTime.current = now;
+  const { data: statsAbsentData } = useAttendance({
+    limit: 1,
+    status: 'absent',
+    ...(eventFilter && { eventId: eventFilter }),
+    ...(dateFilter && { startDate: dateFilter, endDate: dateFilter }),
+  });
 
-    checkInMutation.mutate(
-      { ticketCode: codeToScan.trim(), scannerId: 'crew-scanner-terminal-01' },
+  const tickets = data?.data ?? [];
+  const totalPages = data?.totalPages ?? 1;
+  const totalCount = data?.total ?? 0;
+
+  const statsTotal = statsTotalData?.total ?? 0;
+  const statsAttended = statsAttendedData?.total ?? 0;
+  const statsAbsent = statsAbsentData?.total ?? 0;
+  const attendanceRate = statsTotal > 0 ? Math.round((statsAttended / statsTotal) * 100) : 0;
+
+  const verifyMutation = useVerifyTicket();
+
+  function handleScanSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!ticketCode.trim()) return;
+    setScanResult(null);
+    verifyMutation.mutate(
+      { ticketCode: ticketCode.trim(), scannerId: 'crew-manual' },
       {
-        onSuccess: (res) => {
-          const isAlready = !res.success && res.status?.toLowerCase().includes('already');
-          const scanStatus: ScanStatus = res.success ? 'success' : isAlready ? 'already' : 'error';
-          const attendeeName =
-            res.ticket?.userName ||
-            (res.ticket?.registration ? res.ticket.registration.name : undefined);
-
-          if (mode === 'camera') {
-            // Stay in camera mode — show toast
-            addToast({
-              status: scanStatus,
-              message: res.status,
-              attendeeName,
-            });
+        onSuccess: (response) => {
+          if (response.valid) {
+            setScanResult({ status: 'valid', message: response.status || 'Ticket verified successfully!' });
           } else {
-            // Manual mode — show full result panel
-            setManualResult(res);
-            setSearchQuery('');
+            const msg = response.status?.toLowerCase() || '';
+            if (msg.includes('already') || msg.includes('scanned')) {
+              setScanResult({ status: 'already_scanned', message: response.status || 'Ticket has already been scanned.' });
+            } else {
+              setScanResult({ status: 'invalid', message: response.status || 'Invalid ticket code.' });
+            }
           }
-
-          // Add to scan history regardless of mode
-          setScanHistory((prev) => [
-            {
-              id: crypto.randomUUID(),
-              ticketCode: codeToScan.trim(),
-              status: scanStatus,
-              statusMessage: res.status,
-              attendeeName,
-              eventTitle: res.ticket?.event?.title,
-              ticketId: res.ticket?.id,
-              scannedAt: new Date(),
-            },
-            ...prev,
-          ]);
+          setTicketCode('');
         },
-        onError: (err: Error) => {
-          const msg = err.message || 'Verification system error.';
-          if (mode === 'camera') {
-            addToast({ status: 'error', message: msg });
-          } else {
-            setManualResult({ success: false, status: msg });
-          }
-          setScanHistory((prev) => [
-            {
-              id: crypto.randomUUID(),
-              ticketCode: codeToScan.trim(),
-              status: 'error',
-              statusMessage: msg,
-              scannedAt: new Date(),
-            },
-            ...prev,
-          ]);
+        onError: () => {
+          setScanResult({ status: 'invalid', message: 'Failed to verify ticket. Please try again.' });
+          setTicketCode('');
         },
       },
     );
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    handleScan(searchQuery);
+  function handleCameraScan(code: string) {
+    if (!code || !code.trim()) return;
+    const now = Date.now();
+    if (code === lastScannedCode.current && now - lastScannedTime.current < 2000) return;
+    lastScannedCode.current = code;
+    lastScannedTime.current = now;
+
+    setScanResult(null);
+    verifyMutation.mutate(
+      { ticketCode: code.trim(), scannerId: 'crew-camera' },
+      {
+        onSuccess: (response) => {
+          if (response.valid) {
+            setScanResult({ status: 'valid', message: response.status || 'Ticket verified successfully!' });
+          } else {
+            const msg = response.status?.toLowerCase() || '';
+            if (msg.includes('already') || msg.includes('scanned')) {
+              setScanResult({ status: 'already_scanned', message: response.status || 'Ticket has already been scanned.' });
+            } else {
+              setScanResult({ status: 'invalid', message: response.status || 'Invalid ticket code.' });
+            }
+          }
+        },
+        onError: () => {
+          setScanResult({ status: 'invalid', message: 'Failed to verify ticket. Please try again.' });
+        },
+      },
+    );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  //  RENDER
-  // ─────────────────────────────────────────────────────────────────────────
+  function getAttendeeName(ticket: Ticket): string {
+    if (ticket.registration?.user) {
+      return `${ticket.registration.user.firstName} ${ticket.registration.user.lastName}`;
+    }
+    return '—';
+  }
+
+  function isAttended(ticket: Ticket): boolean {
+    return ticket.status === 'USED' || !!ticket.scannedAt;
+  }
+
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+    .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+    .reduce<(number | string)[]>((acc, p, idx, arr) => {
+      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...');
+      acc.push(p);
+      return acc;
+    }, []);
+
+  const hasFilter = !!(eventFilter || dateFilter || statusFilter);
 
   return (
-    <div className="space-y-8 py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Dynamic Keyframes & Custom HUD classes */}
-      <style>{`
-        @keyframes scan-laser-sweep {
-          0% { top: 4%; opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { top: 96%; opacity: 0; }
-        }
-        @keyframes subtle-pulse-dot {
-          0%, 100% { transform: scale(1); opacity: 0.9; }
-          50% { transform: scale(1.2); opacity: 0.5; }
-        }
-        @keyframes slide-in-hud-toast {
-          0% { transform: translateY(-1.5rem) scale(0.95); opacity: 0; }
-          100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .animate-laser-sweep {
-          animation: scan-laser-sweep 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        .animate-pulse-dot {
-          animation: subtle-pulse-dot 1.8s ease-in-out infinite;
-        }
-        .animate-hud-toast {
-          animation: slide-in-hud-toast 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .hud-glass-card {
-          background: rgba(255, 255, 255, 0.45);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
-        }
-        .hud-glass-card-dark {
-          background: rgba(26, 35, 47, 0.85);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.03);
-        }
-        .hud-terminal-log::-webkit-scrollbar {
-          width: 5px;
-        }
-        .hud-terminal-log::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .hud-terminal-log::-webkit-scrollbar-thumb {
-          background: rgba(148, 163, 184, 0.3);
-          border-radius: 9999px;
-        }
-        .hud-terminal-log::-webkit-scrollbar-thumb:hover {
-          background: rgba(148, 163, 184, 0.5);
-        }
-      `}</style>
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
+      <div className="max-w-7xl w-full mx-auto flex flex-col gap-6 z-10 relative">
 
-      {/* Floating HUD notifications stack */}
-      {toasts.length > 0 && (
-        <div className="fixed top-6 right-6 z-50 flex flex-col gap-3 w-full max-w-sm px-4 sm:px-0 pointer-events-none">
-          {toasts.map((toast) => {
-            const c = statusColor(toast.status);
-            return (
-              <div
-                key={toast.id}
-                className="pointer-events-auto relative flex items-start gap-4 p-4 rounded-[16px] border bg-white/95 border-slate-200/60 shadow-xl backdrop-blur-md animate-hud-toast overflow-hidden"
-              >
-                {/* Accent stripe */}
-                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${toast.status === 'success' ? 'bg-emerald-500' : toast.status === 'already' ? 'bg-amber-500' : 'bg-rose-500'}`} />
-                
-                {/* Icon badge */}
-                <div className={`p-2 rounded-xl border shrink-0 ${
-                  toast.status === 'success'
-                    ? 'bg-emerald-50 border-emerald-100 text-emerald-600'
-                    : toast.status === 'already'
-                      ? 'bg-amber-50 border-amber-100 text-amber-600'
-                      : 'bg-rose-50 border-rose-100 text-rose-600'
-                }`}>
-                  {toast.status === 'success' ? (
-                    <CheckCircle className="w-5 h-5" />
-                  ) : toast.status === 'already' ? (
-                    <AlertTriangle className="w-5 h-5" />
-                  ) : (
-                    <XCircle className="w-5 h-5" />
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0 pr-1">
-                  <p className={`text-[10px] font-extrabold uppercase tracking-wider ${
-                    toast.status === 'success'
-                      ? 'text-emerald-600'
-                      : toast.status === 'already'
-                        ? 'text-amber-600'
-                        : 'text-rose-600'
-                  }`}>
-                    {toast.status === 'success' ? 'Access Granted' : toast.status === 'already' ? 'Already Checked In' : 'Access Denied'}
-                  </p>
-                  {toast.attendeeName && (
-                    <p className="text-sm font-bold text-slate-800 mt-0.5 truncate">{toast.attendeeName}</p>
-                  )}
-                  <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">{toast.message}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/45 backdrop-blur-md rounded-[22px] border border-white/50 p-6 sm:p-8 shadow-sm">
-        <div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#232F3E]/5 text-[#232F3E] border border-[#232F3E]/10 mb-2">
-            <Activity className="w-3.5 h-3.5" />
-            Live Verification Node
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#232F3E] font-display">
-            Registration Verification
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Scan QR passes or search attendee registers to verify registration status.
-          </p>
-        </div>
-
-        {/* Mode Toggle Pill */}
-        <div className="flex items-center bg-slate-100/80 p-1 rounded-full border border-slate-200/50 shadow-inner relative w-64 h-12 self-start md:self-auto shrink-0">
-          <div
-            className="absolute top-1 bottom-1 rounded-full bg-white shadow-sm border border-slate-200/50 transition-all duration-300 ease-out"
-            style={{ width: 'calc(50% - 4px)', left: mode === 'manual' ? '4px' : '50%' }}
-          />
-          <button
-            onClick={() => { setMode('manual'); setManualResult(null); }}
-            className={`relative flex-1 h-full flex items-center justify-center gap-2 text-xs font-bold transition-colors duration-300 rounded-full focus:outline-none ${
-              mode === 'manual' ? 'text-[#232F3E]' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Keyboard className="w-4 h-4" />
-            <span>Manual Search</span>
-          </button>
-          <button
-            onClick={() => { setMode('camera'); setManualResult(null); }}
-            className={`relative flex-1 h-full flex items-center justify-center gap-2 text-xs font-bold transition-colors duration-300 rounded-full focus:outline-none ${
-              mode === 'camera' ? 'text-[#232F3E]' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <QrCode className="w-4 h-4" />
-            <span>QR Scanner</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ── Dashboard Grid Layout ──────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Column: Active Station */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white/45 backdrop-blur-md rounded-[22px] border border-white/50 shadow-sm p-6 sm:p-8 space-y-6">
+        {/* ── Header Section ── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
+          <div>
+            {/* Breadcrumb Path */}
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-555 mb-2.5">
+              <Link href="/crew/dashboard" className="hover:text-[#FF9900] transition-colors">Crew</Link>
+              <span className="text-slate-300">/</span>
+              <Link href="/crew/events" className="hover:text-[#FF9900] transition-colors">Events</Link>
+              <span className="text-slate-300">/</span>
+              <span className="text-[#FF9900] font-semibold">Attendance</span>
+            </div>
             
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <h2 className="text-base font-bold text-[#232F3E] flex items-center gap-2">
-                {mode === 'manual' ? (
-                  <>
-                    <Keyboard className="w-5 h-5 text-slate-500" />
-                    <span>Database Record Query</span>
-                  </>
-                ) : (
-                  <>
-                    <QrCode className="w-5 h-5 text-slate-500" />
-                    <span>Live Camera Portal</span>
-                  </>
-                )}
-              </h2>
-              <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-md border ${
-                mode === 'manual' 
-                  ? 'bg-slate-100 border-slate-200 text-slate-600' 
-                  : 'bg-emerald-50 border-emerald-200/50 text-emerald-700 animate-pulse'
-              }`}>
-                {mode === 'manual' ? 'Manual Mode' : 'Scanner Engaged'}
+            <div className="flex items-center gap-2">
+              <h1 className="text-[24px] font-semibold text-slate-900 tracking-tight leading-none">
+                {eventTitle || 'Assigned Attendance'}
+              </h1>
+              <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-full text-xs font-semibold mr-1">
+                {totalCount}
               </span>
+              <button
+                onClick={() => setShowStatsModal(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-[10px] font-semibold transition-all duration-200 cursor-pointer shadow-sm ml-1.5"
+              >
+                <BarChart2 size={10.5} className="text-white" />
+                Show Stats
+              </button>
+            </div>
+            <p className="text-[13px] text-slate-500 font-normal mt-2.5">
+              {eventTitle 
+                ? 'Track, search, and verify real-time event check-ins for this event.' 
+                : 'Track, search, and verify real-time event check-ins across your assigned events.'}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* OD List Button */}
+            <button
+              onClick={() => {
+                if (!eventFilter) {
+                  alert("Please select a specific event from the dropdown filter first to generate its OD list.");
+                  return;
+                }
+                router.push(`/crew/attendance/od-generator?eventId=${eventFilter}`);
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Download size={13} className="text-slate-500" />
+              Generate OD List
+            </button>
+
+            {/* Scan Ticket Button */}
+            <button
+              onClick={() => { setScanModalOpen(true); setScanResult(null); setTicketCode(''); }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+            >
+              <QrCode size={13} className="text-slate-505" />
+              Scan Ticket
+            </button>
+          </div>
+        </div>
+
+        {/* ── Attendance Data Table Container ── */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col relative">
+          
+          {/* Filters Toolbar */}
+          <div className="px-6 py-4 bg-slate-50/20 border-b border-slate-200 relative">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.015)_0%,transparent_55%)] pointer-events-none" />
+            
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+              {/* Event Filter */}
+              <div className="md:col-span-5 relative">
+                <select
+                  value={eventFilter}
+                  onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+                  className="w-full pl-4 pr-9 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+                >
+                  <option value="">All Events</option>
+                  {events.map((ev) => (
+                    <option key={ev.id} value={ev.id}>{ev.title}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-450 pointer-events-none" size={14} />
+              </div>
+
+              {/* Date Filter */}
+              <div className="md:col-span-4 relative flex items-center gap-2">
+                <Calendar size={14} className="text-slate-400 absolute left-3.5" />
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => { setDateFilter(e.target.value); setPage(1); }}
+                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-305 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12.5px] text-slate-600 transition-all cursor-pointer"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <div className="md:col-span-3 relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                  className="w-full pl-4 pr-9 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12px] text-slate-600 cursor-pointer transition-all appearance-none"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="attended">Attended</option>
+                  <option value="absent">Absent</option>
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-450 pointer-events-none" size={14} />
+              </div>
             </div>
 
-            {/* View panels */}
-            <div>
-              {mode === 'manual' ? (
-                /* Manual Search Section */
-                <div className="space-y-6">
-                  <form onSubmit={handleSubmit} className="relative w-full">
-                    <div className="flex items-center bg-white border border-slate-200 rounded-[14px] px-4 py-3.5 focus-within:border-brand-orange/60 focus-within:ring-2 focus-within:ring-brand-orange/10 transition-all shadow-sm">
-                      <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by Name, Email, Roll Number, or Ticket Code..."
-                        className="bg-transparent w-full outline-none text-[#232F3E] text-[15px] placeholder:text-slate-400 font-medium"
-                        autoFocus
-                      />
-                      {checkInMutation.isPending && (
-                        <div className="w-5 h-5 border-2 border-brand-orange/30 border-t-brand-orange rounded-full animate-spin ml-3 shrink-0" />
-                      )}
-                    </div>
-                  </form>
+            {hasFilter && (
+              <div className="relative z-10 flex justify-end pt-2 border-t border-slate-100/80">
+                <button
+                  onClick={() => { setEventFilter(''); setDateFilter(''); setStatusFilter(''); setPage(1); }}
+                  className="text-xs font-semibold text-[#FF9900] hover:text-orange-700 transition-colors cursor-pointer"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </div>
 
-                  {/* Result display */}
-                  <div className="pt-2">
-                    {!manualResult ? (
-                      <div
-                        style={{ background: 'linear-gradient(135deg, rgba(255, 153, 0, 0.04), rgba(35, 47, 62, 0.03))' }}
-                        className="border-[2px] border-dashed border-slate-200 rounded-[16px] min-h-[220px] flex flex-col items-center justify-center p-6 text-center"
+          {/* Table Container */}
+          {isLoading ? (
+            <LoadingSkeleton />
+          ) : tickets.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="overflow-x-auto relative z-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-100/80">
+                    {([
+                      'Attendee',
+                      !eventFilter && 'Event',
+                      'Ticket Code',
+                      'Scanned At',
+                      'Scanner',
+                      'Status'
+                    ].filter(Boolean) as string[]).map((h) => (
+                      <th key={h} className="px-6 py-4 text-[11px] font-bold text-slate-505 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {tickets.map((ticket) => {
+                    const name = getAttendeeName(ticket);
+                    return (
+                      <tr
+                        key={ticket.id}
+                        className="hover:bg-slate-50/40 transition-all duration-200 group"
                       >
-                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-4 text-slate-400">
-                          <Search className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-sm font-bold text-[#232F3E]">Record Verification Pending</h3>
-                        <p className="text-xs text-slate-500 max-w-sm mt-1">
-                          Enter credentials above. Verified data maps instantly from the AWS/Postgres backend cache.
-                        </p>
-                      </div>
-                    ) : (
-                      /* Credential pass styling */
-                      <div className={`overflow-hidden rounded-[20px] border ${
-                        manualResult.success 
-                          ? 'border-emerald-200 bg-emerald-50/20' 
-                          : manualResult.status.toLowerCase().includes('already')
-                            ? 'border-amber-200 bg-amber-50/20'
-                            : 'border-rose-200 bg-rose-50/20'
-                      }`}>
-                        {/* Header banner */}
-                        <div className={`px-6 py-4 flex items-center justify-between border-b ${
-                          manualResult.success 
-                            ? 'bg-emerald-500/10 text-emerald-800 border-emerald-100' 
-                            : manualResult.status.toLowerCase().includes('already') 
-                              ? 'bg-amber-500/10 text-amber-800 border-amber-100' 
-                              : 'bg-rose-500/10 text-rose-800 border-rose-100'
-                        }`}>
-                          <div className="flex items-center gap-3">
-                            <div className={`p-1.5 rounded-lg bg-white border ${
-                              manualResult.success 
-                                ? 'border-emerald-200 text-emerald-600' 
-                                : manualResult.status.toLowerCase().includes('already') 
-                                  ? 'border-amber-200 text-amber-600' 
-                                  : 'border-rose-200 text-rose-600'
-                            }`}>
-                              {manualResult.success ? (
-                                <CheckCircle className="w-5 h-5" />
-                              ) : manualResult.status.toLowerCase().includes('already') ? (
-                                <AlertTriangle className="w-5 h-5 text-amber-500" />
-                              ) : (
-                                <XCircle className="w-5 h-5" />
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider opacity-80">Verification Result</p>
-                              <h3 className="font-extrabold text-sm sm:text-base">
-                                {manualResult.success 
-                                  ? 'Access Granted' 
-                                  : manualResult.status.toLowerCase().includes('already') 
-                                    ? 'Duplicate Access Check' 
-                                    : 'Access Denied'}
-                              </h3>
-                            </div>
-                          </div>
-                          
-                          <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
-                            manualResult.success 
-                              ? 'bg-emerald-100 border-emerald-200 text-emerald-800' 
-                              : manualResult.status.toLowerCase().includes('already') 
-                                ? 'bg-amber-100 border-amber-200 text-amber-800' 
-                                : 'bg-rose-100 border-rose-200 text-rose-800'
-                          }`}>
-                            {manualResult.success ? 'Verified' : manualResult.status.toLowerCase().includes('already') ? 'Duplicate' : 'Invalid'}
-                          </span>
-                        </div>
-
-                        {/* Body Details */}
-                        <div className="p-6 space-y-4">
-                          <p className="text-sm font-medium text-slate-700">{manualResult.status}</p>
-
-                          {manualResult.success && manualResult.ticket && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                              <div className="bg-white/70 rounded-xl p-4 border border-slate-100 shadow-sm flex items-start gap-3">
-                                <div className="p-2 rounded-lg bg-slate-100 text-slate-500 shrink-0">
-                                  <User className="w-4 h-4" />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Attendee</p>
-                                  <p className="text-sm font-bold text-[#232F3E] truncate">
-                                    {manualResult.ticket.userName || (manualResult.ticket.registration ? manualResult.ticket.registration.name : 'Unknown')}
-                                  </p>
-                                </div>
-                              </div>
-                              
-                              <div className="bg-white/70 rounded-xl p-4 border border-slate-100 shadow-sm flex items-start gap-3">
-                                <div className="p-2 rounded-lg bg-slate-100 text-slate-500 shrink-0">
-                                  <Calendar className="w-4 h-4" />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Event</p>
-                                  <p className="text-sm font-bold text-[#232F3E] truncate">
-                                    {manualResult.ticket.event?.title || 'Unknown Event'}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="bg-white/70 rounded-xl p-4 border border-slate-100 shadow-sm flex items-start gap-3 sm:col-span-2">
-                                <div className="p-2 rounded-lg bg-slate-100 text-slate-500 shrink-0">
-                                  <Tag className="w-4 h-4" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ticket Code / ID</p>
-                                  <p className="text-xs font-mono font-medium text-slate-600 break-all select-all">
-                                    {manualResult.ticket.id}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
+                        {/* Attendee */}
+                        <td className="px-6 py-4.5 whitespace-nowrap">
+                          {name !== '—' ? (
+                            <span className="text-[13.5px] font-semibold text-slate-800">{name}</span>
+                          ) : (
+                            <span className="text-[13px] text-slate-400">—</span>
                           )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                        </td>
+
+                        {/* Event */}
+                        {!eventFilter && (
+                          <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
+                            {ticket.event?.title ?? '—'}
+                          </td>
+                        )}
+
+                        {/* Ticket Code */}
+                        <td className="px-6 py-4.5 whitespace-nowrap">
+                          <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-lg px-2.5 py-1 text-slate-500 font-medium">
+                            {ticket.ticketCode}
+                          </span>
+                        </td>
+
+                        {/* Scanned At */}
+                        <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-500">
+                          {ticket.scannedAt ? formatDateTime(ticket.scannedAt) : '—'}
+                        </td>
+
+                        {/* Scanner */}
+                        <td className="px-6 py-4.5 whitespace-nowrap text-[13px] text-slate-555">
+                          {ticket.scannerId ?? '—'}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-6 py-4.5 whitespace-nowrap">
+                          <StatusBadge status={isAttended(ticket) ? 'ATTENDED' : 'ABSENT'} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* ── Pagination ── */}
+        {!isLoading && totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
+            <p className="text-[12px] text-slate-400 font-medium">
+              Showing page <span className="font-bold text-slate-700">{page}</span> of <span className="font-bold text-slate-700">{totalPages}</span> ({totalCount} total records)
+            </p>
+            
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-350 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              
+              {pages.map((p, idx) =>
+                typeof p === 'string' ? (
+                  <span key={`el-${idx}`} className="text-slate-400 text-xs px-2 select-none">…</span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`min-w-[36px] h-9 rounded-xl text-[12.5px] font-bold border transition-all flex items-center justify-center cursor-pointer ${
+                      p === page
+                        ? 'bg-[#232F3E] border-[#232F3E] text-white shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-500 hover:border-slate-350'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+              
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-350 text-slate-505 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Scan Ticket Modal Redesign ── */}
+      {scanModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="absolute inset-0 cursor-pointer" onClick={() => setScanModalOpen(false)} />
+          <div className="relative bg-white border border-slate-200 rounded-3xl p-6.5 max-w-sm w-full shadow-2xl z-10 overflow-hidden flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
+            
+            {/* Dynamic Keyframes for modal scanner laser */}
+            <style>{`
+              @keyframes laser-sweep {
+                0% { top: 4%; opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { top: 96%; opacity: 0; }
+              }
+            `}</style>
+
+            {/* Ambient header glow */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[radial-gradient(circle_at_70%_20%,rgba(255,153,0,0.06)_0%,transparent_60%)] pointer-events-none" />
+
+            <div className="flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/50 flex items-center justify-center text-slate-700">
+                  <QrCode size={16} />
                 </div>
-              ) : (
-                /* Camera Scanner Section */
-                <div className="flex flex-col items-center justify-center py-4">
-                  
-                  {/* Camera Frame Viewport */}
-                  <div className="relative w-full max-w-[320px] aspect-square rounded-[24px] bg-[#101720] overflow-hidden shadow-2xl flex items-center justify-center mb-6 scanner-glow border-2 border-white/5">
+                <div>
+                  <h3 className="text-[15px] font-bold text-slate-900">Scan Ticket</h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {scanMode === 'camera' ? 'Position QR code in front of camera' : 'Enter code to verify check-in'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setScanModalOpen(false)}
+                className="w-7 h-7 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-655 transition-colors flex items-center justify-center text-[10px] font-semibold cursor-pointer border border-transparent hover:border-rose-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Mode Switch Tab Link */}
+            <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200/50 relative h-9 shrink-0">
+              <button
+                type="button"
+                onClick={() => { setScanMode('camera'); setScanResult(null); }}
+                className={`flex-grow text-[11px] font-bold transition-all rounded-md flex items-center justify-center gap-1.5 ${
+                  scanMode === 'camera' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <QrCode size={13} />
+                Camera Scanner
+              </button>
+              <button
+                type="button"
+                onClick={() => { setScanMode('manual'); setScanResult(null); }}
+                className={`flex-grow text-[11px] font-bold transition-all rounded-md flex items-center justify-center gap-1.5 ${
+                  scanMode === 'manual' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Keyboard size={13} />
+                Manual Code
+              </button>
+            </div>
+
+            <div className="relative z-10 flex flex-col gap-4">
+              {scanMode === 'camera' ? (
+                /* Camera Feed Viewport inside Modal */
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <div className="relative w-full aspect-square max-w-[240px] rounded-2xl bg-[#101720] overflow-hidden shadow-md flex items-center justify-center border border-slate-200/45">
                     
-                    {/* Camera Feed Container */}
+                    {/* QR Code Scanner Feed */}
                     <div
                       className="absolute inset-0 w-full h-full"
                       style={{ transform: isMirrored ? 'scaleX(-1)' : 'none' }}
                     >
                       <Scanner
-                        onScan={(result) => {
+                        onScan={(result: any) => {
                           if (result && result.length > 0 && result[0].rawValue) {
-                            handleScan(result[0].rawValue);
+                            handleCameraScan(result[0].rawValue);
                           }
                         }}
-                        onError={(error) => console.log(error?.message)}
+                        onError={(error: any) => console.log('Scanner error:', error?.message)}
                         sound={false}
                         components={{ finder: false }}
                         constraints={{ facingMode: 'environment' }}
-                        styles={{ container: { width: '100%', height: '100%' } }}
+                        styles={{ container: { width: '105%', height: '105%' } }}
                       />
                     </div>
 
-                    {/* HUD Overlays */}
-                    
-                    {/* Blinking Live HUD indicator */}
-                    <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 bg-slate-950/70 border border-white/10 rounded-full px-2.5 py-1 backdrop-blur-md select-none text-[9px] font-extrabold text-white uppercase tracking-widest">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-dot" />
-                      Live Feed
+                    {/* HUD Targets */}
+                    <div className="absolute inset-0 pointer-events-none p-3">
+                      <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-[#FF9900] rounded-tl-sm" />
+                      <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-[#FF9900] rounded-tr-sm" />
+                      <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[#FF9900] rounded-bl-sm" />
+                      <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[#FF9900] rounded-br-sm" />
                     </div>
 
-                    {/* Mirror Option HUD button */}
+                    {/* Mirror/Flip View Option */}
                     <button
                       type="button"
                       onClick={() => setIsMirrored(!isMirrored)}
                       title="Mirror Camera View"
-                      className="absolute top-3 right-3 z-10 bg-slate-950/70 hover:bg-slate-950/90 text-white p-2 rounded-xl border border-white/10 backdrop-blur-md transition-all active:scale-95 flex items-center justify-center shadow-md hover:border-white/20"
+                      className="absolute top-3.5 right-3.5 z-20 bg-slate-900/65 hover:bg-slate-900/85 text-white p-1.5 rounded-lg border border-white/10 backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center shadow-sm cursor-pointer"
                     >
-                      <FlipHorizontal className="w-4 h-4" />
+                      <FlipHorizontal size={13} />
                     </button>
 
-                    {/* Aesthetic Corner brackets */}
-                    <div className="absolute inset-0 pointer-events-none p-4">
-                      <div className="absolute top-4 left-4 w-6 h-6 border-t-[3px] border-l-[3px] border-brand-orange rounded-tl-md" />
-                      <div className="absolute top-4 right-4 w-6 h-6 border-t-[3px] border-r-[3px] border-brand-orange rounded-tr-md" />
-                      <div className="absolute bottom-4 left-4 w-6 h-6 border-b-[3px] border-l-[3px] border-brand-orange rounded-bl-md" />
-                      <div className="absolute bottom-4 right-4 w-6 h-6 border-b-[3px] border-r-[3px] border-brand-orange rounded-br-md" />
-                    </div>
-
-                    {/* Neon Laser Line animation */}
-                    <div className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-80 shadow-[0_0_12px_#FF9900] animate-laser-sweep pointer-events-none" />
-
-                    {/* Viewport Center Target Grid */}
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-25">
-                      <div className="w-12 h-12 border border-dashed border-white rounded-full" />
-                    </div>
+                    {/* Laser Line */}
+                    <div className="absolute left-3 right-3 h-0.5 bg-gradient-to-r from-transparent via-[#FF9900] to-transparent opacity-80 shadow-[0_0_8px_#FF9900] animate-[laser-sweep_2.5s_infinite] pointer-events-none" />
                   </div>
-
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-100/80 px-4 py-2 rounded-full border border-slate-200/50 shadow-inner">
-                    Position QR Code in scanner window
-                  </p>
-
-                  {/* Processing indicator */}
-                  {checkInMutation.isPending && (
-                    <div className="mt-4 flex items-center gap-2.5 text-xs text-[#232F3E] font-bold bg-[#FF9900]/5 px-3 py-1.5 rounded-lg border border-[#FF9900]/20 shadow-sm">
-                      <div className="w-3.5 h-3.5 border-2 border-brand-orange/30 border-t-brand-orange rounded-full animate-spin" />
-                      Verifying ticket...
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-          </div>
-        </div>
-
-        {/* Right Column: Scan History Activity Log */}
-        <div className="lg:col-span-5">
-          <div className="bg-white/45 backdrop-blur-md rounded-[22px] border border-white/50 shadow-sm p-6 flex flex-col min-h-[480px]">
-            
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-slate-500 animate-pulse-subtle" />
-                <h2 className="text-sm font-bold text-[#232F3E] uppercase tracking-wider">Verification Stream</h2>
-                <span className="bg-slate-100 text-slate-600 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-slate-200/30">
-                  {scanHistory.length}
-                </span>
-              </div>
-              
-              {scanHistory.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setScanHistory([])}
-                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 px-2.5 py-1 rounded-lg border border-transparent hover:border-rose-100 transition-all font-bold"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Clear Log
-                </button>
-              )}
-            </div>
-
-            {/* History list stream */}
-            <div className="flex-1 flex flex-col justify-start">
-              {scanHistory.length === 0 ? (
-                <div
-                  style={{ background: 'linear-gradient(135deg, rgba(255, 153, 0, 0.02), rgba(35, 47, 62, 0.02))' }}
-                  className="flex-1 flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed border-slate-200/65 rounded-[18px] min-h-[300px]"
-                >
-                  <div className="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 text-slate-400 mb-3 animate-pulse-subtle">
-                    <Activity className="w-6 h-6" />
+                  
+                  {/* Blinking Live Feed Badge */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 border border-emerald-100 rounded-full text-[9px] font-bold text-emerald-700 tracking-wide uppercase select-none">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Live Camera Feed
                   </div>
-                  <h3 className="text-sm font-bold text-[#232F3E]">Stream Log Empty</h3>
-                  <p className="text-xs text-slate-400 max-w-xs mt-1 leading-relaxed">
-                    Check-in activity feeds here dynamically. Scanning passes or searching records launches entries.
-                  </p>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1.5 hud-terminal-log">
-                  {scanHistory.map((record) => {
-                    const c = statusColor(record.status);
-                    return (
-                      <div
-                        key={record.id}
-                        className={`relative pl-4 pr-3.5 py-3 rounded-[14px] border ${c.bg} ${c.border} transition-all hover:translate-x-0.5 shadow-sm hover:shadow flex items-start gap-3 overflow-hidden`}
-                      >
-                        {/* Left edge boundary accent strip */}
-                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${c.leftAccent}`} />
+                /* Manual text input */
+                <form onSubmit={handleScanSubmit} className="flex flex-col gap-4">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                      Ticket Code
+                    </label>
+                    <input
+                      type="text"
+                      value={ticketCode}
+                      onChange={(e) => setTicketCode(e.target.value)}
+                      placeholder="e.g. TKT-XXXXXXXXX"
+                      autoFocus
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[12.5px] text-slate-750 placeholder-slate-400 transition-all font-mono font-semibold"
+                    />
+                  </div>
 
-                        {/* Status Icon */}
-                        <div className={`p-1.5 rounded-lg border shrink-0 ${c.icon}`}>
-                          {record.status === 'success' ? (
-                            <CheckCircle className="w-4 h-4" />
-                          ) : record.status === 'already' ? (
-                            <AlertTriangle className="w-4 h-4" />
-                          ) : (
-                            <XCircle className="w-4 h-4" />
-                          )}
-                        </div>
+                  <div className="flex justify-end gap-2.5 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setScanModalOpen(false)}
+                      className="px-4 py-2 border border-slate-200 bg-white hover:border-slate-300 rounded-xl text-[11px] font-semibold text-slate-505 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={verifyMutation.isPending || !ticketCode.trim()}
+                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[11px] font-semibold transition-all disabled:opacity-40 cursor-pointer"
+                    >
+                      {verifyMutation.isPending ? 'Verifying…' : 'Verify Ticket'}
+                    </button>
+                  </div>
+                </form>
+              )}
 
-                        {/* Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            {record.attendeeName ? (
-                              <span className="text-xs font-bold text-slate-800 truncate pr-1">
-                                {record.attendeeName}
-                              </span>
-                            ) : (
-                              <span className="text-xs font-bold text-slate-400 italic">
-                                Unknown Registrant
-                              </span>
-                            )}
-                            
-                            <span className={`text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded border tracking-wider whitespace-nowrap shrink-0 ${c.badge}`}>
-                              {record.status === 'success' ? 'Granted' : record.status === 'already' ? 'Duplicate' : 'Denied'}
-                            </span>
-                          </div>
-                          
-                          {record.eventTitle && (
-                            <p className="text-[10px] text-slate-500 font-semibold truncate mt-0.5">
-                              {record.eventTitle}
-                            </p>
-                          )}
-                          
-                          <div className="flex items-center justify-between mt-1 text-[9px] font-medium text-slate-400 font-mono">
-                            <span className="truncate max-w-[160px]">{record.ticketCode}</span>
-                            <span className="text-slate-400 pl-1 shrink-0">{formatTime(record.scannedAt)}</span>
-                          </div>
-                        </div>
-
-                      </div>
-                    );
-                  })}
+              {/* Scan feedback details (Rendered for both camera & manual results) */}
+              {scanResult && (
+                <div className={`p-3.5 rounded-xl border text-[12px] font-medium flex items-start gap-2.5 transition-all ${
+                  scanResult.status === 'valid'
+                    ? 'bg-emerald-50/70 border-emerald-100/80 text-emerald-800'
+                    : scanResult.status === 'already_scanned'
+                    ? 'bg-amber-50/70 border-amber-100/80 text-amber-800'
+                    : 'bg-rose-50/70 border-rose-100/80 text-rose-800'
+                }`}>
+                  <span className="mt-0.5 flex-shrink-0">
+                    {scanResult.status === 'valid' && <CheckCircle size={14} className="text-emerald-500" />}
+                    {scanResult.status === 'already_scanned' && <AlertTriangle size={14} className="text-amber-500" />}
+                    {scanResult.status === 'invalid' && <XCircle size={14} className="text-rose-500" />}
+                  </span>
+                  <span className="leading-normal">{scanResult.message}</span>
                 </div>
               )}
             </div>
-
           </div>
         </div>
+      )}
 
-      </div>
-
+      {/* ── Stats Modal ── */}
+      {showStatsModal && (
+        <StatsModal
+          onClose={() => setShowStatsModal(false)}
+          stats={{
+            total: statsTotal,
+            attended: statsAttended,
+            absent: statsAbsent,
+            rate: attendanceRate,
+          }}
+          eventTitle={eventTitle}
+        />
+      )}
     </div>
+  );
+}
+
+export default function TicketScannerPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F8F9FA] p-8 flex items-center justify-center">
+        <div className="text-slate-400 text-sm animate-pulse">Loading scanner interface...</div>
+      </div>
+    }>
+      <TicketScannerPageContent />
+    </Suspense>
   );
 }
