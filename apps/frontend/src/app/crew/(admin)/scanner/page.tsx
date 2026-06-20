@@ -255,7 +255,7 @@ function TicketScannerPageContent() {
       { ticketCode: ticketCode.trim(), scannerId: 'crew-manual' },
       {
         onSuccess: (response) => {
-          if (response.valid) {
+          if (response.success) {
             setScanResult({ status: 'valid', message: response.status || 'Ticket verified successfully!' });
           } else {
             const msg = response.status?.toLowerCase() || '';
@@ -287,7 +287,7 @@ function TicketScannerPageContent() {
       { ticketCode: code.trim(), scannerId: 'crew-camera' },
       {
         onSuccess: (response) => {
-          if (response.valid) {
+          if (response.success) {
             setScanResult({ status: 'valid', message: response.status || 'Ticket verified successfully!' });
           } else {
             const msg = response.status?.toLowerCase() || '';
