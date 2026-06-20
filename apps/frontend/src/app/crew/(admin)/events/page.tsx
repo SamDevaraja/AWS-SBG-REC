@@ -352,10 +352,7 @@ export default function AssignedEventsPage() {
                             </span>
                           );
                         })()}
-                        {/* Assigned role badge */}
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider text-slate-655 bg-slate-50 border border-slate-200">
-                          Role: {event.assignedRole}
-                        </span>
+
                       </div>
 
                       {/* Date & Venue */}
@@ -512,7 +509,6 @@ export default function AssignedEventsPage() {
                         <div className="col-span-2 flex flex-col gap-1">
                           <div className="flex flex-wrap gap-1">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wide border ${sc.className}`}>{sc.label}</span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-50 border border-slate-200">Role: {event.assignedRole}</span>
                           </div>
                         </div>
 
