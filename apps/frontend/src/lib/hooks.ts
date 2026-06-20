@@ -374,7 +374,7 @@ export function useCrewAttendance(params?: { search?: string }) {
 export function useMarkCrewAttendance() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { ticketCode: string; scannerId?: string }) => api.markCrewAttendance(data),
+    mutationFn: (data: { ticketCode: string; scannerId?: string; eventId: string }) => api.markCrewAttendance(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['crew', 'dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['crew', 'attendance'] });

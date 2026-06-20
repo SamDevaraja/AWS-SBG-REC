@@ -28,6 +28,14 @@ export class AttendanceService {
       return { valid: false, status: 'Invalid Ticket' };
     }
 
+    if (!dto.eventId) {
+      throw new BadRequestException('Event ID is required for verification');
+    }
+
+    if (ticket.eventId !== dto.eventId) {
+      return { valid: false, status: 'Wrong Event' };
+    }
+
     if (ticket.status === TicketStatus.CANCELLED) {
       return { valid: false, status: 'Cancelled Ticket' };
     }

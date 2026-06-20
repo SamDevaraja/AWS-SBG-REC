@@ -32,6 +32,7 @@ export async function fetchCrewAttendance(params?: { search?: string }): Promise
 export async function markCrewAttendance(data: {
   ticketCode: string;
   scannerId?: string;
+  eventId: string;
 }): Promise<{ success: boolean; valid?: boolean; status: string; ticket?: Ticket }> {
   return fetcher('/crew/attendance', {
     method: 'POST',

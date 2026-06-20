@@ -249,6 +249,7 @@ export class CrewService {
     const result = await this.attendanceService.verifyTicket({
       ticketCode: dto.ticketCode,
       scannerId: dto.scannerId || 'crew-scanner',
+      eventId: dto.eventId,
     });
 
     return {

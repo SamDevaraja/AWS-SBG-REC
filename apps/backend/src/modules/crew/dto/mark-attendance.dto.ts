@@ -11,4 +11,9 @@ export class MarkAttendanceDto {
   @IsString()
   @IsOptional()
   scannerId?: string;
+
+  @ApiProperty({ description: 'Event ID to restrict scanner check-in', required: true })
+  @IsString()
+  @IsNotEmpty()
+  eventId: string;
 }

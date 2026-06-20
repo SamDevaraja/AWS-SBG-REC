@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCrewAttendance, useMarkCrewAttendance } from '@/lib/hooks';
+import { useCrewAttendance, useMarkCrewAttendance, useEvents } from '@/lib/hooks';
 import { useDebounce } from '@/lib/useDebounce';
 import { CheckCircle, XCircle, Search, UserCheck, Calendar, Download } from 'lucide-react';
 
@@ -20,6 +20,7 @@ export default function CrewAttendancePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [ticketCode, setTicketCode] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState('');
   const [feedback, setFeedback] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -31,16 +32,26 @@ export default function CrewAttendancePage() {
   });
   const isSearching = isLoading || searchQuery !== debouncedSearchQuery;
 
+  const { data: eventsData } = useEvents({ limit: 200 });
+  const events = eventsData?.data ?? [];
+
   const markAttendanceMutation = useMarkCrewAttendance();
 
   function handleMarkAttendance(e: React.FormEvent) {
     e.preventDefault();
     if (!ticketCode.trim()) return;
+    if (!selectedEventId) {
+      setFeedback({
+        type: 'error',
+        message: 'Please select an event context first.',
+      });
+      return;
+    }
 
     setFeedback(null);
 
     markAttendanceMutation.mutate(
-      { ticketCode: ticketCode.trim(), scannerId: 'manual-crew-terminal' },
+      { ticketCode: ticketCode.trim(), scannerId: 'manual-crew-terminal', eventId: selectedEventId },
       {
         onSuccess: (res) => {
           if (res.success) {
@@ -120,20 +131,34 @@ export default function CrewAttendancePage() {
             <span>Manual Attendance Entry</span>
           </h2>
 
-          <form onSubmit={handleMarkAttendance} className="relative z-10 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <input
-                type="text"
-                value={ticketCode}
-                onChange={(e) => setTicketCode(e.target.value)}
-                placeholder="Enter Ticket Code (e.g. EVT-EVENTID-TICKET001)..."
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 font-mono transition-all"
-              />
+          <form onSubmit={handleMarkAttendance} className="relative z-10 flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="relative">
+                <select
+                  value={selectedEventId}
+                  onChange={(e) => setSelectedEventId(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 transition-all cursor-pointer"
+                >
+                  <option value="">Select Event Context (Required)</option>
+                  {events.map((ev) => (
+                    <option key={ev.id} value={ev.id}>{ev.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={ticketCode}
+                  onChange={(e) => setTicketCode(e.target.value)}
+                  placeholder="Enter Ticket Code (e.g. EVT-EVENTID-TICKET001)..."
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-slate-700 placeholder-slate-400 font-mono transition-all"
+                />
+              </div>
             </div>
             <button
               type="submit"
-              disabled={markAttendanceMutation.isPending || !ticketCode.trim()}
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12px] font-semibold transition-all disabled:opacity-40 whitespace-nowrap cursor-pointer"
+              disabled={markAttendanceMutation.isPending || !ticketCode.trim() || !selectedEventId}
+              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[12px] font-semibold transition-all disabled:opacity-40 whitespace-nowrap cursor-pointer self-end md:w-auto w-full"
             >
               {markAttendanceMutation.isPending ? 'Processing...' : 'Mark Attendance'}
             </button>

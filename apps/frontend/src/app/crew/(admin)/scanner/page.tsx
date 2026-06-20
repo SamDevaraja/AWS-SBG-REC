@@ -250,9 +250,13 @@ function TicketScannerPageContent() {
   function handleScanSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!ticketCode.trim()) return;
+    if (!eventFilter) {
+      setScanResult({ status: 'invalid', message: 'Please select an event before verifying.' });
+      return;
+    }
     setScanResult(null);
     verifyMutation.mutate(
-      { ticketCode: ticketCode.trim(), scannerId: 'crew-manual' },
+      { ticketCode: ticketCode.trim(), scannerId: 'crew-manual', eventId: eventFilter },
       {
         onSuccess: (response) => {
           if (response.success) {
@@ -261,6 +265,8 @@ function TicketScannerPageContent() {
             const msg = response.status?.toLowerCase() || '';
             if (msg.includes('already') || msg.includes('scanned')) {
               setScanResult({ status: 'already_scanned', message: response.status || 'Ticket has already been scanned.' });
+            } else if (msg.includes('wrong') || msg.includes('event') || msg.includes('different')) {
+              setScanResult({ status: 'invalid', message: 'Ticket belongs to a different event.' });
             } else {
               setScanResult({ status: 'invalid', message: response.status || 'Invalid ticket code.' });
             }
@@ -277,6 +283,10 @@ function TicketScannerPageContent() {
 
   function handleCameraScan(code: string) {
     if (!code || !code.trim()) return;
+    if (!eventFilter) {
+      setScanResult({ status: 'invalid', message: 'Please select an event before scanning.' });
+      return;
+    }
     const now = Date.now();
     if (code === lastScannedCode.current && now - lastScannedTime.current < 2000) return;
     lastScannedCode.current = code;
@@ -284,7 +294,7 @@ function TicketScannerPageContent() {
 
     setScanResult(null);
     verifyMutation.mutate(
-      { ticketCode: code.trim(), scannerId: 'crew-camera' },
+      { ticketCode: code.trim(), scannerId: 'crew-camera', eventId: eventFilter },
       {
         onSuccess: (response) => {
           if (response.success) {
@@ -293,6 +303,8 @@ function TicketScannerPageContent() {
             const msg = response.status?.toLowerCase() || '';
             if (msg.includes('already') || msg.includes('scanned')) {
               setScanResult({ status: 'already_scanned', message: response.status || 'Ticket has already been scanned.' });
+            } else if (msg.includes('wrong') || msg.includes('event') || msg.includes('different')) {
+              setScanResult({ status: 'invalid', message: 'Ticket belongs to a different event.' });
             } else {
               setScanResult({ status: 'invalid', message: response.status || 'Invalid ticket code.' });
             }
@@ -382,10 +394,23 @@ function TicketScannerPageContent() {
 
             {/* Scan Ticket Button */}
             <button
-              onClick={() => { setScanModalOpen(true); setScanResult(null); setTicketCode(''); }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+              onClick={() => {
+                if (!eventFilter) {
+                  alert("Please select a specific event from the dropdown filter first to enable scanning.");
+                  return;
+                }
+                setScanModalOpen(true);
+                setScanResult(null);
+                setTicketCode('');
+              }}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-lg text-[12px] font-semibold transition-all shadow-sm cursor-pointer ${
+                eventFilter 
+                  ? 'bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-350 text-slate-700 hover:text-slate-900 hover:-translate-y-0.5' 
+                  : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
+              }`}
+              title={!eventFilter ? "Please select an event to start scanning" : "Scan Ticket"}
             >
-              <QrCode size={13} className="text-slate-505" />
+              <QrCode size={13} className={eventFilter ? "text-slate-505" : "text-slate-300"} />
               Scan Ticket
             </button>
           </div>

@@ -251,9 +251,13 @@ function AttendancePageContent() {
   function handleScanSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!ticketCode.trim()) return;
+    if (!eventFilter) {
+      setScanResult({ status: 'invalid', message: 'Please select an event before verifying.' });
+      return;
+    }
     setScanResult(null);
     verifyMutation.mutate(
-      { ticketCode: ticketCode.trim(), scannerId: 'admin' },
+      { ticketCode: ticketCode.trim(), scannerId: 'admin', eventId: eventFilter },
       {
         onSuccess: (response) => {
           if (response.valid) {
@@ -262,6 +266,8 @@ function AttendancePageContent() {
             const msg = response.status?.toLowerCase() || '';
             if (msg.includes('already') || msg.includes('scanned')) {
               setScanResult({ status: 'already_scanned', message: response.status || 'Ticket has already been scanned.' });
+            } else if (msg.includes('wrong') || msg.includes('event') || msg.includes('different')) {
+              setScanResult({ status: 'invalid', message: 'Ticket belongs to a different event.' });
             } else {
               setScanResult({ status: 'invalid', message: response.status || 'Invalid ticket code.' });
             }
@@ -278,6 +284,10 @@ function AttendancePageContent() {
 
   function handleCameraScan(code: string) {
     if (!code || !code.trim()) return;
+    if (!eventFilter) {
+      setScanResult({ status: 'invalid', message: 'Please select an event before scanning.' });
+      return;
+    }
     const now = Date.now();
     if (code === lastScannedCode.current && now - lastScannedTime.current < 2000) return;
     lastScannedCode.current = code;
@@ -285,7 +295,7 @@ function AttendancePageContent() {
 
     setScanResult(null);
     verifyMutation.mutate(
-      { ticketCode: code.trim(), scannerId: 'admin-camera' },
+      { ticketCode: code.trim(), scannerId: 'admin-camera', eventId: eventFilter },
       {
         onSuccess: (response) => {
           if (response.valid) {
@@ -294,6 +304,8 @@ function AttendancePageContent() {
             const msg = response.status?.toLowerCase() || '';
             if (msg.includes('already') || msg.includes('scanned')) {
               setScanResult({ status: 'already_scanned', message: response.status || 'Ticket has already been scanned.' });
+            } else if (msg.includes('wrong') || msg.includes('event') || msg.includes('different')) {
+              setScanResult({ status: 'invalid', message: 'Ticket belongs to a different event.' });
             } else {
               setScanResult({ status: 'invalid', message: response.status || 'Invalid ticket code.' });
             }
@@ -336,16 +348,14 @@ function AttendancePageContent() {
           <div>
             {/* Breadcrumb Path */}
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2.5">
-              <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors">Admin</Link>
-              <span className="text-slate-300">/</span>
-              <Link href="/core/events" className="hover:text-[#FF9900] transition-colors">Events</Link>
+              <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors">Core</Link>
               <span className="text-slate-300">/</span>
               <span className="text-[#FF9900] font-semibold">Attendance</span>
             </div>
             
             <div className="flex items-center gap-2">
               <h1 className="text-[24px] font-semibold text-slate-900 tracking-tight leading-none">
-                {eventTitle || 'Attendance'}
+                {eventTitle || 'All Attendance'}
               </h1>
               <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-full text-xs font-semibold mr-1">
                 {totalCount}
@@ -361,7 +371,7 @@ function AttendancePageContent() {
             <p className="text-[13px] text-slate-500 font-normal mt-2.5">
               {eventTitle 
                 ? 'Track, search, and verify real-time event check-ins for this event.' 
-                : 'Track, search, and verify real-time event check-ins across the platform.'}
+                : 'Track, search, and verify real-time event check-ins across all events.'}
             </p>
           </div>
 
@@ -383,10 +393,23 @@ function AttendancePageContent() {
 
             {/* Scan Ticket Button */}
             <button
-              onClick={() => { setScanModalOpen(true); setScanResult(null); setTicketCode(''); }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+              onClick={() => {
+                if (!eventFilter) {
+                  alert("Please select a specific event from the dropdown filter first to enable scanning.");
+                  return;
+                }
+                setScanModalOpen(true);
+                setScanResult(null);
+                setTicketCode('');
+              }}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-lg text-[12px] font-semibold transition-all shadow-sm cursor-pointer ${
+                eventFilter 
+                  ? 'bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 hover:-translate-y-0.5' 
+                  : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
+              }`}
+              title={!eventFilter ? "Please select an event to start scanning" : "Scan Ticket"}
             >
-              <QrCode size={13} className="text-slate-500" />
+              <QrCode size={13} className={eventFilter ? "text-slate-500" : "text-slate-300"} />
               Scan Ticket
             </button>
           </div>

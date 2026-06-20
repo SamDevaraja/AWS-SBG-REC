@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class VerifyTicketDto {
@@ -11,4 +11,9 @@ export class VerifyTicketDto {
   @IsString()
   @IsNotEmpty()
   scannerId: string;
+
+  @ApiProperty({ description: 'Event ID to restrict scanner check-in', required: true })
+  @IsString()
+  @IsNotEmpty()
+  eventId: string;
 }

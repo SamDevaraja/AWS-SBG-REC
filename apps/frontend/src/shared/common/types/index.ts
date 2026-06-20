@@ -306,6 +306,7 @@ export interface CreateAnnouncementDto {
 export interface VerifyTicketDto {
   ticketCode: string;
   scannerId: string;
+  eventId: string;
 }
 
 // ── Pagination ───────────────────────────────────────────────────────────────
