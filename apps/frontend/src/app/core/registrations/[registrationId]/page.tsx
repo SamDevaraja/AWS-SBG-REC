@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useRegistration, useCancelRegistration } from '@/lib/hooks';
 import {
-  ArrowLeft,
   User,
   Mail,
   Hash,
@@ -12,11 +11,13 @@ import {
   MapPin,
   Monitor,
   Clock,
-  Ticket,
+  QrCode,
   AlertTriangle,
   X,
+  FileText
 } from 'lucide-react';
 import type { RegistrationStatus } from '@/lib/types';
+import { QRCodeSVG } from 'qrcode.react';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -32,49 +33,12 @@ function formatDateTime(dateString: string): string {
 }
 
 function statusBadge(status: RegistrationStatus) {
-  const map: Record<RegistrationStatus, { bg: string; color: string }> = {
-    CONFIRMED: { bg: 'rgba(16,185,129,0.1)', color: '#059669' },
-    PENDING:   { bg: 'rgba(245,158,11,0.1)',  color: '#d97706' },
-    CANCELLED: { bg: 'rgba(239,68,68,0.1)',   color: '#dc2626' },
+  const map: Record<RegistrationStatus, { bg: string; text: string; border: string }> = {
+    CONFIRMED: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+    PENDING:   { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200' },
+    CANCELLED: { bg: 'bg-rose-50',   text: 'text-rose-700',   border: 'border-rose-200' },
   };
-  return map[status] || { bg: 'rgba(100,116,139,0.1)', color: '#475569' };
-}
-
-/* ── Info Card ────────────────────────────────────────────────────── */
-function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div style={{
-      background: 'rgba(255,255,255,0.85)',
-      backdropFilter: 'blur(24px)',
-      WebkitBackdropFilter: 'blur(24px)',
-      borderRadius: '20px',
-      border: '1.5px solid rgba(35,47,62,0.08)',
-      boxShadow: '0 8px 24px rgba(35,47,62,0.05)',
-      padding: '24px',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* dot grid */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(35,47,62,0.02) 1.2px, transparent 1.2px)', backgroundSize: '18px 18px', pointerEvents: 'none', borderRadius: '20px' }} />
-      <h3 style={{ fontSize: '11px', fontWeight: 800, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px', position: 'relative', zIndex: 1 }}>{title}</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', position: 'relative', zIndex: 1 }}>{children}</div>
-    </div>
-  );
-}
-
-/* ── Info Row ─────────────────────────────────────────────────────── */
-function InfoRow({ icon: Icon, label, value }: { icon: React.ComponentType<any>; label: string; value: string | undefined | null }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-      <div style={{ padding: '7px', borderRadius: '8px', background: 'rgba(35,47,62,0.04)', border: '1px solid rgba(35,47,62,0.06)', flexShrink: 0, marginTop: 1 }}>
-        <Icon style={{ width: 13, height: 13, color: '#94a3b8' }} />
-      </div>
-      <div>
-        <p style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 2px' }}>{label}</p>
-        <p style={{ fontSize: '13px', color: '#232F3E', fontWeight: 500, margin: 0 }}>{value || '—'}</p>
-      </div>
-    </div>
-  );
+  return map[status] || { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200' };
 }
 
 /* ── Cancel Modal ─────────────────────────────────────────────────── */
@@ -83,37 +47,31 @@ function CancelModal({ open, onConfirm, onCancel, isPending }: {
 }) {
   if (!open) return null;
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(6px)' }}>
-      <div style={{
-        background: '#ffffff', borderRadius: '20px',
-        maxWidth: 400, width: '100%', margin: '0 16px',
-        padding: '28px', boxShadow: '0 32px 64px rgba(0,0,0,0.15)',
-        border: '1.5px solid rgba(35,47,62,0.08)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <div style={{ width: 44, height: 44, borderRadius: '12px', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <AlertTriangle style={{ width: 20, height: 20, color: '#dc2626' }} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+      <div className="bg-white rounded-[4px] max-w-md w-full p-6 shadow-xl border border-slate-200/80 animate-[fadeIn_0.15s_ease-out]">
+        <div className="flex items-start gap-4 mb-4">
+          <div className="w-10 h-10 rounded-[4px] bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5 text-rose-600" />
           </div>
           <div>
-            <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#232F3E', margin: 0 }}>Cancel Registration</h3>
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0' }}>This action cannot be undone.</p>
+            <h3 className="text-sm font-bold text-slate-900">Cancel Registration</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Are you sure you want to cancel this registration? The associated ticket will be permanently invalidated. This action cannot be undone.
+            </p>
           </div>
         </div>
-        <p style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6, margin: '0 0 24px' }}>
-          Are you sure you want to cancel this registration? The associated ticket will also be invalidated.
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div className="flex justify-end gap-2.5 mt-6">
           <button
             onClick={onCancel}
             disabled={isPending}
-            style={{ padding: '9px 18px', borderRadius: '10px', border: '1.5px solid rgba(35,47,62,0.12)', background: '#ffffff', fontSize: '12px', fontWeight: 600, color: '#475569', cursor: 'pointer', opacity: isPending ? 0.5 : 1 }}
+            className="px-4 py-2 text-xs font-semibold text-slate-700 border border-slate-200 rounded-[4px] bg-white hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-50"
           >
             Keep Registration
           </button>
           <button
             onClick={onConfirm}
             disabled={isPending}
-            style={{ padding: '9px 18px', borderRadius: '10px', border: 'none', background: 'linear-gradient(135deg,#ef4444,#dc2626)', fontSize: '12px', fontWeight: 600, color: '#fff', cursor: 'pointer', opacity: isPending ? 0.7 : 1, boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}
+            className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-[4px] transition-all cursor-pointer disabled:opacity-50 shadow-xs"
           >
             {isPending ? 'Cancelling…' : 'Yes, Cancel'}
           </button>
@@ -126,17 +84,18 @@ function CancelModal({ open, onConfirm, onCancel, isPending }: {
 /* ── Loading Skeleton ─────────────────────────────────────────────── */
 function LoadingSkeleton() {
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px' }}>
-      <div style={{ maxWidth: 1360, margin: '0 auto' }}>
-        <div className="animate-pulse" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div style={{ height: 36, width: 100, borderRadius: 10, background: 'rgba(35,47,62,0.06)' }} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-            {[1,2,3].map(i => (
-              <div key={i} style={{ borderRadius: 20, border: '1.5px solid rgba(35,47,62,0.08)', padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ height: 12, width: 80, borderRadius: 6, background: 'rgba(35,47,62,0.06)' }} />
-                {[1,2,3].map(j => <div key={j} style={{ height: 10, borderRadius: 6, background: 'rgba(35,47,62,0.05)' }} />)}
-              </div>
-            ))}
+    <div className="min-h-screen bg-slate-50/50 py-10 px-4">
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="h-6 w-24 bg-slate-200 rounded-[4px] animate-pulse" />
+        <div className="h-10 w-64 bg-slate-200 rounded-[4px] animate-pulse" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="h-48 bg-white border border-slate-200 rounded-[4px] animate-pulse" />
+            <div className="h-48 bg-white border border-slate-200 rounded-[4px] animate-pulse" />
+          </div>
+          <div className="space-y-6">
+            <div className="h-32 bg-white border border-slate-200 rounded-[4px] animate-pulse" />
+            <div className="h-64 bg-white border border-slate-200 rounded-[4px] animate-pulse" />
           </div>
         </div>
       </div>
@@ -144,19 +103,33 @@ function LoadingSkeleton() {
   );
 }
 
-/* ── Main Page ────────────────────────────────────────────────────── */
 export default function RegistrationDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const registrationId = params.registrationId as string;
+  const actionParam = searchParams.get('action');
+  
   const [showCancelModal, setShowCancelModal] = useState(false);
 
   const { data: registration, isLoading } = useRegistration(registrationId);
   const cancelMutation = useCancelRegistration();
 
+  useEffect(() => {
+    if (actionParam === 'cancel' && registration && registration.status !== 'CANCELLED') {
+      setShowCancelModal(true);
+    }
+  }, [actionParam, registration]);
+
   function handleCancel() {
     cancelMutation.mutate(registrationId, {
-      onSuccess: () => { setShowCancelModal(false); },
+      onSuccess: () => { 
+        setShowCancelModal(false); 
+        // Remove the action=cancel param from the URL query to avoid reopening
+        const url = new URL(window.location.href);
+        url.searchParams.delete('action');
+        window.history.replaceState({}, '', url.toString());
+      },
     });
   }
 
@@ -164,12 +137,12 @@ export default function RegistrationDetailsPage() {
 
   if (!registration) {
     return (
-      <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px' }}>
-        <div style={{ maxWidth: 1360, margin: '0 auto', textAlign: 'center', paddingTop: 80 }}>
-          <p style={{ fontSize: '14px', color: '#94a3b8' }}>Registration not found.</p>
+      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6">
+        <div className="bg-white border border-slate-200 rounded-[4px] p-8 max-w-sm w-full text-center shadow-sm">
+          <p className="text-sm font-semibold text-slate-500">Registration not found.</p>
           <button
-            onClick={() => router.push('/registrations')}
-            style={{ marginTop: 16, fontSize: '13px', color: '#FF9900', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={() => router.push('/core/registrations')}
+            className="mt-4 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-[4px] text-xs font-semibold cursor-pointer transition-all shadow-xs"
           >
             Back to Registrations
           </button>
@@ -181,186 +154,195 @@ export default function RegistrationDetailsPage() {
   const badge = statusBadge(registration.status);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff', padding: '40px 24px 64px', position: 'relative', overflow: 'hidden' }}>
+    <div className="min-h-screen bg-slate-50/30 py-8 px-4 font-sans relative">
+      <div className="max-w-5xl mx-auto space-y-6 relative z-10">
 
-      {/* Ambient blobs — matches landing page */}
-      <div style={{ position: 'fixed', top: '10%', right: '12%', width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,115,187,0.05) 0%, transparent 70%)', filter: 'blur(50px)', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'fixed', bottom: '10%', left: '8%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,153,0,0.06) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0 }} />
-
-      <div style={{ maxWidth: 1360, margin: '0 auto', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
-
-        {/* ── Back Button ── */}
-        <div>
-          <button
-            onClick={() => router.back()}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(255,255,255,0.85)',
-              border: '1.5px solid rgba(35,47,62,0.1)',
-              borderRadius: '10px', padding: '8px 16px',
-              fontSize: '13px', fontWeight: 600, color: '#232F3E',
-              cursor: 'pointer', boxShadow: '0 2px 8px rgba(35,47,62,0.06)',
-              backdropFilter: 'blur(12px)',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#FF9900'; (e.currentTarget as HTMLButtonElement).style.color = '#FF9900'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(35,47,62,0.1)'; (e.currentTarget as HTMLButtonElement).style.color = '#232F3E'; }}
-          >
-            <ArrowLeft style={{ width: 14, height: 14 }} />
-            Back
-          </button>
-        </div>
-
-        {/* ── Header ── */}
-        <div>
-          {/* Pill */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'linear-gradient(135deg, rgba(255,153,0,0.07), rgba(35,47,62,0.04))',
-            border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px',
-            padding: '6px 14px 6px 10px', marginBottom: '12px',
-            boxShadow: '0 2px 12px rgba(255,153,0,0.08)',
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
-            <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin · Registration Detail</span>
+        {/* ── Page Header ── */}
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between pb-5 border-b border-slate-200/80">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Admin Control</span>
+              <span className="w-1 h-1 rounded-full bg-slate-300" />
+              <span className="font-mono text-[9.5px] bg-slate-100 text-slate-500 border border-slate-200/50 px-1.5 py-0.5 rounded-[3px] select-all tracking-normal truncate max-w-[200px] md:max-w-none">
+                ID: {registration.id}
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-xl font-bold tracking-tight text-slate-800">
+                Registration Details
+              </h1>
+              <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-[3px] border ${badge.bg} ${badge.text} ${badge.border}`}>
+                {registration.status}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Registered on {formatDateTime(registration.registrationDate)}
+            </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <h1 style={{ fontSize: 'clamp(1.6rem, 2.5vw, 2rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.02em', lineHeight: 1.1, margin: 0 }}>
-              Registration Details
-            </h1>
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: '#64748b', background: 'rgba(35,47,62,0.05)', border: '1px solid rgba(35,47,62,0.07)', borderRadius: '8px', padding: '3px 10px' }}>
-              {registration.id}
-            </span>
-            <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 12px', borderRadius: '100px', background: badge.bg, color: badge.color }}>
-              {registration.status}
-            </span>
-          </div>
-          <p style={{ fontSize: '13px', color: '#475569', marginTop: 8, marginLeft: 1 }}>
-            Viewing registration for <strong style={{ color: '#232F3E' }}>{registration.name}</strong>
-          </p>
-
-          {/* Orange divider */}
-          <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', margin: '20px 0 0', borderRadius: 2 }} />
+          {/* Action Header Button */}
+          {registration.status !== 'CANCELLED' && (
+            <div className="mt-2 md:mt-0 shrink-0">
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="px-4 py-2 border border-rose-200 bg-white hover:bg-rose-50/50 text-rose-600 rounded-[4px] text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center gap-1.5 shadow-xs hover:border-rose-350 hover:shadow-sm"
+              >
+                Cancel Registration
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* ── Info Cards ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-          <InfoCard title="Attendee Info">
-            <InfoRow icon={User}     label="Name"        value={registration.name} />
-            <InfoRow icon={Mail}     label="Email"       value={registration.email} />
-            <InfoRow icon={Hash}     label="Roll Number" value={registration.roll_number} />
-            <InfoRow icon={User}     label="Department"  value={registration.department} />
-            <InfoRow icon={Hash}     label="User ID"     value={registration.userId} />
-          </InfoCard>
+        {/* ── Main Layout Grid ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          <InfoCard title="Event Info">
-            <InfoRow icon={Calendar} label="Title"  value={registration.event?.title} />
-            <InfoRow icon={Clock}    label="Date"   value={registration.event?.date ? formatDate(registration.event.date) : null} />
-            <InfoRow icon={MapPin}   label="Venue"  value={registration.event?.venue} />
-            <InfoRow icon={Monitor}  label="Mode"   value={registration.event?.mode} />
-          </InfoCard>
+          {/* LEFT COLUMN: DETAILS */}
+          <div className="lg:col-span-2 space-y-6">
 
-          <InfoCard title="Registration Info">
-            <InfoRow icon={Calendar} label="Registered On" value={formatDateTime(registration.registrationDate)} />
-            <InfoRow icon={Hash}     label="Status"        value={registration.status} />
-            {registration.ticket && (
-              <InfoRow icon={Ticket} label="Ticket Code" value={registration.ticket.ticketCode} />
-            )}
-          </InfoCard>
-        </div>
+            {/* Attendee Card */}
+            <div className="bg-white border border-slate-200/85 rounded-[4px] p-5 shadow-xs">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                <User size={13} className="text-slate-400" />
+                Attendee Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Full Name</label>
+                  <p className="text-xs font-semibold text-slate-800">{registration.name || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Email Address</label>
+                  <p className="text-xs font-semibold text-slate-800">{registration.email || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Roll Number</label>
+                  <p className="text-xs font-semibold text-slate-800">{registration.roll_number || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Department</label>
+                  <p className="text-xs font-semibold text-slate-800">{registration.department || '—'}</p>
+                </div>
+              </div>
+            </div>
 
-        {/* ── Form Answers ── */}
-        {registration.answers && registration.answers.length > 0 && (
-          <div style={{
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderRadius: '20px',
-            border: '1.5px solid rgba(35,47,62,0.08)',
-            boxShadow: '0 8px 24px rgba(35,47,62,0.05)',
-            padding: '24px',
-            position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(35,47,62,0.02) 1.2px, transparent 1.2px)', backgroundSize: '18px 18px', pointerEvents: 'none', borderRadius: '20px' }} />
-            <h3 style={{ fontSize: '11px', fontWeight: 800, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', position: 'relative', zIndex: 1 }}>Form Answers</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative', zIndex: 1 }}>
-              {registration.answers.map((answer) => (
-                <div key={answer.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 14px', background: 'rgba(35,47,62,0.03)', borderRadius: '10px', border: '1px solid rgba(35,47,62,0.06)' }}>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '10px', color: '#94a3b8', minWidth: 80, flexShrink: 0, paddingTop: 1 }}>
-                    {answer.fieldId.slice(0, 8)}…
-                  </span>
-                  <span style={{ fontSize: '13px', color: '#232F3E', fontWeight: 500 }}>
-                    {typeof answer.value === 'boolean'
-                      ? answer.value ? 'Yes' : 'No'
-                      : Array.isArray(answer.value)
-                        ? answer.value.join(', ')
-                        : String(answer.value)}
+            {/* Event Card */}
+            <div className="bg-white border border-slate-200/85 rounded-[4px] p-5 shadow-xs">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                <Calendar size={13} className="text-slate-400" />
+                Event Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Event Title</label>
+                  <p className="text-xs font-semibold text-slate-800">{registration.event?.title || '—'}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Date</label>
+                  <p className="text-xs font-semibold text-slate-800">
+                    {registration.event?.date ? formatDate(registration.event.date) : '—'}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Mode</label>
+                  <span className="inline-block bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-[4px] text-[10px] font-bold text-slate-700 uppercase mt-0.5">
+                    {registration.event?.mode || '—'}
                   </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Ticket Section ── */}
-        {registration.ticket && (
-          <div style={{
-            background: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderRadius: '20px',
-            border: '1.5px solid rgba(35,47,62,0.08)',
-            boxShadow: '0 8px 24px rgba(35,47,62,0.05)',
-            padding: '24px',
-            position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(35,47,62,0.02) 1.2px, transparent 1.2px)', backgroundSize: '18px 18px', pointerEvents: 'none', borderRadius: '20px' }} />
-            <h3 style={{ fontSize: '11px', fontWeight: 800, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px', position: 'relative', zIndex: 1 }}>Ticket</h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
-              <div>
-                <p style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Ticket Code</p>
-                <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '14px', color: '#232F3E', fontWeight: 600, margin: 0 }}>{registration.ticket.ticketCode}</p>
-              </div>
-              <div>
-                <p style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>Status</p>
-                <span style={{
-                  fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em',
-                  padding: '4px 12px', borderRadius: '100px',
-                  background: registration.ticket.status === 'ACTIVE' ? 'rgba(16,185,129,0.1)' : registration.ticket.status === 'USED' ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)',
-                  color: registration.ticket.status === 'ACTIVE' ? '#059669' : registration.ticket.status === 'USED' ? '#2563eb' : '#dc2626',
-                }}>
-                  {registration.ticket.status}
-                </span>
-              </div>
-              <div style={{ padding: '12px', borderRadius: '12px', border: '1.5px solid rgba(35,47,62,0.08)', background: 'rgba(35,47,62,0.02)' }}>
-                <div style={{ width: 96, height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#94a3b8' }}>QR Code</div>
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Venue</label>
+                  <p className="text-xs font-semibold text-slate-800">{registration.event?.venue || '—'}</p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ── Actions ── */}
-        {registration.status !== 'CANCELLED' && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button
-              onClick={() => setShowCancelModal(true)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '10px 20px', borderRadius: '12px',
-                border: '1.5px solid rgba(239,68,68,0.25)',
-                background: 'rgba(239,68,68,0.05)',
-                fontSize: '13px', fontWeight: 600, color: '#dc2626',
-                cursor: 'pointer', transition: 'all 0.15s',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.1)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.05)'; }}
-            >
-              <X style={{ width: 14, height: 14 }} />
-              Cancel Registration
-            </button>
+            {/* Custom Form Answers Card */}
+            {registration.answers && registration.answers.length > 0 && (
+              <div className="bg-white border border-slate-200/85 rounded-[4px] p-5 shadow-xs">
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                  <FileText size={13} className="text-slate-400" />
+                  Additional Form Submissions
+                </h3>
+                <div className="divide-y divide-slate-100">
+                  {registration.answers.map((answer) => (
+                    <div key={answer.id} className="py-2.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                        Field {answer.fieldId.slice(0, 8)}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-800">
+                        {typeof answer.value === 'boolean'
+                          ? answer.value ? 'Yes' : 'No'
+                          : Array.isArray(answer.value)
+                            ? answer.value.join(', ')
+                            : String(answer.value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
-        )}
+
+          {/* RIGHT COLUMN: STATUS & TICKET PASS */}
+          <div className="space-y-6">
+
+            {/* Ticket Card Pass */}
+            {registration.ticket && (
+              <div className="bg-white border border-slate-200/85 rounded-[4px] p-6 shadow-xs flex flex-col items-center text-center relative overflow-hidden">
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-slate-900" />
+                
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5 flex items-center gap-1.5 self-start">
+                  <QrCode size={13} className="text-slate-400" />
+                  Access Ticket Pass
+                </h3>
+
+                {/* QR Code Container */}
+                <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-[4px] mb-4 shadow-inner">
+                  <QRCodeSVG
+                    value={registration.ticket.ticketCode}
+                    size={110}
+                    level="H"
+                    includeMargin={false}
+                    className="mx-auto"
+                  />
+                </div>
+
+                <div className="space-y-3 w-full">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">Ticket ID Pass Code</label>
+                    <p className="text-xs font-mono font-bold text-slate-800 select-all mt-0.5 bg-slate-50 border border-slate-200/40 rounded-[2px] px-2.5 py-1 inline-block">
+                      {registration.ticket.ticketCode}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide mb-1">Pass Status</label>
+                    <span className={`inline-block px-2.5 py-0.5 rounded-[3px] text-[9px] font-black uppercase tracking-wider border ${
+                      registration.ticket.status === 'ACTIVE' 
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                        : registration.ticket.status === 'USED' 
+                          ? 'bg-sky-50 text-sky-700 border-sky-200' 
+                          : 'bg-rose-50 text-rose-700 border-rose-200'
+                    }`}>
+                      {registration.ticket.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Helper Notes */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-[4px] p-5 space-y-3">
+              <h4 className="text-[10px] font-bold text-slate-700 uppercase tracking-wide">System Operator Details</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                As a system manager, you can cancel this registration at any time. When cancelled, the associated ticket code will instantly be marked as <strong className="text-slate-700">INACTIVE</strong> and cannot be scanned for attendance verification.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
       <CancelModal
