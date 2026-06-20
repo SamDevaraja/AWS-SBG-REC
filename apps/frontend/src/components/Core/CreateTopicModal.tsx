@@ -83,14 +83,14 @@ export default function CreateTopicModal({ isOpen, onClose, onSubmit }: CreateTo
             <button
               type="button"
               onClick={onClose}
-              className="bg-transparent hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold px-4 py-2.5 rounded-xl transition-all"
+              className="bg-transparent hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold px-4 py-2.5 rounded-[8px] transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="bg-[#00cba9] hover:bg-[#00bda0] text-slate-950 font-black px-5 py-2.5 rounded-xl shadow-lg transition-all"
+              className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-[8px] shadow-lg transition-all disabled:opacity-50"
             >
               {submitting ? 'Creating...' : 'Create Topic'}
             </button>

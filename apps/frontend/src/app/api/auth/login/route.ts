@@ -91,7 +91,8 @@ export async function POST(request: Request) {
     // Fetch backend login to obtain NestJS JWT accessToken for roadmap services
     let accessToken = null;
     try {
-      const backendRes = await fetch("http://localhost:4000/api/auth/login", {
+      const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:4000";
+      const backendRes = await fetch(`${backendUrl}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: normalizedEmail, password }),

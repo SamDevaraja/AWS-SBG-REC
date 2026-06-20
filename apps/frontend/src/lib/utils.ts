@@ -64,3 +64,14 @@ export function getDelayText(dueDate: string | Date, completedAt?: string | Date
   if (completedAt) return `Completed ${days} day${days === 1 ? '' : 's'} late`;
   return `Overdue by ${days} day${days === 1 ? '' : 's'}`;
 }
+
+export function getPosterSrcAndPosition(posterImage: string | null | undefined): { src: string; position: string } {
+  if (!posterImage) return { src: '/default-event-poster.png', position: '50% 50%' };
+  const hashIndex = posterImage.lastIndexOf('#pos=');
+  if (hashIndex !== -1) {
+    const src = posterImage.substring(0, hashIndex);
+    const pos = posterImage.substring(hashIndex + 5);
+    return { src, position: `50% ${pos}%` };
+  }
+  return { src: posterImage, position: '50% 50%' };
+}

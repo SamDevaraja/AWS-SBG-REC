@@ -90,29 +90,11 @@ export class RegistrationsService {
       },
     });
 
-    const eventShortId = event.id.substring(0, 8).toUpperCase();
-    const timestamp = Date.now();
-    const ticketCode = `EVT-${eventShortId}-${timestamp}`;
-
-    const appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
-
-    const ticket = await this.prisma.ticket.create({
-      data: {
-        registrationId: registration.id,
-        eventId,
-        ticketCode,
-        qrCodeUrl: `${appUrl}/verify/${registration.id}`,
-        status: TicketStatus.ACTIVE,
-      },
-    });
-
     this.notificationsService.sendRegistrationSuccess(userId, event.title).catch(() => {});
-
-    this.notificationsService.sendTicketGenerated(userId, event.title, ticketCode).catch(() => {});
 
     return {
       ...registration,
-      ticket,
+      ticket: null,
     };
   }
 

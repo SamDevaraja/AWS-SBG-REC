@@ -12,6 +12,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { EVENT_CATEGORIES, AVAILABILITY_FILTERS } from '../../../context/mockData';
+import { getPosterSrcAndPosition } from '@/lib/utils';
 
 /**
  * Debounce hook — delays updating a value until the user stops typing.
@@ -302,6 +303,8 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
     };
   }, [start_datetime]);
 
+  const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(banner_url);
+
   return (
     <div
       ref={cardRef}
@@ -318,11 +321,12 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           {/* Banner as full background */}
           <div className="absolute inset-0">
             <img
-              src={banner_url}
+              src={imgPosterSrc}
               alt={title}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: imgPosterPosition }}
               onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
             />
             {/* Heavy dark overlay so text is readable */}
@@ -353,19 +357,21 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
             )}
 
             {/* Date / Time / Venue */}
-            <div className="flex flex-wrap gap-x-4 gap-y-2 pt-3 border-t border-white/15">
-              <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
-                <Calendar className="w-4 h-4 shrink-0 text-white/60" />
-                <span className="truncate">{formattedDate}</span>
-              </span>
-              <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
-                <Clock className="w-4 h-4 shrink-0 text-white/60" />
-                <span className="truncate">{startTimeStr} · {mode}</span>
-              </span>
-              <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+            <div className="pt-3 border-t border-white/15 flex flex-col gap-1.5">
+              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+                  <Calendar className="w-4 h-4 shrink-0 text-white/60" />
+                  <span className="truncate">{formattedDate}</span>
+                </span>
+                <span className="flex items-center gap-2 text-[13px] font-medium text-white/85">
+                  <Clock className="w-4 h-4 shrink-0 text-white/60" />
+                  <span className="truncate">{startTimeStr} · {mode}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-[13px] font-medium text-white/85">
                 <MapPin className="w-4 h-4 shrink-0 text-white/60" />
                 <span className="truncate">{venue}</span>
-              </span>
+              </div>
             </div>
 
             {/* Footer */}
@@ -394,11 +400,12 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           {/* Tall banner — title + category float over it */}
           <div className="relative h-56 w-full overflow-hidden bg-slate-900 shrink-0">
             <img
-              src={banner_url}
+              src={imgPosterSrc}
               alt={title}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              style={{ objectPosition: imgPosterPosition }}
               onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
             />
 
@@ -430,19 +437,21 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
           <div className="p-4 flex flex-col gap-3" style={{ background: 'linear-gradient(135deg, #fdf3e3 0%, #ede9e1 100%)' }}>
 
             {/* Date / Time / Venue chips */}
-            <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-              <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
-                <Calendar className="w-3.5 h-3.5 shrink-0 text-stone-400" />
-                <span className="truncate">{formattedDate}</span>
-              </span>
-              <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
-                <Clock className="w-3.5 h-3.5 shrink-0 text-stone-400" />
-                <span className="truncate">{startTimeStr} · {mode}</span>
-              </span>
-              <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
+                <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
+                  <Calendar className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+                  <span className="truncate">{formattedDate}</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
+                  <Clock className="w-3.5 h-3.5 shrink-0 text-stone-400" />
+                  <span className="truncate">{startTimeStr} · {mode}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[12px] font-medium text-stone-700">
                 <MapPin className="w-3.5 h-3.5 shrink-0 text-stone-400" />
                 <span className="truncate">{venue}</span>
-              </span>
+              </div>
             </div>
 
             {/* Seats + CTA row */}
@@ -471,8 +480,6 @@ const EventCard = memo(function EventCard({ event }: { event: Event }) {
     </div>
   );
 });
-
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EventListRow — memo-wrapped
@@ -506,6 +513,8 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
     [start_datetime]
   );
 
+  const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(banner_url);
+
   return (
     <div
       ref={rowRef}
@@ -515,11 +524,12 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
         {/* Thumbnail */}
         <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 rounded-xl overflow-hidden shrink-0 relative">
           <img
-            src={banner_url}
+            src={imgPosterSrc}
             alt={title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: imgPosterPosition }}
           />
           <div className="absolute inset-0 bg-black/10" />
           {isEnded && (
@@ -533,10 +543,10 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 mb-1">
-            <span className="bg-slate-100 text-slate-600 text-[9px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full">
+            <span className="bg-slate-100 text-slate-600 text-[9px] font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full">
               {category}
             </span>
-            <span className="bg-[#232F3E]/10 text-[#232F3E] text-[9px] font-semibold px-2 py-0.5 rounded-full">
+            <span className="bg-[#232F3E]/10 text-[#232F3E] text-[9px] font-semibold px-2.5 py-0.5 rounded-full">
               {mode}
             </span>
           </div>
@@ -562,7 +572,7 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
               <span className="truncate max-w-[150px]">{venue}</span>
             </span>
             <span className="flex items-center gap-1">
-              <Users className="w-3 h-3 text-slate-400" />
+              <Users className="w-3.5 h-3.5 text-slate-400" />
               <span>{registered} / {max_capacity}</span>
             </span>
           </div>
@@ -576,7 +586,7 @@ const EventListRow = memo(function EventListRow({ event }: { event: Event }) {
           {isEnded ? (
             <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Ended</span>
           ) : isFull ? (
-            <span className="text-[11px] font-semibold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full">Sold Out</span>
+            <span className="text-[11px] font-semibold text-rose-500 bg-rose-50 px-2.5 py-0.5 rounded-full">Sold Out</span>
           ) : (
             <span className="text-[11px] font-semibold text-teal-600 font-mono">{seatsLeft} seats</span>
           )}

@@ -539,7 +539,7 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
           </Link>
         </div>
         <div className="flex items-center flex-shrink-0">
-          <button onClick={() => setIsCreateModalOpen(true)} className="bg-[#00cba9] hover:bg-[#00bda0] text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading">
+          <button onClick={() => setIsCreateModalOpen(true)} className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading">
             <Icons.Plus className="w-4 h-4 stroke-[3]" />
             Create Module
           </button>
@@ -769,8 +769,8 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
                   <input type="number" required min={10} max={500} value={points} onChange={(e) => setPoints(Number(e.target.value))} disabled={isCreating} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50" />
                 </div>
                 <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-100 mt-5">
-                  <button type="button" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating} className="bg-transparent hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold px-4 py-2.5 rounded-xl transition-all disabled:opacity-50">Cancel</button>
-                  <button type="submit" disabled={isCreating} className="bg-[#00cba9] hover:bg-[#00bda0] text-slate-950 font-black px-5 py-2.5 rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+                  <button type="button" onClick={() => setIsCreateModalOpen(false)} disabled={isCreating} className="bg-transparent hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold px-4 py-2.5 rounded-[8px] transition-all disabled:opacity-50">Cancel</button>
+                  <button type="submit" disabled={isCreating} className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-[8px] shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
                     {isCreating ? (
                       <>
                         <Icons.Loader2 className="w-4 h-4 animate-spin" />

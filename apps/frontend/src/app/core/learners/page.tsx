@@ -111,9 +111,9 @@ export default function CoreLearnersDirectoryPage() {
                 Role Filter:
               </span>
               {[
-                { id: 'all', label: 'All Learners', color: 'border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100' },
-                { id: 'CREW', label: 'Crew Members', color: 'border-amber-100 text-amber-700 bg-amber-50/50 hover:bg-amber-50' },
-                { id: 'ENTHUSIAST', label: 'Learners', color: 'border-indigo-100 text-indigo-700 bg-indigo-50/50 hover:bg-indigo-50' },
+                { id: 'all', label: 'All Learners', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
+                { id: 'CREW', label: 'Crew Members', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
+                { id: 'ENTHUSIAST', label: 'Learners', color: 'border-slate-200 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800' },
               ].map((tab) => {
                 const active = roleFilter === tab.id;
                 const count =
@@ -125,10 +125,10 @@ export default function CoreLearnersDirectoryPage() {
                     key={tab.id}
                     onClick={() => setRoleFilter(tab.id as any)}
                     className={cn(
-                      "px-3 py-1.5 border rounded-xl text-xs font-black transition-all flex items-center gap-2 font-heading shadow-xs",
+                      "px-3.5 py-1.5 border rounded-[8px] text-xs font-bold transition-all flex items-center gap-2 font-heading shadow-xs",
                       active
                         ? tab.id === 'all'
-                          ? "bg-blue-600 border-blue-600 text-white"
+                          ? "bg-[#232F3E] border-[#232F3E] text-white"
                           : tab.id === 'CREW'
                             ? "bg-amber-600 border-amber-600 text-white"
                             : "bg-indigo-600 border-indigo-600 text-white"
@@ -140,7 +140,7 @@ export default function CoreLearnersDirectoryPage() {
                       "px-1.5 py-0.5 rounded-md text-[9px] font-bold border",
                       active
                         ? "bg-white/20 border-white/10 text-white"
-                        : "bg-white border-slate-200 text-slate-500"
+                        : "bg-white border-slate-250 text-slate-500"
                     )}>
                       {count}
                     </span>

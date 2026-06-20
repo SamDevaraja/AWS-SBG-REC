@@ -111,57 +111,117 @@ function PosterImageInput({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, posterImage: reader.result as string });
+        // Default newly uploaded image to position 50%
+        setFormData({ ...formData, posterImage: (reader.result as string) + '#pos=50' });
       };
       reader.readAsDataURL(file);
     }
   };
 
-  return (
-    <div>
-      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5 mb-1.5">Poster Image</label>
+  // Extract vertical position and actual image source url
+  const imgData = formData.posterImage || '';
+  let src = imgData;
+  let posVal = 50; // default to center
+  const hashIdx = imgData.lastIndexOf('#pos=');
+  if (hashIdx !== -1) {
+    src = imgData.substring(0, hashIdx);
+    const posParsed = parseInt(imgData.substring(hashIdx + 5), 10);
+    if (!isNaN(posParsed)) {
+      posVal = posParsed;
+    }
+  }
 
-      <div className="space-y-3">
-        {!formData.posterImage ? (
-          <div>
-            <label className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[10px] p-4 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[96px] bg-slate-50">
-              <Upload className="h-6 w-6 text-slate-400 mb-1" />
-              <span className="text-xs text-slate-500 font-medium">Select image file</span>
-              <span className="text-[9px] text-slate-400">
-                PNG, JPG up to 5MB (Converts to Base64)
-              </span>
-              <input type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
-            </label>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 border border-slate-200 rounded-[8px] p-2 bg-slate-50">
-            <div className="w-16 h-12 rounded-[6px] overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center relative">
-              <img
-                src={formData.posterImage}
-                alt="Preview"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                Active Poster Image
+  const handlePositionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPos = e.target.value;
+    const cleanSrc = formData.posterImage ? (formData.posterImage.lastIndexOf('#pos=') !== -1 ? formData.posterImage.split('#pos=')[0] : formData.posterImage) : '';
+    setFormData({ ...formData, posterImage: cleanSrc + `#pos=${newPos}` });
+  };
+
+  return (
+    <div className="space-y-4">
+      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5">Poster Image</label>
+
+      {!formData.posterImage ? (
+        <div className="w-full">
+          <label className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[8px] p-6 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[120px] bg-slate-50/50">
+            <Upload className="h-6 w-6 text-slate-400 mb-2" />
+            <span className="text-xs text-slate-550 font-bold">Select Image file</span>
+            <span className="text-[10px] text-slate-400 mt-1">
+              PNG, JPG up to 5MB (Converts to Base64)
+            </span>
+            <input type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
+          </label>
+        </div>
+      ) : (
+        <div className="space-y-4 w-full bg-slate-55/40 border border-slate-200 rounded-[8px] p-4.5">
+          <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Focal Point Settings
               </p>
-              <p className="text-xs text-slate-650 truncate">
-                {formData.posterImage.startsWith('data:')
-                  ? 'Local Uploaded Image'
-                  : formData.posterImage}
+              <p className="text-xs text-slate-550 truncate mt-0.5">
+                {src.startsWith('data:') ? 'Local Uploaded Image' : src}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setFormData({ ...formData, posterImage: '' })}
-              className="text-xs font-semibold text-rose-500 hover:text-rose-700 px-2 py-1"
+              className="text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100/70 border border-rose-100 rounded-[6px] px-2.5 py-1.5 transition-colors cursor-pointer animate-in fade-in duration-200"
             >
-              Clear
+              Clear Image
             </button>
           </div>
-        )}
-      </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+            {/* Live Crop Card Preview */}
+            <div className="md:col-span-8 space-y-1.5">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-0.5">
+                Grid Card Display Preview
+              </label>
+              <div className="h-44 w-full relative bg-slate-900 overflow-hidden border border-slate-200/80 rounded-[8px] shadow-sm">
+                <img
+                  src={src}
+                  alt="Poster alignment preview"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: `50% ${posVal}%` }}
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-3 flex items-end">
+                  <span className="text-[11px] font-bold text-white/90 drop-shadow-sm bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded">
+                    Focal position: {posVal}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Adjustment Slider */}
+            <div className="md:col-span-4 space-y-3 bg-white border border-slate-200/80 rounded-[8px] p-3.5 flex flex-col justify-center">
+              <div className="space-y-1 text-center md:text-left">
+                <label className="block text-[10.5px] font-bold text-[#FF9900] uppercase tracking-wider">
+                  Align Position
+                </label>
+                <p className="text-[10px] text-slate-400 leading-normal">
+                  Adjust vertical framing (0% Top to 100% Bottom)
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-1.5">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={posVal}
+                  onChange={handlePositionChange}
+                  className="w-full h-1.5 bg-slate-100 rounded-[4px] appearance-none cursor-pointer accent-[#FF9900] focus:outline-none"
+                />
+                <div className="flex justify-between w-full text-[9px] font-bold text-slate-400 uppercase tracking-widest px-0.5">
+                  <span>Top</span>
+                  <span>Center</span>
+                  <span>Bottom</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1245,12 +1305,24 @@ export default function EditEventPage() {
       return;
     }
 
+    let resolvedPoster = formData.posterImage;
+    if (resolvedPoster) {
+      let posHash = '';
+      const hashIdx = resolvedPoster.lastIndexOf('#pos=');
+      if (hashIdx !== -1) {
+        posHash = resolvedPoster.substring(hashIdx);
+        resolvedPoster = resolvedPoster.substring(0, hashIdx);
+      }
+      if (resolvedPoster.startsWith('data:')) {
+        resolvedPoster = '/uploads/events/cloud_matrix.jpg' + posHash;
+      } else {
+        resolvedPoster = resolvedPoster + posHash;
+      }
+    }
+
     const payload: Partial<CreateEventDto> = {
       ...formData,
-      posterImage:
-        formData.posterImage && formData.posterImage.startsWith('data:')
-          ? '/uploads/events/cloud_matrix.jpg'
-          : formData.posterImage,
+      posterImage: resolvedPoster,
       agenda: agenda.map(({ _key, serverId: _serverId, ...rest }) => rest),
       speakers: speakers.map(({ _key, serverId: _serverId, ...rest }) => rest),
       formFields:
@@ -1292,7 +1364,7 @@ export default function EditEventPage() {
         <StepIndicator steps={STEPS} currentStep={currentStep} />
 
         {/* Step Content */}
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-5 sm:p-6">
+        <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-5 sm:p-6">
           {currentStep === 0 && (
             <BasicInfoStep formData={formData} setFormData={setFormData} errors={errors} />
           )}
@@ -1312,7 +1384,7 @@ export default function EditEventPage() {
 
         {/* Error summary */}
         {updateEvent.isError && (
-          <div className="border border-rose-200 bg-rose-50 rounded-[10px] p-4">
+          <div className="border border-rose-200 bg-rose-50 rounded-[8px] p-4">
             <p className="text-xs text-rose-600">Failed to update event. Please try again.</p>
           </div>
         )}

@@ -2,7 +2,9 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useCreateEvent } from '@/lib/hooks';
+import { cn } from '@/lib/utils';
 import {
   ChevronRight,
   ChevronLeft,
@@ -15,6 +17,15 @@ import {
   FileText,
   GripVertical,
   Users,
+  Check,
+  Pencil,
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  RefreshCw,
+  Clock,
+  MapPin,
+  Calendar,
 } from 'lucide-react';
 import type {
   CreateEventDto,
@@ -68,57 +79,117 @@ function PosterImageInput({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, posterImage: reader.result as string });
+        // Default newly uploaded image to position 50%
+        setFormData({ ...formData, posterImage: (reader.result as string) + '#pos=50' });
       };
       reader.readAsDataURL(file);
     }
   };
 
-  return (
-    <div>
-      <label className="block text-xs font-medium text-slate-700 mb-1.5">Poster Image</label>
+  // Extract vertical position and actual image source url
+  const imgData = formData.posterImage || '';
+  let src = imgData;
+  let posVal = 50; // default to center
+  const hashIdx = imgData.lastIndexOf('#pos=');
+  if (hashIdx !== -1) {
+    src = imgData.substring(0, hashIdx);
+    const posParsed = parseInt(imgData.substring(hashIdx + 5), 10);
+    if (!isNaN(posParsed)) {
+      posVal = posParsed;
+    }
+  }
 
-      <div className="space-y-3">
-        {!formData.posterImage ? (
-          <div>
-            <label className="border-2 border-dashed border-slate-200 rounded-[10px] p-4 text-center hover:border-slate-300 transition cursor-pointer flex flex-col items-center justify-center min-h-[96px] bg-slate-50">
-              <Upload className="h-6 w-6 text-slate-400 mb-1" />
-              <span className="text-xs text-slate-500 font-medium">Select image file</span>
-              <span className="text-[9px] text-slate-400">
-                PNG, JPG up to 5MB (Converts to Base64)
-              </span>
-              <input type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
-            </label>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 border border-slate-200 rounded-[8px] p-2 bg-slate-50">
-            <div className="w-16 h-12 rounded-[6px] overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center relative">
-              <img
-                src={formData.posterImage}
-                alt="Preview"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                Active Poster Image
+  const handlePositionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPos = e.target.value;
+    const cleanSrc = formData.posterImage ? (formData.posterImage.lastIndexOf('#pos=') !== -1 ? formData.posterImage.split('#pos=')[0] : formData.posterImage) : '';
+    setFormData({ ...formData, posterImage: cleanSrc + `#pos=${newPos}` });
+  };
+
+  return (
+    <div className="space-y-4">
+      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide pl-0.5">Poster Image</label>
+
+      {!formData.posterImage ? (
+        <div className="w-full">
+          <label className="border-2 border-dashed border-slate-200 hover:border-[#FF9900] hover:bg-[#FF9900]/5 rounded-[8px] p-6 text-center transition cursor-pointer flex flex-col items-center justify-center min-h-[120px] bg-slate-50/50">
+            <Upload className="h-6 w-6 text-slate-400 mb-2" />
+            <span className="text-xs text-slate-550 font-bold">Select Image file</span>
+            <span className="text-[10px] text-slate-400 mt-1">
+              PNG, JPG up to 5MB (Converts to Base64)
+            </span>
+            <input type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
+          </label>
+        </div>
+      ) : (
+        <div className="space-y-4 w-full bg-slate-55/40 border border-slate-200 rounded-[8px] p-4.5">
+          <div className="flex items-center justify-between border-b border-slate-200/60 pb-3">
+            <div className="min-w-0">
+              <p className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
+                Focal Point Settings
               </p>
-              <p className="text-xs text-slate-600 truncate">
-                {formData.posterImage.startsWith('data:')
-                  ? 'Local Uploaded Image'
-                  : formData.posterImage}
+              <p className="text-[11.5px] text-slate-550 truncate mt-0.5">
+                {src.startsWith('data:') ? 'Local Uploaded Image' : src}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setFormData({ ...formData, posterImage: '' })}
-              className="text-xs font-semibold text-rose-500 hover:text-rose-700 px-2 py-1"
+              className="text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100/70 border border-rose-100 rounded-[6px] px-2.5 py-1.5 transition-colors cursor-pointer animate-in fade-in duration-200"
             >
-              Clear
+              Clear Image
             </button>
           </div>
-        )}
-      </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+            {/* Live Crop Card Preview */}
+            <div className="md:col-span-8 space-y-1.5">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-0.5">
+                Grid Card Display Preview
+              </label>
+              <div className="h-44 w-full relative bg-slate-900 overflow-hidden border border-slate-200/80 rounded-[8px] shadow-sm">
+                <img
+                  src={src}
+                  alt="Poster alignment preview"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: `50% ${posVal}%` }}
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-3 flex items-end">
+                  <span className="text-[11px] font-bold text-white/90 drop-shadow-sm bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded">
+                    Focal position: {posVal}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Adjustment Slider */}
+             <div className="md:col-span-4 space-y-3 bg-white border border-slate-200/80 rounded-[8px] p-3.5 flex flex-col justify-center">
+              <div className="space-y-1 text-center md:text-left">
+                <label className="block text-[10.5px] font-bold text-[#FF9900] uppercase tracking-wider">
+                  Align Position
+                </label>
+                <p className="text-[10px] text-slate-400 leading-normal">
+                  Adjust vertical framing (0% Top to 100% Bottom)
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-1.5">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={posVal}
+                  onChange={handlePositionChange}
+                  className="w-full h-1.5 bg-slate-100 rounded-[4px] appearance-none cursor-pointer accent-[#FF9900] focus:outline-none"
+                />
+                <div className="flex justify-between w-full text-[9px] font-bold text-slate-400 uppercase tracking-widest px-0.5">
+                  <span>Top</span>
+                  <span>Center</span>
+                  <span>Bottom</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1041,46 +1112,6 @@ function FormBuilderStep({
   );
 }
 
-function StepIndicator({ steps, currentStep }: { steps: string[]; currentStep: number }) {
-  return (
-    <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-3 no-scrollbar">
-      {steps.map((step, index) => (
-        <div key={step} className="flex items-center gap-1 sm:gap-2">
-          <div
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition border ${
-              index === currentStep
-                ? 'bg-[#FF9900] border-[#FF9900] text-white shadow-md shadow-[#FF9900]/20'
-                : index < currentStep
-                  ? 'bg-emerald-50/70 border-emerald-150 text-emerald-700'
-                  : 'bg-slate-50/70 border-slate-200/50 text-slate-450'
-            }`}
-          >
-            <span
-              className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold transition ${
-                index < currentStep
-                  ? 'bg-emerald-500 text-white'
-                  : index === currentStep
-                    ? 'bg-white text-[#FF9900]'
-                    : 'bg-slate-200 text-slate-500'
-              }`}
-            >
-              {index < currentStep ? '✓' : index + 1}
-            </span>
-            <span>{step}</span>
-          </div>
-          {index < steps.length - 1 && (
-            <div
-              className={`h-px w-4 sm:w-8 ${
-                index < currentStep ? 'bg-emerald-400' : 'bg-slate-200'
-              }`}
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function CreateEventPage() {
   const router = useRouter();
   const createEvent = useCreateEvent();
@@ -1157,13 +1188,25 @@ export default function CreateEventPage() {
       return;
     }
 
+    let resolvedPoster = formData.posterImage;
+    if (resolvedPoster) {
+      let posHash = '';
+      const hashIdx = resolvedPoster.lastIndexOf('#pos=');
+      if (hashIdx !== -1) {
+        posHash = resolvedPoster.substring(hashIdx);
+        resolvedPoster = resolvedPoster.substring(0, hashIdx);
+      }
+      if (resolvedPoster.startsWith('data:')) {
+        resolvedPoster = '/uploads/events/cloud_matrix.jpg' + posHash;
+      } else {
+        resolvedPoster = resolvedPoster + posHash;
+      }
+    }
+
     const payload: CreateEventDto = {
       ...formData,
       organizerId: userId,
-      posterImage:
-        formData.posterImage && formData.posterImage.startsWith('data:')
-          ? '/uploads/events/cloud_matrix.jpg'
-          : formData.posterImage,
+      posterImage: resolvedPoster,
       agenda: agenda.map(({ _key, ...rest }) => rest),
       speakers: speakers.map(({ _key, ...rest }) => rest),
       formFields:
@@ -1182,84 +1225,351 @@ export default function CreateEventPage() {
     });
   }
 
-  const isLastStep = currentStep === STEPS.length - 1;
-
   return (
-    <div className="bg-transparent p-6 lg:p-8">
-      <div className="w-full space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">Create Event</h1>
-          <p className="mt-1 text-sm text-slate-500">Fill in the details to create a new event</p>
-        </div>
+    <div className="bg-transparent p-6 lg:p-8 pb-24 relative overflow-y-auto premium-scrollbar scroll-smooth">
+      {/* Background ambient glow */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.07)_0%,rgba(255,153,0,0.03)_40%,transparent_70%)] pointer-events-none z-0" />
 
-        {/* Step Indicator */}
-        <StepIndicator steps={STEPS} currentStep={currentStep} />
-
-        {/* Step Content */}
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-5 sm:p-6">
-          {currentStep === 0 && (
-            <BasicInfoStep formData={formData} setFormData={setFormData} errors={errors} />
-          )}
-          {currentStep === 1 && <AgendaStep agenda={agenda} setAgenda={setAgenda} />}
-          {currentStep === 2 && <SpeakersStep speakers={speakers} setSpeakers={setSpeakers} />}
-          {currentStep === 3 && (
-            <FormBuilderStep
-              fields={formFields}
-              setFields={setFormFields}
-              registrationFormType={formData.registrationFormType || 'DEFAULT'}
-              setRegistrationFormType={(type) =>
-                setFormData({ ...formData, registrationFormType: type })
-              }
-            />
-          )}
-        </div>
-
-        {/* Error summary */}
-        {createEvent.isError && (
-          <div className="border border-rose-200 bg-rose-50 rounded-[10px] p-4">
-            <p className="text-xs text-rose-600">Failed to create event. Please try again.</p>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="flex items-center justify-between border-t border-slate-100 pt-6 mt-2">
-          <button
-            type="button"
-            onClick={handleBack}
-            disabled={currentStep === 0}
-            className="inline-flex items-center gap-1.5 border border-slate-200 rounded-[8px] text-xs font-semibold px-5 py-2.5 text-slate-600 hover:bg-slate-50/80 hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+      <div className="max-w-[1600px] w-full mx-auto z-10 relative">
+        {/* Top Cancel & Back */}
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            href="/core/events"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black border border-black hover:bg-slate-900 text-white hover:text-white font-bold rounded-[8px] text-[11px] shadow-sm transition-all duration-150 group cursor-pointer"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
-            Back
-          </button>
+            <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform duration-150 text-white/80 group-hover:text-white" />
+            <span className="tracking-wide">Cancel & Back</span>
+          </Link>
+        </div>
 
-          {isLastStep ? (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={createEvent.isPending}
-              className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-6 py-2.5 shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {createEvent.isPending ? (
-                <>
-                  <div className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                'Create Event'
-              )}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleNext}
-              className="inline-flex items-center gap-1.5 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white rounded-[8px] text-xs font-semibold px-6 py-2.5 shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              Next
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          )}
+        {/* Wizard Card */}
+        <div className="bg-white border border-slate-200/80 rounded-[8px] p-6 sm:p-8 shadow-sm relative overflow-hidden">
+          {/* Glow accent */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[radial-gradient(circle_at_75%_20%,rgba(0,115,187,0.03)_0%,transparent_60%)] pointer-events-none" />
+
+          <div className="relative z-10">
+            {/* Header */}
+            <div className="mb-6 border-b border-slate-100 pb-4">
+              <div>
+                <span className="text-[11px] font-semibold text-[#FF9900] uppercase tracking-wider font-sans block mb-1">
+                  Event Management
+                </span>
+                <h2 className="text-3xl font-bold text-[#232F3E] tracking-tight">
+                  Create New Event
+                </h2>
+              </div>
+            </div>
+
+            {/* Stacked Wizard Form Panels */}
+            <div className="space-y-4">
+              {/* PANEL 0: Basic Info */}
+              <div className={cn(
+                "border rounded-[8px] p-5 transition-all duration-300",
+                currentStep === 0 ? "border-slate-200 bg-white shadow-sm" : "border-slate-100 bg-slate-50/30",
+                currentStep < 0 && "opacity-60 bg-slate-50/20"
+              )}>
+                {/* Panel Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200",
+                      currentStep === 0 
+                        ? "bg-[#232F3E] border-[#232F3E] text-white shadow-sm ring-4 ring-slate-100" 
+                        : "bg-emerald-500 border-emerald-500 text-white"
+                    )}>
+                      {currentStep > 0 ? <Check className="w-3.5 h-3.5" /> : '1'}
+                    </div>
+                    <div>
+                      <span className={cn(
+                        "text-[16px] font-semibold font-sans tracking-tight block",
+                        currentStep === 0 ? "text-slate-900" : "text-slate-500"
+                      )}>
+                        Basic Info
+                      </span>
+                      {currentStep > 0 && (
+                        <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                          {formData.title || 'Untitled Event'} • {formData.date ? new Date(formData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'No date'} • {formData.venue || 'No venue'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {currentStep > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(0)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-650 hover:text-[#232F3E] font-bold rounded-[6px] text-[10.5px] uppercase tracking-wider shadow-sm transition-all duration-200 cursor-pointer font-sans group"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF9900] transition-colors duration-200" />
+                      <span>Edit</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Panel Body */}
+                {currentStep === 0 && (
+                  <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
+                    <BasicInfoStep formData={formData} setFormData={setFormData} errors={errors} />
+                    
+                    {/* Navigation */}
+                    <div className="flex justify-end pt-4 border-t border-slate-100 mt-4">
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        className="flex items-center gap-1.5 bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-semibold py-2 px-4 rounded-[8px] shadow-sm hover:shadow text-xs transition-all duration-200 uppercase tracking-wider cursor-pointer font-sans"
+                      >
+                        <span>Continue</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* PANEL 1: Agenda */}
+              <div className={cn(
+                "border rounded-[8px] p-5 transition-all duration-300",
+                currentStep === 1 ? "border-slate-200 bg-white shadow-sm" : "border-slate-100 bg-slate-50/30",
+                currentStep < 1 && "opacity-60 bg-slate-50/20"
+              )}>
+                {/* Panel Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200",
+                      currentStep === 1 
+                        ? "bg-[#232F3E] border-[#232F3E] text-white shadow-sm ring-4 ring-slate-100" 
+                        : currentStep > 1
+                          ? "bg-emerald-500 border-emerald-500 text-white"
+                          : "bg-slate-100 border-slate-250 text-slate-400"
+                    )}>
+                      {currentStep > 1 ? <Check className="w-3.5 h-3.5" /> : '2'}
+                    </div>
+                    <div>
+                      <span className={cn(
+                        "text-[16px] font-semibold font-sans tracking-tight block",
+                        currentStep === 1 ? "text-slate-900" : "text-slate-500"
+                      )}>
+                        Agenda
+                      </span>
+                      {currentStep > 1 && (
+                        <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                          {agenda.length} session(s) defined
+                        </span>
+                      )}
+                      {currentStep < 1 && (
+                        <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                          Complete basic info step to unlock
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {currentStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(1)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-650 hover:text-[#232F3E] font-bold rounded-[6px] text-[10.5px] uppercase tracking-wider shadow-sm transition-all duration-200 cursor-pointer font-sans group"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF9900] transition-colors duration-200" />
+                      <span>Edit</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Panel Body */}
+                {currentStep === 1 && (
+                  <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
+                    <AgendaStep agenda={agenda} setAgenda={setAgenda} />
+                    
+                    {/* Navigation */}
+                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-4">
+                      <button
+                        type="button"
+                        onClick={handleBack}
+                        className="inline-flex items-center gap-1.5 border border-slate-200 hover:border-slate-350 text-slate-650 hover:text-slate-800 hover:bg-slate-50 font-semibold py-2 px-3.5 rounded-[8px] text-xs shadow-sm transition-all duration-200 cursor-pointer uppercase tracking-wider font-sans"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Back</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        className="flex items-center gap-1.5 bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-semibold py-2.5 px-4 rounded-[8px] shadow-sm hover:shadow text-xs transition-all duration-200 uppercase tracking-wider cursor-pointer font-sans"
+                      >
+                        <span>Continue</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* PANEL 2: Speakers */}
+              <div className={cn(
+                "border rounded-[8px] p-5 transition-all duration-300",
+                currentStep === 2 ? "border-slate-200 bg-white shadow-sm" : "border-slate-100 bg-slate-50/30",
+                currentStep < 2 && "opacity-60 bg-slate-50/20"
+              )}>
+                {/* Panel Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200",
+                      currentStep === 2 
+                        ? "bg-[#232F3E] border-[#232F3E] text-white shadow-sm ring-4 ring-slate-100" 
+                        : currentStep > 2
+                          ? "bg-emerald-500 border-emerald-500 text-white"
+                          : "bg-slate-100 border-slate-250 text-slate-400"
+                    )}>
+                      {currentStep > 2 ? <Check className="w-3.5 h-3.5" /> : '3'}
+                    </div>
+                    <div>
+                      <span className={cn(
+                        "text-[16px] font-semibold font-sans tracking-tight block",
+                        currentStep === 2 ? "text-slate-900" : "text-slate-500"
+                      )}>
+                        Speakers
+                      </span>
+                      {currentStep > 2 && (
+                        <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                          {speakers.length} speaker(s) added
+                        </span>
+                      )}
+                      {currentStep < 2 && (
+                        <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                          Complete agenda step to unlock
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {currentStep > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(2)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-650 hover:text-[#232F3E] font-bold rounded-[6px] text-[10.5px] uppercase tracking-wider shadow-sm transition-all duration-200 cursor-pointer font-sans group"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF9900] transition-colors duration-200" />
+                      <span>Edit</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Panel Body */}
+                {currentStep === 2 && (
+                  <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
+                    <SpeakersStep speakers={speakers} setSpeakers={setSpeakers} />
+                    
+                    {/* Navigation */}
+                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-4">
+                      <button
+                        type="button"
+                        onClick={handleBack}
+                        className="inline-flex items-center gap-1.5 border border-slate-200 hover:border-slate-350 text-slate-650 hover:text-slate-800 hover:bg-slate-50 font-semibold py-2 px-3.5 rounded-[8px] text-xs shadow-sm transition-all duration-200 cursor-pointer uppercase tracking-wider font-sans"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Back</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        className="flex items-center gap-1.5 bg-[#1A1C1E] hover:bg-[#FF9900] text-white font-semibold py-2.5 px-4 rounded-[8px] shadow-sm hover:shadow text-xs transition-all duration-200 uppercase tracking-wider cursor-pointer font-sans"
+                      >
+                        <span>Continue</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* PANEL 3: Form Builder */}
+              <div className={cn(
+                "border rounded-[8px] p-5 transition-all duration-300",
+                currentStep === 3 ? "border-slate-200 bg-white shadow-sm" : "border-slate-100 bg-slate-50/30",
+                currentStep < 3 && "opacity-60 bg-slate-50/20"
+              )}>
+                {/* Panel Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all duration-200",
+                      currentStep === 3 
+                        ? "bg-[#232F3E] border-[#232F3E] text-white shadow-sm ring-4 ring-slate-100" 
+                        : "bg-slate-100 border-slate-250 text-slate-400"
+                    )}>
+                      4
+                    </div>
+                    <div>
+                      <span className={cn(
+                        "text-[16px] font-semibold font-sans tracking-tight block",
+                        currentStep === 3 ? "text-slate-900" : "text-slate-500"
+                      )}>
+                        Form Builder
+                      </span>
+                      {currentStep < 3 && (
+                        <span className="text-[11px] text-slate-400 font-normal block mt-0.5">
+                          Complete speakers step to unlock
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Panel Body */}
+                {currentStep === 3 && (
+                  <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
+                    <FormBuilderStep
+                      fields={formFields}
+                      setFields={setFormFields}
+                      registrationFormType={formData.registrationFormType || 'DEFAULT'}
+                      setRegistrationFormType={(type) =>
+                        setFormData({ ...formData, registrationFormType: type })
+                      }
+                    />
+
+                    {/* Error summary */}
+                    {createEvent.isError && (
+                      <div className="border border-rose-200 bg-rose-50 rounded-[8px] p-4 mt-4">
+                        <p className="text-xs text-rose-600 font-semibold flex items-center gap-1.5">
+                          <AlertCircle className="w-4.5 h-4.5 text-rose-500 animate-pulse" />
+                          <span>Failed to create event. Please verify all information and try again.</span>
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Navigation */}
+                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-4">
+                      <button
+                        type="button"
+                        onClick={handleBack}
+                        className="inline-flex items-center gap-1.5 border border-slate-200 hover:border-slate-350 text-slate-650 hover:text-slate-800 hover:bg-slate-50 font-semibold py-2 px-3.5 rounded-[8px] text-xs shadow-sm transition-all duration-200 cursor-pointer uppercase tracking-wider font-sans"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Back</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={createEvent.isPending}
+                        className="flex items-center gap-1.5 bg-[#232F3E] hover:bg-[#FF9900] text-white font-semibold py-2.5 px-6 rounded-[8px] shadow-md disabled:bg-slate-350 disabled:cursor-not-allowed text-xs transition-all duration-200 uppercase tracking-wider cursor-pointer font-sans"
+                      >
+                        {createEvent.isPending ? (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            <span>Creating...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Create Event</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

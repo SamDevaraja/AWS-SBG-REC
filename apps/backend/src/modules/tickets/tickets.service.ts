@@ -5,6 +5,7 @@ import { TicketStatus } from '@prisma/client';
 import { PrismaService } from '@/database/prisma.service';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { GetTicketsDto } from './dto/tickets.dto';
+import { GenerateBulkTicketsDto, RegenerateBulkTicketsDto } from './dto/bulk-tickets.dto';
 import { PaginatedResponseDto } from '@/common/dto/paginated-response.dto';
 import { NotificationsService } from '@/modules/notifications/notifications.service';
 
@@ -399,5 +400,113 @@ export class TicketsService {
     ]);
 
     return new PaginatedResponseDto(tickets, total, page, limit);
+  }
+
+  async generateBulkTickets(dto: GenerateBulkTicketsDto) {
+    const { eventId, registrationIds, sendEmail = true, createAnnouncement = false } = dto;
+
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+    });
+    if (!event) {
+      throw new NotFoundException(`Event with ID "${eventId}" not found`);
+    }
+
+    // Determine which registrations we need to generate tickets for
+    const registrations = await this.prisma.registration.findMany({
+      where: {
+        eventId,
+        status: 'CONFIRMED',
+        ...(registrationIds && registrationIds.length > 0
+          ? { id: { in: registrationIds } }
+          : {}),
+        ticket: null, // Only registrations that do NOT have a ticket yet
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    const createdTickets = [];
+
+    for (const registration of registrations) {
+      const eventShortId = eventId.substring(0, 8).toUpperCase();
+      const timestamp = Date.now();
+      const randomPart = Math.floor(1000 + Math.random() * 9000);
+      const ticketCode = `EVT-${eventShortId}-${timestamp}-${randomPart}`;
+
+      // Create ticket first to get the ticket ID
+      let ticket = await this.prisma.ticket.create({
+        data: {
+          registrationId: registration.id,
+          eventId,
+          ticketCode,
+          status: TicketStatus.ACTIVE,
+        },
+      });
+
+      // Generate QR Code containing the ticket verification URL
+      const qrCodeUrl = await this.generateQrCode(ticket.id);
+
+      // Update ticket with QR code
+      ticket = await this.prisma.ticket.update({
+        where: { id: ticket.id },
+        data: { qrCodeUrl },
+      });
+
+      createdTickets.push(ticket);
+
+      if (sendEmail) {
+        this.notificationsService
+          .sendTicketGenerated(registration.userId, event.title, ticketCode)
+          .catch((error) => {
+            this.logger.warn(
+              `Failed to send ticket email to ${registration.email}: ${error.message}`,
+            );
+          });
+      }
+    }
+
+    if (createAnnouncement && registrations.length > 0) {
+      await this.prisma.announcement.create({
+        data: {
+          eventId,
+          title: `Entry Passes Released`,
+          message: `Entry passes for "${event.title}" have been successfully generated and sent to all selected/confirmed participants. Please check your registered email or dashboard for your QR code.`,
+          type: 'UPDATE',
+          sendEmail: false,
+        },
+      });
+    }
+
+    return {
+      message: `Successfully generated ${createdTickets.length} ticket(s)`,
+      count: createdTickets.length,
+    };
+  }
+
+  async regenerateBulkTickets(dto: RegenerateBulkTicketsDto) {
+    const { ticketIds, sendEmail = true } = dto;
+    const regenerated = [];
+
+    for (const ticketId of ticketIds) {
+      const ticket = await this.regenerateTicket(ticketId);
+      regenerated.push(ticket);
+
+      if (sendEmail && ticket.registration?.user) {
+        this.notificationsService
+          .sendTicketGenerated(ticket.registration.user.id, ticket.event.title, ticket.ticketCode)
+          .catch((error) => {
+            this.logger.warn(
+              `Failed to send regenerated ticket email for ticket ${ticketId}: ${error.message}`,
+            );
+          });
+      }
+    }
+
+    return {
+      message: `Successfully regenerated ${regenerated.length} ticket(s)`,
+      count: regenerated.length,
+    };
   }
 }

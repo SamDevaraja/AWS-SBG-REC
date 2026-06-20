@@ -25,57 +25,68 @@ import {
   ChevronRight,
   Image as ImageIcon,
   Ticket,
+  ClipboardList,
+  CheckCircle,
 } from 'lucide-react';
 import type { Event, EventStatus, EventMode } from '@/lib/types';
+import { getPosterSrcAndPosition } from '@/lib/utils';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+    timeZone: 'UTC',
   });
 }
 
 function statusConfig(status: EventStatus) {
   const map: Record<EventStatus, { label: string; className: string }> = {
-    DRAFT: { label: 'Draft', className: 'bg-slate-50 text-slate-600 border border-slate-200/60' },
-    PUBLISHED: { label: 'Published', className: 'bg-blue-50 text-blue-700 border border-blue-100' },
-    REGISTRATION_OPEN: { label: 'Registration Open', className: 'bg-emerald-50 text-emerald-700 border border-emerald-100' },
-    REGISTRATION_CLOSED: { label: 'Registration Closed', className: 'bg-amber-50 text-amber-700 border border-amber-100' },
-    ONGOING: { label: 'Ongoing', className: 'bg-blue-50 text-blue-700 border border-blue-100' },
-    COMPLETED: { label: 'Completed', className: 'bg-slate-50 text-slate-600 border border-slate-200/60' },
-    ARCHIVED: { label: 'Archived', className: 'bg-slate-50 text-slate-500 border border-slate-200/60' },
+    DRAFT:               { label: 'Draft',               className: 'bg-slate-500/10 text-slate-600 border-slate-200' },
+    PUBLISHED:           { label: 'Published',           className: 'bg-blue-500/10 text-blue-700 border-blue-500/20' },
+    REGISTRATION_OPEN:   { label: 'Registration Open',   className: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20' },
+    REGISTRATION_CLOSED: { label: 'Reg. Closed',         className: 'bg-amber-500/10 text-amber-700 border-amber-500/20' },
+    ONGOING:             { label: 'Ongoing',             className: 'bg-indigo-500/10 text-indigo-700 border-indigo-500/20' },
+    COMPLETED:           { label: 'Completed',           className: 'bg-slate-500/10 text-slate-600 border-slate-500/20' },
+    ARCHIVED:            { label: 'Archived',            className: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
   };
-  return map[status] || { label: status, className: 'bg-slate-50 text-slate-600 border border-slate-200/60' };
+  return map[status] ?? { label: status, className: 'bg-slate-500/10 text-slate-600 border-slate-200' };
+}
+
+function categoryConfig(category: string) {
+  const map: Record<string, { label: string; className: string }> = {
+    Technology: { label: 'Technology', className: 'bg-orange-500/10 text-[#FF9900] border-[#FF9900]/20' },
+    Workshop:   { label: 'Workshop',   className: 'bg-blue-500/10 text-blue-700 border-blue-500/20' },
+    Bootcamp:   { label: 'Bootcamp',   className: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20' },
+    DevOps:     { label: 'DevOps',     className: 'bg-purple-500/10 text-purple-700 border-purple-500/20' },
+  };
+  return map[category] ?? { label: category, className: 'bg-slate-500/10 text-slate-600 border-slate-500/20' };
 }
 
 function modeConfig(mode: EventMode | undefined) {
   const map: Record<EventMode, { label: string; className: string }> = {
-    ONLINE: { label: 'Online', className: 'bg-violet-50 text-violet-700 border border-violet-100' },
-    OFFLINE: { label: 'Offline', className: 'bg-orange-50 text-orange-700 border border-orange-100' },
-    HYBRID: { label: 'Hybrid', className: 'bg-cyan-50 text-cyan-700 border border-cyan-100' },
+    ONLINE:  { label: 'Online',  className: 'bg-violet-50 text-violet-700 border-violet-100' },
+    OFFLINE: { label: 'Offline', className: 'bg-orange-50 text-orange-700 border-orange-100' },
+    HYBRID:  { label: 'Hybrid',  className: 'bg-cyan-50 text-cyan-700 border-cyan-100' },
   };
-  if (!mode) return { label: '—', className: 'bg-slate-50 text-slate-500 border border-slate-200/60' };
-  return map[mode] || { label: mode, className: 'bg-slate-50 text-slate-500 border border-slate-200/60' };
+  if (!mode) return { label: '—', className: 'bg-slate-50 text-slate-500 border-slate-100' };
+  return map[mode] ?? { label: mode, className: 'bg-slate-50 text-slate-500 border-slate-100' };
 }
 
+/* ── Actions Dropdown ─────────────────────────────────────────── */
 function ActionsDropdown({
   event,
   onAction,
-  variant = 'light',
 }: {
   event: Event;
   onAction: (action: string, eventId: string) => void;
-  variant?: 'light' | 'dark';
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
     if (open) {
       document.addEventListener('mousedown', handleClickOutside);
@@ -85,101 +96,66 @@ function ActionsDropdown({
 
   const canPublish = event.status === 'DRAFT';
   const canCloseRegistration = event.status === 'REGISTRATION_OPEN' || event.status === 'PUBLISHED';
-  const canArchive =
-    event.status !== 'ARCHIVED' && event.status !== 'COMPLETED' && event.status !== 'DRAFT';
-  const canDelete = event.status === 'DRAFT' || event.status === 'ARCHIVED';
+  const canArchive = !['ARCHIVED', 'COMPLETED', 'DRAFT'].includes(event.status);
+  const canDelete = ['DRAFT', 'ARCHIVED'].includes(event.status);
+  const canComplete = !['COMPLETED', 'ARCHIVED', 'DRAFT'].includes(event.status);
 
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen(!open);
-        }}
-        className={`group h-7 w-7 rounded-md bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all duration-150 cursor-pointer flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 ${
-          open ? 'bg-slate-50 border-[#FF9900]/60 ring-2 ring-[#FF9900]/15' : ''
-        }`}
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className={`h-8 w-8 rounded-[6px] hover:bg-slate-100 active:bg-slate-200/80 transition-all duration-150 cursor-pointer flex items-center justify-center focus:outline-none ${open ? 'bg-slate-100 text-[#FF9900]' : 'text-slate-500'}`}
       >
-        <MoreVertical
-          className={`h-3.5 w-3.5 text-slate-500 transition-all duration-150 ${
-            open ? 'text-[#FF9900]' : 'group-hover:text-slate-800'
-          }`}
-        />
+        <MoreVertical className="h-4 w-4" />
       </button>
+
       {open && (
-        <div className="absolute right-0 bottom-full mb-2 z-20 w-48 bg-white/95 backdrop-blur-[12px] border border-slate-250/20 rounded-xl shadow-xl shadow-black/[0.08] py-1.5 overflow-hidden transition-all duration-200 origin-bottom-right animate-drop-up">
-          <button
-            onClick={() => {
-              onAction('edit', event.id);
-              setOpen(false);
-            }}
-            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
-          >
-            <Edit className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
-            <span>Edit Event</span>
-          </button>
-          <Link
-            href={`/core/registrations?eventId=${event.id}`}
-            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
-          >
-            <Users className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
-            <span>View Registrations</span>
-          </Link>
-          <Link
-            href={`/core/tickets?eventId=${event.id}`}
-            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
-          >
-            <Ticket className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
-            <span>View Tickets</span>
-          </Link>
+        <div className="absolute right-0 top-full mt-2 z-20 w-48 bg-white/95 backdrop-blur-md border border-slate-300/90 rounded-[6px] shadow-[0_12px_30px_-4px_rgba(0,0,0,0.1)] py-1.5 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-150 origin-top-right">
+          {[
+            { action: 'edit', icon: Edit, label: 'Edit Event', show: true },
+          ].filter(i => i.show).map(({ action, icon: Icon, label }) => (
+            <button key={action} onClick={() => { onAction(action, event.id); setOpen(false); }}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+              <Icon className="h-3.5 w-3.5 text-slate-400" />
+              {label}
+            </button>
+          ))}
+
           {canPublish && (
-            <button
-              onClick={() => {
-                onAction('publish', event.id);
-                setOpen(false);
-              }}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
-            >
-              <Globe className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
-              <span>Publish</span>
+            <button onClick={() => { onAction('publish', event.id); setOpen(false); }}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+              <Globe className="h-3.5 w-3.5 text-slate-400" />
+              Publish
             </button>
           )}
           {canCloseRegistration && (
-            <button
-              onClick={() => {
-                onAction('closeRegistration', event.id);
-                setOpen(false);
-              }}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
-            >
-              <XCircle className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
-              <span>Close Registration</span>
+            <button onClick={() => { onAction('closeRegistration', event.id); setOpen(false); }}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+              <XCircle className="h-3.5 w-3.5 text-slate-400" />
+              Close Registration
+            </button>
+          )}
+          {canComplete && (
+            <button onClick={() => { onAction('complete', event.id); setOpen(false); }}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+              <CheckCircle className="h-3.5 w-3.5 text-slate-400" />
+              Complete Event
             </button>
           )}
           {canArchive && (
-            <button
-              onClick={() => {
-                onAction('archive', event.id);
-                setOpen(false);
-              }}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors group/item"
-            >
-              <Archive className="h-3.5 w-3.5 text-slate-400 group-hover/item:text-[#FF9900] transition-colors" />
-              <span>Archive</span>
+            <button onClick={() => { onAction('archive', event.id); setOpen(false); }}
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+              <Archive className="h-3.5 w-3.5 text-slate-400" />
+              Archive
             </button>
           )}
           {canDelete && (
             <>
               <div className="border-t border-slate-100 my-1" />
-              <button
-                onClick={() => {
-                  onAction('delete', event.id);
-                  setOpen(false);
-                }}
-                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors group/item"
-              >
-                <Trash2 className="h-3.5 w-3.5 text-rose-400 group-hover/item:text-rose-600 transition-colors" />
-                <span>Delete</span>
+              <button onClick={() => { onAction('delete', event.id); setOpen(false); }}
+                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-rose-600 hover:bg-rose-50 transition-colors">
+                <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+                Delete
               </button>
             </>
           )}
@@ -189,33 +165,25 @@ function ActionsDropdown({
   );
 }
 
+/* ── Loading Skeleton ─────────────────────────────────────────── */
 function LoadingSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
   if (viewMode === 'grid') {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="border border-slate-200/60 bg-white rounded-xl shadow-sm overflow-hidden animate-pulse"
-          >
-            <div className="bg-slate-100 h-40" />
+          <div key={i} className="border border-slate-200 bg-white rounded-[6px] overflow-hidden animate-pulse shadow-sm">
+            <div className="bg-slate-100 h-44" />
             <div className="p-4 space-y-3">
-              <div className="h-4 w-3/4 rounded bg-slate-100" />
+              <div className="h-4 w-3/4 bg-slate-100 rounded-[4px]" />
               <div className="flex gap-2">
-                <div className="h-3.5 w-16 rounded bg-slate-100" />
-                <div className="h-3.5 w-16 rounded bg-slate-100" />
+                <div className="h-5 w-16 bg-slate-100 rounded-[4px]" />
+                <div className="h-5 w-16 bg-slate-100 rounded-[4px]" />
               </div>
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-slate-100" />
-                <div className="h-3.5 w-24 rounded bg-slate-100" />
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded bg-slate-100" />
-                <div className="h-3.5 w-32 rounded bg-slate-100" />
-              </div>
-              <div className="flex items-center justify-between pt-2.5 border-t border-slate-100">
-                <div className="h-3.5 w-20 rounded bg-slate-100" />
-                <div className="h-3.5 w-16 rounded bg-slate-100" />
+              <div className="h-3.5 w-24 bg-slate-100 rounded-[4px]" />
+              <div className="h-3.5 w-32 bg-slate-100 rounded-[4px]" />
+              <div className="pt-2 border-t border-slate-100 flex gap-2">
+                <div className="h-8 flex-1 bg-slate-100 rounded-[6px]" />
+                <div className="h-8 w-10 bg-slate-100 rounded-[6px]" />
               </div>
             </div>
           </div>
@@ -223,55 +191,25 @@ function LoadingSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
       </div>
     );
   }
-
   return (
-    <div className="border border-slate-200/60 bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="border border-slate-200 bg-white rounded-[6px] shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-slate-200/80 bg-slate-50/60">
-              <th className="px-5 py-3 text-xs font-normal text-slate-400 uppercase tracking-wider">
-                Event
-              </th>
-              <th className="px-5 py-3 text-xs font-normal text-slate-400 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-5 py-3 text-xs font-normal text-slate-400 uppercase tracking-wider">
-                Venue
-              </th>
-              <th className="px-5 py-3 text-xs font-normal text-slate-400 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-5 py-3 text-xs font-normal text-slate-400 uppercase tracking-wider">
-                Registrations
-              </th>
-              <th className="px-5 py-3 text-xs font-normal text-slate-400 uppercase tracking-wider"></th>
+            <tr className="border-b border-slate-100 bg-slate-50/60">
+              {['Event', 'Date', 'Venue', 'Status', 'Registrations', ''].map((h) => (
+                <th key={h} className="px-5 py-3.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">{h}</th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {Array.from({ length: 5 }).map((_, i) => (
-              <tr key={i}>
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded bg-slate-100 animate-pulse flex-shrink-0" />
-                    <div className="h-3.5 w-32 rounded bg-slate-100 animate-pulse" />
-                  </div>
-                </td>
-                <td className="px-5 py-3">
-                  <div className="h-3.5 w-24 rounded bg-slate-100 animate-pulse" />
-                </td>
-                <td className="px-5 py-3">
-                  <div className="h-3.5 w-28 rounded bg-slate-100 animate-pulse" />
-                </td>
-                <td className="px-5 py-3">
-                  <div className="h-5 w-20 rounded bg-slate-100 animate-pulse" />
-                </td>
-                <td className="px-5 py-3">
-                  <div className="h-3.5 w-10 rounded bg-slate-100 animate-pulse" />
-                </td>
-                <td className="px-5 py-3">
-                  <div className="h-4 w-4 rounded bg-slate-100 animate-pulse" />
-                </td>
+              <tr key={i} className="animate-pulse">
+                {[32, 24, 28, 20, 10, 4].map((w, j) => (
+                  <td key={j} className="px-5 py-3.5">
+                    <div className="h-3.5 bg-slate-100 rounded-[4px]" style={{ width: `${w * 4}px` }} />
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
@@ -281,18 +219,17 @@ function LoadingSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
   );
 }
 
+/* ── Empty State ──────────────────────────────────────────────── */
 function EmptyState() {
   return (
-    <div style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }} className="border border-dashed border-slate-300 rounded-xl p-12 text-center max-w-md mx-auto my-8">
-      <div className="mx-auto bg-slate-50 border border-slate-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-        <ImageIcon className="h-6 w-6 text-slate-400" />
+    <div className="border border-dashed border-slate-200 rounded-[6px] p-14 text-center max-w-sm mx-auto my-8 bg-slate-50/50">
+      <div className="mx-auto bg-white border border-slate-200 w-12 h-12 rounded-[6px] flex items-center justify-center mb-4 shadow-sm">
+        <ImageIcon className="h-5 w-5 text-slate-400" />
       </div>
-      <h3 className="text-sm font-medium text-slate-800 mb-1">No events found</h3>
-      <p className="text-xs text-slate-400 mb-5">Get started by creating your first event.</p>
-      <Link
-        href="/core/events/create"
-        className="inline-flex items-center gap-1.5 bg-[#232F3E] text-white rounded-lg text-xs font-normal px-4 py-2 hover:bg-[#232F3E]/90 shadow-sm transition"
-      >
+      <h3 className="text-[14px] font-semibold text-slate-800 mb-1">No events found</h3>
+      <p className="text-[12.5px] text-slate-400 mb-5">Get started by creating your first event.</p>
+      <Link href="/core/events/create"
+        className="inline-flex items-center gap-1.5 bg-slate-900 text-white rounded-[6px] text-[12.5px] font-semibold px-4 py-2.5 hover:bg-slate-800 shadow-sm transition">
         <Plus className="h-3.5 w-3.5" />
         Create Event
       </Link>
@@ -300,6 +237,7 @@ function EmptyState() {
   );
 }
 
+/* ── Main Page ────────────────────────────────────────────────── */
 export default function EventsPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -308,12 +246,19 @@ export default function EventsPage() {
   const [modeFilter, setModeFilter] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
+  const [expandedEventIds, setExpandedEventIds] = useState<Record<string, boolean>>({});
+
+  const toggleRowExpansion = useCallback((eventId: string) => {
+    setExpandedEventIds((prev) => ({
+      ...prev,
+      [eventId]: !prev[eventId],
+    }));
+  }, []);
 
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useEvents({
-    page,
-    limit: 12,
+    page, limit: 12,
     search: search || undefined,
     ...(category && { category }),
     ...(statusFilter && { status: statusFilter }),
@@ -321,149 +266,104 @@ export default function EventsPage() {
   });
 
   const deleteEventMutation = useDeleteEvent();
+  const archiveMutation = useMutation({ mutationFn: (id: string) => api.archiveEvent(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
+  const publishMutation = useMutation({ mutationFn: (id: string) => api.publishEvent(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
+  const closeRegistrationMutation = useMutation({ mutationFn: (id: string) => api.closeRegistration(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
+  const completeMutation = useMutation({ mutationFn: (id: string) => api.updateEvent(id, { status: 'COMPLETED' }), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
 
-  const archiveMutation = useMutation({
-    mutationFn: (id: string) => api.archiveEvent(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
-  });
-
-  const publishMutation = useMutation({
-    mutationFn: (id: string) => api.publishEvent(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
-  });
-
-  const closeRegistrationMutation = useMutation({
-    mutationFn: (id: string) => api.closeRegistration(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }),
-  });
-
-  const handleAction = useCallback(
-    (action: string, eventId: string) => {
-      switch (action) {
-        case 'edit':
-          router.push(`/core/events/edit/${eventId}`);
-          break;
-        case 'publish':
-          publishMutation.mutate(eventId);
-          break;
-        case 'archive':
-          archiveMutation.mutate(eventId);
-          break;
-        case 'closeRegistration':
-          closeRegistrationMutation.mutate(eventId);
-          break;
-        case 'delete':
-          if (window.confirm('Are you sure you want to delete this event?')) {
-            deleteEventMutation.mutate(eventId);
-          }
-          break;
-      }
-    },
-    [router, publishMutation, archiveMutation, closeRegistrationMutation, deleteEventMutation],
-  );
+  const handleAction = useCallback((action: string, eventId: string) => {
+    switch (action) {
+      case 'edit': router.push(`/core/events/edit/${eventId}`); break;
+      case 'publish': publishMutation.mutate(eventId); break;
+      case 'archive': archiveMutation.mutate(eventId); break;
+      case 'closeRegistration': closeRegistrationMutation.mutate(eventId); break;
+      case 'complete': completeMutation.mutate(eventId); break;
+      case 'delete':
+        if (window.confirm('Are you sure you want to delete this event?')) deleteEventMutation.mutate(eventId);
+        break;
+    }
+  }, [router, publishMutation, archiveMutation, closeRegistrationMutation, deleteEventMutation, completeMutation]);
 
   const events = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
 
+  const selectCls = "appearance-none pl-3.5 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[12.5px] text-slate-600 cursor-pointer transition-all";
+
   return (
-    <div 
-      className="min-h-full w-full relative"
-      style={{
-        background: "#ffffff",
-      }}
-    >
-      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '40px 24px 64px' }}>
-        {/* Header */}
-        <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: '24px', padding: '24px', marginBottom: 4 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ flex: 1 }}>
-              {/* Pill */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg,rgba(255,153,0,0.07),rgba(35,47,62,0.04))', border: '1px solid rgba(255,153,0,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px', marginBottom: 12, boxShadow: '0 2px 12px rgba(255,153,0,0.08)' }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'linear-gradient(135deg,#FF9900,#F7BA45)', boxShadow: '0 0 6px rgba(255,153,0,0.5)', display: 'inline-block' }} />
-                <span style={{ fontSize: '10px', fontWeight: 700, color: '#232F3E', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin · Events</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0 }}>
-                  Events
-                </h1>
-              </div>
-              <p style={{ fontSize: '14px', color: '#475569', marginTop: 8 }}>
-                Create, manage, and track all community activities, registrations, and scheduling configurations.
-              </p>
+    <div className="min-h-screen w-full bg-white text-[#1A1C1E] relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
+      <div className="max-w-[1600px] w-full mx-auto flex flex-col gap-6 z-10 relative">
+
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
+          <div>
+            {/* Breadcrumb Path */}
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2.5">
+              <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors font-semibold">Admin</Link>
+              <span className="text-slate-300">/</span>
+              <span className="text-[#FF9900] font-semibold">Events</span>
             </div>
-            <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-              <Link
-                href="/core/registrations"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ffffff', color: '#232F3E', border: '1.5px solid rgba(35,47,62,0.12)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(35,47,62,0.04)', transition: 'all 0.2s', textDecoration: 'none' }}
-                className="hover:border-[#FF9900] hover:text-[#FF9900]"
-              >
-                <Users style={{ width: 15, height: 15 }} />
-                View Registrations
-              </Link>
-              <Link
-                href="/core/events/create"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#232F3E', color: '#ffffff', borderRadius: '12px', fontSize: '13px', fontWeight: 700, padding: '10px 20px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(35,47,62,0.2)', transition: 'all 0.2s', textDecoration: 'none' }}
-              >
-                <Plus style={{ width: 15, height: 15 }} />
-                Create Event
-              </Link>
+            
+            <div className="flex items-center gap-2">
+              <h1 className="text-[24px] font-semibold text-slate-900 tracking-tight leading-none m-0">
+                Events
+              </h1>
+              <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-[4px] text-xs font-semibold">
+                {data?.total ?? 0}
+              </span>
             </div>
+            <p className="text-[13px] text-slate-500 font-normal mt-2.5">
+              Create, manage, and track all community activities, registrations, and scheduling configurations.
+            </p>
           </div>
-          {/* Orange divider */}
-          <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 20, borderRadius: 2 }} />
+          
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Link
+              href="/core/registrations"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer text-decoration-none"
+            >
+              <ClipboardList size={13} className="text-slate-500" />
+              All Registrations
+            </Link>
+            <Link
+              href="/core/events/create"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer text-decoration-none"
+            >
+              <Plus size={13} />
+              Create Event
+            </Link>
+          </div>
         </div>
 
-        {/* Search & Filters */}
-        <div className="border border-slate-200 bg-white rounded-xl shadow-sm p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* ── Filters + View Toggle ── */}
+        <div className="bg-white border border-slate-200 rounded-[6px] shadow-sm px-5 py-3.5">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input
                 type="text"
                 placeholder="Search events..."
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full border border-slate-200 rounded-lg text-xs pl-8 pr-3 py-2 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-800 placeholder-slate-400"
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[13px] text-slate-700 placeholder-slate-400 transition-all"
               />
             </div>
 
-            {/* Category Filter */}
-            <div className="relative">
-              <select
-                value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  setPage(1);
-                }}
-                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
-              >
+            {/* Category */}
+            <div className="relative shrink-0">
+              <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className={selectCls}>
                 <option value="">All Categories</option>
-                <option value="Business">Business</option>
-                <option value="Health">Health</option>
                 <option value="Technology">Technology</option>
                 <option value="Workshop">Workshop</option>
                 <option value="Bootcamp">Bootcamp</option>
-                <option value="AI/ML">AI/ML</option>
                 <option value="DevOps">DevOps</option>
-                <option value="Analytics">Analytics</option>
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
             </div>
 
-            {/* Status Filter */}
-            <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setPage(1);
-                }}
-                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
-              >
+            {/* Status */}
+            <div className="relative shrink-0">
+              <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className={selectCls}>
                 <option value="">All Statuses</option>
                 <option value="DRAFT">Draft</option>
                 <option value="PUBLISHED">Published</option>
@@ -472,150 +372,163 @@ export default function EventsPage() {
                 <option value="COMPLETED">Completed</option>
                 <option value="ARCHIVED">Archived</option>
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
             </div>
 
-            {/* Mode Filter */}
-            <div className="relative">
-              <select
-                value={modeFilter}
-                onChange={(e) => {
-                  setModeFilter(e.target.value);
-                  setPage(1);
-                }}
-                className="appearance-none border border-slate-200 rounded-lg text-xs pl-3 pr-8 py-2 bg-slate-50/50 hover:bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF9900]/20 focus:border-[#FF9900] transition-all duration-200 text-slate-700 cursor-pointer"
-              >
+            {/* Mode */}
+            <div className="relative shrink-0">
+              <select value={modeFilter} onChange={(e) => { setModeFilter(e.target.value); setPage(1); }} className={selectCls}>
                 <option value="">All Modes</option>
                 <option value="ONLINE">Online</option>
                 <option value="OFFLINE">Offline</option>
                 <option value="HYBRID">Hybrid</option>
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} />
             </div>
 
-            {/* View Toggle */}
-            <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-200/60">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md transition-all ${
-                  viewMode === 'grid'
-                    ? 'bg-white text-slate-800 shadow-sm border border-slate-200/40'
-                    : 'text-slate-400 hover:text-slate-700'
-                }`}
-                title="Grid View"
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
+            {/* Spacer */}
+            <div className="flex-1" />
+
+            {/* Clear */}
+            {(search || category || statusFilter || modeFilter) && (
+              <button onClick={() => { setSearch(''); setCategory(''); setStatusFilter(''); setModeFilter(''); setPage(1); }}
+                className="text-[12px] font-semibold text-[#FF9900] hover:text-orange-700 transition-colors cursor-pointer border-none bg-transparent shrink-0">
+                Clear
               </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-white text-slate-800 shadow-sm border border-slate-200/40'
-                    : 'text-slate-400 hover:text-slate-700'
-                }`}
-                title="List View"
-              >
-                <List className="h-3.5 w-3.5" />
-              </button>
+            )}
+
+            {/* View toggle */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-[6px] border border-slate-200 shrink-0">
+              {([['grid', LayoutGrid], ['list', List]] as const).map(([mode, Icon]) => (
+                <button key={mode} onClick={() => setViewMode(mode)} title={`${mode} view`}
+                  className={`p-1.5 rounded-[4px] transition-all cursor-pointer border-none ${viewMode === mode ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-400 hover:text-slate-650 bg-transparent'}`}>
+                  <Icon className="h-3.5 w-3.5" />
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Content */}
+        {/* ── Content ── */}
         {isLoading ? (
           <LoadingSkeleton viewMode={viewMode} />
         ) : events.length === 0 ? (
           <EmptyState />
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          /* ── Grid View ── */
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => {
               const sc = statusConfig(event.status);
               const mc = modeConfig(event.mode);
               const regCount = event.registrations?.length ?? 0;
-              const seatsLeft = event.capacity != null ? event.capacity - regCount : null;
-
+              const capacity = event.capacity;
+              const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
               return (
-                <div
-                  key={event.id}
-                  className="border border-slate-200 bg-white rounded-xl overflow-hidden hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:border-slate-300 transition-all duration-200 group flex flex-col"
-                >
-                  {/* Poster */}
-                  <div className="bg-slate-900 h-40 flex items-center justify-center relative overflow-hidden">
+                <div key={event.id} className="bg-white border border-slate-200 rounded-[6px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:border-[#FF9900]/70 hover:shadow-[0_12px_30px_-6px_rgba(35,47,62,0.08),0_0_15px_rgba(255,153,0,0.22)] hover:-translate-y-1 transition-all duration-300 ease-out group flex flex-col relative">
+                  {/* Poster (Premium full-bleed cover image) */}
+                  <div className="h-48 w-full relative bg-slate-900 overflow-hidden rounded-t-[6px]">
                     <img
-                      src={event.posterImage || '/default-event-poster.png'}
+                      src={imgPosterSrc}
                       alt={event.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 ease-out"
+                      style={{ objectPosition: imgPosterPosition }}
                     />
-                    <div className="absolute top-2.5 right-2.5">
-                      <ActionsDropdown event={event} onAction={handleAction} variant="dark" />
+                  </div>
+                  {/* Body */}
+                  <div className="p-5 pt-4 flex-1 flex flex-col gap-3">
+
+                    {/* Title & Details Group wrapper */}
+                    <div className="flex flex-col gap-3">
+                      {/* Header with Title and Actions */}
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="text-[18px] font-bold text-slate-850 leading-snug tracking-tight hover:text-[#FF9900] transition-colors line-clamp-2" title={event.title}>
+                          {event.title}
+                        </h3>
+                        <div className="shrink-0 pt-0.5">
+                          <ActionsDropdown event={event} onAction={handleAction} />
+                        </div>
+                      </div>
+
+                      {/* Badges Row (Status, Category) */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wide border ${sc.className}`}>
+                          {sc.label}
+                        </span>
+                        {event.category && (() => {
+                          const cat = categoryConfig(event.category);
+                          return (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider border ${cat.className}`}>
+                              {cat.label}
+                            </span>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Date & Venue details */}
+                      <div className="flex flex-col gap-1.5 text-[13px] text-slate-500">
+                        {event.date && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-[#FF9900]/80 shrink-0" />
+                            <span className="font-medium text-slate-600">{formatDate(event.date)}</span>
+                            <span className="text-slate-300">•</span>
+                            <span className="text-slate-500">{event.time || '09:30 AM'}</span>
+                          </div>
+                        )}
+                        {event.venue && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-[#FF9900]/80 shrink-0" />
+                            <span className="truncate text-slate-600 font-medium" title={event.venue}>{event.venue}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Info */}
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div className="space-y-2.5">
-                      <h3 className="text-sm font-medium text-slate-800 line-clamp-1 group-hover:text-[#232F3E] transition-colors" title={event.title}>
-                        {event.title}
-                      </h3>
-
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {event.category && (
-                          <span className="inline-block rounded-md px-2 py-0.5 text-[10px] font-normal uppercase bg-slate-50 text-slate-600 border border-slate-200/60">
-                            {event.category}
+                  {/* Card Footer Container */}
+                  <div className="px-5 py-4 bg-slate-50/60 border-t border-slate-200 flex flex-col gap-3.5 mt-auto">
+                    {/* Remaining Seats */}
+                    {capacity != null && (() => {
+                      const remaining = Math.max(0, capacity - regCount);
+                      let statusCls = "bg-slate-500/10 text-slate-700 border-slate-500/20";
+                      let dotColor = "bg-slate-450";
+                      if (remaining === 0) {
+                        statusCls = "bg-rose-500/10 text-rose-700 border-rose-500/20";
+                        dotColor = "bg-rose-500";
+                      } else if (remaining <= 20) {
+                        statusCls = "bg-amber-500/10 text-amber-700 border-amber-500/20";
+                        dotColor = "bg-amber-500";
+                      } else {
+                        statusCls = "bg-emerald-500/10 text-emerald-700 border-emerald-500/20";
+                        dotColor = "bg-emerald-500";
+                      }
+                      
+                      return (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <Users className="h-3.5 w-3.5 text-slate-400" />
+                            <span>Seats Remaining</span>
+                          </div>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] text-[11.5px] font-bold border ${statusCls}`}>
+                            <span className={`h-1.5 w-1.5 rounded-[2px] ${dotColor}`} />
+                            {remaining}
                           </span>
-                        )}
-                        <span
-                          className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-normal uppercase ${mc.className}`}
-                        >
-                          {mc.label}
-                        </span>
-                      </div>
+                        </div>
+                      );
+                    })()}
 
-                      <div className="space-y-1.5 pt-1">
-                        {event.date && (
-                          <div className="flex items-center gap-2 text-xs text-slate-500 font-normal">
-                            <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                            {formatDate(event.date)}
-                          </div>
-                        )}
-
-                        {event.venue && (
-                          <div className="flex items-center gap-2 text-xs text-slate-500 font-normal">
-                            <MapPin className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-                            <span className="line-clamp-1">{event.venue}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-100/80">
-                      <span
-                        className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-normal uppercase ${sc.className}`}
-                      >
-                        {sc.label}
-                      </span>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-normal">
-                        <Users className="h-3.5 w-3.5 text-slate-400" />
-                        <span>{regCount}</span>
-                        {seatsLeft != null && (
-                          <span className="text-slate-400">/ {event.capacity}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Registrations & Tickets Buttons */}
-                    <div className="flex items-center gap-2 pt-3 border-t border-slate-100/80">
-                      <Link
-                        href={`/core/registrations?eventId=${event.id}`}
-                        className="flex-1 inline-flex items-center justify-center bg-white border border-slate-200 hover:border-[#FF9900]/40 hover:bg-slate-50 text-slate-700 font-semibold text-xs py-2.5 px-3 rounded-xl shadow-sm transition-all text-center"
-                      >
+                    {/* Footer / Buttons */}
+                    <div className="flex items-center justify-between gap-2.5">
+                      <Link href={`/core/registrations?eventId=${event.id}`}
+                        style={{ background: '#232F3E' }}
+                        className="flex-1 py-2 text-white font-bold text-[12.5px] rounded-[6px] hover:opacity-95 hover:shadow-lg hover:shadow-slate-900/10 transition-all duration-200 text-center text-decoration-none flex items-center justify-center gap-1.5">
+                        <Users className="h-3.5 w-3.5" />
                         Registrations
                       </Link>
-                      <Link
-                        href={`/core/tickets?eventId=${event.id}`}
-                        className="p-2.5 bg-white border border-slate-200 hover:border-[#FF9900]/40 hover:bg-slate-50 text-slate-500 hover:text-[#FF9900] rounded-xl transition-all shadow-sm flex items-center justify-center"
-                        title="View Tickets"
-                      >
+                      <Link href={`/core/tickets?eventId=${event.id}`}
+                        style={{ background: '#ffffff', border: '1.5px solid rgba(35,47,62,0.22)' }}
+                        className="p-2.5 text-[#232F3E] hover:text-[#FF9900] hover:border-[#FF9900]/40 rounded-[6px] transition-all duration-200 flex items-center justify-center text-decoration-none"
+                        title="View Tickets">
                         <Ticket className="h-4 w-4" />
                       </Link>
                     </div>
@@ -624,130 +537,262 @@ export default function EventsPage() {
               );
             })}
           </div>
-        ) : (
-          /* List View */
-          <div className="border border-slate-200 bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200/80 bg-slate-50/60">
-                    <th className="px-5 py-3 text-[11px] font-normal text-slate-400 uppercase tracking-wider">
-                      Event
-                    </th>
-                    <th className="px-5 py-3 text-[11px] font-normal text-slate-400 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-5 py-3 text-[11px] font-normal text-slate-400 uppercase tracking-wider">
-                      Venue
-                    </th>
-                    <th className="px-5 py-3 text-[11px] font-normal text-slate-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-5 py-3 text-[11px] font-normal text-slate-400 uppercase tracking-wider">
-                      Registrations
-                    </th>
-                    <th className="px-5 py-3 text-[11px] font-normal text-slate-400 uppercase tracking-wider"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {events.map((event) => {
-                    const sc = statusConfig(event.status);
-                    const regCount = event.registrations?.length ?? 0;
 
-                    return (
-                      <tr key={event.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-slate-900 flex-shrink-0 flex items-center justify-center overflow-hidden border border-slate-200/30">
-                              <img
-                                src={event.posterImage || '/default-event-poster.png'}
-                                alt={event.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div>
-                              <p className="font-medium text-slate-800 text-sm">{event.title}</p>
-                              {event.category && (
-                                <span className="inline-block rounded-md px-1.5 py-0.5 text-[10px] font-normal uppercase bg-slate-100 text-slate-600 border border-slate-200/40 mt-1">
-                                  {event.category}
+        ) : (
+
+          /* ── List View ── */
+          <div className="bg-white border border-slate-200 rounded-[6px] shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <div className="min-w-[960px] divide-y divide-slate-200">
+                {/* Header Row */}
+                <div className="grid grid-cols-12 gap-4 bg-slate-50/80 px-5 py-3.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 items-center">
+                  <div className="col-span-3">Event</div>
+                  <div className="col-span-2">Date</div>
+                  <div className="col-span-3">Venue</div>
+                  <div className="col-span-2">Status</div>
+                  <div className="col-span-1">Registrations</div>
+                  <div className="col-span-1 text-right"></div>
+                </div>
+
+                 {/* Rows */}
+                 {events.map((event) => {
+                   const sc = statusConfig(event.status);
+                   const regCount = event.registrations?.length ?? 0;
+                   const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
+                   return (
+                     <div
+                       key={event.id}
+                       className={`group border-b border-slate-200 last:border-b-0 transition-all duration-300 ${
+                         expandedEventIds[event.id] ? 'bg-slate-50/55' : 'hover:bg-slate-50'
+                       }`}
+                     >
+                       {/* Main Column Grid */}
+                       <div 
+                         onClick={() => toggleRowExpansion(event.id)}
+                         className="grid grid-cols-12 gap-4 items-center px-5 py-4 cursor-pointer"
+                       >
+                         {/* Event Info */}
+                         <div className="col-span-3 flex items-center gap-3 min-w-0">
+                           <div className="h-10 w-10 rounded-[6px] bg-slate-900 shrink-0 overflow-hidden border border-slate-200/50 shadow-sm relative group-hover:scale-102 transition-transform duration-300">
+                             <img src={imgPosterSrc} alt={event.title} className="w-full h-full object-cover" style={{ objectPosition: imgPosterPosition }} />
+                           </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-800 text-[13px] group-hover:text-[#FF9900] transition-colors truncate" title={event.title}>{event.title}</p>
+                            {event.category && (() => {
+                              const cat = categoryConfig(event.category);
+                              return (
+                                <span className={`inline-block rounded-[4px] px-1.5 py-0.5 text-[9px] font-semibold uppercase mt-0.5 tracking-wider border ${cat.className}`}>
+                                  {cat.label}
                                 </span>
+                              );
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Date */}
+                        <div className="col-span-2 min-w-0">
+                          {event.date ? (
+                            <div className="flex items-center gap-2.5">
+                              <div className="p-1.5 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-400 shrink-0">
+                                <Calendar size={11.5} />
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="font-semibold text-slate-700 text-[12px] truncate">{formatDate(event.date)}</span>
+                                <span className="text-slate-400 text-[10.5px] truncate">{event.time || '09:30 AM'}</span>
+                              </div>
+                            </div>
+                          ) : '—'}
+                        </div>
+
+                        {/* Venue */}
+                        <div className="col-span-3 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1.5 rounded-[4px] bg-slate-50 border border-slate-200 text-slate-400 shrink-0">
+                              <MapPin size={11.5} />
+                            </div>
+                            <span className="text-[12px] text-slate-600 font-semibold truncate" title={event.venue}>{event.venue || '—'}</span>
+                          </div>
+                        </div>
+
+                        {/* Status */}
+                        <div className="col-span-2">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wide border ${sc.className}`}>{sc.label}</span>
+                        </div>
+
+                        {/* Registrations */}
+                        <div className="col-span-1 min-w-0">
+                          <Link 
+                            href={`/core/registrations?eventId=${event.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex flex-col gap-1 hover:opacity-85 transition-opacity inline-flex w-full"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <Users size={12} className="text-slate-400" />
+                              <span className="text-[12.5px] font-bold text-slate-700">{regCount}</span>
+                              {event.capacity && (
+                                <span className="text-slate-400 text-[11px] font-normal">/ {event.capacity}</span>
                               )}
                             </div>
+                            {event.capacity && event.capacity > 0 && (
+                              <div className="w-20 h-1 bg-slate-100 rounded-[2px] overflow-hidden">
+                                <div 
+                                  className="h-full bg-[#FF9900] rounded-[2px] transition-all duration-300" 
+                                  style={{ width: `${Math.min((regCount / event.capacity) * 100, 100)}%` }}
+                                />
+                              </div>
+                            )}
+                          </Link>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="col-span-1">
+                          <div className="flex items-center gap-1.5 justify-end" onClick={(e) => e.stopPropagation()}>
+                            <Link 
+                              href={`/core/tickets?eventId=${event.id}`}
+                              className="p-1.5 text-slate-500 hover:text-[#FF9900] hover:bg-slate-50 rounded-[6px] border border-slate-200 transition-all cursor-pointer"
+                              title="View Tickets"
+                            >
+                              <Ticket size={13.5} />
+                            </Link>
+                            <ActionsDropdown event={event} onAction={handleAction} />
                           </div>
-                        </td>
-                        <td className="px-5 py-3 text-slate-500 text-xs whitespace-nowrap font-normal">
-                          {event.date ? formatDate(event.date) : '—'}
-                        </td>
-                        <td className="px-5 py-3 text-slate-500 text-xs max-w-[200px] truncate font-normal">
-                          {event.venue || '—'}
-                        </td>
-                        <td className="px-5 py-3">
-                          <span
-                            className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-normal uppercase ${sc.className}`}
-                          >
-                            {sc.label}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3 text-slate-600 text-xs font-normal">{regCount}</td>
-                        <td className="px-5 py-3">
-                          <ActionsDropdown event={event} onAction={handleAction} variant="light" />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        </div>
+                      </div>
+
+                      {/* Expandable Details Container */}
+                      <div 
+                        className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
+                          expandedEventIds[event.id] 
+                            ? 'grid-rows-[1fr] opacity-100' 
+                            : 'grid-rows-[0fr] opacity-0'
+                        }`}
+                      >
+                        <div className="min-h-0">
+                          <div className="px-5 pb-5 pt-3 border-t border-slate-100 bg-slate-50/30 text-slate-600">
+                            <div className="grid grid-cols-12 gap-6 text-[12.5px]">
+                              {/* Left column: Overview / Details */}
+                              <div className="col-span-7 space-y-3">
+                                <div>
+                                  <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                    <ClipboardList size={12} className="text-[#FF9900]" />
+                                    About the Event
+                                  </h4>
+                                  <p className="text-slate-600 leading-relaxed font-normal">
+                                    {event.description || event.shortDescription || 'No detailed description provided for this event.'}
+                                  </p>
+                                </div>
+                                
+                                {event.speakers && event.speakers.length > 0 && (
+                                  <div>
+                                    <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider mb-1.5">Speakers</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {event.speakers.map((speaker, idx) => (
+                                        <div key={idx} className="flex items-center gap-2 bg-white border border-slate-200 rounded-[6px] px-2.5 py-1">
+                                          {speaker.photo ? (
+                                            <img src={speaker.photo} alt={speaker.name} className="w-5 h-5 rounded-[4px] object-cover" />
+                                          ) : (
+                                            <div className="w-5 h-5 rounded-[4px] bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                              {speaker.name[0]}
+                                            </div>
+                                          )}
+                                          <div className="leading-none">
+                                            <span className="font-semibold text-slate-700 text-[11.5px]">{speaker.name}</span>
+                                            {speaker.role && (
+                                              <span className="text-slate-400 text-[10px] ml-1.5">({speaker.role})</span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Center column: Agenda / Event flow if exists */}
+                              <div className="col-span-5 border-l border-slate-200/80 pl-6 flex flex-col justify-between">
+                                <div className="space-y-4">
+                                  <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                                    <Calendar size={12} className="text-[#FF9900]" />
+                                    Event Settings
+                                  </h4>
+                                  <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[12px]">
+                                    <div>
+                                      <span className="block text-slate-400 text-[10.5px]">Attendance Mode</span>
+                                      <span className={`inline-block font-semibold text-[11px] px-2 py-0.5 rounded-[4px] border mt-0.5 ${modeConfig(event.mode).className}`}>
+                                        {modeConfig(event.mode).label}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="block text-slate-400 text-[10.5px]">Registration Form</span>
+                                      <span className="font-bold text-slate-700 mt-0.5 inline-block capitalize">{event.registrationFormType?.toLowerCase()}</span>
+                                    </div>
+                                    {event.registrationDeadline && (
+                                      <div className="col-span-2">
+                                        <span className="block text-slate-400 text-[10.5px]">Registration Deadline</span>
+                                        <span className="font-semibold text-slate-700 mt-0.5 inline-block">
+                                          {formatDate(event.registrationDeadline)} at {new Date(event.registrationDeadline).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
+                                  <Link href={`/core/events/edit/${event.id}`}
+                                    className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold text-[11.5px] rounded-[6px] text-center transition-colors text-decoration-none">
+                                    Edit Event
+                                  </Link>
+                                  <Link href={`/core/registrations?eventId=${event.id}`}
+                                    className="flex-1 py-1.5 bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-[11.5px] rounded-[6px] text-center transition-colors text-decoration-none">
+                                    Registrations
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Pagination */}
+        {/* ── Pagination ── */}
         {!isLoading && events.length > 0 && totalPages > 1 && (
-          <div className="flex items-center justify-between pt-2">
-            <p className="text-xs text-slate-500 font-normal">
-              Page {page} of {totalPages}
+          <div className="flex items-center justify-between pt-1">
+            <p className="text-[12px] text-slate-400 font-medium">
+              Page <span className="font-bold text-slate-700">{page}</span> of <span className="font-bold text-slate-700">{totalPages}</span>
             </p>
             <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
-              >
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                className="p-2 rounded-[6px] border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all cursor-pointer">
                 <ChevronLeft className="h-4 w-4" />
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
                 .reduce<(number | string)[]>((acc, p, idx, arr) => {
-                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) {
-                    acc.push('...');
-                  }
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...');
                   acc.push(p);
                   return acc;
                 }, [])
                 .map((p, idx) =>
                   typeof p === 'string' ? (
-                    <span key={`ellipsis-${idx}`} className="px-2 text-xs text-slate-400">
-                      ...
-                    </span>
+                    <span key={`el-${idx}`} className="text-slate-400 text-xs px-2 select-none">…</span>
                   ) : (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className={`min-w-[32px] h-8 rounded-lg text-xs font-normal transition cursor-pointer ${
-                        p === page
-                          ? 'bg-[#232F3E] text-white shadow-sm font-medium'
-                          : 'border border-slate-200 text-slate-600 hover:bg-slate-50 bg-white'
-                      }`}
-                    >
+                    <button key={p} onClick={() => setPage(p)}
+                      className={`min-w-[36px] h-9 rounded-[6px] text-[12.5px] font-bold border transition-all flex items-center justify-center cursor-pointer ${p === page
+                        ? 'bg-[#232F3E] border-[#232F3E] text-white shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                      }`}>
                       {p}
                     </button>
-                  ),
+                  )
                 )}
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
-              >
+              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                className="p-2 rounded-[6px] border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all cursor-pointer">
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>

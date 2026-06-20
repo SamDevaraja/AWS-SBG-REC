@@ -184,6 +184,38 @@ export function useEmailTicket() {
   });
 }
 
+export function useGenerateBulkTickets() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      eventId: string;
+      registrationIds?: string[];
+      sendEmail?: boolean;
+      createAnnouncement?: boolean;
+    }) => api.generateBulkTickets(data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['registrations'] });
+      queryClient.invalidateQueries({ queryKey: ['registrations', 'event', variables.eventId] });
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
+      queryClient.invalidateQueries({ queryKey: ['announcements', variables.eventId] });
+    },
+  });
+}
+
+export function useRegenerateBulkTickets() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      ticketIds: string[];
+      sendEmail?: boolean;
+    }) => api.regenerateBulkTickets(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+    },
+  });
+}
+
 // ── Attendance ───────────────────────────────────────────────────────────────
 
 export function useAttendance(params?: PaginationParams) {

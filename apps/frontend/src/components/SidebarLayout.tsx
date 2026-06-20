@@ -51,6 +51,13 @@ export default function SidebarLayout({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Automatically collapse sidebar when navigating to the OD Generator page
+  useEffect(() => {
+    if (pathname && pathname.includes('/core/attendance/od-generator')) {
+      setIsOpen(false);
+    }
+  }, [pathname]);
+
   const handleSignOut = useCallback(() => {
     clearSessionCache();
     localStorage.removeItem('aws_sgb_rec_user');

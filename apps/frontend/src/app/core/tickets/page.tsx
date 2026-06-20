@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useTickets, useEvents, useRegenerateTicket, useEmailTicket } from '@/lib/hooks';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useTickets, useEvents, useRegenerateTicket, useEmailTicket, useRegenerateBulkTickets } from '@/lib/hooks';
 import TicketDetailsModal from '@/components/TicketDetailsModal';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import {
-  Eye, RefreshCw, Mail, Ticket,
+  BarChart2, RefreshCw, Mail, Ticket,
   Search, ChevronDown, Filter,
   ChevronLeft, ChevronRight, CheckCircle2,
   Clock, AlertTriangle, ClipboardList, XCircle, X
 } from 'lucide-react';
+
 import type { Ticket as TicketType } from '@/lib/types';
 import { formatDate } from '@/shared/utils/formatDate';
 import { StatusBadge } from '@/shared/components/StatusBadge';
@@ -18,29 +20,27 @@ import { StatusBadge } from '@/shared/components/StatusBadge';
 /* ─── Loading Skeleton ──────────────────────────────────────────── */
 function LoadingSkeleton() {
   return (
-    <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/50">
-              {['Ticket Code', 'Event', 'Attendee', 'Status', 'Created', ''].map((h) => (
-                <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-slate-100 bg-slate-50/50">
+            {['Ticket Code', 'Event', 'Attendee', 'Status', 'Created', ''].map((h) => (
+              <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100/70">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="animate-pulse">
+              {[20, 32, 28, 16, 20, 15].map((w, j) => (
+                <td key={j} className="px-6 py-4.5">
+                  <div className="h-3.5 rounded bg-slate-100" style={{ width: `${w * 4}px` }} />
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100/70">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <tr key={i} className="animate-pulse">
-                {[20, 32, 28, 16, 20, 15].map((w, j) => (
-                  <td key={j} className="px-6 py-4.5">
-                    <div className="h-3.5 rounded bg-slate-100" style={{ width: `${w * 4}px` }} />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -48,11 +48,11 @@ function LoadingSkeleton() {
 /* ─── Empty State ───────────────────────────────────────────────── */
 function EmptyState() {
   return (
-    <div className="border border-dashed border-slate-200/80 rounded-2xl p-16 text-center bg-white/60 backdrop-blur-sm relative overflow-hidden">
+    <div className="py-20 text-center bg-white/60 backdrop-blur-sm relative overflow-hidden flex flex-col items-center justify-center">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,153,0,0.03)_0%,transparent_70%)] pointer-events-none" />
       <div className="relative z-10">
-        <div className="mx-auto w-12 h-12 rounded-xl bg-orange-50/60 border border-orange-100/80 flex items-center justify-center mb-4 text-[#FF9900] shadow-sm">
-          <Ticket size={22} />
+        <div className="mx-auto w-10 h-10 rounded-[6px] bg-slate-50 border border-slate-200/60 flex items-center justify-center mb-4 text-slate-400">
+          <Ticket size={18} className="stroke-[1.5]" />
         </div>
         <h3 className="text-[15px] font-bold text-slate-800 mb-1">No tickets found</h3>
         <p className="text-[12.5px] text-slate-400 max-w-xs mx-auto">Try adjusting your search query or filters.</p>
@@ -80,15 +80,152 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
+/* ─── Stats Modal Component ────────────────────────────────────────── */
+interface StatsModalProps {
+  onClose: () => void;
+  stats: {
+    total: number;
+    active: number;
+    used: number;
+    cancelled: number;
+  };
+  eventTitle: string;
+}
+
+function StatsModal({ onClose, stats, eventTitle }: StatsModalProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const total = stats.total;
+
+  const chartData = total > 0 
+    ? [
+        { name: 'Active', value: stats.active, color: '#10B981' },
+        { name: 'Used', value: stats.used, color: '#3B82F6' },
+        { name: 'Cancelled', value: stats.cancelled, color: '#EF4444' },
+      ].filter(item => item.value > 0)
+    : [
+        { name: 'No Tickets', value: 1, color: '#F1F5F9' }
+      ];
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-[6px] p-6.5 max-w-[340px] w-full border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.08)] relative animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
+        >
+          <X size={18} />
+        </button>
+
+        {/* Header */}
+        <div className="mb-5">
+          <h2 className="text-base font-bold text-slate-950 leading-tight">Ticket Distribution</h2>
+          <p className="text-[11.5px] text-slate-400 font-medium mt-1 truncate">
+            {eventTitle || 'All Events Overview'}
+          </p>
+        </div>
+
+        {/* Chart Container */}
+        <div className="relative h-48 w-full flex items-center justify-center mb-5">
+          {mounted && (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={68}
+                  outerRadius={78}
+                  paddingAngle={total > 0 ? 3 : 0}
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: any, name: any) => [value, name]} 
+                  contentStyle={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11px' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+
+          {/* Center Info Overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-[9px] text-slate-400 font-bold tracking-widest uppercase mb-0.5">Total Passes</span>
+            <span className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums">{total}</span>
+          </div>
+        </div>
+
+        {/* Metrics List Layout */}
+        <div className="space-y-2.5 mt-2 pt-4.5 border-t border-slate-200">
+          <div className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+              <span className="text-slate-600 font-semibold">Active Passes</span>
+            </div>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.active}</span>
+          </div>
+          <div className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
+              <span className="text-slate-600 font-semibold">Used Passes</span>
+            </div>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.used}</span>
+          </div>
+          <div className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+              <span className="text-slate-600 font-semibold">Cancelled Passes</span>
+            </div>
+            <span className="font-bold text-slate-900 tabular-nums">{stats.cancelled}</span>
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <button
+          onClick={onClose}
+          className="w-full mt-5 py-2.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-600 hover:text-slate-800 border border-slate-200/50 rounded-[6px] text-xs font-semibold transition-all cursor-pointer text-center"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Page ─────────────────────────────────────────────────── */
 function TicketsPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialEventId = searchParams.get('eventId') || '';
+
+  useEffect(() => {
+    if (!initialEventId) {
+      router.replace('/core/events');
+    }
+  }, [initialEventId, router]);
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [eventFilter, setEventFilter] = useState(initialEventId);
   const [page, setPage] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+
+  // Bulk ticket selection/regeneration states
+  const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
+  const regenerateBulkMutation = useRegenerateBulkTickets();
+
+  if (!initialEventId) {
+    return null;
+  }
 
   const { data: eventsData } = useEvents({ limit: 200 });
   const events = eventsData?.data ?? [];
@@ -143,6 +280,45 @@ function TicketsPageContent() {
   function handleRegenerate(ticketId: string) { regenerateMutation.mutate(ticketId); }
   function handleEmail(ticketId: string) { emailMutation.mutate(ticketId); }
 
+  // Clear selections when tickets array updates
+  const ticketsKey = tickets.map(t => t.id).join(',');
+  useEffect(() => {
+    setSelectedTicketIds([]);
+  }, [ticketsKey]);
+
+  function handleSelectRow(ticketId: string) {
+    setSelectedTicketIds(prev => 
+      prev.includes(ticketId) 
+        ? prev.filter(id => id !== ticketId) 
+        : [...prev, ticketId]
+    );
+  }
+
+  function handleSelectAll() {
+    if (selectedTicketIds.length === tickets.length) {
+      setSelectedTicketIds([]);
+    } else {
+      setSelectedTicketIds(tickets.map(t => t.id));
+    }
+  }
+
+  function handleBulkRegenerate() {
+    if (selectedTicketIds.length === 0) return;
+    
+    if (!confirm(`Are you sure you want to regenerate tickets for all ${selectedTicketIds.length} selected participant(s)? This will invalidate their previous entry passes.`)) {
+      return;
+    }
+
+    regenerateBulkMutation.mutate({
+      ticketIds: selectedTicketIds,
+      sendEmail: true
+    }, {
+      onSuccess: () => {
+        setSelectedTicketIds([]);
+      }
+    });
+  }
+
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
     .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
     .reduce<(number | string)[]>((acc, p, idx, arr) => {
@@ -151,13 +327,10 @@ function TicketsPageContent() {
       return acc;
     }, []);
 
-  const hasFilter = !!(search || statusFilter || eventFilter);
+  const hasFilter = !!(search || statusFilter);
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-[#1A1C1E] flex flex-col font-jakarta relative py-6 px-4 sm:py-8 sm:px-8 overflow-y-auto premium-scrollbar scroll-smooth">
-      {/* Background ambient glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.05)_0%,transparent_55%)] pointer-events-none z-0" />
-
       <div className="max-w-7xl w-full mx-auto flex flex-col gap-6 z-10 relative">
 
         {/* ── Header Section ── */}
@@ -167,15 +340,13 @@ function TicketsPageContent() {
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2.5">
               <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors">Admin</Link>
               <span className="text-slate-300">/</span>
-              {eventTitle ? (
-                <Link href="/core/tickets" className="text-[#FF9900] hover:text-orange-600 font-semibold transition-colors">Tickets</Link>
-              ) : (
-                <span className="text-[#FF9900] font-semibold">Tickets</span>
-              )}
+              <Link href="/core/events" className="hover:text-[#FF9900] transition-colors">Events</Link>
+              <span className="text-slate-300">/</span>
+              <span className="text-[#FF9900] font-semibold">Tickets</span>
             </div>
             
             <div className="flex items-center gap-2">
-              <h1 className="text-[28px] font-extrabold text-slate-900 tracking-tight leading-none">
+              <h1 className="text-[24px] font-semibold text-slate-900 tracking-tight leading-none">
                 {eventTitle || 'Tickets'}
               </h1>
               <span className="px-2 py-0.5 bg-orange-50 text-[#FF9900] rounded-full text-xs font-semibold">
@@ -189,175 +360,153 @@ function TicketsPageContent() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={() => setShowStatsModal(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer font-bold border-none"
+            >
+              <BarChart2 size={13} />
+              Show Stats
+            </button>
             <Link
               href="/core/attendance"
-              className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-xl text-[13px] font-medium transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-[6px] text-[12px] font-semibold transition-all shadow-sm hover:-translate-y-0.5 cursor-pointer text-decoration-none"
             >
-              <ClipboardList size={14} className="text-[#FF9900]" />
+              <ClipboardList size={13} className="text-slate-500" />
               View Attendance
             </Link>
           </div>
         </div>
 
-
-        {/* ── Stats Cards Row ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(0,115,187,0.04)_0%,transparent_60%)] animate-pulse" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
-              <Ticket size={18} className="group-hover:text-[#0073BB] transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Total Tickets</span>
-              <span className="text-xl font-bold text-slate-800">{statsTotal}</span>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(16,185,129,0.04)_0%,transparent_60%)]" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors">
-              <CheckCircle2 size={18} className="group-hover:text-emerald-500 transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Active</span>
-              <span className="text-xl font-bold text-slate-800">{statsActive}</span>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(245,158,11,0.04)_0%,transparent_60%)]" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-amber-50 group-hover:border-amber-100 transition-colors">
-              <Clock size={18} className="group-hover:text-amber-500 transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Used</span>
-              <span className="text-xl font-bold text-slate-800">{statsUsed}</span>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group hover:border-slate-200/80 hover:shadow-md transition-all duration-200">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_70%_20%,rgba(239,68,68,0.04)_0%,transparent_60%)]" />
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-rose-50 group-hover:border-rose-100 transition-colors">
-              <AlertTriangle size={18} className="group-hover:text-rose-500 transition-colors" />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Cancelled</span>
-              <span className="text-xl font-bold text-slate-800">{statsCancelled}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Filters Panel Card ── */}
-        <div className="bg-white border border-slate-100 rounded-2xl px-6 py-4 shadow-sm relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.015)_0%,transparent_55%)] pointer-events-none" />
+        {/* ── Unified Tickets Data Table Container ── */}
+        <div className="bg-white border border-slate-200 rounded-[6px] shadow-sm overflow-hidden flex flex-col relative">
           
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
-            {/* Left Group: Search, Event selector, and Status */}
-            <div className="flex flex-wrap items-center gap-3 flex-grow">
-              {/* Search Input */}
-              <div className="relative min-w-[240px] flex-grow md:flex-grow-0 md:w-80">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-                <input
-                  type="text"
-                  placeholder="Search tickets by code or attendee name..."
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
-                />
-              </div>
-
-              {/* Event Filter */}
-              {!initialEventId && (
-                <div className="relative w-48 shrink-0">
+          {/* Filters Toolbar */}
+          <div className="px-6 py-4 bg-slate-50/20 border-b border-slate-200 relative">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.015)_0%,transparent_55%)] pointer-events-none" />
+            
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+              {/* Left Group: Search, Event selector, and Status */}
+              <div className="flex flex-wrap items-center gap-3 flex-grow">
+                {/* Search Input */}
+                <div className="relative min-w-[240px] flex-grow md:max-w-md">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                  <input
+                    type="text"
+                    placeholder="Search tickets by code or attendee name..."
+                    value={search}
+                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-[6px] text-[13px] font-normal transition-all text-slate-700 placeholder-slate-400"
+                  />
+                </div>
+ 
+                {/* Event Filter */}
+                {!initialEventId && (
+                  <div className="relative w-48 shrink-0">
+                    <select
+                      value={eventFilter}
+                      onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+                      className="w-full pl-4 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-[6px] text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
+                    >
+                      <option value="">All Events</option>
+                      {events.map((ev) => (
+                        <option key={ev.id} value={ev.id}>{ev.title}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                  </div>
+                )}
+ 
+                {/* Status Filter */}
+                <div className="relative w-40 shrink-0">
                   <select
-                    value={eventFilter}
-                    onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
+                    value={statusFilter}
+                    onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                    className="w-full pl-4 pr-9 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-[6px] text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
                   >
-                    <option value="">All Events</option>
-                    {events.map((ev) => (
-                      <option key={ev.id} value={ev.id}>{ev.title}</option>
-                    ))}
+                    <option value="">All Statuses</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="USED">Used</option>
+                    <option value="CANCELLED">Cancelled</option>
                   </select>
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
                 </div>
-              )}
-
-              {/* Status Filter */}
-              <div className="relative w-40 shrink-0">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:outline-none rounded-xl text-[12.5px] text-slate-600 cursor-pointer transition-all appearance-none"
-                >
-                  <option value="">All Statuses</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="USED">Used</option>
-                  <option value="CANCELLED">Cancelled</option>
-                </select>
-                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
               </div>
+
+              {hasFilter && (
+                <button
+                  onClick={() => { setSearch(''); setStatusFilter(''); setPage(1); }}
+                  className="text-xs font-semibold text-[#FF9900] hover:text-orange-700 transition-colors cursor-pointer shrink-0 border-none bg-transparent"
+                >
+                  Clear filters
+                </button>
+              )}
             </div>
-
-            {hasFilter && (
-              <button
-                onClick={() => { setSearch(''); setStatusFilter(''); setEventFilter(''); setPage(1); }}
-                className="text-xs font-semibold text-slate-500 hover:text-[#FF9900] transition-colors cursor-pointer shrink-0"
-              >
-                Clear filters
-              </button>
-            )}
           </div>
-        </div>
 
-        {/* ── Table Grid Card ── */}
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : tickets.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="bg-white border border-slate-200/60 rounded-2xl shadow-sm overflow-hidden relative">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
-            
+          {/* Content Area */}
+          {isLoading ? (
+            <LoadingSkeleton />
+          ) : tickets.length === 0 ? (
+            <EmptyState />
+          ) : (
             <div className="overflow-x-auto relative z-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50">
-                    {['Ticket Code', 'Event', 'Attendee', 'Status', 'Created', 'Actions'].map((h) => (
-                      <th key={h} className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  <tr className="border-b border-slate-200 bg-slate-100/80">
+                    <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider w-10">
+                      <input
+                        type="checkbox"
+                        checked={tickets.length > 0 && selectedTicketIds.length === tickets.length}
+                        onChange={handleSelectAll}
+                        className="rounded border-slate-350 text-[#FF9900] focus:ring-[#FF9900] cursor-pointer"
+                      />
+                    </th>
+                    {(['Ticket Code', !(eventFilter || initialEventId) && 'Event', 'Attendee', 'Status', 'Created', 'Actions'].filter(Boolean) as string[]).map((h) => (
+                      <th key={h} className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100/70">
+                <tbody className="divide-y divide-slate-200">
                   {tickets.map((ticket) => {
                     const attendeeName = ticket.registration?.user
                       ? `${ticket.registration.user.firstName} ${ticket.registration.user.lastName}`
                       : '—';
+                    const isSelected = selectedTicketIds.includes(ticket.id);
                     return (
                       <tr
                         key={ticket.id}
-                        className="hover:bg-slate-50/40 transition-all duration-200 group"
+                        className={`hover:bg-slate-50/40 transition-all duration-200 group ${
+                          isSelected ? 'bg-orange-50/20 hover:bg-orange-50/30' : ''
+                        }`}
                       >
+                        <td className="px-6 py-4.5 whitespace-nowrap">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleSelectRow(ticket.id)}
+                            className="rounded border-slate-350 text-[#FF9900] focus:ring-[#FF9900] cursor-pointer"
+                          />
+                        </td>
                         {/* Code */}
                         <td className="px-6 py-4.5 whitespace-nowrap">
-                          <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-lg px-2.5 py-1 text-slate-500 font-medium">
+                          <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/50 rounded-[4px] px-2.5 py-1 text-slate-500 font-medium">
                             {ticket.ticketCode}
                           </span>
                         </td>
 
                         {/* Event */}
-                        <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
-                          {ticket.event?.title ?? '—'}
-                        </td>
+                        {!(eventFilter || initialEventId) && (
+                          <td className="px-6 py-4.5 max-w-[200px] truncate text-[13px] text-slate-600 font-medium">
+                            {ticket.event?.title ?? '—'}
+                          </td>
+                        )}
 
                         {/* Attendee */}
                         <td className="px-6 py-4.5 whitespace-nowrap">
                           {attendeeName !== '—' ? (
-                            <div className="flex items-center gap-3">
-                              <Avatar name={attendeeName} />
-                              <span className="text-[13.5px] font-bold text-slate-800">{attendeeName}</span>
-                            </div>
+                            <span className="text-[13.5px] font-semibold text-slate-800">{attendeeName}</span>
                           ) : (
                             <span className="text-[13px] text-slate-400">—</span>
                           )}
@@ -375,32 +524,22 @@ function TicketsPageContent() {
 
                         {/* Actions */}
                         <td className="px-6 py-4.5 whitespace-nowrap">
-                          <div className="flex items-center gap-1.5">
-                            {/* View */}
-                            <button
-                              onClick={() => setSelectedTicket(ticket)}
-                              title="View Pass"
-                              className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all cursor-pointer"
-                            >
-                              <Eye size={14} />
-                            </button>
+                          <div className="flex items-center gap-3">
                             {/* Regenerate */}
                             <button
                               onClick={() => handleRegenerate(ticket.id)}
                               disabled={regenerateMutation.isPending}
-                              title="Regenerate Ticket"
-                              className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition-all disabled:opacity-40 cursor-pointer"
+                              className="text-[12.5px] font-semibold text-amber-600 hover:text-amber-800 transition-colors disabled:opacity-40 cursor-pointer"
                             >
-                              <RefreshCw size={14} className={regenerateMutation.isPending ? 'animate-spin' : ''} />
+                              {regenerateMutation.isPending ? 'Regenerating...' : 'Regenerate'}
                             </button>
                             {/* Email */}
                             <button
                               onClick={() => handleEmail(ticket.id)}
                               disabled={emailMutation.isPending}
-                              title="Send Ticket Email"
-                              className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all disabled:opacity-40 cursor-pointer"
+                              className="text-[12.5px] font-semibold text-blue-600 hover:text-blue-800 transition-colors disabled:opacity-40 cursor-pointer"
                             >
-                              <Mail size={14} />
+                              {emailMutation.isPending ? 'Sending...' : 'Email'}
                             </button>
                           </div>
                         </td>
@@ -410,8 +549,8 @@ function TicketsPageContent() {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* ── Pagination ── */}
         {!isLoading && totalPages > 1 && (
@@ -424,7 +563,7 @@ function TicketsPageContent() {
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
+                className="p-2 rounded-[6px] border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -436,9 +575,9 @@ function TicketsPageContent() {
                   <button
                     key={p}
                     onClick={() => setPage(p)}
-                    className={`min-w-[36px] h-9 rounded-xl text-[12.5px] font-bold border transition-all flex items-center justify-center cursor-pointer ${
+                    className={`min-w-[36px] h-9 rounded-[6px] text-[12.5px] font-bold border transition-all flex items-center justify-center cursor-pointer ${
                       p === page
-                        ? 'bg-gradient-to-r from-[#FF9900] to-[#F7BA45] border-[#FF9900] text-white shadow-sm shadow-orange-500/20'
+                        ? 'bg-[#232F3E] border-[#232F3E] text-white shadow-sm'
                         : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
                     }`}
                   >
@@ -450,7 +589,7 @@ function TicketsPageContent() {
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                className="p-2 rounded-xl border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
+                className="p-2 rounded-[6px] border border-slate-200 bg-white hover:border-slate-300 text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-all flex items-center justify-center cursor-pointer"
               >
                 <ChevronRight size={16} />
               </button>
@@ -467,6 +606,44 @@ function TicketsPageContent() {
           onRegenerate={(id) => { handleRegenerate(id); setSelectedTicket(null); }}
           onEmail={(id) => { handleEmail(id); setSelectedTicket(null); }}
         />
+      )}
+
+      {/* Stats Modal */}
+      {showStatsModal && (
+        <StatsModal
+          onClose={() => setShowStatsModal(false)}
+          stats={{
+            total: statsTotal,
+            active: statsActive,
+            used: statsUsed,
+            cancelled: statsCancelled,
+          }}
+          eventTitle={eventTitle}
+        />
+      )}
+      {/* Floating Bulk Action Bar */}
+      {selectedTicketIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-[6px] shadow-xl z-40 flex items-center gap-6 animate-in slide-in-from-bottom-4 duration-300 border border-slate-800">
+          <span className="text-[12.5px] font-bold tracking-wide text-slate-355">
+            {selectedTicketIds.length} ticket(s) selected
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleBulkRegenerate}
+              disabled={regenerateBulkMutation.isPending}
+              className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold rounded-[6px] text-xs tracking-wide transition-all cursor-pointer border-none"
+            >
+              {regenerateBulkMutation.isPending ? 'Regenerating...' : 'Regenerate Selected'}
+            </button>
+            <button
+              onClick={() => setSelectedTicketIds([])}
+              className="p-1.5 text-slate-400 hover:text-slate-200 transition-colors ml-1 cursor-pointer bg-transparent border-none flex items-center justify-center"
+              title="Clear selection"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

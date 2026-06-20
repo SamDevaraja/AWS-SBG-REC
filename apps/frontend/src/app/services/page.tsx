@@ -367,7 +367,7 @@ export default function Home() {
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
               <div className="flex items-center gap-2.5 px-5 py-2.5 bg-white/90 backdrop-blur-xl border border-slate-200/60 rounded-full shadow-sm pointer-events-auto">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span className="text-[11px] font-semibold text-slate-500 tracking-wide whitespace-nowrap">Region Intelligence Active</span>
+                <span className="text-xs font-semibold text-slate-500 tracking-wide whitespace-nowrap">Region Intelligence Active</span>
               </div>
             </div>
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import GlassCard from "./GlassCard";
 import { useEvents } from "@/modules/cloud-enthusiasts/shared/hooks/useCloudEnthusiasts";
+import { getPosterSrcAndPosition } from "@/lib/utils";
 
 export default function UpcomingEvent() {
   const { data: realEvents = [], isLoading } = useEvents();
@@ -44,19 +45,25 @@ export default function UpcomingEvent() {
   return (
     <GlassCard className="p-0 overflow-hidden flex flex-col lg:flex-row h-full border border-white/30" hoverEffect={false} style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }}>
       {/* Poster */}
-      <div className="relative w-full lg:w-[42%] aspect-[4/5] overflow-hidden bg-slate-50">
-        <img
-          src={event.banner_url || "/default-event-poster.jpg"}
-          alt={event.title}
-          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute bottom-4 left-4">
-          <span className="px-3 py-1 rounded-full bg-brand-orange text-white text-xs font-medium uppercase tracking-wider">
-            Upcoming
-          </span>
-        </div>
-      </div>
+      {(() => {
+        const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.banner_url);
+        return (
+          <div className="relative w-full lg:w-[42%] aspect-[4/5] overflow-hidden bg-slate-50">
+            <img
+              src={imgPosterSrc}
+              alt={event.title}
+              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+              style={{ objectPosition: imgPosterPosition }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4">
+              <span className="px-3 py-1 rounded-full bg-brand-orange text-white text-xs font-medium uppercase tracking-wider">
+                Upcoming
+              </span>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Content */}
       <div className="p-5 flex flex-col justify-between flex-1">

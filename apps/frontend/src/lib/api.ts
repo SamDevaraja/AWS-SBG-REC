@@ -289,7 +289,7 @@ export async function uploadFlag(file: File): Promise<{ url: string }> {
 // AWS SERVICES CATALOG TYPES AND API METHODS
 // =============================================
 
-const AWS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const AWS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
 
 export interface AWSServiceCategory {
   id: string;

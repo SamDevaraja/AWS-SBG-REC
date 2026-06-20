@@ -6,16 +6,58 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { useEventDetails } from '../shared/hooks/useCloudEnthusiasts';
 import { apiService } from '../shared/services/apiService';
 import { EC2ConsoleLoader, ErrorAlert } from '../shared/components/Animations';
-import { ArrowLeft, Calendar, MapPin, Clock, Users, ShieldAlert, Ticket as TicketIcon, Linkedin } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Clock, Users, ShieldAlert, Ticket as TicketIcon, Linkedin, XCircle } from 'lucide-react';
 import TicketModal from '../shared/components/TicketModal';
 import { Ticket } from '../shared/types';
 import { STORAGE_KEYS } from '../../../context/mockData';
-import { cn } from '@/lib/utils';
+import { cn, getPosterSrcAndPosition } from '@/lib/utils';
 
 /** Shape of a ticket entry saved to localStorage */
 interface LocalTicket {
   ticketId: string;
   eventId: string;
+}
+
+function SpeakerCard({ speaker }: { speaker: any }) {
+  return (
+    <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 bg-white hover:shadow-sm transition-shadow flex-1 min-w-[280px] max-w-[400px]">
+      <div className="w-12 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 bg-slate-50/50 flex items-center justify-center shadow-xs">
+        {speaker.avatar_url ? (
+          <img src={speaker.avatar_url} alt={speaker.name} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-sm font-bold text-slate-400">
+            {speaker.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+          </span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <h4 className="font-bold text-sm text-slate-800 leading-snug">{speaker.name}</h4>
+          {speaker.linkedin_url && (
+            <a
+              href={speaker.linkedin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-400 hover:text-[#0A66C2] transition-colors inline-flex items-center mt-0.5 shrink-0"
+              title={`${speaker.name}'s LinkedIn Profile`}
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+            </a>
+          )}
+        </div>
+        {speaker.designation && (
+          <span className="text-[#FF9900] text-[10px] font-bold uppercase tracking-wider block mt-0.5">
+            {speaker.designation}
+          </span>
+        )}
+        {speaker.bio && (
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed font-normal">{speaker.bio}</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function EventDetailsPage() {
@@ -178,188 +220,88 @@ export default function EventDetailsPage() {
           <div className="p-6 sm:p-8 md:p-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
             
             {/* Left Column: Details & Speakers */}
-            <div className="lg:col-span-8 flex flex-col md:flex-row gap-8 items-start">
+            <div className="lg:col-span-8 flex flex-col gap-8">
               
-              {/* Left Sub-column: Poster & Speakers (Desktop) */}
-              <div className="w-full md:w-[280px] lg:w-[320px] shrink-0 md:sticky md:top-6 space-y-6 mx-auto md:mx-0">
-                {/* Poster Container */}
-                {event.banner_url ? (
-                  <div className="relative w-full aspect-square bg-slate-50 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
-                    {/* Sharp Centered Poster */}
-                    <img
-                      src={event.banner_url}
-                      alt={event.title}
-                      className="relative z-10 max-w-full max-h-full object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full aspect-square bg-slate-100 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
-                    <Users className="w-12 h-12 text-slate-300" />
-                  </div>
-                )}
-
-                {/* Speakers Section (Desktop Only) */}
-                {event.speaker_details && event.speaker_details.length > 0 && (
-                  <div className="hidden md:block pt-6 border-t border-slate-100 space-y-5">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                      Event Host & Speakers
-                    </h3>
-                    
-                    <div className="space-y-5">
-                      {event.speaker_details.map((speaker, idx) => (
-                        <div key={idx} className="flex items-start gap-4">
-                          {/* Rectangular Portrait Avatar Placeholder */}
-                          <div className="w-12 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 bg-slate-50/50 flex items-center justify-center shadow-xs">
-                            {speaker.avatar_url ? (
-                              <img
-                                src={speaker.avatar_url}
-                                alt={speaker.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Users className="w-5 h-5 text-slate-400/80" />
-                            )}
-                          </div>
-                          
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-sm text-slate-800 leading-snug">{speaker.name}</h4>
-                              {speaker.linkedin_url && (
-                                <a
-                                  href={speaker.linkedin_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-slate-400 hover:text-[#0A66C2] transition-colors inline-flex items-center mt-0.5 shrink-0"
-                                  title={`${speaker.name}'s LinkedIn Profile`}
-                                >
-                                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                                  </svg>
-                                </a>
-                              )}
-                            </div>
-                            {speaker.designation && (
-                              <span className="text-[#FF9900] text-[10px] font-bold uppercase tracking-wider block mt-0.5">
-                                {speaker.designation}
-                              </span>
-                            )}
-                            {speaker.bio && (
-                              <p className="text-slate-500 text-xs mt-1 leading-relaxed font-normal">
-                                {speaker.bio}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+              {/* Poster, Title & About */}
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                <div className="w-full md:w-[280px] lg:w-[320px] shrink-0 md:sticky md:top-6 space-y-6 mx-auto md:mx-0">
+                  {/* Poster Container */}
+                  {event.banner_url ? (
+                    <div className="relative w-full aspect-square bg-slate-50 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
+                      {/* Sharp Centered Poster */}
+                      <img
+                        src={getPosterSrcAndPosition(event.banner_url).src}
+                        alt={event.title}
+                        className="relative z-10 max-w-full max-h-full object-contain"
+                      />
                     </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Right Sub-column: Title, About, Speakers (Mobile) */}
-              <div className="flex-1 space-y-6">
-                
-                {/* Event Title Block */}
-                <div className="space-y-4">
-                  <div className="flex flex-wrap gap-2">
-                    <span className={cn(
-                      "px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded border",
-                      event.mode === "Virtual"
-                        ? "bg-blue-50 text-blue-700 border-blue-200/60"
-                        : "bg-purple-50 text-purple-700 border-purple-200/60"
-                    )}>
-                      {event.mode}
-                    </span>
-                    <span className={cn(
-                      "px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded border",
-                      isEnded
-                        ? "bg-slate-100 text-slate-650 border-slate-200"
-                        : isFull
-                          ? "bg-rose-50 text-rose-700 border-rose-200/60"
-                          : "bg-emerald-50 text-emerald-755 border-emerald-200/60"
-                    )}>
-                      {isEnded ? "Ended" : isFull ? "Fully Booked" : "Registration Open"}
-                    </span>
-                  </div>
-
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-[#232F3E] tracking-tight leading-tight">
-                    {event.title}
-                  </h1>
-                  {event.short_description && (
-                    <p className="text-slate-500 text-sm font-normal leading-relaxed">
-                      {event.short_description}
-                    </p>
+                  ) : (
+                    <div className="w-full aspect-square bg-slate-100 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center">
+                      <Users className="w-12 h-12 text-slate-300" />
+                    </div>
                   )}
                 </div>
 
-                {/* About Event Description */}
-                <div className="space-y-3 pt-6 border-t border-slate-100">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                    About the Event
-                  </h3>
-                  <p className="text-slate-600 text-sm font-normal leading-relaxed whitespace-pre-line">
-                    {event.full_description}
-                  </p>
-                </div>
-
-                {/* Speakers Section (Mobile Only) */}
-                {event.speaker_details && event.speaker_details.length > 0 && (
-                  <div className="md:hidden pt-6 border-t border-slate-100 space-y-5">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                      Event Host & Speakers
-                    </h3>
-                    
-                    <div className="space-y-5">
-                      {event.speaker_details.map((speaker, idx) => (
-                        <div key={idx} className="flex items-start gap-4">
-                          {/* Rectangular Portrait Avatar Placeholder */}
-                          <div className="w-12 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 bg-slate-50/50 flex items-center justify-center shadow-xs">
-                            {speaker.avatar_url ? (
-                              <img
-                                src={speaker.avatar_url}
-                                alt={speaker.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Users className="w-5 h-5 text-slate-400/80" />
-                            )}
-                          </div>
-                          
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-sm text-slate-800 leading-snug">{speaker.name}</h4>
-                              {speaker.linkedin_url && (
-                                <a
-                                  href={speaker.linkedin_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-slate-400 hover:text-[#0A66C2] transition-colors inline-flex items-center mt-0.5 shrink-0"
-                                  title={`${speaker.name}'s LinkedIn Profile`}
-                                >
-                                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                                  </svg>
-                                </a>
-                              )}
-                            </div>
-                            {speaker.designation && (
-                              <span className="text-[#FF9900] text-[10px] font-bold uppercase tracking-wider block mt-0.5">
-                                {speaker.designation}
-                              </span>
-                            )}
-                            {speaker.bio && (
-                              <p className="text-slate-500 text-xs mt-1 leading-relaxed font-normal">
-                                {speaker.bio}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                {/* Title & About */}
+                <div className="flex-1 space-y-6">
+                  {/* Event Title Block */}
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                      <span className={cn(
+                        "px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded border",
+                        event.mode === "Virtual"
+                          ? "bg-blue-50 text-blue-700 border-blue-200/60"
+                          : "bg-purple-50 text-purple-700 border-purple-200/60"
+                      )}>
+                        {event.mode}
+                      </span>
+                      <span className={cn(
+                        "px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded border",
+                        isEnded
+                          ? "bg-slate-100 text-slate-655 border-slate-200"
+                          : isFull
+                            ? "bg-rose-50 text-rose-700 border-rose-200/60"
+                            : "bg-emerald-50 text-emerald-755 border-emerald-200/60"
+                      )}>
+                        {isEnded ? "Ended" : isFull ? "Fully Booked" : "Registration Open"}
+                      </span>
                     </div>
-                  </div>
-                )}
 
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-[#232F3E] tracking-tight leading-tight">
+                      {event.title}
+                    </h1>
+                    {event.short_description && (
+                      <p className="text-slate-500 text-sm font-normal leading-relaxed">
+                        {event.short_description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* About Event Description */}
+                  <div className="space-y-3 pt-6 border-t border-slate-100">
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                      About the Event
+                    </h3>
+                    <p className="text-slate-600 text-sm font-normal leading-relaxed whitespace-pre-line">
+                      {event.full_description}
+                    </p>
+                  </div>
+                </div>
               </div>
+
+              {/* Event Speakers Section (Spans the full horizontal width of Left Column) */}
+              {event.speaker_details && event.speaker_details.length > 0 && (
+                <div className="pt-6 border-t border-slate-100 space-y-5">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                    Event Host & Speakers
+                  </h3>
+                  <div className="flex flex-row flex-wrap gap-4">
+                    {event.speaker_details.map((speaker, idx) => (
+                      <SpeakerCard key={idx} speaker={speaker} />
+                    ))}
+                  </div>
+                </div>
+              )}
               
             </div>
 
@@ -534,8 +476,8 @@ export default function EventDetailsPage() {
       {/* Loading Ticket details Overlay */}
       {isTicketModalOpen && loadingTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-          <div className="relative bg-white rounded-[10px] shadow-xl border border-slate-200 w-full max-w-md overflow-hidden z-10 p-6 text-center">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]" />
+          <div className="relative bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-100 w-full max-w-sm overflow-hidden z-10 p-8 text-center animate-in zoom-in-95 duration-200">
             <EC2ConsoleLoader message="Retrieving secure entry pass..." />
           </div>
         </div>
@@ -544,14 +486,16 @@ export default function EventDetailsPage() {
       {/* Ticket load Error dialog */}
       {isTicketModalOpen && ticketError && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsTicketModalOpen(false)} />
-          <div className="relative bg-white rounded-[10px] shadow-xl border border-slate-200 w-full max-w-md overflow-hidden z-10 p-6 text-center">
-            <ShieldAlert className="w-12 h-12 text-rose-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-slate-800 text-lg mb-2 font-display">Failed to Load Ticket</h3>
-            <p className="text-slate-500 text-xs mb-5 leading-relaxed font-normal">{ticketError}</p>
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] transition-opacity duration-300" onClick={() => setIsTicketModalOpen(false)} />
+          <div className="relative bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-100 w-full max-w-sm overflow-hidden z-10 p-8 text-center animate-in zoom-in-95 duration-200">
+            <div className="w-14 h-14 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center mx-auto mb-5 shadow-[0_8px_20px_rgba(244,63,94,0.08)]">
+              <XCircle className="w-6 h-6 text-rose-600 shrink-0" />
+            </div>
+            <h3 className="text-[18px] font-bold text-slate-900 tracking-tight leading-tight mb-2 font-display">Failed to Load Ticket</h3>
+            <p className="text-slate-500 text-[13px] font-normal leading-relaxed mb-6 max-w-[280px] mx-auto">{ticketError}</p>
             <button 
               onClick={() => setIsTicketModalOpen(false)}
-              className="bg-[#232F3E] text-white px-5 py-2 rounded-[8px] text-xs font-semibold"
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-[12.5px] rounded-[6px] transition-all duration-150 cursor-pointer shadow-sm hover:shadow active:scale-[0.98] border-none"
             >
               Close
             </button>

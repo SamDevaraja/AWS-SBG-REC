@@ -180,7 +180,7 @@ export default function TopicsDirectoryPage() {
         <div className="flex items-center flex-shrink-0">
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-[#00cba9] hover:bg-[#00bda0] text-slate-955 text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
+            className="bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
           >
             <Icons.Plus className="w-4 h-4 stroke-[3]" />
             Create Topic
@@ -210,7 +210,7 @@ export default function TopicsDirectoryPage() {
               </div>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-[#00cba9] hover:bg-[#00bda0] text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
+                className="bg-[#232F3E] hover:bg-slate-800 text-white font-black text-xs px-5 py-2.5 rounded-[8px] shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 font-heading"
               >
                 <Icons.Plus className="w-4 h-4 stroke-[3]" />
                 Create First Topic

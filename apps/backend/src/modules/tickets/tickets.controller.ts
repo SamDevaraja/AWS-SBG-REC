@@ -7,10 +7,12 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  Body,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { GetTicketsDto } from './dto/tickets.dto';
+import { GenerateBulkTicketsDto, RegenerateBulkTicketsDto } from './dto/bulk-tickets.dto';
 import { TicketsService } from './tickets.service';
 
 @ApiTags('Tickets')
@@ -69,5 +71,19 @@ export class TicketsController {
   @HttpCode(HttpStatus.OK)
   emailTicket(@Param('id', ParseUUIDPipe) id: string) {
     return this.ticketsService.emailTicket(id);
+  }
+
+  @Post('generate-bulk')
+  @ApiOperation({ summary: 'Generate tickets in bulk' })
+  @HttpCode(HttpStatus.OK)
+  generateBulkTickets(@Body() dto: GenerateBulkTicketsDto) {
+    return this.ticketsService.generateBulkTickets(dto);
+  }
+
+  @Post('regenerate-bulk')
+  @ApiOperation({ summary: 'Regenerate tickets in bulk' })
+  @HttpCode(HttpStatus.OK)
+  regenerateBulkTickets(@Body() dto: RegenerateBulkTicketsDto) {
+    return this.ticketsService.regenerateBulkTickets(dto);
   }
 }

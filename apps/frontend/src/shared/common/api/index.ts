@@ -185,6 +185,28 @@ export async function emailTicket(id: string): Promise<{ success: boolean }> {
   return fetcher(`/tickets/${id}/email`, { method: 'POST' });
 }
 
+export async function generateBulkTickets(data: {
+  eventId: string;
+  registrationIds?: string[];
+  sendEmail?: boolean;
+  createAnnouncement?: boolean;
+}): Promise<{ message: string; count: number }> {
+  return fetcher('/tickets/generate-bulk', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function regenerateBulkTickets(data: {
+  ticketIds: string[];
+  sendEmail?: boolean;
+}): Promise<{ message: string; count: number }> {
+  return fetcher('/tickets/regenerate-bulk', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 // ── Attendance ───────────────────────────────────────────────────────────────
 
 export async function fetchAttendance(

@@ -18,6 +18,7 @@ import {
 import { useEvents } from '@/lib/hooks';
 import type { EventStatus, Event } from '@/lib/types';
 import GlassCard from '@/components/GlassCard';
+import { getPosterSrcAndPosition } from '@/lib/utils';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -184,15 +185,17 @@ const RecentEventCard = ({ event }: { event: Event }) => {
   const isUnlimited = !capacity || capacity === 0;
   const progressPercent = isUnlimited ? 0 : Math.round((regCount / capacity) * 100);
   const statusInfo = statusConfig(event.status);
+  const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
 
   return (
     <GlassCard className="flex flex-col h-full overflow-hidden p-0 border border-white/20 hover:border-brand-orange/30 group">
       {/* Poster image banner */}
       <div className="h-40 w-full relative bg-slate-900 overflow-hidden">
         <img
-          src={event.posterImage || '/default-event-poster.png'}
+          src={imgPosterSrc}
           alt={event.title}
           className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+          style={{ objectPosition: imgPosterPosition }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
         <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-slate-800 font-semibold text-[9px] uppercase px-2.5 py-1 rounded-[6px] shadow-sm">

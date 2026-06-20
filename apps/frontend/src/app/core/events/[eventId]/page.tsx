@@ -29,6 +29,7 @@ import {
   Info,
 } from 'lucide-react';
 import type { EventStatus, EventMode, Announcement } from '@/lib/types';
+import { getPosterSrcAndPosition } from '@/lib/utils';
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -107,9 +108,9 @@ function LoadingSkeleton() {
           <div className="h-4 w-32 rounded bg-slate-100" />
         </div>
 
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
+        <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="bg-slate-900 h-64 rounded-[10px]" />
+            <div className="bg-slate-900 h-64 rounded-[8px]" />
             <div className="space-y-4">
               <div className="h-8 w-3/4 rounded bg-slate-100" />
               <div className="flex gap-2">
@@ -122,7 +123,7 @@ function LoadingSkeleton() {
                 <div className="h-4 w-32 rounded bg-slate-100" />
                 <div className="h-4 w-36 rounded bg-slate-100" />
               </div>
-              <div className="h-3 w-full rounded-full bg-slate-100" />
+              <div className="h-3 w-full rounded-[2px] bg-slate-100" />
               <div className="flex gap-2">
                 <div className="h-9 w-20 rounded-[8px] bg-slate-100" />
                 <div className="h-9 w-20 rounded-[8px] bg-slate-100" />
@@ -131,17 +132,17 @@ function LoadingSkeleton() {
           </div>
         </div>
 
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6 space-y-3">
+        <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6 space-y-3">
           <div className="h-5 w-32 rounded bg-slate-100" />
           <div className="h-4 w-full rounded bg-slate-100" />
           <div className="h-4 w-3/4 rounded bg-slate-100" />
           <div className="h-4 w-1/2 rounded bg-slate-100" />
         </div>
 
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6 space-y-3">
+        <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6 space-y-3">
           <div className="h-5 w-28 rounded bg-slate-100" />
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-20 border border-slate-200 rounded-[10px]" />
+            <div key={i} className="h-20 border border-slate-200 rounded-[8px]" />
           ))}
         </div>
       </div>
@@ -187,6 +188,14 @@ export default function EventDetailsPage() {
     },
   });
 
+  const completeMutation = useMutation({
+    mutationFn: (id: string) => api.updateEvent(id, { status: 'COMPLETED' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+  });
+
   const [announcementForm, setAnnouncementForm] = useState({
     title: '',
     message: '',
@@ -207,6 +216,8 @@ export default function EventDetailsPage() {
   const canCloseRegistration =
     event?.status === 'REGISTRATION_OPEN' || event?.status === 'PUBLISHED';
   const canArchive =
+    event?.status !== 'ARCHIVED' && event?.status !== 'COMPLETED' && event?.status !== 'DRAFT';
+  const canComplete =
     event?.status !== 'ARCHIVED' && event?.status !== 'COMPLETED' && event?.status !== 'DRAFT';
 
   const capacityPercent =
@@ -265,16 +276,22 @@ export default function EventDetailsPage() {
 
 
         {/* Hero Section */}
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm overflow-hidden">
+        <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm overflow-hidden">
           <div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
             {/* Poster */}
-            <div className="bg-slate-900 rounded-[10px] h-64 flex items-center justify-center overflow-hidden">
-              <img
-                src={event.posterImage || '/default-event-poster.png'}
-                alt={event.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {(() => {
+              const { src: imgPosterSrc, position: imgPosterPosition } = getPosterSrcAndPosition(event.posterImage);
+              return (
+                <div className="bg-slate-900 rounded-[8px] h-64 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={imgPosterSrc}
+                    alt={event.title}
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: imgPosterPosition }}
+                  />
+                </div>
+              );
+            })()}
 
             {/* Event Info */}
             <div className="space-y-4">
@@ -338,9 +355,9 @@ export default function EventDetailsPage() {
                   )}
                 </div>
                 {event.capacity && event.capacity > 0 && (
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-slate-100 rounded-[2px] overflow-hidden">
                     <div
-                      className="h-full bg-[#232F3E] rounded-full transition-all duration-300"
+                      className="h-full bg-[#232F3E] rounded-[2px] transition-all duration-300"
                       style={{ width: `${capacityPercent}%` }}
                     />
                   </div>
@@ -376,6 +393,16 @@ export default function EventDetailsPage() {
                     Close Registration
                   </button>
                 )}
+                {canComplete && (
+                  <button
+                    onClick={() => completeMutation.mutate(event.id)}
+                    disabled={completeMutation.isPending}
+                    className="inline-flex items-center gap-1.5 border border-emerald-200 bg-emerald-50 rounded-[8px] text-xs font-medium px-4 py-2 text-emerald-700 hover:bg-emerald-100 disabled:opacity-60 transition"
+                  >
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Complete
+                  </button>
+                )}
                 {canArchive && (
                   <button
                     onClick={() => archiveMutation.mutate(event.id)}
@@ -393,7 +420,7 @@ export default function EventDetailsPage() {
 
         {/* About Section */}
         {event.description && (
-          <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
+          <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6">
             <h2 className="text-sm font-semibold text-slate-800 mb-3">About</h2>
             <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
               {event.description}
@@ -403,11 +430,11 @@ export default function EventDetailsPage() {
 
         {/* Agenda Section */}
         {event.agenda && event.agenda.length > 0 && (
-          <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
+          <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6">
             <h2 className="text-sm font-semibold text-slate-800 mb-4">Agenda</h2>
             <div className={`space-y-3 ${event.agenda.length > 5 ? 'max-h-[420px] overflow-y-auto pr-1' : ''}`}>
               {event.agenda.map((item) => (
-                <div key={item.id} className="bg-white border border-slate-200 rounded-[10px] p-4">
+                <div key={item.id} className="bg-white border border-slate-200 rounded-[8px] p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <h3 className="text-sm font-medium text-slate-800">{item.title}</h3>
@@ -431,16 +458,16 @@ export default function EventDetailsPage() {
 
         {/* Speakers Section */}
         {event.speakers && event.speakers.length > 0 && (
-          <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
+          <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6">
             <h2 className="text-sm font-semibold text-slate-800 mb-4">Speakers</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {event.speakers.map((speaker) => (
                 <div
                   key={speaker.id}
-                  className="border border-slate-200 rounded-[10px] p-4 space-y-3"
+                  className="border border-slate-200 rounded-[8px] p-4 space-y-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    <div className="h-12 w-12 rounded-[4px] bg-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
                       {speaker.photo ? (
                         <img
                           src={speaker.photo}
@@ -477,7 +504,7 @@ export default function EventDetailsPage() {
 
         {/* Form Fields Preview */}
         {event.formFields && event.formFields.length > 0 && (
-          <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
+          <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6">
             <h2 className="text-sm font-semibold text-slate-800 mb-4">Registration Form</h2>
             <div className="space-y-2">
               {[...event.formFields]
@@ -485,7 +512,7 @@ export default function EventDetailsPage() {
                 .map((field) => (
                   <div
                     key={field.id}
-                    className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0"
+                    className="flex items-center justify-between py-2.5 border-b border-slate-200 last:border-0"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-slate-700">{field.label}</span>
@@ -501,11 +528,11 @@ export default function EventDetailsPage() {
         )}
 
         {/* Registrations Section */}
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
+        <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-semibold text-slate-800">Registrations</h2>
-              <span className="inline-flex items-center justify-center h-5 min-w-[20px] rounded-full bg-[#232F3E] text-white text-[10px] font-bold px-1.5">
+              <span className="inline-flex items-center justify-center h-5 min-w-[20px] rounded-[4px] bg-[#232F3E] text-white text-[10px] font-bold px-1.5">
                 {totalRegistrations}
               </span>
             </div>
@@ -538,7 +565,7 @@ export default function EventDetailsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-200">
                   {registrations.map((reg) => (
                     <tr key={reg.id}>
                       <td className="py-2.5 text-slate-700">
@@ -560,11 +587,11 @@ export default function EventDetailsPage() {
         </div>
 
         {/* Announcements Section */}
-        <div className="border border-slate-200 bg-white rounded-[10px] shadow-sm p-6">
+        <div className="border border-slate-200 bg-white rounded-[8px] shadow-sm p-6">
           <h2 className="text-sm font-semibold text-slate-800 mb-4">Announcements</h2>
 
           {/* Create Announcement Form */}
-          <div className="border border-slate-200 rounded-[10px] p-4 mb-4 space-y-3">
+          <div className="border border-slate-200 rounded-[8px] p-4 mb-4 space-y-3">
             <div>
               <label className="block text-[10px] font-medium text-slate-500 mb-1">Title</label>
               <input
@@ -659,7 +686,7 @@ export default function EventDetailsPage() {
           ) : (
             <div className={`space-y-2 ${announcements.length > 3 ? 'max-h-[380px] overflow-y-auto pr-1' : ''}`}>
               {announcements.map((ann) => (
-                <div key={ann.id} className="border border-slate-200 rounded-[10px] p-4">
+                <div key={ann.id} className="border border-slate-200 rounded-[8px] p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5">
                       <AnnouncementTypeIcon type={ann.type} />
