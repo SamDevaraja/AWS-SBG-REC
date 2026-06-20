@@ -410,14 +410,15 @@ export default function AssignedEventsPage() {
                     {/* Footer / Buttons */}
                     <div className="flex items-center justify-between gap-2.5">
                       <Link href={`/crew/events/${event.id}`}
-                        style={{ background: 'linear-gradient(135deg, #232F3E 0%, #1A222D 100%)' }}
-                        className="group flex-grow py-2.5 text-white font-semibold text-[13px] border border-slate-800/80 rounded-xl hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(35,47,62,0.18)] active:translate-y-0 transition-all duration-200 text-center text-decoration-none flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span>Details</span>
-                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-0.5 transition-transform duration-200" />
+                        style={{ background: '#232F3E' }}
+                        className="flex-grow h-10 text-white font-semibold text-sm tracking-wide rounded-lg hover:opacity-95 hover:shadow-md hover:shadow-slate-900/10 transition-all duration-200 text-center text-decoration-none flex items-center justify-center gap-1.5 group hover:-translate-y-0.5">
+                        Details
+                        <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                       </Link>
                       
                       <Link href={`/crew/scanner?eventId=${event.id}`}
-                        className="p-2.5 bg-white border border-slate-200 hover:border-[#FF9900]/40 text-[#232F3E] hover:text-[#FF9900] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] active:translate-y-0 rounded-xl transition-all duration-200 flex items-center justify-center text-decoration-none cursor-pointer"
+                        style={{ background: '#ffffff', border: '1.5px solid rgba(35,47,62,0.22)' }}
+                        className="w-10 h-10 text-[#232F3E] hover:text-[#FF9900] hover:border-[#FF9900]/40 rounded-lg transition-all duration-200 flex items-center justify-center text-decoration-none hover:-translate-y-0.5 shrink-0"
                         title="Scanner">
                         <QrCode className="h-4 w-4" />
                       </Link>
@@ -633,12 +634,11 @@ export default function AssignedEventsPage() {
 
                                 <div className="flex items-center gap-2 pt-4 border-t border-slate-100 mt-4">
                                   <Link href={`/crew/events/${event.id}`}
-                                    className="flex-1 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold text-[12px] rounded-xl text-center transition-all duration-200 text-decoration-none shadow-sm hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                                    className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-bold text-[11.5px] rounded-[6px] text-center transition-colors text-decoration-none">
                                     View Details
                                   </Link>
                                   <Link href={`/crew/scanner?eventId=${event.id}`}
-                                    style={{ background: 'linear-gradient(135deg, #232F3E 0%, #1A222D 100%)' }}
-                                    className="flex-1 py-2 text-white font-semibold text-[12px] rounded-xl text-center border border-slate-800/80 transition-all duration-200 text-decoration-none shadow-sm hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                                    className="flex-1 py-1.5 bg-[#232F3E] hover:bg-slate-800 text-white font-bold text-[11.5px] rounded-[6px] text-center transition-colors text-decoration-none">
                                     Scanner
                                   </Link>
                                 </div>

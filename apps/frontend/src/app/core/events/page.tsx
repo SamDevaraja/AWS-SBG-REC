@@ -521,13 +521,13 @@ export default function EventsPage() {
                     <div className="flex items-center justify-between gap-2.5">
                       <Link href={`/core/registrations?eventId=${event.id}`}
                         style={{ background: '#232F3E' }}
-                        className="flex-1 py-2 text-white font-bold text-[12.5px] rounded-[6px] hover:opacity-95 hover:shadow-lg hover:shadow-slate-900/10 transition-all duration-200 text-center text-decoration-none flex items-center justify-center gap-1.5">
-                        <Users className="h-3.5 w-3.5" />
+                        className="flex-grow h-10 text-white font-semibold text-sm tracking-wide rounded-lg hover:opacity-95 hover:shadow-md hover:shadow-slate-900/10 transition-all duration-200 text-center text-decoration-none flex items-center justify-center gap-1.5 hover:-translate-y-0.5">
+                        <Users className="h-4 w-4" />
                         Registrations
                       </Link>
                       <Link href={`/core/tickets?eventId=${event.id}`}
                         style={{ background: '#ffffff', border: '1.5px solid rgba(35,47,62,0.22)' }}
-                        className="p-2.5 text-[#232F3E] hover:text-[#FF9900] hover:border-[#FF9900]/40 rounded-[6px] transition-all duration-200 flex items-center justify-center text-decoration-none"
+                        className="w-10 h-10 text-[#232F3E] hover:text-[#FF9900] hover:border-[#FF9900]/40 rounded-lg transition-all duration-200 flex items-center justify-center text-decoration-none hover:-translate-y-0.5 shrink-0"
                         title="View Tickets">
                         <Ticket className="h-4 w-4" />
                       </Link>
