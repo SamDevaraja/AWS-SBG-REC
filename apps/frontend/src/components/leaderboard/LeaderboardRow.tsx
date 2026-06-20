@@ -10,61 +10,60 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
   // 1. Divider Row: "Your Position Context" centered separator
   if (row.isDivider) {
     return (
-      <div className="w-full flex items-center py-4 my-1 select-none pointer-events-none px-6 bg-white">
-        <div className="flex-1 border-t border-dashed border-gray-200" />
-        <span className="px-4 text-[10px] uppercase font-black tracking-[0.2em] text-gray-400 whitespace-nowrap bg-white">
+      <div className="w-full flex items-center py-4 my-2 select-none pointer-events-none px-6">
+        <div className="flex-1 border-t border-dashed border-slate-200" />
+        <span className="px-4 text-[9px] uppercase font-bold tracking-[0.25em] text-slate-400 whitespace-nowrap bg-white">
           Your Position Context
         </span>
-        <div className="flex-1 border-t border-dashed border-gray-200" />
+        <div className="flex-1 border-t border-dashed border-slate-200" />
       </div>
     );
   }
 
   // 2. Data Row
   const isCurrentUser = row.isCurrentUser || row.userId === currentUserId;
+  const rank = row.rank || 0;
 
   // Helper to render the Rank Column with premium badges
   const renderRankBadge = () => {
-    const rank = row.rank || 0;
-    
     if (rank === 1) {
       return (
-        <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gradient-to-br from-amber-400 via-yellow-300 to-amber-500 border border-amber-300 text-amber-950 font-black text-[11px] shadow-[0_2px_8px_rgba(245,158,11,0.35)] select-none">
-          1
-        </div>
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 text-xs font-black select-none shadow-[0_2px_10px_rgba(245,158,11,0.08)]">
+          1st
+        </span>
       );
     }
     
     if (rank === 2) {
       return (
-        <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gradient-to-br from-slate-300 via-slate-100 to-slate-400 border border-slate-200 text-slate-800 font-extrabold text-[11px] shadow-[0_2px_6px_rgba(148,163,184,0.25)] select-none">
-          2
-        </div>
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 text-slate-600 border border-slate-200/80 text-xs font-bold select-none">
+          2nd
+        </span>
       );
     }
     
     if (rank === 3) {
       return (
-        <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-500 via-orange-400 to-orange-600 border border-orange-400 text-white font-extrabold text-[11px] shadow-[0_2px_6px_rgba(249,115,22,0.25)] select-none">
-          3
-        </div>
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-amber-700/10 text-amber-700 border border-amber-700/20 text-xs font-bold select-none">
+          3rd
+        </span>
       );
     }
     
-    // Rank 4+ circular badges
+    // Rank 4+ clean design
     return (
-      <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-100/90 border border-gray-200/80 text-gray-500 font-bold text-[11px] shadow-[0_1px_3px_rgba(0,0,0,0.03)] select-none">
+      <span className="inline-flex items-center justify-center w-8 h-8 text-slate-400 font-semibold text-xs select-none">
         {rank}
-      </div>
+      </span>
     );
   };
 
   return (
     <div
-      className={`w-full grid grid-cols-[100px_1fr_180px] items-center py-3 px-6 border-b border-gray-100/80 transition-all duration-200 cursor-pointer ${
+      className={`w-full grid grid-cols-[100px_1fr_180px] items-center py-3.5 px-6 transition-all duration-200 ${
         isCurrentUser
-          ? 'bg-orange-50/60 border-l-4 border-l-aws-orange shadow-[0_2px_8px_rgba(255,153,0,0.08)] -translate-y-px z-10 relative border-t border-b border-orange-100'
-          : 'bg-white hover:bg-slate-50/50'
+          ? 'bg-amber-500/[0.03] border-l-4 border-l-amber-500 shadow-[inset_1px_0_0_rgba(245,158,11,0.1)]'
+          : 'bg-white hover:bg-slate-50/40'
       }`}
     >
       {/* Column 1: Visual Rank Badge */}
@@ -73,23 +72,23 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
       </div>
 
       {/* Column 2: Name + YOU Badge */}
-      <div className="text-sm text-slate-700 font-medium truncate flex items-center gap-2">
+      <div className="text-sm text-slate-700 font-semibold truncate flex items-center gap-2.5">
         <span className="truncate">{row.name}</span>
         {isCurrentUser && (
-          <span className="flex-shrink-0 bg-aws-orange text-white text-[8px] font-black uppercase px-2 py-0.5 rounded tracking-wider leading-none select-none shadow-sm">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/25 select-none uppercase tracking-wider scale-90 origin-left">
             YOU
           </span>
         )}
       </div>
 
       {/* Column 3: Cloud Credits in Coin Format */}
-      <div className="text-right font-semibold text-sm text-slate-800 flex items-center justify-end gap-1.5">
+      <div className="text-right font-bold text-sm text-slate-800 flex items-center justify-end gap-2">
         <img
           src="/cloud-credit-coin.png"
           alt="Cloud Credit Coin"
-          className="w-5 h-5 select-none object-contain"
+          className="w-5.5 h-5.5 select-none object-contain drop-shadow-[0_1.5px_3px_rgba(212,163,89,0.2)]"
         />
-        <span>{row.cloudCredits?.toLocaleString()}</span>
+        <span className="font-mono text-[13px] text-slate-800">{row.cloudCredits?.toLocaleString()}</span>
       </div>
     </div>
   );
