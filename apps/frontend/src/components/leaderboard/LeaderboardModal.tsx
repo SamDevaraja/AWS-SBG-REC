@@ -22,6 +22,8 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const apiService = React.useMemo(() => new LeaderboardApiService(), []);
 
@@ -44,11 +46,13 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchData(searchQuery);
+      setCurrentPage(1);
     } else {
       // Reset state on close
       setData(null);
       setSearchQuery('');
       setError(null);
+      setCurrentPage(1);
     }
   }, [isOpen, searchQuery, fetchData]);
 
@@ -65,10 +69,12 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Compute entry counts for "Showing X of Y entries"
-  const entriesCount = data
-    ? data.displayUsers.filter((u) => !u.isDivider).length
-    : 0;
+  // Compute entry counts and pagination values
+  const totalEntries = data ? data.displayUsers.length : 0;
+  const totalPages = Math.ceil(totalEntries / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalEntries);
+  const visibleUsers = data ? data.displayUsers.slice(startIndex, startIndex + itemsPerPage) : [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto">
@@ -124,8 +130,13 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
               </span>
               <span>
-                Showing <strong className="text-slate-700 font-semibold">{entriesCount}</strong> of{' '}
-                <strong className="text-slate-700 font-semibold">{entriesCount}</strong> entries
+                Showing{' '}
+                <strong className="text-slate-700 font-semibold">
+                  {totalEntries > 0 ? startIndex + 1 : 0}
+                </strong>
+                -
+                <strong className="text-slate-700 font-semibold">{endIndex}</strong> of{' '}
+                <strong className="text-slate-700 font-semibold">{totalEntries}</strong> entries
               </span>
             </div>
           </div>
@@ -160,10 +171,10 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   </button>
                 </div>
               ) : data ? (
-                data.displayUsers.length === 0 ? (
+                visibleUsers.length === 0 ? (
                   <EmptyState onClearSearch={() => setSearchQuery('')} />
                 ) : (
-                  data.displayUsers.map((row, idx) => (
+                  visibleUsers.map((row, idx) => (
                     <LeaderboardRow
                       key={row.userId || `row-${idx}`}
                       row={row}
@@ -173,6 +184,36 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 )
               ) : null}
             </div>
+
+            {/* Pagination Footer */}
+            {!loading && !error && totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-3 border-t border-slate-100 bg-slate-50/30 select-none">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Previous
+                </button>
+                <span className="text-xs text-slate-500 font-medium">
+                  Page <strong className="text-slate-700 font-semibold">{currentPage}</strong> of{' '}
+                  <strong className="text-slate-700 font-semibold">{totalPages}</strong>
+                </span>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  Next
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
