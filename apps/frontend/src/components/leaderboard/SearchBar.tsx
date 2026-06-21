@@ -30,21 +30,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return () => clearTimeout(timer);
   }, [value, onSearch, delayMs]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === '/' &&
-        document.activeElement?.tagName !== 'INPUT' &&
-        document.activeElement?.tagName !== 'TEXTAREA'
-      ) {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   const handleClear = () => {
     setValue('');
     onSearch('');
@@ -87,7 +72,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         onChange={(e) => setValue(e.target.value)}
       />
 
-      {value ? (
+      {value && (
         <button
           onClick={handleClear}
           className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
@@ -103,10 +88,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             />
           </svg>
         </button>
-      ) : (
-        <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[10px] font-bold text-slate-400/70 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-[0_1px_1px_rgba(0,0,0,0.03)] select-none">
-          /
-        </span>
       )}
     </div>
   );
