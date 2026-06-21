@@ -35,7 +35,7 @@ export const TopicRailItem: React.FC<TopicRailItemProps> = ({ topic, status }) =
       onClick={handleClick}
       disabled={isLocked}
       className={cn(
-        'relative w-full max-w-[900px] h-[120px] group text-left',
+        'relative w-full max-w-[900px] p-5 group text-left',
         'transition-all duration-[250ms]',
         isLocked ? 'cursor-not-allowed' : 'cursor-pointer hover:-translate-y-0.5',
       )}
@@ -68,7 +68,7 @@ export const TopicRailItem: React.FC<TopicRailItemProps> = ({ topic, status }) =
       />
 
       {/* Content row */}
-      <div className="relative flex items-center justify-between h-full px-6">
+      <div className="relative flex items-center justify-between w-full h-full">
         {/* Left: Icon + Topic name + Status */}
         <div className="flex items-center gap-4 min-w-0">
           <div
@@ -99,32 +99,32 @@ export const TopicRailItem: React.FC<TopicRailItemProps> = ({ topic, status }) =
             {/* Status badge below topic name */}
             <div className="flex items-center">
               {status === 'CURRENT' && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/15 border border-sky-500/25">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                  <span className="text-[9px] font-black text-sky-700 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] bg-sky-500/15 border border-sky-500/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                  <span className="text-[9px] font-bold text-sky-700 uppercase tracking-wider">
                     Current
                   </span>
                 </div>
               )}
               {status === 'AVAILABLE' && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
-                  <span className="text-[9px] font-black text-blue-700 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] bg-blue-500/10 border border-blue-500/20">
+                  <span className="text-[9px] font-bold text-blue-700 uppercase tracking-wider">
                     Available
                   </span>
                 </div>
               )}
               {status === 'COMPLETED' && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] bg-emerald-500/10 border border-emerald-500/20">
                   <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
-                  <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">
+                  <span className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">
                     Completed
                   </span>
                 </div>
               )}
               {status === 'LOCKED' && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-500/10 border border-slate-500/20">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] bg-slate-500/10 border border-slate-500/20">
                   <Lock className="w-3 h-3 text-slate-500" />
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
                     Locked
                   </span>
                 </div>
@@ -146,7 +146,7 @@ export const TopicRailItem: React.FC<TopicRailItemProps> = ({ topic, status }) =
 
         {/* Right: Dedicated cloud area — only for unlocked topics */}
         {!isLocked && (
-          <div className="w-[240px] h-[76px] flex-shrink-0">
+          <div className="w-[200px] h-[56px] flex-shrink-0">
             <CloudProgress pct={cloudPct} color={cloudColor} topicId={topic.id} />
           </div>
         )}
