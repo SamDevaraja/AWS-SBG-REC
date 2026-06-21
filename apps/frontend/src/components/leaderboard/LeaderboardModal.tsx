@@ -80,12 +80,12 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
       {/* 2. Modal Card Dialog with drop-up slide animation */}
       <div
-        className="relative w-full max-w-[800px] bg-white rounded-xl shadow-[0_24px_60px_-15px_rgba(15,23,42,0.12)] border border-slate-100 flex flex-col z-10 min-w-0 overflow-hidden animate-drop-up"
+        className="relative w-full max-w-[620px] bg-white rounded-xl shadow-[0_24px_60px_-15px_rgba(15,23,42,0.12)] border border-slate-100 flex flex-col z-10 min-w-0 overflow-hidden animate-drop-up"
         role="dialog"
         aria-modal="true"
       >
         {/* Header Section */}
-        <div className="flex items-center justify-between px-8 py-4.5 border-b border-slate-100 bg-slate-50/20">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/20">
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
               <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
@@ -112,7 +112,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-8 flex flex-col gap-6 bg-white">
+        <div className="p-6 flex flex-col gap-5 bg-white">
           {/* Search Section: Input + Page Count Row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="w-full sm:max-w-[300px]">
@@ -133,7 +133,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           {/* Leaderboard Table Container */}
           <div className="w-full border border-slate-100 rounded-xl overflow-hidden flex flex-col bg-white shadow-[0_2px_12px_rgba(15,23,42,0.01)]">
             {/* Header Columns (Uppercase, smaller, muted gray) */}
-            <div className="w-full grid grid-cols-[100px_1fr_180px] bg-slate-50/50 border-b border-slate-100 py-3.5 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest select-none">
+            <div className="w-full grid grid-cols-[75px_1fr_125px] bg-slate-50/50 border-b border-slate-100 py-3.5 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest select-none">
               <div className="flex items-center gap-1">
                 <span>Rank</span>
               </div>

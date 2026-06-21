@@ -60,7 +60,7 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
 
   return (
     <div
-      className={`w-full grid grid-cols-[100px_1fr_180px] items-center py-3.5 px-6 transition-all duration-200 group ${
+      className={`w-full grid grid-cols-[75px_1fr_125px] items-center py-2.5 px-6 transition-all duration-200 group ${
         isCurrentUser
           ? 'bg-amber-500/[0.03] border-l-4 border-l-amber-500 shadow-[inset_1px_0_0_rgba(245,158,11,0.1)]'
           : 'bg-white hover:bg-slate-50/40'

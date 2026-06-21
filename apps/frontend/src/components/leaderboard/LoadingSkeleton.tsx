@@ -7,7 +7,7 @@ export const LoadingSkeleton: React.FC = () => {
       {[1, 2, 3, 4, 5, 6].map((i) => (
         <div
           key={i}
-          className="w-full grid grid-cols-[100px_1fr_180px] items-center py-4 px-6 border-b border-gray-100 bg-white relative overflow-hidden"
+          className="w-full grid grid-cols-[75px_1fr_125px] items-center py-3 px-6 border-b border-gray-100 bg-white relative overflow-hidden"
         >
           {/* Column 1: Rank */}
           <div className="w-8 h-4 bg-gray-200 rounded relative overflow-hidden">
