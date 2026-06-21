@@ -23,7 +23,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const apiService = React.useMemo(() => new LeaderboardApiService(), []);
+  const apiService = React.useMemo(() => new LeaderboardApiService(apiBaseUrl), [apiBaseUrl]);
 
   // Fetch leaderboard data
   const fetchData = useCallback(async (search?: string) => {
@@ -71,39 +71,42 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
     : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto">
       {/* 1. Backdrop Overlay (Layered Blur & Darken) */}
       <div
-        className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm transition-opacity duration-300"
+        className="fixed inset-0 bg-slate-950/50 backdrop-blur-md transition-opacity duration-300"
         onClick={onClose}
       />
 
-      {/* 2. Modal Card Dialog */}
+      {/* 2. Modal Card Dialog with drop-up slide animation */}
       <div
-        className="relative w-full max-w-[800px] bg-white rounded-[20px] shadow-[0_24px_60px_-15px_rgba(15,23,42,0.12)] border border-slate-100/80 flex flex-col z-10 min-w-0 overflow-hidden"
+        className="relative w-full max-w-[800px] bg-white rounded-[24px] shadow-[0_24px_60px_-15px_rgba(15,23,42,0.12)] border border-slate-100 flex flex-col z-10 min-w-0 overflow-hidden animate-drop-up"
         role="dialog"
         aria-modal="true"
       >
         {/* Header Section */}
-        <div className="flex items-center justify-between px-8 py-4 border-b border-slate-100 bg-slate-50/20">
+        <div className="flex items-center justify-between px-8 py-4.5 border-b border-slate-100 bg-slate-50/20">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-slate-800 tracking-tight">
-              Leaderboard
-            </h2>
-            <img
-              src="/aws-trophy.png"
-              alt="AWS Trophy"
-              className="w-8 h-8 select-none object-contain"
-            />
+            <div className="flex flex-col">
+              <h2 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                Leaderboard
+                <img
+                  src="/aws-trophy.png"
+                  alt="AWS Trophy"
+                  className="w-7 h-7 select-none object-contain -mt-0.5"
+                />
+              </h2>
+              <span className="text-[11px] text-slate-400 font-normal">Track your ranks and cloud achievements</span>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all select-none focus:outline-none"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 transition-all select-none focus:outline-none"
             aria-label="Close modal"
           >
             {/* Elegant Close Icon */}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -115,15 +118,15 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             <div className="w-full sm:max-w-[300px]">
               <SearchBar onSearch={(val) => setSearchQuery(val)} />
             </div>
-            <div className="text-xs font-semibold text-slate-400 select-none">
+            <div className="text-xs font-bold text-slate-400 select-none bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
               Showing {entriesCount} of {entriesCount} entries
             </div>
           </div>
 
           {/* Leaderboard Table Container */}
-          <div className="w-full border border-slate-100 rounded-2xl overflow-hidden flex flex-col bg-white shadow-[0_2px_12px_rgba(15,23,42,0.015)]">
+          <div className="w-full border border-slate-100 rounded-2xl overflow-hidden flex flex-col bg-white shadow-[0_2px_12px_rgba(15,23,42,0.01)]">
             {/* Header Columns (Uppercase, smaller, muted gray) */}
-            <div className="w-full grid grid-cols-[100px_1fr_180px] bg-slate-50/60 border-b border-slate-100 py-3 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-wider select-none">
+            <div className="w-full grid grid-cols-[100px_1fr_180px] bg-slate-50/50 border-b border-slate-100 py-3.5 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest select-none">
               <div className="flex items-center gap-1">
                 <span>Rank</span>
               </div>
@@ -134,7 +137,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             </div>
 
             {/* List Body */}
-            <div className="overflow-y-auto max-h-[44vh] divide-y divide-slate-100">
+            <div className="overflow-y-auto max-h-[44vh] divide-y divide-slate-100/80">
               {loading ? (
                 <LoadingSkeleton />
               ) : error ? (
