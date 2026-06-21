@@ -1,6 +1,15 @@
 import React from 'react';
 import { LeaderboardRowDto } from '@/types/leaderboard.types';
 
+const formatCredits = (num: number | undefined | null): string => {
+  if (num === null || num === undefined) return '0';
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    maximumFractionDigits: 1,
+  }).format(num);
+};
+
 interface LeaderboardRowProps {
   row: LeaderboardRowDto;
   currentUserId?: string | null;
@@ -88,7 +97,7 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
           alt="Cloud Credit Coin"
           className="w-5.5 h-5.5 select-none object-contain drop-shadow-[0_1.5px_3px_rgba(212,163,89,0.2)] transition-transform duration-300 group-hover:scale-110"
         />
-        <span className="text-[13px] text-slate-800">{row.cloudCredits?.toLocaleString()}</span>
+        <span className="text-[13px] text-slate-800">{formatCredits(row.cloudCredits)}</span>
       </div>
     </div>
   );
