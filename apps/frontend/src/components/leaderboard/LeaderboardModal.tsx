@@ -80,7 +80,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
       {/* 2. Modal Card Dialog with drop-up slide animation */}
       <div
-        className="relative w-full max-w-[800px] bg-white rounded-[24px] shadow-[0_24px_60px_-15px_rgba(15,23,42,0.12)] border border-slate-100 flex flex-col z-10 min-w-0 overflow-hidden animate-drop-up"
+        className="relative w-full max-w-[800px] bg-white rounded-xl shadow-[0_24px_60px_-15px_rgba(15,23,42,0.12)] border border-slate-100 flex flex-col z-10 min-w-0 overflow-hidden animate-drop-up"
         role="dialog"
         aria-modal="true"
       >
@@ -101,7 +101,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 transition-all select-none focus:outline-none"
+            className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 transition-all select-none focus:outline-none"
             aria-label="Close modal"
           >
             {/* Elegant Close Icon */}
@@ -118,13 +118,13 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             <div className="w-full sm:max-w-[300px]">
               <SearchBar onSearch={(val) => setSearchQuery(val)} />
             </div>
-            <div className="text-xs font-bold text-slate-400 select-none bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+            <div className="text-xs font-bold text-slate-400 select-none bg-slate-50 px-3 py-1.5 rounded-md border border-slate-100">
               Showing {entriesCount} of {entriesCount} entries
             </div>
           </div>
 
           {/* Leaderboard Table Container */}
-          <div className="w-full border border-slate-100 rounded-2xl overflow-hidden flex flex-col bg-white shadow-[0_2px_12px_rgba(15,23,42,0.01)]">
+          <div className="w-full border border-slate-100 rounded-xl overflow-hidden flex flex-col bg-white shadow-[0_2px_12px_rgba(15,23,42,0.01)]">
             {/* Header Columns (Uppercase, smaller, muted gray) */}
             <div className="w-full grid grid-cols-[100px_1fr_180px] bg-slate-50/50 border-b border-slate-100 py-3.5 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest select-none">
               <div className="flex items-center gap-1">
@@ -147,7 +147,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                   <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">{error}</p>
                   <button
                     onClick={() => fetchData(searchQuery)}
-                    className="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200/80 text-gray-600 text-xs font-bold rounded-xl border border-gray-200 transition-all"
+                    className="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200/80 text-gray-600 text-xs font-bold rounded-md border border-gray-200 transition-all"
                   >
                     Retry
                   </button>
