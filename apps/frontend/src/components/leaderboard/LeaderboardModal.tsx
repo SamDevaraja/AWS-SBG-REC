@@ -118,8 +118,15 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             <div className="w-full sm:max-w-[300px]">
               <SearchBar onSearch={(val) => setSearchQuery(val)} />
             </div>
-            <div className="text-xs font-bold text-slate-400 select-none bg-slate-50 px-3 py-1.5 rounded-md border border-slate-100">
-              Showing {entriesCount} of {entriesCount} entries
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 select-none bg-slate-50/50 hover:bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200/80 transition-colors">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+              <span>
+                Showing <strong className="text-slate-700 font-semibold">{entriesCount}</strong> of{' '}
+                <strong className="text-slate-700 font-semibold">{entriesCount}</strong> entries
+              </span>
             </div>
           </div>
 

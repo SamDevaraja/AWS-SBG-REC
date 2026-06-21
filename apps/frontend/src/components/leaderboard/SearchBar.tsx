@@ -12,7 +12,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   delayMs = 400,
 }) => {
   const [value, setValue] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const isFirstRender = useRef(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Debounced search logic
   useEffect(() => {
@@ -28,17 +30,35 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return () => clearTimeout(timer);
   }, [value, onSearch, delayMs]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === '/' &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleClear = () => {
     setValue('');
     onSearch('');
+    inputRef.current?.focus();
   };
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative group">
       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
         {/* Search Magnifying Glass Icon */}
         <svg
-          className="h-4 w-4 text-gray-400"
+          className={`h-4 w-4 transition-colors duration-200 ${
+            isFocused ? 'text-amber-500' : 'text-slate-400'
+          }`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -53,17 +73,24 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       </div>
 
       <input
+        ref={inputRef}
         type="text"
-        className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-aws-orange focus:ring-1 focus:ring-aws-orange transition-all duration-200"
+        className={`w-full pl-10 pr-10 py-2.5 bg-slate-50/50 hover:bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400/80 transition-all duration-200 focus:bg-white focus:outline-none ${
+          isFocused
+            ? 'border-amber-500 ring-2 ring-amber-500/10'
+            : 'border-slate-200/80 hover:border-slate-350'
+        }`}
         placeholder={placeholder}
         value={value}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         onChange={(e) => setValue(e.target.value)}
       />
 
-      {value && (
+      {value ? (
         <button
           onClick={handleClear}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-350 transition-colors"
+          className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
           title="Clear search"
         >
           {/* X Close Icon */}
@@ -76,6 +103,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             />
           </svg>
         </button>
+      ) : (
+        <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[10px] font-bold text-slate-400/70 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-[0_1px_1px_rgba(0,0,0,0.03)] select-none">
+          /
+        </span>
       )}
     </div>
   );
