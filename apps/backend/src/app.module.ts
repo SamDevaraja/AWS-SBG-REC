@@ -32,6 +32,9 @@ import { RoadmapQuestionsModule } from '@/modules/questions/questions.module';
 import { RoadmapLearningModule } from '@/modules/learning/learning.module';
 import { RoadmapUploadsModule } from '@/modules/uploads/uploads.module';
 import { LeaderboardModule } from '@/modules/leaderboard/leaderboard.module';
+import { AdminModule } from '@/modules/admin/admin.module';
+import { CareerPathwaysModule } from '@/modules/career-pathways/career-pathways.module';
+import { UploadModule } from '@/modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -63,6 +66,9 @@ import { LeaderboardModule } from '@/modules/leaderboard/leaderboard.module';
     RoadmapLearningModule,
     RoadmapUploadsModule,
     LeaderboardModule,
+    AdminModule,
+    CareerPathwaysModule,
+    UploadModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Trophy, Cloud, Sparkles, ShieldCheck, Cpu, Award } from "lucide-react";
+import { ArrowRight, Trophy, Cloud, Sparkles, ShieldCheck, Cpu } from "lucide-react";
 import Link from "next/link";
 
 interface HeroBannerProps {

@@ -16,6 +16,10 @@
   /* Clean Slate/Navy Theme matching EventRegistrationEnthusiasts */
   --background: #ffffff;
   --foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
   --primary: #232F3E;
   --primary-foreground: #ffffff;
   --primary-container: #232F3E;
@@ -79,6 +83,11 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-container: var(--primary-container);
   --color-on-primary-container: var(--on-primary-container);
+  
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   
   --color-secondary: var(--secondary);
   --color-secondary-container: var(--secondary-container);

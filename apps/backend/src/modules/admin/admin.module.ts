@@ -7,6 +7,7 @@ import { AdminStatsService } from './services/admin-stats.service';
 import { CacheHealthService } from './services/cache-health.service';
 import { IngestionStatusService } from './services/ingestion-status.service';
 import { QueueHealthService } from './services/queue-health.service';
+import { AdminService } from './admin.service';
 
 @Module({
   imports: [PrismaModule, JobsQueueModule],
@@ -17,6 +18,7 @@ import { QueueHealthService } from './services/queue-health.service';
     QueueHealthService,
     CacheHealthService,
     IngestionRunRepository,
+    AdminService,
   ],
 })
 export class AdminModule {}

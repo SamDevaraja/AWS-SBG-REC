@@ -71,7 +71,7 @@ export default function Footer() {
                 <img src="/sbg-logo-latest.png" alt="AWS SBG REC Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: "13px", color: "#ffffff", lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 700, fontSize: "13px", color: "#ffffff", lineHeight: 1.2 }}>
                   AWS SBG REC
                 </div>
                 <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)" }}>
@@ -143,7 +143,7 @@ export default function Footer() {
             <div key={col.h} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
               <h4
                 style={{
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: "12px",
                   color: "#ffffff",
                   marginBottom: "16px",
@@ -163,7 +163,7 @@ export default function Footer() {
                     display: "block",
                     color: "rgba(255,255,255,0.6)",
                     fontSize: "12px",
-                    fontWeight: 600,
+                    fontWeight: 500,
                     textDecoration: "none",
                     marginBottom: "10px",
                     cursor: "pointer",

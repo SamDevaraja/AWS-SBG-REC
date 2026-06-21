@@ -13,39 +13,34 @@ export default function CertificationsLayout({ children }: { children: React.Rea
     setMounted(true);
     try {
       const raw = localStorage.getItem('aws_sgb_rec_user');
-      console.log('CertificationsLayout: raw user from localStorage =', raw);
       if (raw) {
         const user = JSON.parse(raw);
         const userRole = (user?.role ?? '').toLowerCase().trim();
-        console.log('CertificationsLayout: parsed userRole =', userRole);
         setRole(userRole);
-      } else {
-        console.log('CertificationsLayout: no user in localStorage');
       }
-    } catch (e) {
-      console.error('CertificationsLayout: error reading localStorage', e);
-    }
+    } catch { /* ignore */ }
   }, []);
-
-  console.log('CertificationsLayout render: role =', role, 'mounted =', mounted);
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-[#f7f5f2] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#ff9900] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#232F3E] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
+  const content = (
+    <div className="min-h-screen w-full bg-slate-50/50">
+      {children}
+    </div>
+  );
+
   if (role === 'core') {
-    console.log('CertificationsLayout: rendering CoreSidebarShell');
-    return <CoreSidebarShell>{children}</CoreSidebarShell>;
+    return <CoreSidebarShell>{content}</CoreSidebarShell>;
   }
   if (role === 'crew') {
-    console.log('CertificationsLayout: rendering CrewSidebarShell');
-    return <CrewSidebarShell>{children}</CrewSidebarShell>;
+    return <CrewSidebarShell>{content}</CrewSidebarShell>;
   }
   // Default to attendee/events shell
-  console.log('CertificationsLayout: rendering default EventsSidebarShell');
-  return <EventsSidebarShell>{children}</EventsSidebarShell>;
+  return <EventsSidebarShell>{content}</EventsSidebarShell>;
 }

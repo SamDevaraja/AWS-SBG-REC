@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import Providers from "@/modules/cloud-enthusiasts/shared/components/Providers";
 import { AuthWrapper } from "@/components/AuthWrapper";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "AWS SBG REC Event Registration",
@@ -35,6 +36,7 @@ export default function RootLayout({
             <Suspense fallback={<LayoutSpinner />}>
               {children}
             </Suspense>
+            <Toaster position="top-center" richColors />
           </AuthWrapper>
         </Providers>
       </body>

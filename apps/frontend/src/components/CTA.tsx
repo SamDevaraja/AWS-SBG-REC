@@ -1,10 +1,28 @@
 "use client";
-import { useRef } from "react";
-import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import { motion, useInView, useMotionValue, useSpring, useScroll, useTransform } from "framer-motion";
 
 export default function CTA() {
   const containerRef = useRef(null);
   const inView = useInView(containerRef, { once: false, margin: "-60px" });
+
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const yBlob1 = useTransform(scrollYProgress, [0, 1], [-50, 50]);
+  const yBlob2 = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const yBlob3 = useTransform(scrollYProgress, [0, 1], [-30, 30]);
+  const yContent = useTransform(scrollYProgress, [0, 1], [25, -25]);
 
   // Magnetic Button state
   const mx = useMotionValue(0);
@@ -55,7 +73,7 @@ export default function CTA() {
           />
 
       {/* Decorative Blobs */}
-      <div
+      <motion.div
         style={{
           position: "absolute",
           top: "-80px",
@@ -67,9 +85,10 @@ export default function CTA() {
           filter: "blur(60px)",
           pointerEvents: "none",
           zIndex: 0,
+          y: isMobile ? 0 : yBlob1,
         }}
       />
-      <div
+      <motion.div
         style={{
           position: "absolute",
           bottom: "-80px",
@@ -81,14 +100,16 @@ export default function CTA() {
           filter: "blur(50px)",
           pointerEvents: "none",
           zIndex: 0,
+          y: isMobile ? 0 : yBlob2,
         }}
       />
-      <div
+      <motion.div
         style={{
           position: "absolute",
           top: "30%",
           left: "50%",
-          transform: "translateX(-50%)",
+          x: "-50%",
+          y: isMobile ? 0 : yBlob3,
           width: "400px",
           height: "400px",
           borderRadius: "50%",
@@ -99,7 +120,7 @@ export default function CTA() {
         }}
       />
 
-      <div
+      <motion.div
         style={{
           width: "100%",
           maxWidth: "640px",
@@ -111,59 +132,17 @@ export default function CTA() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          y: isMobile ? 0 : yContent,
         }}
       >
-        {/* LIVE NOW Badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-          transition={{ type: "spring", stiffness: 200, damping: 18 }}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "rgba(255,153,0,.08)",
-            border: "1px solid rgba(255,153,0,.22)",
-            boxShadow: "0 0 12px rgba(255,153,0,.08), inset 0 1px 0 rgba(255,255,255,.8)",
-            borderRadius: "100px",
-            padding: "6px 16px",
-            marginBottom: "22px",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Shimmer sweep */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              bottom: 0,
-              width: "30%",
-              background: "linear-gradient(90deg, transparent, rgba(255, 153, 0, 0.15), transparent)",
-              animation: "scanLine 3s ease infinite",
-            }}
-          />
-          <div
-            style={{
-              width: "6px",
-              height: "6px",
-              borderRadius: "50%",
-              background: "#10b981", // green pulsing dot
-              animation: "pulseDot 2s infinite",
-            }}
-          />
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: 800,
-              color: "#E68900",
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-            }}
-          >
-            Live Now
+        {/* Category Tagline */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 18 }}>
+          <div style={{ width: 28, height: 2.5, borderRadius: 2, background: "#FF9900" }} />
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", color: "#FF9900" }}>
+            Get Started
           </span>
-        </motion.div>
+          <div style={{ width: 28, height: 2.5, borderRadius: 2, background: "#FF9900" }} />
+        </div>
 
         {/* Heading */}
         <motion.h2
@@ -172,16 +151,15 @@ export default function CTA() {
           transition={{ delay: 0.1, duration: 0.6 }}
           style={{
             fontSize: "clamp(1.75rem, 3.5vw, 2.3rem)",
-            whiteSpace: "nowrap",
-            fontWeight: 900,
-            color: "#1e2d3d",
+            fontWeight: 700,
+            color: "#1E293B",
             lineHeight: 1.15,
             marginBottom: "16px",
             letterSpacing: "-0.01em",
           }}
         >
           Ready to start your{" "}
-          <span style={{ backgroundImage: "linear-gradient(90deg, #FF9900, rgb(130,68,239))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>cloud journey?</span>
+          <span style={{ color: "#FF9900" }}>cloud journey?</span>
         </motion.h2>
 
         {/* Description */}
@@ -215,7 +193,7 @@ export default function CTA() {
         >
           {/* Magnetic primary button */}
           <motion.button
-            whileHover={{ boxShadow: "0 14px 40px rgba(255,153,0,.48)" }}
+            whileHover={{ boxShadow: "0 6px 20px rgba(255,153,0,.28)" }}
             style={{ x: sx, y: sy, border: "none", background: "transparent", padding: 0, borderRadius: "100px" }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
@@ -224,16 +202,16 @@ export default function CTA() {
             <span
               style={{
                 display: "block",
-                padding: "14px 32px",
+                padding: "13px 28px",
                 borderRadius: "100px",
-                background: "linear-gradient(135deg, #FF9900 0%, #E68900 100%)",
-                color: "#1e2d3d",
+                background: "linear-gradient(135deg, #FF9900 0%, #EC7211 100%)",
+                color: "#ffffff",
                 fontSize: "14px",
-                fontWeight: 800,
+                fontWeight: 600,
                 cursor: "pointer",
                 fontFamily: "inherit",
-                boxShadow: "0 8px 28px rgba(255,153,0,.38), 0 4px 12px rgba(255,153,0,.22)",
-                transition: "background 0.2s ease",
+                boxShadow: "0 4px 14px rgba(255, 153, 0, 0.18)",
+                transition: "all 0.2s ease",
               }}
             >
               Join AWS SBG REC →
@@ -243,17 +221,17 @@ export default function CTA() {
           {/* Secondary Button */}
           <motion.a
             href="#gallery"
-            whileHover={{ background: "rgba(255,153,0,.08)", borderColor: "#FF9900", color: "#FF9900", y: -2 }}
+            whileHover={{ background: "rgba(255,153,0,.03)", borderColor: "#FF9900", color: "#FF9900", y: -1.5 }}
             whileTap={{ scale: 0.96 }}
             style={{
-              padding: "14px 32px",
+              padding: "13px 28px",
               borderRadius: "100px",
-              border: "1.5px solid rgba(35,47,62,.18)",
+              border: "1.5px solid rgba(15, 23, 42, 0.12)",
               background: "rgba(255,255,255,.8)",
               backdropFilter: "blur(10px)",
-              color: "#1e2d3d",
+              color: "#334155",
               fontSize: "14px",
-              fontWeight: 700,
+              fontWeight: 600,
               cursor: "pointer",
               textDecoration: "none",
               fontFamily: "inherit",
@@ -265,7 +243,7 @@ export default function CTA() {
             Explore Gallery ↓
           </motion.a>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

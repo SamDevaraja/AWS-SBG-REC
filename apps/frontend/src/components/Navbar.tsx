@@ -7,9 +7,7 @@ const LINKS = [
   { label: "Home", href: "#home" },
   { label: "Gallery", href: "#gallery" },
   { label: "Review", href: "#reviews" },
-  { label: "Team", href: "#team" },
-  { label: "Certifications", href: "/certifications" },
-  { label: "Learn", href: "/learn" }
+  { label: "Team", href: "#team" }
 ];
 
 export default function Navbar() {
@@ -95,15 +93,17 @@ export default function Navbar() {
             justifyContent: "space-between",
             padding: isMobile ? "8px 16px" : "10px 20px",
             background: scrolled
-              ? "#161d26"
-              : "#161d26",
+              ? "rgba(255, 255, 255, 0.85)"
+              : "rgba(255, 255, 255, 0.75)",
             backdropFilter: "blur(28px) saturate(1.6)",
             WebkitBackdropFilter: "blur(28px) saturate(1.6)",
             borderRadius: "16px",
-            border: "1px solid rgba(255,255,255,0.08)",
+            border: scrolled
+              ? "1px solid rgba(15, 23, 42, 0.08)"
+              : "1px solid rgba(255, 255, 255, 0.5)",
             boxShadow: scrolled
-              ? "0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04)"
-              : "0 4px 24px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.03)",
+              ? "0 8px 32px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.01)"
+              : "0 4px 24px rgba(15, 23, 42, 0.02), 0 0 0 1px rgba(255, 255, 255, 0.2)",
             transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
             pointerEvents: "auto",
           }}
@@ -124,10 +124,10 @@ export default function Navbar() {
             </div>
             {!isMobile && (
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontWeight: 800, fontSize: "14px", color: "#ffffff", lineHeight: 1.2, letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>
+                <span style={{ fontWeight: 700, fontSize: "14px", color: "#1e2d3d", lineHeight: 1.2, letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>
                   AWS SBG REC
                 </span>
-                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: "9px", color: "rgba(15,23,42,0.55)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
                   Student Builders Group
                 </span>
               </div>
@@ -147,11 +147,11 @@ export default function Navbar() {
                     position: "relative",
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: hoveredIdx === idx ? "#FF9900" : "rgba(255,255,255,0.75)",
+                    color: hoveredIdx === idx ? "#FF9900" : "#334155",
                     textDecoration: "none",
                     padding: "6px 14px",
                     borderRadius: "8px",
-                    transition: "color 0.25s ease, background 0.25s ease",
+                    transition: "all 0.25s ease",
                     display: "inline-flex",
                     alignItems: "center",
                     whiteSpace: "nowrap",
@@ -177,7 +177,7 @@ export default function Navbar() {
                   alignItems: "center",
                   justifyContent: "center",
                   padding: "6px",
-                  color: "#ffffff",
+                  color: "#1e2d3d",
                 }}
               >
                 {mobileMenuOpen ? (
@@ -198,18 +198,18 @@ export default function Navbar() {
                   style={{
                     padding: isMobile ? "6px 12px" : "8px 16px",
                     borderRadius: "10px",
-                    border: "1.5px solid rgba(255,255,255,0.2)",
+                    border: "1.5px solid rgba(15,23,42,0.15)",
                     background: "transparent",
-                    color: "rgba(255,255,255,0.85)",
+                    color: "#334155",
                     fontSize: isMobile ? "12px" : "13px",
-                    fontWeight: 700,
+                    fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "inherit",
                     whiteSpace: "nowrap",
                     transition: "all 0.2s ease",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = "#FF9900"; e.currentTarget.style.color = "#FF9900"; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "rgba(255,255,255,0.85)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(15,23,42,0.15)"; e.currentTarget.style.color = "#334155"; }}
                 >
                   Dashboard
                 </button>
@@ -222,11 +222,11 @@ export default function Navbar() {
                     background: "linear-gradient(135deg,#FF9900,#E68900)",
                     color: "#fff",
                     fontSize: isMobile ? "12px" : "13px",
-                    fontWeight: 800,
+                    fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "inherit",
                     whiteSpace: "nowrap",
-                    boxShadow: "0 2px 10px rgba(255,153,0,0.25)",
+                    boxShadow: "0 2px 10px rgba(255,153,0,0.18)",
                     transition: "all 0.2s ease",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(255,153,0,0.4)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
@@ -242,18 +242,18 @@ export default function Navbar() {
                   style={{
                     padding: isMobile ? "6px 12px" : "8px 16px",
                     borderRadius: "10px",
-                    border: "1.5px solid rgba(255,255,255,0.2)",
+                    border: "1.5px solid rgba(15,23,42,0.15)",
                     background: "transparent",
-                    color: "rgba(255,255,255,0.85)",
+                    color: "#334155",
                     fontSize: isMobile ? "12px" : "13px",
-                    fontWeight: 700,
+                    fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "inherit",
                     whiteSpace: "nowrap",
                     transition: "all 0.2s ease",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = "#FF9900"; e.currentTarget.style.color = "#FF9900"; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "rgba(255,255,255,0.85)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(15,23,42,0.15)"; e.currentTarget.style.color = "#334155"; }}
                 >
                   Log In
                 </button>
@@ -266,11 +266,11 @@ export default function Navbar() {
                     background: "linear-gradient(135deg,#FF9900,#E68900)",
                     color: "#fff",
                     fontSize: isMobile ? "12px" : "13px",
-                    fontWeight: 800,
+                    fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "inherit",
                     whiteSpace: "nowrap",
-                    boxShadow: "0 2px 10px rgba(255,153,0,0.25)",
+                    boxShadow: "0 2px 10px rgba(255,153,0,0.18)",
                     transition: "all 0.2s ease",
                   }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(255,153,0,0.4)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
@@ -296,13 +296,13 @@ export default function Navbar() {
                 top: "72px",
                 left: "24px",
                 right: "24px",
-                background: "rgba(22,29,38,0.98)",
+                background: "rgba(255,255,255,0.98)",
                 backdropFilter: "blur(24px)",
                 WebkitBackdropFilter: "blur(24px)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid rgba(15,23,42,0.08)",
                 borderRadius: "16px",
                 padding: "12px 8px",
-                boxShadow: "0 16px 40px rgba(0,0,0,0.4)",
+                boxShadow: "0 16px 40px rgba(15,23,42,0.08)",
                 display: "flex",
                 flexDirection: "column",
                 gap: "2px",
@@ -317,15 +317,15 @@ export default function Navbar() {
                   style={{
                     fontSize: "14px",
                     fontWeight: 600,
-                    color: "rgba(255,255,255,0.75)",
+                    color: "#334155",
                     textDecoration: "none",
                     padding: "10px 16px",
                     borderRadius: "10px",
                     display: "block",
                     transition: "all 0.2s ease",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,153,0,0.1)"; e.currentTarget.style.color = "#FF9900"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(255,255,255,0.75)"; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,153,0,0.08)"; e.currentTarget.style.color = "#FF9900"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#334155"; }}
                 >
                   {link.label}
                 </a>

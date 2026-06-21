@@ -455,27 +455,117 @@ model GroupChatMessage {
   @@map("group_chat_messages")
 }
 
+model CertificationLevel {
+  id            String           @id @default(uuid())
+  name          String           @unique
+  displayOrder  Int
+
+  certifications Certification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Certification {
-  id          String   @id @default(uuid())
-  key         String   @unique
+  id              String @id @default(uuid())
+
+  title           String
+  slug            String @unique
+  examCode        String @unique
+
+  badgeImageUrl   String?
+
+  examDuration    String
+  totalQuestions  Int
+  examCost        Float
+  examMode        String
+
+  displayOrder    Int
+  isActive        Boolean @default(true)
+
+  levelId         String
+  level           CertificationLevel @relation(fields: [levelId], references: [id])
+
+  domains         CertificationDomain[]
+  roleLinks       RoleCertification[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CertificationDomain {
+  id                String @id @default(uuid())
+  certificationId   String
+  certification     Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  name              String
+  weightage         Float
+
+  displayOrder      Int
+
+  topics            CertificationTopic[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model CertificationTopic {
+  id          String @id @default(uuid())
+
+  domainId    String
+  domain      CertificationDomain @relation(fields: [domainId], references: [id], onDelete: Cascade)
+
   name        String
-  level       String
-  category    String
-  summary     String
-  highlights  String
-  accent      String
-  duration    String
-  questions   Int
-  cost        String
-  mode        String
-  intended    String?
-  domains     Json     // Stores array of Domain: { title, pct, topics: string[] }
-  detailHtml  String
+
+  displayOrder Int
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@map("certifications")
 }
+
+model CareerRole {
+  id            String @id @default(uuid())
+
+  name          String @unique
+  slug          String @unique
+
+  description   String
+
+  certifications RoleCertification[]
+  opportunities  CareerOpportunity[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model RoleCertification {
+  id               String @id @default(uuid())
+
+  roleId           String
+  certificationId  String
+
+  pathOrder        Int
+
+  role             CareerRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  certification    Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, certificationId])
+}
+
+model CareerOpportunity {
+  id            String @id @default(uuid())
+
+  roleId        String
+  title         String
+
+  displayOrder  Int
+
+  role          CareerRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 
 model ReportEvent {
   id           Int                 @id @default(autoincrement())

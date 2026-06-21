@@ -1,562 +1,181 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
-/* ─── Card data ─────────────────────────────────────────────────────────── */
 const CARDS = [
   {
-    gradient: "linear-gradient(135deg,rgb(130,68,239),#4a7a9b)",
-    label: "☁ Cloud Matrix",
+    label: "Cloud Matrix Bootcamp",
     sublabel: "120+ builders · Oct 2025 · 24 hours",
-    emoji: "☁",
     image: "/images/cloud_jam.jpg",
     description: "A beginner-friendly cloud computing session focused on cloud fundamentals, industry-recognized certifications, career opportunities, and structured learning roadmaps.",
   },
   {
-    gradient: "linear-gradient(135deg,#0073BB,#005f9e)",
-    label: "🤖 Cloud Matrix",
+    label: "Generative AI Workshop",
     sublabel: "Bedrock & LLMs · Feb 2026",
-    emoji: "🤖",
     image: "/images/ai_workshop.jpg",
-    description: "A beginner-friendly cloud computing session focused on cloud fundamentals, industry-recognized certifications, career opportunities, and structured learning roadmaps.",
+    description: "A deep dive workshop into Amazon Bedrock, foundations models, and practical application building. Students designed and deployed their own generative AI projects.",
   },
   {
-    gradient: "linear-gradient(135deg,#FF9900,#E68900)",
-    label: "🎤 Community Meetup",
+    label: "Community Meetup",
     sublabel: "150+ members · Networking",
-    emoji: "🎤",
     image: "/images/community_meetup.jpg",
     description: "A collaborative gathering where students, developers, and tech enthusiasts connected, shared knowledge, and built meaningful professional networks.",
   },
   {
-    gradient: "linear-gradient(135deg,#2c4a62,#3d6680)",
-    label: "🎤 Community Meetup",
+    label: "AWS Certification Bootcamp",
     sublabel: "100+ students certified",
-    emoji: "🎤",
     image: "/images/bootcamp.jpg",
-    description: "A collaborative gathering where students, developers, and tech enthusiasts connected, shared knowledge, and built meaningful professional networks.",
+    description: "An intensive training series designed to prepare students for core AWS certifications, resulting in over 100 community members earning industry credentials.",
   },
   {
-    gradient: "linear-gradient(135deg,#005f9e,#0073BB)",
-    label: "💡 Cloud Matrix Event",
-    sublabel: "re:Invent Watch Party",
-    emoji: "💡",
+    label: "re:Invent Watch Party",
+    sublabel: "Annual re:Invent watch session",
     image: "/images/ai_workshop.jpg",
-    description: "A beginner-friendly cloud computing session focused on cloud fundamentals, industry-recognized certifications, career opportunities, and structured learning roadmaps.",
+    description: "A live broadcast and discussion session of key AWS announcements, bringing global cloud innovations directly to our student community.",
   },
   {
-    gradient: "linear-gradient(135deg,#243448,#2d4f6b)",
-    label: "🤖 Robo Wolke",
-    sublabel: "Robotics & IoT Showcase · Dobot Magician",
-    emoji: "🤖",
+    label: "Robo Wolke Showcase",
+    sublabel: "Robotics & IoT · Dobot Magician",
     image: "/images/robo_wolke_journey.jpg",
-    description: "An experimental robotics exhibition demonstrating the integration of cloud computing with physical hardware. The showcase highlighted controlling Dobot Magician robotic arms using AWS-backed cloud services.",
+    description: "An experimental robotics exhibition demonstrating the integration of cloud computing with physical hardware, using AWS-backed cloud services.",
   },
 ];
 
-/* ─── Stack layout constants ────────────────────────────────────────────── */
-const CARD_H     = 500;   // card height px
-const Y_STEP     = 13;    // vertical offset per depth level (stack peek)
-const SCALE_STEP = 0.03;  // scale reduction per depth level
-const AUTO_MS    = 2800;  // auto-advance interval (ms)
-const N          = CARDS.length;
-
-/* ─── Shared card face ──────────────────────────────────────────────────── */
-function CardFace({
-  card,
-  index,
-  total,
-}: {
-  card: (typeof CARDS)[0];
-  index: number;
-  total: number;
-}) {
-  return (
-    <>
-      {/* Gradients for text and badge contrast */}
-      {card.image && (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 55%, transparent 100%)",
-              zIndex: 1,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "90px",
-              background: "linear-gradient(to bottom, rgba(15, 23, 42, 0.35) 0%, transparent 100%)",
-              zIndex: 1,
-            }}
-          />
-        </>
-      )}
-      
-      {/* Dot-grid texture */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "radial-gradient(rgba(255,255,255,0.1) 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          pointerEvents: "none",
-          zIndex: 2,
-        }}
-      />
-
-      {/* Watermark emoji */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%,-58%)",
-          fontSize: 100,
-          opacity: card.image ? 0.07 : 0.12,
-          pointerEvents: "none",
-          userSelect: "none",
-          lineHeight: 1,
-          zIndex: 2,
-        }}
-      >
-        {card.emoji}
-      </div>
-
-      {/* Counter badge — top right */}
-      <div
-        style={{
-          position: "absolute",
-          top: 18,
-          right: 18,
-          background: "rgba(255,255,255,.18)",
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
-          border: "1px solid rgba(255,255,255,.28)",
-          borderRadius: 100,
-          padding: "4px 12px",
-          fontSize: 12,
-          fontWeight: 700,
-          color: "#fff",
-          zIndex: 5,
-        }}
-      >
-        {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-      </div>
-
-      {/* Bottom label */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: "52px 28px 24px",
-          background: card.image 
-            ? "transparent"
-            : "linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%)",
-          zIndex: 5,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: "#fff",
-            marginBottom: 6,
-            lineHeight: 1.3,
-          }}
-        >
-          {card.label}
-        </div>
-        <div
-          style={{
-            fontSize: 13,
-            color: "rgba(255,255,255,.76)",
-            lineHeight: 1.45,
-          }}
-        >
-          {card.sublabel}
-        </div>
-      </div>
-    </>
-  );
-}
-
-/* ─── Gallery ───────────────────────────────────────────────────────────── */
 export default function Gallery() {
-  /* order[0] = top card, order[N-1] = bottom card */
-  const [order, setOrder] = useState<number[]>(() =>
-    CARDS.map((_, i) => i)
-  );
-  const [flyingIdx, setFlyingIdx] = useState<number | null>(null);
-  const [isBusy, setIsBusy] = useState(false);
-  const [paused, setPaused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  /* ── Advance: top card flies up, deck rotates ─────────────────────── */
-  const advance = useCallback(() => {
-    if (isBusy) return;
-    setIsBusy(true);
-
-    const topCardIdx = order[0];
-    setFlyingIdx(topCardIdx); // overlay takes over
-
-    // Rotate deck instantly — layout spring handles reposition
-    setOrder((prev) => {
-      const [first, ...rest] = prev;
-      return [...rest, first]; // top card goes to bottom
-    });
-
-    // Flying card exits over ~500ms, then we're done
-    setTimeout(() => {
-      setFlyingIdx(null);
-      setIsBusy(false);
-    }, 520);
-  }, [isBusy, order]);
-
-  /* ── Auto-advance ─────────────────────────────────────────────────── */
   useEffect(() => {
-    if (paused) return;
-    const t = setInterval(advance, AUTO_MS);
-    return () => clearInterval(t);
-  }, [advance, paused]);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  const currentTopCard = CARDS[order[0]];
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const yGrid = useTransform(scrollYProgress, [0, 1], [-30, 30]);
 
   return (
     <section
       id="gallery"
+      ref={containerRef}
       style={{
         width: "100vw",
-        background: "linear-gradient(180deg, #FDFCFB 0%, #FFFFFF 50%, #F8F9FB 100%)",
-        padding: "80px 0 60px",
+        background: "#FFFFFF",
+        padding: "100px 0",
         position: "relative",
         overflow: "hidden",
-        scrollMarginTop: "100px",
+        scrollMarginTop: "80px",
       }}
     >
-      {/* ── Page-width container ──────────────────────────────────── */}
+      {/* ── BACKGROUND GRID PATTERN ── */}
+      <motion.div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "linear-gradient(rgba(15,23,42,0.02) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(15,23,42,0.02) 1.5px, transparent 1.5px)",
+          backgroundSize: "60px 60px",
+          y: isMobile ? 0 : yGrid,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* ── HEADER ── */}
+      <div style={{ textAlign: "center", marginBottom: 54, position: "relative", zIndex: 1, padding: "0 24px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 14 }}>
+          <div style={{ width: 28, height: 2.5, borderRadius: 2, background: "#FF9900" }} />
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", color: "#FF9900" }}>
+            Highlights
+          </span>
+          <div style={{ width: 28, height: 2.5, borderRadius: 2, background: "#FF9900" }} />
+        </div>
+
+        <h2 style={{ fontSize: "clamp(32px, 4vw, 44px)", fontWeight: 700, color: "#1E293B", margin: "0 0 16px", letterSpacing: "-1px", lineHeight: 1.2 }}>
+          Our Builder Journey
+        </h2>
+        <p style={{ fontSize: 15, color: "#64748B", margin: 0, fontWeight: 400, maxWidth: 600, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
+          Explore key milestones, workshops, and community events that shape our student developers.
+        </p>
+      </div>
+
+      {/* ── GALLERY GRID ── */}
       <div
         style={{
           width: "100%",
           maxWidth: "1200px",
           margin: "0 auto",
           padding: "0 44px",
-          boxSizing: "border-box",
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(340px, 1fr))",
+          gap: "36px",
+          position: "relative",
+          zIndex: 1,
         }}
       >
-        {/* ── Two-column layout: deck LEFT, info RIGHT ─────────────── */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.1fr 1fr",
-            gap: 64,
-            alignItems: "flex-start",
-          }}
-        >
-          {/* ── LEFT column: the card deck ───────────────────────────── */}
-          <div
-            style={{
-              position: "relative",
-              height: CARD_H + (N - 1) * Y_STEP + 20,
-              cursor: isBusy ? "wait" : "pointer",
-            }}
-            onClick={advance}
-          >
-            {/* Stack cards — rendered back-to-front (bottom first) */}
-            {[...order].reverse().map((cardIdx, revDepth) => {
-              const depth = N - 1 - revDepth;
-              const card = CARDS[cardIdx];
-              const isTop = depth === 0;
-
-              return (
-                <motion.div
-                  key={cardIdx}
-                  layout
-                  animate={{
-                    y: depth * Y_STEP,
-                    scale: 1 - depth * SCALE_STEP,
-                    opacity:
-                      isTop && flyingIdx === cardIdx
-                        ? 0
-                        : 1 - depth * 0.04,
-                  }}
-                  transition={{
-                    layout: { type: "spring", stiffness: 260, damping: 28 },
-                    opacity: { duration: 0.05 },
-                  }}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: CARD_H,
-                    borderRadius: 24,
-                    overflow: "hidden",
-                    background: card.gradient,
-                    zIndex: N - depth,
-                    transformOrigin: "top center",
-                    boxShadow: isTop
-                      ? "0 24px 56px rgba(15,23,42,0.14), 0 0 0 1px rgba(255,153,0,0.1), 0 0 30px rgba(255,153,0,0.06)"
-                      : "0 8px 24px rgba(15,23,42,0.07), 0 0 0 1px rgba(255,153,0,0.04)",
-                    userSelect: "none",
-                    pointerEvents: "none",
-                  }}
-                >
-                  {/* Photo background for stack depth */}
-                  {card.image && (
-                    <img
-                      src={card.image}
-                      alt={card.label}
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        objectPosition: "center",
-                        zIndex: 0,
-                        opacity: isTop ? 1 : 0.75,
-                      }}
-                    />
-                  )}
-                  {/* Dimming shadow for cards deeper in stack */}
-                  {!isTop && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: "rgba(15, 23, 42, 0.15)",
-                        zIndex: 1,
-                      }}
-                    />
-                  )}
-                  {isTop && <CardFace card={card} index={cardIdx} total={N} />}
-                </motion.div>
-              );
-            })}
-
-            {/* Flying card overlay — exits upward */}
-            <AnimatePresence>
-              {flyingIdx !== null && (
-                <motion.div
-                  key="flying"
-                  initial={{ y: 0, scale: 1, opacity: 1, rotateX: 0 }}
-                  animate={{
-                    y: -CARD_H * 1.4,
-                    scale: 0.82,
-                    opacity: 0,
-                    rotateX: -20,
-                  }}
-                  exit={{}}
-                  transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: CARD_H,
-                    borderRadius: 24,
-                    overflow: "hidden",
-                    background: CARDS[flyingIdx].gradient,
-                    zIndex: N + 10,
-                    pointerEvents: "none",
-                    transformOrigin: "top center",
-                    boxShadow: "0 24px 56px rgba(15,23,42,0.18)",
-                  }}
-                >
-                  {CARDS[flyingIdx].image && (
-                    <img
-                      src={CARDS[flyingIdx].image}
-                      alt={CARDS[flyingIdx].label}
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        objectPosition: "center",
-                        zIndex: 0,
-                      }}
-                    />
-                  )}
-                  <CardFace
-                    card={CARDS[flyingIdx]}
-                    index={flyingIdx}
-                    total={N}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Click hint */}
-            <motion.div
-              animate={{ opacity: [0.55, 1, 0.55] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                position: "absolute",
-                bottom: -0,
-                left: "50%",
-                translateX: "-50%",
-                fontSize: 12,
-                fontWeight: 600,
-                color: "#6b7280",
-                pointerEvents: "none",
-                whiteSpace: "nowrap",
-                letterSpacing: "0.03em",
-              }}
-            >
-              Click deck to advance →
-            </motion.div>
-          </div>
-
-          {/* ── RIGHT column: heading + active card info ───────────────── */}
-          <div
+        {CARDS.map((card, idx) => (
+          <motion.div
+            key={idx}
+            whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(15,23,42,0.06), 0 0 0 1.5px rgba(255,153,0,0.18)" }}
             style={{
               background: "#FFFFFF",
-              borderRadius: 24,
-              padding: "32px 36px",
-              boxShadow: "0 8px 32px rgba(0,115,187,0.08), 0 0 0 1px rgba(0,115,187,0.10), 0 0 30px rgba(0,115,187,0.06)",
+              borderRadius: 20,
+              border: "1.5px solid rgba(15, 23, 42, 0.08)",
+              overflow: "hidden",
               display: "flex",
               flexDirection: "column",
-              gap: 28,
+              transition: "all 0.3s ease",
             }}
           >
-            {/* Section heading (Static) */}
-            <div>
-              <h2
-                style={{
-                  fontSize: "clamp(1.8rem, 3vw, 2.4rem)",
-                  fontWeight: 900,
-                  color: "#1e2d3d",
-                  margin: "0 0 8px 0",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                Highlights From Our Builder Journey
-              </h2>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: "#4b5563",
-                  lineHeight: 1.6,
-                  margin: 0,
-                }}
-              >
-                Highlights from hackathons, meetups, bootcamps and showcases.
-              </p>
+            {/* Image section */}
+            <div style={{ width: "100%", height: 220, overflow: "hidden", position: "relative" }}>
+              {card.image ? (
+                <img
+                  src={card.image}
+                  alt={card.label}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    transition: "transform 0.5s ease",
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.04)"}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
+                />
+              ) : (
+                <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #0073BB, #FF9900)" }} />
+              )}
             </div>
 
-            {/* Subtle separator line */}
-            <div style={{ height: "1px", background: "linear-gradient(90deg, rgba(255,153,0,.18), rgba(0,115,187,.12))", width: "100%" }} />
-
-            <motion.div
-              key={order[0]}
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              style={{ display: "flex", flexDirection: "column", gap: 20 }}
-            >
+            {/* Content section */}
+            <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1, justifyContent: "space-between", gap: 16 }}>
               <div>
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: 800,
-                    color: "#1e2d3d",
-                    marginBottom: 8,
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {currentTopCard.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: "#FF9900",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    marginBottom: 16,
-                  }}
-                >
-                  {currentTopCard.sublabel}
-                </div>
-                <p
-                  style={{
-                    fontSize: 15,
-                    color: "#4b5563",
-                    lineHeight: 1.65,
-                    margin: 0,
-                  }}
-                >
-                  {currentTopCard.description}
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "#FF9900",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  display: "inline-block",
+                  marginBottom: 8,
+                }}>
+                  {card.sublabel}
+                </span>
+                <h3 style={{ margin: "0 0 10px 0", fontSize: 18, fontWeight: 600, color: "#1E293B" }}>
+                  {card.label}
+                </h3>
+                <p style={{ margin: 0, fontSize: 13.5, color: "#475569", lineHeight: 1.6 }}>
+                  {card.description}
                 </p>
               </div>
-
-              {/* Dot progress indicators */}
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                {CARDS.map((_, i) => (
-                  <motion.div
-                    key={i}
-                    animate={{
-                      width: order[0] === i ? 24 : 8,
-                      backgroundColor:
-                        order[0] === i ? "#FF9900" : "rgba(255,153,0,.18)",
-                    }}
-                    transition={{ duration: 0.3 }}
-                    style={{ height: 8, borderRadius: 100, cursor: "pointer" }}
-                    onClick={() => {
-                      if (isBusy) return;
-                      const steps = (order.indexOf(i) + N) % N;
-                      if (steps === 0) return;
-                      // Step advance until the clicked card is on top
-                      let count = 0;
-                      const tick = () => {
-                        if (count >= steps) return;
-                        count++;
-                        advance();
-                        if (count < steps) setTimeout(tick, AUTO_MS * 0.18);
-                      };
-                      tick();
-                    }}
-                  />
-                ))}
-              </div>
-
-              {/* Pause / Play */}
-              <motion.button
-                onClick={() => setPaused((p) => !p)}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                style={{
-                  alignSelf: "flex-start",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "10px 20px",
-                  borderRadius: 100,
-                  border: "1.5px solid rgba(35,47,62,.15)",
-                  background: "rgba(255,255,255,.9)",
-                  backdropFilter: "blur(10px)",
-                  WebkitBackdropFilter: "blur(10px)",
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: "#232F3E",
-                  outline: "none",
-                }}
-              >
-                {paused ? "▶ Play" : "⏸ Pause"}
-              </motion.button>
-            </motion.div>
-          </div>
-        </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );

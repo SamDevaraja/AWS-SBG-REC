@@ -290,7 +290,9 @@ export async function uploadFlag(file: File): Promise<{ url: string }> {
 // AWS SERVICES CATALOG TYPES AND API METHODS
 // =============================================
 
-const AWS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
+const AWS_API_URL = typeof window !== 'undefined'
+  ? window.location.origin
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000');
 
 export interface AWSServiceCategory {
   id: string;
@@ -420,3 +422,99 @@ export async function importServices(fileContent: string, format: 'json' | 'csv'
   const json = await res.json();
   return json.data || json;
 }
+
+// ── Certifications & Career Pathways Fetch API Client ──
+const BASE_URL = '/api';
+
+async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const url = `${BASE_URL}${endpoint}`;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options?.headers as Record<string, string>,
+  };
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  const config: RequestInit = {
+    headers,
+    cache: 'no-store',
+    ...options,
+  };
+
+  const response = await fetch(url, config);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      statusCode: response.status,
+      error: response.statusText,
+      message: `Request failed with status ${response.status}`,
+    }));
+    throw error;
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const json = await response.json();
+  return json && typeof json === 'object' && 'data' in json ? json.data : json;
+}
+
+export const api = {
+  get: <T>(endpoint: string) => request<T>(endpoint),
+  post: <T>(endpoint: string, body: unknown) =>
+    request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  patch: <T>(endpoint: string, body: unknown) =>
+    request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  put: <T>(endpoint: string, body: unknown) =>
+    request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+  delete: <T>(endpoint: string) =>
+    request<T>(endpoint, {
+      method: 'DELETE',
+    }),
+  upload: async <T>(endpoint: string, file: File): Promise<T> => {
+    const url = `${BASE_URL}${endpoint}`;
+    const formData = new FormData();
+    formData.append('file', file);
+    const headers: Record<string, string> = {};
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        statusCode: response.status,
+        error: response.statusText,
+        message: `Upload failed with status ${response.status}`,
+      }));
+      throw error;
+    }
+
+    const json = await response.json();
+    return json && typeof json === 'object' && 'data' in json ? json.data : json;
+  },
+};
+

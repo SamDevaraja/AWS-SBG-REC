@@ -8,7 +8,7 @@ import {
   CalendarDays,
   Map,
   MessageSquare,
-  Award,
+  GraduationCap,
   Users,
   Ticket,
   ClipboardList,
@@ -23,7 +23,7 @@ const coreNavItems: NavItem[] = [
   { icon: <Newspaper className="w-4 h-4" />, label: 'news', href: '/news' },
   { icon: <Map className="w-4 h-4" />, label: 'roadmap builder', href: '/core/topics' },
   { icon: <MessageSquare className="w-4 h-4" />, label: 'chat', href: '/core/chat' },
-  { icon: <Award className="w-4 h-4" />, label: 'certifications', href: '/certifications' },
+  { icon: <GraduationCap className="w-4 h-4" />, label: 'certifications', href: '/core/certifications' },
   { icon: <Cpu className="w-4 h-4" />, label: 'services', href: '/services' },
   { icon: <KeyRound className="w-4 h-4" />, label: 'access control', href: '/core/access-control' },
 ];

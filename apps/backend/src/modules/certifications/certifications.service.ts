@@ -1,88 +1,100 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
+import { CertificationListItem, CertificationDetail } from './dto/certification-response.dto';
 
 @Injectable()
 export class CertificationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(level?: string, search?: string) {
-    const where: any = {};
-
-    if (level) {
-      where.level = {
-        equals: level.trim(),
-        mode: 'insensitive',
-      };
-    }
-
-    if (search) {
-      const query = search.trim();
-      where.OR = [
-        { name: { contains: query, mode: 'insensitive' } },
-        { category: { contains: query, mode: 'insensitive' } },
-        { summary: { contains: query, mode: 'insensitive' } },
-        { highlights: { contains: query, mode: 'insensitive' } },
-      ];
-    }
-
-    return this.prisma.certification.findMany({
-      where,
-      orderBy: { name: 'asc' },
-    });
-  }
-
-  async findOne(key: string) {
-    const cert = await this.prisma.certification.findUnique({
-      where: { key },
-    });
-    if (!cert) {
-      throw new NotFoundException(`Certification with key "${key}" not found`);
-    }
-    return cert;
-  }
-
-  async create(data: any) {
-    return this.prisma.certification.upsert({
-      where: { key: data.key },
-      update: {
-        name: data.name,
-        level: data.level,
-        category: data.category,
-        summary: data.summary,
-        highlights: data.highlights,
-        accent: data.accent,
-        duration: data.duration,
-        questions: Number(data.questions),
-        cost: data.cost,
-        mode: data.mode,
-        intended: data.intended || null,
-        domains: data.domains,
-        detailHtml: data.detailHtml || `<h2>${data.name}</h2><p>${data.summary}</p>`,
-      },
-      create: {
-        key: data.key,
-        name: data.name,
-        level: data.level,
-        category: data.category,
-        summary: data.summary,
-        highlights: data.highlights,
-        accent: data.accent,
-        duration: data.duration,
-        questions: Number(data.questions),
-        cost: data.cost,
-        mode: data.mode,
-        intended: data.intended || null,
-        domains: data.domains,
-        detailHtml: data.detailHtml || `<h2>${data.name}</h2><p>${data.summary}</p>`,
+  async findAll(): Promise<CertificationListItem[]> {
+    const certifications = await this.prisma.certification.findMany({
+      where: { isActive: true },
+      orderBy: { displayOrder: 'asc' },
+      include: {
+        level: true,
+        domains: {
+          orderBy: { displayOrder: 'asc' },
+          include: {
+            topics: {
+              orderBy: { displayOrder: 'asc' },
+            },
+          },
+        },
       },
     });
+
+    return certifications.map((cert) => ({
+      id: cert.id,
+      title: cert.title,
+      slug: cert.slug,
+      examCode: cert.examCode,
+      badgeImageUrl: cert.badgeImageUrl,
+      level: cert.level.name,
+      displayOrder: cert.displayOrder,
+      examDuration: cert.examDuration,
+      totalQuestions: cert.totalQuestions,
+      examCost: cert.examCost,
+      examMode: cert.examMode,
+      domains: cert.domains.map((d) => ({
+        id: d.id,
+        name: d.name,
+        weightage: d.weightage,
+        displayOrder: d.displayOrder,
+        topics: d.topics.map((t) => ({
+          id: t.id,
+          name: t.name,
+          displayOrder: t.displayOrder,
+        })),
+      })),
+    }));
   }
 
-  async remove(key: string) {
-    await this.findOne(key);
-    await this.prisma.certification.delete({
-      where: { key },
+  async findBySlug(slug: string): Promise<CertificationDetail> {
+    const certification = await this.prisma.certification.findUnique({
+      where: { slug },
+      include: {
+        level: true,
+        domains: {
+          orderBy: { displayOrder: 'asc' },
+          include: {
+            topics: {
+              orderBy: { displayOrder: 'asc' },
+            },
+          },
+        },
+      },
     });
-    return { success: true, deletedKey: key };
+
+    if (!certification) {
+      throw new NotFoundException(`Certification with slug "${slug}" not found`);
+    }
+
+    return {
+      id: certification.id,
+      title: certification.title,
+      slug: certification.slug,
+      examCode: certification.examCode,
+      examDuration: certification.examDuration,
+      totalQuestions: certification.totalQuestions,
+      examCost: certification.examCost,
+      examMode: certification.examMode,
+      badgeImageUrl: certification.badgeImageUrl,
+      displayOrder: certification.displayOrder,
+      level: {
+        id: certification.level.id,
+        name: certification.level.name,
+      },
+      domains: certification.domains.map((d) => ({
+        id: d.id,
+        name: d.name,
+        weightage: d.weightage,
+        displayOrder: d.displayOrder,
+        topics: d.topics.map((t) => ({
+          id: t.id,
+          name: t.name,
+          displayOrder: t.displayOrder,
+        })),
+      })),
+    };
   }
 }

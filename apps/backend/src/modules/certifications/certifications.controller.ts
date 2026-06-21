@@ -1,44 +1,18 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Body,
-  Param,
-  Query,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Param } from '@nestjs/common';
 import { CertificationsService } from './certifications.service';
+import { CertificationListItem, CertificationDetail } from './dto/certification-response.dto';
 
-@ApiTags('Certifications')
 @Controller('certifications')
 export class CertificationsController {
   constructor(private readonly certificationsService: CertificationsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all certifications' })
-  findAll(
-    @Query('level') level?: string,
-    @Query('search') search?: string,
-  ) {
-    return this.certificationsService.findAll(level, search);
+  findAll(): Promise<CertificationListItem[]> {
+    return this.certificationsService.findAll();
   }
 
-  @Get(':key')
-  @ApiOperation({ summary: 'Get a certification by key' })
-  findOne(@Param('key') key: string) {
-    return this.certificationsService.findOne(key);
-  }
-
-  @Post()
-  @ApiOperation({ summary: 'Create or update a certification' })
-  create(@Body() data: any) {
-    return this.certificationsService.create(data);
-  }
-
-  @Delete(':key')
-  @ApiOperation({ summary: 'Delete a certification by key' })
-  remove(@Param('key') key: string) {
-    return this.certificationsService.remove(key);
+  @Get(':slug')
+  findBySlug(@Param('slug') slug: string): Promise<CertificationDetail> {
+    return this.certificationsService.findBySlug(slug);
   }
 }

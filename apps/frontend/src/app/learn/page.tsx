@@ -28,11 +28,15 @@ import { TopicRailItem } from '@/components/Learn/TopicRailItem';
 import { LearningGuidePanel } from '@/components/Learn/LearningGuidePanel';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import CoreSidebarShell from '@/app/core/CoreSidebarShell';
+import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
+import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
 export default function LearnPage() {
   const router = useRouter();
 
   // State variables
+  const [mounted, setMounted] = useState(false);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +45,10 @@ export default function LearnPage() {
   const [continueModule, setContinueModule] = useState<any | null>(null);
   const [userXP, setUserXP] = useState<number>(0);
   const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Completion animation states
   const [animatingTopicId, setAnimatingTopicId] = useState<string | null>(null);
@@ -306,11 +314,33 @@ export default function LearnPage() {
     return 'AVAILABLE';
   };
 
+  const renderWithSidebar = (children: React.ReactNode) => {
+    if (!mounted) {
+      return (
+        <div className="min-h-screen bg-[#bae6fd] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#FF9900]" />
+        </div>
+      );
+    }
+    const themedContent = (
+      <div className="min-h-screen w-full bg-slate-50/50">
+        {children}
+      </div>
+    );
+    if (userRole === 'core') {
+      return <CoreSidebarShell>{themedContent}</CoreSidebarShell>;
+    }
+    if (userRole === 'crew') {
+      return <CrewSidebarShell>{themedContent}</CrewSidebarShell>;
+    }
+    return <EventsSidebarShell>{themedContent}</EventsSidebarShell>;
+  };
+
   // Main UI Load/Error views
   if (loading) {
-    return (
+    return renderWithSidebar(
       <AppLayout>
-        <div className="min-h-screen w-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
+        <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
           {/* Cloud Background from Roadmaps */}
           <SkyBackground />
 
@@ -330,9 +360,9 @@ export default function LearnPage() {
   }
 
   if (error) {
-    return (
+    return renderWithSidebar(
       <AppLayout>
-        <div className="min-h-screen w-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
+        <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none">
           {/* Cloud Background from Roadmaps */}
           <SkyBackground />
 
@@ -343,7 +373,7 @@ export default function LearnPage() {
             <span className="text-xs text-slate-600 font-bold font-heading">{error}</span>
             <button
               onClick={() => window.location.reload()}
-              className="mt-2 px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-sky-500/10 hover:shadow-sky-500/20 active:scale-95 font-heading uppercase tracking-wider"
+              className="mt-2 px-6 py-3 bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-black rounded-xl transition-all shadow-md active:scale-95 font-heading uppercase tracking-wider"
             >
               Retry
             </button>
@@ -353,9 +383,9 @@ export default function LearnPage() {
     );
   }
 
-  return (
+  return renderWithSidebar(
     <AppLayout>
-      <div className="min-h-screen w-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white font-sans select-none relative overflow-y-auto pb-12">
+      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white font-sans select-none relative overflow-y-auto pb-12">
         {/* Cloud Background from Roadmaps */}
         <SkyBackground />
 

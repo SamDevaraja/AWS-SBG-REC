@@ -15,7 +15,7 @@ import {
   RefreshCw, 
   ShieldCheck,
   CalendarDays,
-  Award,
+  GraduationCap,
   Cpu,
   MessageSquare,
   Map as MapIcon,
@@ -89,7 +89,7 @@ const SECURITY_MODULES = [
     key: "view_analytics", 
     label: "Certifications Addition", 
     desc: "Unlocks core certifications creation & deletion panel on the certifications page.",
-    icon: Award,
+    icon: GraduationCap,
     color: "from-blue-500 to-indigo-600"
   },
   { 
