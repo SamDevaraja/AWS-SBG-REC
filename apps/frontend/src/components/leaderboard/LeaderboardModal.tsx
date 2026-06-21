@@ -23,7 +23,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const apiService = React.useMemo(() => new LeaderboardApiService(apiBaseUrl), [apiBaseUrl]);
+  const apiService = React.useMemo(() => new LeaderboardApiService(), []);
 
   // Fetch leaderboard data
   const fetchData = useCallback(async (search?: string) => {
