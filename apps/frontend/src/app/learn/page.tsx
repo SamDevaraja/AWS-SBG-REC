@@ -511,13 +511,7 @@ export default function LearnPage() {
                 <Settings className="w-4 h-4" />
               </Link>
 
-              <button
-                onClick={handleExit}
-                className="p-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/30 text-rose-500 rounded-2xl transition-all cursor-pointer flex items-center justify-center flex-shrink-0"
-                title="Logout"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+
 
               <AnimatePresence>
                 {!isPlatformCompletedVisual && (
