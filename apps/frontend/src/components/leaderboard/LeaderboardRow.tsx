@@ -82,13 +82,13 @@ export const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ row, currentUser
       </div>
 
       {/* Column 3: Cloud Credits in Coin Format */}
-      <div className="text-right font-bold text-sm text-slate-800 flex items-center justify-end gap-2">
+      <div className="text-left font-bold text-sm text-slate-800 flex items-center justify-start gap-2">
         <img
           src="/cloud-credit-coin.png"
           alt="Cloud Credit Coin"
           className="w-5.5 h-5.5 select-none object-contain drop-shadow-[0_1.5px_3px_rgba(212,163,89,0.2)] transition-transform duration-300 group-hover:scale-110"
         />
-        <span className="font-mono text-[13px] text-slate-800">{row.cloudCredits?.toLocaleString()}</span>
+        <span className="text-[13px] text-slate-800">{row.cloudCredits?.toLocaleString()}</span>
       </div>
     </div>
   );

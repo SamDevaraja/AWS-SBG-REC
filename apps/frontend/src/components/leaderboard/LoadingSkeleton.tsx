@@ -20,7 +20,7 @@ export const LoadingSkeleton: React.FC = () => {
           </div>
 
           {/* Column 3: Cloud Credits */}
-          <div className="justify-self-end w-24 h-4 bg-gray-200 rounded relative overflow-hidden">
+          <div className="justify-self-start w-24 h-4 bg-gray-200 rounded relative overflow-hidden">
             <div className="shimmer absolute inset-0" />
           </div>
         </div>

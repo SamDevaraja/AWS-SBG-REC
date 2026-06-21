@@ -138,7 +138,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                 <span>Rank</span>
               </div>
               <div>Name</div>
-              <div className="text-right flex items-center justify-end gap-1">
+              <div className="flex items-center gap-1">
                 <span>Cloud Credits</span>
               </div>
             </div>
