@@ -80,6 +80,14 @@ export class AttendanceService {
           scannerId: dto.scannerId,
         },
       }),
+      this.prisma.user.update({
+        where: { id: ticket.registration.userId },
+        data: {
+          eventxp: {
+            increment: 100,
+          },
+        },
+      }),
     ]);
 
     return {
