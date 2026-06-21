@@ -3,6 +3,9 @@ import { LeaderboardRowDto } from '@/types/leaderboard.types';
 
 const formatCredits = (num: number | undefined | null): string => {
   if (num === null || num === undefined) return '0';
+  if (num < 100000) {
+    return num.toLocaleString();
+  }
   return new Intl.NumberFormat('en-US', {
     notation: 'compact',
     compactDisplay: 'short',
