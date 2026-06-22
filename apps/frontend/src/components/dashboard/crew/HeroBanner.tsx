@@ -154,7 +154,7 @@ export default function HeroBanner() {
                     transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
                   >
                     <motion.div
-                      className="absolute w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-black/10 shadow-md cursor-pointer z-20"
+                      className="absolute w-12 h-12 bg-white rounded-xl overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
                       style={{
                         left: "50%",
                         top: "50%",
@@ -181,7 +181,7 @@ export default function HeroBanner() {
                       onHoverStart={() => setHoveredIcon(item.label)}
                       onHoverEnd={() => setHoveredIcon(null)}
                     >
-                      <img src={item.src} alt={item.label} className="w-8 h-8 object-contain" />
+                      <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
                       {isHovered && (
                         <motion.div
                           initial={{ opacity: 0, y: 5, scale: 0.95 }}
