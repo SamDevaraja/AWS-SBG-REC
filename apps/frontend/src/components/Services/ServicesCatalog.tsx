@@ -220,7 +220,7 @@ export default function ServicesCatalog() {
 
               {/* Icon + meta */}
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center p-2 border border-slate-200/50 flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
                   <img
                     src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
                     alt={service.name}

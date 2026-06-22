@@ -230,7 +230,7 @@ export default function ServiceTable({
                 <tr key={service.id} className="hover:bg-slate-50/40 transition-colors group">
                   {/* Icon */}
                   <td className="py-3.5 px-8">
-                    <div className="w-10 h-10 rounded-lg bg-slate-50 p-2 border border-slate-100 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
                       <img
                         src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
                         alt={service.name}

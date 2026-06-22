@@ -113,7 +113,7 @@ export default function ServiceDetailsModal({
             <>
               {/* Modal Header */}
               <div className="p-8 sm:p-10 border-b border-slate-100 flex gap-6 items-center">
-                <div className="w-16 h-16 rounded-xl bg-slate-50 flex items-center justify-center p-3 border border-slate-100 flex-shrink-0">
+                <div className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
                   <img
                     src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
                     alt={service.name}
