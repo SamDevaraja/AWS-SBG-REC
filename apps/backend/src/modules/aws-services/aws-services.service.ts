@@ -253,7 +253,7 @@ export class AwsServicesService {
         useCases: service.useCases || [],
         pricingModels: service.pricingModels || [],
         relatedServices: service.relatedServices || [],
-        iconUrl: service.iconUrl || `https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/1104e9fd205a28a55dbd9d9ae22a855315772d33/apps/backend/uploads/services/${service.slug}.svg`,
+        iconUrl: service.iconUrl || `https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/${service.slug}.svg`,
         keywords: service.keywords || [],
         awsDocumentationUrl: service.awsDocumentationUrl || '',
         isFeatured: service.isFeatured ?? false,
