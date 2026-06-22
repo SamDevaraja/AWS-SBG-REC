@@ -288,15 +288,15 @@ function getCertTheme(examCode: string, level: string) {
   
   if (lvl === "foundational" || code.startsWith("CLF") || code.startsWith("AIF")) {
     return {
-      accent: "from-[#FF9900] to-[#FFB84D]", // AWS Orange
-      progress: "bg-[#FF9900]",
-      pillBg: "bg-[#FFF8F2] text-[#EC7211] border-[#FF9900]/15",
-      badgeClass: "bg-[#FFF8F2] text-[#EC7211] border-[#FF9900]/25",
-      hoverBorder: "hover:border-[#FF9900]/30",
-      iconColor: "text-[#EC7211]",
-      hoverText: "group-hover:text-[#EC7211]",
-      hoverBg: "group-hover:bg-[#FFF8F2]",
-      hoverPillBorder: "group-hover:border-[#FF9900]/30"
+      accent: "from-[#4F46E5] to-[#818CF8]", // Indigo
+      progress: "bg-[#4F46E5]",
+      pillBg: "bg-[#EEF2FF] text-[#4F46E5] border-[#818CF8]/15",
+      badgeClass: "bg-[#EEF2FF] text-[#4F46E5] border-[#818CF8]/25",
+      hoverBorder: "hover:border-[#4F46E5]/30",
+      iconColor: "text-[#4F46E5]",
+      hoverText: "group-hover:text-[#4F46E5]",
+      hoverBg: "group-hover:bg-[#EEF2FF]",
+      hoverPillBorder: "group-hover:border-[#4F46E5]/30"
     };
   }
 
