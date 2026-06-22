@@ -191,11 +191,12 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
                       <img src={item.src} alt={item.label} className="w-8 h-8 object-contain" />
                       {isHovered && (
                         <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                          initial={{ opacity: 0, y: 5, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          className="absolute -bottom-8 px-2 py-0.5 bg-black/85 backdrop-blur-sm text-white text-[9px] font-semibold rounded-md shadow-lg border border-white/10 whitespace-nowrap pointer-events-none tracking-wider uppercase"
+                          className="absolute top-full mt-2 px-2.5 py-1 bg-slate-900 text-white text-[10px] font-semibold rounded shadow-md border border-slate-800/60 whitespace-nowrap pointer-events-none tracking-wide z-30"
                         >
-                          {item.label}
+                          <span>{item.label}</span>
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[4px] border-b-slate-900" />
                         </motion.div>
                       )}
                     </motion.div>
