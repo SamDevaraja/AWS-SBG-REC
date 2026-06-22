@@ -222,10 +222,10 @@ export default function ServicesCatalog() {
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center p-2 border border-slate-200/50 flex-shrink-0">
                   <img
-                    src={`${API_URL}${service.iconUrl}`}
+                    src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
                     alt={service.name}
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/uploads/services/fallback.svg";
+                      (e.currentTarget as HTMLImageElement).src = "/fallback.svg";
                     }}
                     className="w-full h-full object-contain"
                   />

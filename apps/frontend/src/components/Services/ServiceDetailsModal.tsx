@@ -115,10 +115,10 @@ export default function ServiceDetailsModal({
               <div className="p-8 sm:p-10 border-b border-slate-100 flex gap-6 items-center">
                 <div className="w-16 h-16 rounded-xl bg-slate-50 flex items-center justify-center p-3 border border-slate-100 flex-shrink-0">
                   <img
-                    src={`${API_URL}${service.iconUrl}`}
+                    src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
                     alt={service.name}
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/uploads/services/fallback.svg";
+                      (e.currentTarget as HTMLImageElement).src = "/fallback.svg";
                     }}
                     className="w-full h-full object-contain"
                   />

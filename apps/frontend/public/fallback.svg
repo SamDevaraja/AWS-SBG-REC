@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Subtle AWS-like background card -->
+  <rect width="64" height="64" rx="12" fill="#F8FAFC"/>
+  <rect width="62" height="62" x="1" y="1" rx="11" stroke="#E2E8F0" stroke-width="2"/>
+  
+  <!-- Stylized tech lines / node map -->
+  <path d="M16 32h32M32 16v32" stroke="#E2E8F0" stroke-dasharray="2 2" stroke-width="1.5"/>
+  
+  <!-- Orange/Gold glow in center -->
+  <circle cx="32" cy="32" r="16" fill="url(#orange-glow)" opacity="0.15"/>
+  
+  <!-- AWS Orange styled cloud outline -->
+  <path d="M24 37c0-2.8 2.2-5 5-5h.3a6.5 6.5 0 0 1 12.2-1.8 4 4 0 0 1 2.5 3.8c0 2.2-1.8 4-4 4H27.5c-1.9 0-3.5-1.6-3.5-3.5z" stroke="#FF9900" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Gradients definitions -->
+  <defs>
+    <radialGradient id="orange-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF9900"/>
+      <stop offset="100%" stop-color="#FF9900" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

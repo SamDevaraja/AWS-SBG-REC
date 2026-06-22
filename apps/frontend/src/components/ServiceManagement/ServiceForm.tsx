@@ -191,7 +191,7 @@ export default function ServiceForm({
         categoryId,
         shortDescription: shortDescription.trim(),
         fullDescription: fullDescription.trim(),
-        iconUrl: iconUrl || `/uploads/services/${slug}.svg`, // Default mapping
+        iconUrl: iconUrl || `https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/1104e9fd205a28a55dbd9d9ae22a855315772d33/apps/backend/uploads/services/${slug}.svg`, // Default mapping
         awsDocumentationUrl: awsDocumentationUrl.trim(),
         isFeatured,
         status,

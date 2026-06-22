@@ -232,10 +232,10 @@ export default function ServiceTable({
                   <td className="py-3.5 px-8">
                     <div className="w-10 h-10 rounded-lg bg-slate-50 p-2 border border-slate-100 flex items-center justify-center">
                       <img
-                        src={`${API_URL}${service.iconUrl}`}
+                        src={service.iconUrl?.startsWith('http') ? service.iconUrl : `${API_URL}${service.iconUrl}`}
                         alt={service.name}
                         onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = "/uploads/services/fallback.svg";
+                          (e.currentTarget as HTMLImageElement).src = "/fallback.svg";
                         }}
                         className="w-full h-full object-contain"
                       />
