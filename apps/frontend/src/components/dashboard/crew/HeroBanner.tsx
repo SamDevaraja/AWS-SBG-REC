@@ -6,11 +6,11 @@ import { ArrowRight, Trophy, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 const SURROUNDING_ICONS = [
-  { src: "/aws-ec2.svg", label: "EC2" },
-  { src: "/aws-Dynamo.svg", label: "DynamoDB" },
-  { src: "/aws-lambda.svg", label: "Lambda" },
-  { src: "/aws-s3.svg", label: "S3" },
-  { src: "/aws-vpc.svg", label: "VPC" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-ec2.svg", label: "EC2" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-dynamodb.svg", label: "DynamoDB" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/aws-lambda.svg", label: "Lambda" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-s3.svg", label: "S3" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-vpc.svg", label: "VPC" },
 ];
 
 const ORBIT_RADIUS = 96;
