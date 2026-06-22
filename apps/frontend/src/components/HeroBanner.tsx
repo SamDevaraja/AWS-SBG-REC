@@ -161,7 +161,7 @@ export default function HeroBanner({ onViewLeaderboardClick }: HeroBannerProps =
                     }}
                   >
                     <motion.div
-                      className="absolute w-12 h-12 bg-white rounded-xl overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
+                      className="absolute w-10 h-10 bg-white rounded-lg overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
                       style={{
                         left: "50%",
                         top: "50%",
