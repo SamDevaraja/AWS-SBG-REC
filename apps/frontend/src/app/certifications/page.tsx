@@ -457,7 +457,7 @@ function CertCard({ cert }: { cert: CertificationListItem }) {
 
             <div className="mt-4 flex justify-end">
               <div className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 transition-colors duration-300">
-                <span className={cn("transition-colors duration-300", theme.hoverText)}>View Details</span>
+                <span className={cn("text-slate-500 transition-colors duration-300", theme.hoverText)}>View Details</span>
                 <ArrowRight className={cn("h-3 w-3 text-slate-400 transition-all duration-300 group-hover:translate-x-0.5", theme.hoverText)} />
               </div>
             </div>
