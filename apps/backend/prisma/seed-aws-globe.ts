@@ -795,7 +795,7 @@ async function main() {
         useCases: s.useCases,
         pricingModels: s.pricingModels,
         relatedServices: s.relatedServices as any, // Json
-        iconUrl: `/uploads/services/${s.slug}.svg`,
+        iconUrl: `https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/1104e9fd205a28a55dbd9d9ae22a855315772d33/apps/backend/uploads/services/${s.slug}.svg`,
         keywords: s.keywords,
         awsDocumentationUrl: s.awsDocumentationUrl,
         isFeatured: s.isFeatured,
