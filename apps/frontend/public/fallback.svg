@@ -1,22 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Subtle AWS-like background card -->
-  <rect width="64" height="64" rx="12" fill="#F8FAFC"/>
-  <rect width="62" height="62" x="1" y="1" rx="11" stroke="#E2E8F0" stroke-width="2"/>
+  <!-- Soft modern background gradient -->
+  <rect width="64" height="64" rx="16" fill="url(#bg-grad)"/>
+  <rect width="63" height="63" x="0.5" y="0.5" rx="15.5" stroke="url(#border-grad)" stroke-width="1"/>
   
-  <!-- Stylized tech lines / node map -->
-  <path d="M16 32h32M32 16v32" stroke="#E2E8F0" stroke-dasharray="2 2" stroke-width="1.5"/>
+  <!-- Subtle pattern dots or tech grid -->
+  <path d="M12 20h40M12 28h40M12 36h40M12 44h40" stroke="#E2E8F0" stroke-width="0.5" opacity="0.3"/>
+  <path d="M20 12v32M28 12v32M36 12v32M44 12v32" stroke="#E2E8F0" stroke-width="0.5" opacity="0.3"/>
   
-  <!-- Orange/Gold glow in center -->
-  <circle cx="32" cy="32" r="16" fill="url(#orange-glow)" opacity="0.15"/>
+  <!-- Glowing circle in the center -->
+  <circle cx="32" cy="32" r="18" fill="url(#glow-grad)" opacity="0.6"/>
   
-  <!-- AWS Orange styled cloud outline -->
-  <path d="M24 37c0-2.8 2.2-5 5-5h.3a6.5 6.5 0 0 1 12.2-1.8 4 4 0 0 1 2.5 3.8c0 2.2-1.8 4-4 4H27.5c-1.9 0-3.5-1.6-3.5-3.5z" stroke="#FF9900" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Stylized Cloud icon with a gradient and elegant shape -->
+  <g filter="url(#shadow)">
+    <!-- Base Cloud Path -->
+    <path d="M23.5 39C20.4624 39 18 36.5376 18 33.5C18 30.6865 20.108 28.3653 22.8682 28.0416C23.6334 23.4907 27.5796 20 32.3333 20C36.4385 20 39.9575 22.6105 41.2464 26.2415C42.0628 25.4496 43.1751 25 44.4 25C46.9405 25 49 27.0595 49 29.6C49 29.897 48.9715 30.1873 48.9171 30.4687C51.2721 31.4285 53 33.7259 53 36.4C53 40.0452 50.0452 43 46.4 43H23.5" 
+          fill="url(#cloud-fill)" 
+          stroke="url(#cloud-stroke)" 
+          stroke-width="1.5" 
+          stroke-linejoin="round"/>
+          
+    <!-- Decorative gear or node representing cloud technology/services in the center of the cloud -->
+    <path d="M30 33a2 2 0 1 0 4 0 2 2 0 0 0-4 0m2-4v1m0 6v1m-4-4h1m6 0h1" stroke="#FF9900" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
   
-  <!-- Gradients definitions -->
   <defs>
-    <radialGradient id="orange-glow" cx="50%" cy="50%" r="50%">
+    <!-- Background: subtle slate gradient -->
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FCFDFE"/>
+      <stop offset="100%" stop-color="#F1F5F9"/>
+    </linearGradient>
+    
+    <!-- Border: elegant light-slate/gold blend -->
+    <linearGradient id="border-grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="50%" stop-color="#FF9900" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </linearGradient>
+    
+    <!-- Cloud Fill: semi-transparent white/blue glow -->
+    <linearGradient id="cloud-fill" x1="18" y1="20" x2="49" y2="43" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8FAFC"/>
+    </linearGradient>
+    
+    <!-- Cloud Stroke: gradient from AWS Orange to warm amber -->
+    <linearGradient id="cloud-stroke" x1="18" y1="20" x2="49" y2="43" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#FF9900"/>
+      <stop offset="100%" stop-color="#FFB300"/>
+    </linearGradient>
+    
+    <!-- Soft glow behind the cloud -->
+    <radialGradient id="glow-grad" cx="32" cy="32" r="18" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF9900" stop-opacity="0.15"/>
       <stop offset="100%" stop-color="#FF9900" stop-opacity="0"/>
     </radialGradient>
+    
+    <!-- Subtle drop shadow for depth -->
+    <filter id="shadow" x="14" y="18" width="43" height="31" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#475569" flood-opacity="0.08"/>
+    </filter>
   </defs>
 </svg>
