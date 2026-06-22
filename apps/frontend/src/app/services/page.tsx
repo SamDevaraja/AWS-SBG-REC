@@ -57,8 +57,7 @@ export default function Home() {
         setError(null);
         const [catsData, regsData] = await Promise.all([
           fetchCategories(),
-          fetchRegions(),
-          new Promise(resolve => setTimeout(resolve, 800)) // smooth transition delay
+          fetchRegions()
         ]);
         setCategories(catsData);
         setRegions(regsData);
@@ -195,36 +194,10 @@ export default function Home() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center font-sans relative overflow-hidden">
-        {/* Soft Ambient Glows in theme colors */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,153,0,0.04)_0%,transparent_50%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_55%,rgba(35,47,62,0.02)_0%,transparent_50%)] pointer-events-none" />
-
-        <div className="relative w-full max-w-sm px-6 z-10">
-          {/* Frosted premium glass panel */}
-          <div className="bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-ambient rounded-[2rem] p-8 flex flex-col items-center text-center">
-            
-            {/* Elegant double ring loader with central brand logo */}
-            <div className="relative w-16 h-16 mb-5 flex items-center justify-center">
-              {/* Outer rotating ring */}
-              <div className="absolute inset-0 border-[3px] border-[#232F3E]/10 border-t-[#FF9900] rounded-full animate-spin" />
-              {/* Central Logo */}
-              <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100/50">
-                <img src="/brand-logo.png" className="w-5.5 h-5.5 object-contain" alt="AWS SBG REC Logo" />
-              </div>
-            </div>
-
-            {/* Title / Status */}
-            <div>
-              <h2 className="text-lg font-black tracking-tight text-[#232F3E]">
-                AWS Region Intelligence
-              </h2>
-              <p className="text-[10px] text-[#FF9900]/80 font-bold uppercase tracking-[0.2em] mt-1.5 animate-pulse">
-                Initializing Region Mesh...
-              </p>
-            </div>
-
-          </div>
+      <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center relative">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-[3px] border-[#232F3E]/10 border-t-[#FF9900] rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-slate-500 tracking-wider">Loading...</p>
         </div>
       </main>
     );
