@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect width="100" height="100" rx="15" fill="#0073BB" fill-opacity="0.1" stroke="#0073BB" stroke-width="3"/>
+  <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="black" fill="#0073BB">Net</text>
+  <text x="50%" y="75%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="bold" fill="#4B5563" opacity="0.8">Route 53 Applic</text>
+</svg>
