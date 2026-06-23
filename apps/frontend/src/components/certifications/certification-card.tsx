@@ -57,19 +57,19 @@ function getCertTheme(examCode: string, level: string) {
   
   if (lvl === "foundational" || code.startsWith("CLF") || code.startsWith("AIF")) {
     return {
-      accent: "from-[#4F46E5] to-[#818CF8]", // Indigo
-      progress: "bg-[#4F46E5]",
-      pillBg: "bg-[#EEF2FF] text-[#4F46E5] border-[#818CF8]/15",
-      badgeClass: "bg-[#EEF2FF] text-[#4F46E5] border-[#818CF8]/25",
-      hoverBorder: "hover:border-[#4F46E5]/30",
-      iconColor: "text-[#4F46E5]",
-      hoverText: "group-hover:text-[#4F46E5]",
-      hoverBg: "group-hover:bg-[#EEF2FF]",
-      hoverPillBorder: "group-hover:border-[#4F46E5]/30"
+      accent: "from-[#5A6572] to-[#788896]", // AWS Foundational Slate Gray / Silver
+      progress: "bg-[#5A6572]",
+      pillBg: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/15",
+      badgeClass: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/25",
+      hoverBorder: "hover:border-[#5A6572]/30",
+      iconColor: "text-[#5A6572]",
+      hoverText: "group-hover:text-[#5A6572]",
+      hoverBg: "group-hover:bg-[#F1F5F9]",
+      hoverPillBorder: "group-hover:border-[#5A6572]/30"
     };
   }
 
-  if (lvl === "associate" || code.startsWith("MLA") || code.startsWith("SAP") || code.startsWith("DVA") || code.startsWith("DEA")) {
+  if (lvl === "associate" || code.startsWith("MLA") || code.startsWith("SAA") || code.startsWith("DVA") || code.startsWith("DEA")) {
     return {
       accent: "from-[#0972D3] to-[#2E90FF]", // AWS Blue
       progress: "bg-[#0972D3]",
@@ -85,15 +85,15 @@ function getCertTheme(examCode: string, level: string) {
 
   if (lvl === "professional" || code.startsWith("SAP") || code.startsWith("DOP")) {
     return {
-      accent: "from-[#1D4ED8] to-[#1E3A8A]", // Deep Navy Blue
-      progress: "bg-[#1D4ED8]",
-      pillBg: "bg-[#EFF6FF] text-[#1D4ED8] border-[#3B82F6]/15",
-      badgeClass: "bg-[#EFF6FF] text-[#1D4ED8] border-[#3B82F6]/25",
-      hoverBorder: "hover:border-[#1D4ED8]/30",
-      iconColor: "text-[#1D4ED8]",
-      hoverText: "group-hover:text-[#1D4ED8]",
-      hoverBg: "group-hover:bg-[#EFF6FF]",
-      hoverPillBorder: "group-hover:border-[#1D4ED8]/30"
+      accent: "from-[#00A4B4] to-[#00627A]", // AWS Professional Teal
+      progress: "bg-[#0083A0]",
+      pillBg: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/15",
+      badgeClass: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/25",
+      hoverBorder: "hover:border-[#0083A0]/30",
+      iconColor: "text-[#00627A]",
+      hoverText: "group-hover:text-[#00627A]",
+      hoverBg: "group-hover:bg-[#E6F8FA]",
+      hoverPillBorder: "group-hover:border-[#00A4B4]/30"
     };
   }
 

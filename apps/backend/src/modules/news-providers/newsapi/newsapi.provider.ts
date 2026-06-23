@@ -37,6 +37,7 @@ export class NewsApiProvider implements INewsProvider {
         {
           params: {
             q: NEWS_API_QUERY.KEYWORDS,
+            domains: NEWS_API_QUERY.DOMAINS,
             language: NEWS_API_QUERY.LANGUAGE,
             sortBy: NEWS_API_QUERY.SORT_BY,
             pageSize: NEWS_API_QUERY.PAGE_SIZE,

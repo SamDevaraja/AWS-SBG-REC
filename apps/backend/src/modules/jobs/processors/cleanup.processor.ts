@@ -10,7 +10,7 @@ import {
   NEWS_CLEANUP_QUEUE,
 } from '../queues/queue.constants';
 
-const THIRTY_DAYS_IN_MS = 30 * 24 * 60 * 60 * 1000;
+const FIFTEEN_DAYS_IN_MS = 15 * 24 * 60 * 60 * 1000;
 
 interface CleanupJobResult {
   deleted: number;
@@ -32,7 +32,7 @@ export class CleanupProcessor extends WorkerHost {
     job: Job<JobTriggerPayload, CleanupJobResult, string>,
   ): Promise<CleanupJobResult> {
     const startedAt = Date.now();
-    const cutoffDate = new Date(Date.now() - THIRTY_DAYS_IN_MS);
+    const cutoffDate = new Date(Date.now() - FIFTEEN_DAYS_IN_MS);
 
     this.logger.log(
       `Cleanup Job Started: jobId=${job.id}, source=${job.data.triggeredBy}`,

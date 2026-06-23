@@ -301,7 +301,7 @@ export default function ModulePage({ params }: { params: Promise<{ moduleId: str
 
   if (loading) {
     return (
-      <div className="min-h-screen w-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
+      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
         <SkyBackground />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="relative flex items-center justify-center">
@@ -320,7 +320,7 @@ export default function ModulePage({ params }: { params: Promise<{ moduleId: str
   // Fail fast security error page
   if (securityError) {
     return (
-      <div className="min-h-screen w-screen bg-slate-950 flex items-center justify-center p-6 text-slate-100">
+      <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-6 text-slate-100">
         <div className="max-w-xl w-full bg-rose-950/20 border-2 border-rose-500/30 rounded-[32px] p-8 shadow-2xl flex flex-col items-center text-center gap-6">
           <div className="w-16 h-16 rounded-2xl bg-rose-600 flex items-center justify-center text-white shadow-lg shadow-rose-650/30 animate-bounce">
             <Icons.ShieldAlert className="w-9 h-9" />
@@ -346,7 +346,7 @@ export default function ModulePage({ params }: { params: Promise<{ moduleId: str
 
   if (error) {
     return (
-      <div className="min-h-screen w-screen bg-slate-900 flex items-center justify-center p-6 text-slate-100">
+      <div className="min-h-screen w-full bg-slate-900 flex items-center justify-center p-6 text-slate-100">
         <div className="max-w-xl w-full bg-rose-500/10 border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
           <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
             <Icons.AlertTriangle className="w-9 h-9" />
@@ -463,7 +463,7 @@ export default function ModulePage({ params }: { params: Promise<{ moduleId: str
   };
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF] flex items-center justify-center p-4 font-sans select-none relative overflow-hidden text-slate-800">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#E0F2FE] via-[#F0F9FF] to-[#FFFFFF] flex items-center justify-center p-4 font-sans select-none relative overflow-hidden text-slate-800">
 
       {/* Background Ambience */}
       <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-cyan-300/10 rounded-full blur-[100px] pointer-events-none animate-pulse" />

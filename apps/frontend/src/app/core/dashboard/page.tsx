@@ -62,9 +62,25 @@ function statusConfig(status: EventStatus) {
   return map[status] || { label: status, className: 'bg-slate-100 text-slate-600 border border-slate-200' };
 }
 
+const SURROUNDING_ICONS = [
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-ec2.svg", label: "EC2" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-dynamodb.svg", label: "DynamoDB" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/aws-lambda.svg", label: "Lambda" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-s3.svg", label: "S3" },
+  { src: "https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/amazon-cloudwatch.svg", label: "CloudWatch" },
+];
+
+const ORBIT_RADIUS = 96; // Center-to-center distance in pixels
+
+const POSITIONED_ICONS = SURROUNDING_ICONS.map((item, index) => {
+  const angle = index * 72; // 5 icons: 360 / 5 = 72 degrees step
+  return { ...item, angle };
+});
+
 function CoreHeroBanner() {
   const [greeting, setGreeting] = useState("Hello");
   const [userName, setUserName] = useState("Administrator");
+  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 
   useEffect(() => {
     const hours = new Date().getHours();
@@ -126,7 +142,7 @@ function CoreHeroBanner() {
             </h1>
 
             <p className="text-slate-600 max-w-2xl text-[14px] leading-relaxed mb-6">
-              Welcome to the Event Management Console. Build upcoming activities, configure agendas and speakers, track attendee registrations, and monitor check-in statistics in real time.
+              Welcome to the Core Administration Console. Manage global learning pathways, configure certification roadmaps, govern the services catalog, and monitor system-wide metrics.
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -149,6 +165,96 @@ function CoreHeroBanner() {
                   <span>System Analytics</span>
                 </button>
               </Link>
+            </div>
+          </div>
+
+          {/* Right Side Visual Panel */}
+          <div className="relative z-10 flex-shrink-0 w-full md:w-auto flex justify-center items-center md:px-4">
+            <div className="relative w-64 h-64 flex items-center justify-center">
+              {/* Animated floating circles / orbits */}
+              <div className="absolute w-48 h-48 border border-dashed border-black/10 rounded-full animate-spin" style={{ animationDuration: "25s" }} />
+              <div className="absolute w-32 h-32 border border-dotted border-black/20 rounded-full animate-spin" style={{ animationDuration: "15s", animationDirection: "reverse" }} />
+
+              {/* Central Main Large Icon (AWS Logo) */}
+              <motion.div
+                animate={{
+                  y: [5, -5, 5],
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute z-10 w-24 h-24 bg-transparent flex items-center justify-center"
+              >
+                <img src="/aws-logo.svg" alt="AWS Logo" className="w-16 h-auto object-contain animate-pulse" style={{ animationDuration: "3s" }} />
+              </motion.div>
+
+              {/* 5 Surrounding Smaller Icons (Orbiting) */}
+              {POSITIONED_ICONS.map((item) => {
+                const isHovered = hoveredIcon === item.label;
+                return (
+                  <motion.div
+                    key={item.label}
+                    className="absolute"
+                    style={{
+                      left: "50%",
+                      top: "50%",
+                      x: "-50%",
+                      y: "-50%",
+                    }}
+                    animate={{
+                      rotate: [item.angle, item.angle + 360],
+                    }}
+                    transition={{
+                      duration: 40,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  >
+                    <motion.div
+                      className="absolute w-10 h-10 bg-white rounded-lg overflow-hidden border border-black/10 shadow-md cursor-pointer z-20"
+                      style={{
+                        left: "50%",
+                        top: "50%",
+                        x: "-50%",
+                        y: `calc(-50% - ${ORBIT_RADIUS}px)`,
+                      }}
+                      animate={{
+                        rotate: [-item.angle, -item.angle - 360],
+                        scale: isHovered ? 1.25 : 1,
+                        boxShadow: isHovered
+                          ? "0 12px 24px -10px rgba(0, 0, 0, 0.15), 0 8px 16px -8px rgba(0, 0, 0, 0.15)"
+                          : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+                        borderColor: isHovered
+                          ? "rgba(255, 153, 0, 0.35)"
+                          : "rgba(0, 0, 0, 0.1)",
+                        zIndex: isHovered ? 30 : 20,
+                      }}
+                      transition={{
+                        rotate: { duration: 40, repeat: Infinity, ease: "linear" },
+                        scale: { type: "spring", stiffness: 400, damping: 15 },
+                        boxShadow: { type: "spring", stiffness: 400, damping: 15 },
+                        borderColor: { type: "spring", stiffness: 400, damping: 15 },
+                      }}
+                      onHoverStart={() => setHoveredIcon(item.label)}
+                      onHoverEnd={() => setHoveredIcon(null)}
+                    >
+                      <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
+                      {isHovered && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          className="absolute top-full mt-2 px-2.5 py-1 bg-slate-900 text-white text-[10px] font-semibold rounded shadow-md border border-slate-800/60 whitespace-nowrap pointer-events-none tracking-wide z-30"
+                        >
+                          <span>{item.label}</span>
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[4px] border-b-slate-900" />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </motion.div>

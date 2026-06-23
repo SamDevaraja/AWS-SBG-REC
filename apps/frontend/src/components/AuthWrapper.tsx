@@ -88,10 +88,8 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
     // Determine if the current route is public
     // We treat /core and /crew strictly as exact matches so we don't accidentally expose /core/dashboard
     const isPublicRoute = PUBLIC_ROUTES.some(r => {
-      if (r === '/core' || r === '/crew') {
-        return pathname === r;
-      }
-      return pathname === r || pathname.startsWith(r + '/');
+      const match = (r === '/core' || r === '/crew') ? pathname === r : (pathname === r || pathname.startsWith(r + '/'));
+      return match;
     });
 
     const session = getSession();

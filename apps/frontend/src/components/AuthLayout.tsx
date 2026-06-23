@@ -146,10 +146,10 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
             <img src="/brand-logo.png" alt="Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(255,153,0,0.35)]" />
             <div className="h-8 w-px bg-white/15" />
             <div className="flex flex-col gap-1">
-              <span className="block text-[14.5px] font-extrabold tracking-wide text-white leading-none">
+              <span className="block text-[16px] font-extrabold tracking-tight text-white leading-tight font-sans">
                 AWS Student Builder Group
               </span>
-              <span className="block text-[10px] font-black uppercase tracking-[0.05em] text-[#FF9900] leading-none">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.08em] text-[#FF9900]/90 leading-none mt-0.5 font-sans">
                 Rajalakshmi Engineering College
               </span>
             </div>
@@ -177,6 +177,17 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
       {/* Right side: Login / Auth form card */}
       <div className="flex-1 md:w-1/2 lg:w-2/5 h-full bg-[#030409] relative overflow-hidden">
+        {/* Background Image for mobile/tablet (hidden on desktop since left panel has it) */}
+        <img 
+          src="/auth-bg.jpg" 
+          alt="AWS Student Builders Group background" 
+          className="absolute inset-0 w-full h-full object-cover z-0 block md:hidden opacity-35" 
+        />
+        {/* Ambient Overlays to make it feel extremely premium and high contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-slate-950/40 z-0 block md:hidden pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,153,0,0.2)_0%,transparent_50%)] z-0 block md:hidden pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.15)_0%,transparent_50%)] z-0 block md:hidden pointer-events-none" />
+
         {/* Floating Stars for Right Panel */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1]">
           {stars
@@ -202,7 +213,22 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
         {/* Scrolling content wrapper */}
         <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-10 overflow-y-auto z-10">
-          <div className="w-full flex justify-center py-8 relative">
+          <div className="w-full flex flex-col items-center justify-center py-8 relative">
+            
+            {/* Mobile/Tablet Branding Header */}
+            <div className="flex md:hidden items-center gap-3.5 mb-8 select-none">
+              <img src="/brand-logo.png" alt="Logo" className="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(255,153,0,0.4)]" />
+              <div className="h-7 w-px bg-white/20" />
+              <div className="flex flex-col gap-0.5">
+                <span className="block text-[15px] font-extrabold tracking-tight text-white leading-tight font-sans">
+                  AWS Student Builder Group
+                </span>
+                <span className="block text-[9.5px] font-bold uppercase tracking-[0.08em] text-[#FF9900]/90 leading-none mt-0.5 font-sans">
+                  Rajalakshmi Engineering College
+                </span>
+              </div>
+            </div>
+
             {children}
           </div>
         </div>

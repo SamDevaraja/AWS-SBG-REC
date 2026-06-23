@@ -500,14 +500,14 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
 
   if (error) {
     return (
-      <div className="min-h-screen w-screen bg-slate-900 flex items-center justify-center p-6 text-slate-100">
+      <div className="min-h-screen w-full bg-slate-900 flex items-center justify-center p-6 text-slate-100">
         <div className="max-w-xl w-full bg-rose-500/10 border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
           <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20 animate-bounce">
             <Icons.AlertTriangle className="w-9 h-9" />
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-extrabold tracking-tight text-white font-heading">CMS Runtime Contract Mismatch</h2>
-            <p className="text-xs text-rose-450 leading-relaxed max-w-md mx-auto">{error}</p>
+            <p className="text-xs text-rose-455 leading-relaxed max-w-md mx-auto">{error}</p>
           </div>
           <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-550 text-white font-black text-xs px-6 py-3 rounded-xl shadow-md transition-all font-heading">
             Retry Connection
@@ -519,7 +519,7 @@ export default function RoadmapBuilder({ topicId, topicName }: RoadmapBuilderPro
 
   if (loading && modules.length === 0) {
     return (
-      <div className="min-h-screen w-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
           <span className="text-xs text-slate-400 font-bold tracking-wider uppercase animate-pulse">Loading Builder Canvas...</span>

@@ -59,7 +59,29 @@ export default function Globe({ regions, onSelectRegion, selectedRegion }: Globe
           prevSelectedRegionIdRef.current = selectedRegion.id;
           isLockedRef.current = false;
           loggedFinalRef.current = false;
-          targetRotationRef.current = getTargetRotation(selectedRegion.lat, selectedRegion.lng);
+
+          // Normalize current rotation angles to [-PI, PI] to prevent unexpected wrapping/360-spinning
+          globeGroupRef.current.rotation.x = Math.atan2(Math.sin(globeGroupRef.current.rotation.x), Math.cos(globeGroupRef.current.rotation.x));
+          globeGroupRef.current.rotation.y = Math.atan2(Math.sin(globeGroupRef.current.rotation.y), Math.cos(globeGroupRef.current.rotation.y));
+
+          const newTarget = getTargetRotation(selectedRegion.lat, selectedRegion.lng);
+
+          // Calculate shortest path deltas
+          let diffX = newTarget.x - globeGroupRef.current.rotation.x;
+          diffX = Math.atan2(Math.sin(diffX), Math.cos(diffX));
+          let diffY = newTarget.y - globeGroupRef.current.rotation.y;
+          diffY = Math.atan2(Math.sin(diffY), Math.cos(diffY));
+
+          // If the point is already nearby (within ~25 degrees / 0.45 radians), just do a minor tilt
+          const isNearby = Math.abs(diffX) < 0.45 && Math.abs(diffY) < 0.45;
+          if (isNearby) {
+            targetRotationRef.current = {
+              x: globeGroupRef.current.rotation.x + diffX * 0.2,
+              y: globeGroupRef.current.rotation.y + diffY * 0.2
+            };
+          } else {
+            targetRotationRef.current = newTarget;
+          }
         }
 
         // Lock globe position completely if target rotation was already reached

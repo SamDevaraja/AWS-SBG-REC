@@ -32,7 +32,7 @@ export default function TopicRoadmapPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-screen bg-slate-55 flex items-center justify-center">
+      <div className="min-h-screen w-full bg-slate-55 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
           <span className="text-xs text-slate-400 font-bold tracking-wider uppercase animate-pulse">Loading Roadmap Builder...</span>
@@ -43,7 +43,7 @@ export default function TopicRoadmapPage() {
 
   if (error || !topic) {
     return (
-      <div className="min-h-screen w-screen bg-slate-55 flex items-center justify-center">
+      <div className="min-h-screen w-full bg-slate-55 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
           <h2 className="text-lg font-bold text-slate-800 font-heading">Topic Not Found</h2>
           <p className="text-xs text-slate-500">{error || 'The requested topic does not exist.'}</p>

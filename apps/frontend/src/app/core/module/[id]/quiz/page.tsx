@@ -290,7 +290,7 @@ export default function QuizEditorPage() {
   // CMS Error Banner render block
   if (error) {
     return (
-      <div className="min-h-screen w-screen bg-slate-900 flex items-center justify-center p-6 text-slate-100">
+      <div className="min-h-screen w-full bg-slate-900 flex items-center justify-center p-6 text-slate-100">
         <div className="max-w-xl w-full bg-rose-500/10 border-2 border-rose-500/20 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-6">
           <div className="w-16 h-16 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20 animate-bounce">
             <Icons.AlertTriangle className="w-9 h-9" />

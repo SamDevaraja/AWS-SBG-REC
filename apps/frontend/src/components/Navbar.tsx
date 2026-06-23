@@ -48,7 +48,12 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      const confirmLogout = window.confirm("Are you sure you want to log out?");
+      if (!confirmLogout) return;
+    }
     localStorage.removeItem("aws_sgb_rec_user");
+    localStorage.removeItem("accessToken");
     setUser(null);
     router.push("/");
   };

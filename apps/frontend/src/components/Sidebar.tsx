@@ -65,27 +65,6 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobile hamburger */}
-      {isMobile && (
-        <button
-          onClick={() => onNavigate(homeHref)}
-          className="fixed top-4 left-4 z-50 md:hidden p-2.5 rounded-xl bg-white border border-slate-200 shadow-md"
-          aria-label="Open menu"
-          style={{ display: isMobileOpen ? 'none' : 'flex' }}
-        >
-          <Menu className="w-5 h-5 text-slate-700" onClick={(e) => { e.stopPropagation(); onMobileClose(); }} />
-        </button>
-      )}
-      {isMobile && !isMobileOpen && (
-        <button
-          onClick={() => { /* open handled by SidebarLayout */ }}
-          className="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-white border border-slate-200 shadow-md flex md:hidden"
-          aria-label="Open menu"
-        >
-          <Menu className="w-5 h-5 text-slate-700" />
-        </button>
-      )}
-
       {/* Mobile overlay */}
       {isMobile && isMobileOpen && (
         <div

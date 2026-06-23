@@ -315,7 +315,7 @@ export default function RegistrationsPage() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
             
             <div className="overflow-x-auto relative z-10">
-              <table className="w-full text-left border-collapse">
+              <table className="min-w-[960px] w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50">
                     {['ID', 'Attendee', 'Email', 'Event', 'Date', 'Status', 'Actions'].map((h) => (
@@ -370,7 +370,7 @@ export default function RegistrationsPage() {
                       <td className="px-6 py-4.5 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <Link
-                            href={`/registrations/${reg.id}`}
+                            href={`/crew/registrations/${reg.id}`}
                             title="View Details"
                             className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all"
                           >
@@ -378,7 +378,7 @@ export default function RegistrationsPage() {
                           </Link>
                           {reg.status !== 'CANCELLED' && (
                             <Link
-                              href={`/registrations/${reg.id}?action=cancel`}
+                              href={`/crew/registrations/${reg.id}?action=cancel`}
                               title="Cancel Registration"
                               className="p-2 rounded-lg bg-slate-50 border border-slate-200/40 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all"
                             >

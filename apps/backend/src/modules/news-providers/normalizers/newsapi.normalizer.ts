@@ -48,6 +48,26 @@ export function normalizeNewsApiArticle(
     return null;
   }
 
+  // Filter out CJK (Chinese, Japanese, Korean) characters to avoid non-English articles
+  const hasCjk = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/.test(title);
+  if (hasCjk) {
+    return null;
+  }
+
+  // Filter out package manager registry index updates (PyPI, npm, etc.)
+  const normalizedUrl = articleUrl.toLowerCase();
+  const normalizedTitle = title.toLowerCase();
+  if (
+    normalizedUrl.includes('pypi.org') ||
+    normalizedUrl.includes('npmjs.com') ||
+    normalizedTitle.includes('pypi.org') ||
+    normalizedTitle.includes('npmjs.com') ||
+    /\b(v?\d+\.\d+\.\d+)\b$/.test(title) || // matches version at the end, e.g. "package-name v1.0.0"
+    /^[a-zA-Z0-9-_]+\s+\d+\.\d+\.\d+/.test(title) // matches e.g. "package-name 1.2.3"
+  ) {
+    return null;
+  }
+
   const description = nullIfEmpty(article.description);
 
   return {

@@ -84,19 +84,19 @@ function getCertTheme(examCode: string, level: string) {
   // Official AWS Brand Palette: Orange (Foundational), Blue (Associate), Charcoal/Navy (Professional), Violet/Purple (Specialty)
   if (lvl === "foundational" || code.startsWith("CLF") || code.startsWith("AIF")) {
     return {
-      accent: "from-[#4F46E5] to-[#818CF8]", // Indigo
-      progress: "bg-[#4F46E5]",
-      pillBg: "bg-[#EEF2FF] text-[#4F46E5] border-[#818CF8]/15",
-      badgeClass: "bg-[#EEF2FF] text-[#4F46E5] border-[#818CF8]/25",
-      hoverBorder: "hover:border-[#4F46E5]/30",
-      iconColor: "text-[#4F46E5]",
-      hoverText: "group-hover:text-[#4F46E5]",
-      hoverBg: "group-hover:bg-[#EEF2FF]",
-      hoverPillBorder: "group-hover:border-[#4F46E5]/30"
+      accent: "from-[#5A6572] to-[#788896]", // AWS Foundational Slate Gray / Silver
+      progress: "bg-[#5A6572]",
+      pillBg: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/15",
+      badgeClass: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/25",
+      hoverBorder: "hover:border-[#5A6572]/30",
+      iconColor: "text-[#5A6572]",
+      hoverText: "group-hover:text-[#5A6572]",
+      hoverBg: "group-hover:bg-[#F1F5F9]",
+      hoverPillBorder: "group-hover:border-[#5A6572]/30"
     };
   }
 
-  if (lvl === "associate" || code.startsWith("MLA") || code.startsWith("SAP") || code.startsWith("DVA") || code.startsWith("DEA")) {
+  if (lvl === "associate" || code.startsWith("MLA") || code.startsWith("SAA") || code.startsWith("DVA") || code.startsWith("DEA")) {
     return {
       accent: "from-[#0972D3] to-[#2E90FF]", // AWS Blue
       progress: "bg-[#0972D3]",
@@ -112,15 +112,15 @@ function getCertTheme(examCode: string, level: string) {
 
   if (lvl === "professional" || code.startsWith("SAP") || code.startsWith("DOP")) {
     return {
-      accent: "from-[#1D4ED8] to-[#1E3A8A]", // Deep Navy Blue
-      progress: "bg-[#1D4ED8]",
-      pillBg: "bg-[#EFF6FF] text-[#1D4ED8] border-[#3B82F6]/15",
-      badgeClass: "bg-[#EFF6FF] text-[#1D4ED8] border-[#3B82F6]/25",
-      hoverBorder: "hover:border-[#1D4ED8]/30",
-      iconColor: "text-[#1D4ED8]",
-      hoverText: "group-hover:text-[#1D4ED8]",
-      hoverBg: "group-hover:bg-[#EFF6FF]",
-      hoverPillBorder: "group-hover:border-[#1D4ED8]/30"
+      accent: "from-[#00A4B4] to-[#00627A]", // AWS Professional Teal
+      progress: "bg-[#0083A0]",
+      pillBg: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/15",
+      badgeClass: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/25",
+      hoverBorder: "hover:border-[#0083A0]/30",
+      iconColor: "text-[#00627A]",
+      hoverText: "group-hover:text-[#00627A]",
+      hoverBg: "group-hover:bg-[#E6F8FA]",
+      hoverPillBorder: "group-hover:border-[#00A4B4]/30"
     };
   }
 
@@ -543,15 +543,74 @@ function CertificationsPageContent() {
               {LEVELS.map((level) => {
                 const count = levelCounts[level] ?? 0;
                 const isActive = selectedLevel.toLowerCase() === level.toLowerCase();
+
+                const LEVEL_THEMES: Record<string, {
+                  activeBorder: string;
+                  activeRing: string;
+                  activeText: string;
+                  badgeActiveBg: string;
+                  badgeActiveBorder: string;
+                  badgeActiveText: string;
+                  hoverClass: string;
+                }> = {
+                  all: {
+                    activeBorder: "border-[#FF9900]",
+                    activeRing: "ring-[#FF9900]/20",
+                    activeText: "text-slate-800",
+                    badgeActiveBg: "bg-[#FFF8F2]",
+                    badgeActiveBorder: "border-[#FF9900]/20",
+                    badgeActiveText: "text-[#FF9900]",
+                    hoverClass: "hover:text-[#FF9900] hover:border-[#FF9900]/30 hover:bg-[#FFF8F2]/30",
+                  },
+                  foundational: {
+                    activeBorder: "border-[#5A6572]",
+                    activeRing: "ring-[#5A6572]/20",
+                    activeText: "text-[#5A6572]",
+                    badgeActiveBg: "bg-[#F1F5F9]",
+                    badgeActiveBorder: "border-[#5A6572]/20",
+                    badgeActiveText: "text-[#5A6572]",
+                    hoverClass: "hover:text-[#5A6572] hover:border-[#5A6572]/30 hover:bg-[#F1F5F9]/30",
+                  },
+                  associate: {
+                    activeBorder: "border-[#0972D3]",
+                    activeRing: "ring-[#0972D3]/20",
+                    activeText: "text-[#0972D3]",
+                    badgeActiveBg: "bg-[#F0F7FF]",
+                    badgeActiveBorder: "border-[#2E90FF]/20",
+                    badgeActiveText: "text-[#0972D3]",
+                    hoverClass: "hover:text-[#0972D3] hover:border-[#0972D3]/30 hover:bg-[#F0F7FF]/30",
+                  },
+                  professional: {
+                    activeBorder: "border-[#00A4B4]",
+                    activeRing: "ring-[#00A4B4]/20",
+                    activeText: "text-[#00627A]",
+                    badgeActiveBg: "bg-[#E6F8FA]",
+                    badgeActiveBorder: "border-[#00A4B4]/20",
+                    badgeActiveText: "text-[#00627A]",
+                    hoverClass: "hover:text-[#00627A] hover:border-[#00A4B4]/30 hover:bg-[#E6F8FA]/30",
+                  },
+                  specialty: {
+                    activeBorder: "border-[#5A30A6]",
+                    activeRing: "ring-[#5A30A6]/20",
+                    activeText: "text-[#5A30A6]",
+                    badgeActiveBg: "bg-[#F8F5FF]",
+                    badgeActiveBorder: "border-[#8C60D6]/20",
+                    badgeActiveText: "text-[#5A30A6]",
+                    hoverClass: "hover:text-[#5A30A6] hover:border-[#5A30A6]/30 hover:bg-[#F8F5FF]/30",
+                  },
+                };
+
+                const theme = LEVEL_THEMES[level.toLowerCase()] ?? LEVEL_THEMES.all;
+
                 return (
                   <button
                     key={level}
                     onClick={() => setSelectedLevel(level)}
                     className={cn(
-                      "flex items-center gap-2 rounded-[8px] px-4 py-2 text-xs font-bold border transition-all cursor-pointer shadow-sm",
+                      "flex items-center gap-2 rounded-[8px] px-4 py-2 text-xs font-bold border transition-all cursor-pointer",
                       isActive
-                        ? "border-[#ff9900] text-slate-800 bg-white ring-1 ring-[#ff9900]/20"
-                        : "border-slate-200 text-slate-500 bg-white hover:bg-slate-50 hover:text-slate-700"
+                        ? `${theme.activeBorder} ${theme.activeText} bg-white ring-1 ${theme.activeRing}`
+                        : `border-slate-200 text-slate-500 bg-white hover:bg-slate-50 ${theme.hoverClass}`
                     )}
                   >
                     <span>{level}</span>
@@ -559,7 +618,7 @@ function CertificationsPageContent() {
                       className={cn(
                         "inline-flex items-center justify-center rounded-[6px] h-5 min-w-[20px] px-1.5 text-[10px] font-bold leading-none border",
                         isActive
-                          ? "bg-[#FFF8F2] border-[#ff9900]/20 text-[#ff9900]"
+                          ? `${theme.badgeActiveBg} ${theme.badgeActiveBorder} ${theme.badgeActiveText}`
                           : "bg-slate-50 border-slate-200 text-slate-400"
                       )}
                     >

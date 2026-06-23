@@ -12,9 +12,9 @@ interface CertificationSelectorProps {
 }
 
 const levelBadgeColors: Record<string, string> = {
-  Foundational: "bg-[#FFF8F2] text-[#EC7211] border border-[#FF9900]/15",
+  Foundational: "bg-[#F1F5F9] text-[#5A6572] border border-[#5A6572]/15",
   Associate: "bg-[#F0F7FF] text-[#0972D3] border border-[#2E90FF]/15",
-  Professional: "bg-[#EFF6FF] text-[#1D4ED8] border border-[#3B82F6]/15",
+  Professional: "bg-[#E6F8FA] text-[#00627A] border border-[#00A4B4]/15",
   Specialty: "bg-[#F8F5FF] text-[#5A30A6] border border-[#8C60D6]/15",
 };
 

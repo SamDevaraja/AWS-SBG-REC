@@ -179,8 +179,9 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
   }, [topicSlug]);
 
   const handleLogout = () => {
-    authService.logout();
-    router.push('/login');
+    if (authService.logout(true)) {
+      router.push('/login');
+    }
   };
 
   const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
@@ -420,7 +421,7 @@ export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) =>
 
   if (loading) {
     return (
-      <div className="min-h-screen w-screen bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
+      <div className="min-h-screen w-full bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-white flex items-center justify-center relative overflow-hidden font-sans select-none z-50">
         <SkyBackground />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="relative flex items-center justify-center">

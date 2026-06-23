@@ -22,16 +22,16 @@ import { cn } from "@/lib/utils";
 
 const levelBadgeConfig: Record<string, { badgeClass: string; color: string }> = {
   Foundational: { 
-    badgeClass: "bg-[#FFF8F2] text-[#EC7211] border-[#FF9900]/25 hover:bg-[#FFF8F2]",
-    color: "#FF9900"
+    badgeClass: "bg-[#F1F5F9] text-[#5A6572] border-[#5A6572]/25 hover:bg-[#F1F5F9]",
+    color: "#5A6572"
   },
   Associate: { 
     badgeClass: "bg-[#F0F7FF] text-[#0972D3] border-[#2E90FF]/25 hover:bg-[#F0F7FF]",
     color: "#0972D3"
   },
   Professional: { 
-    badgeClass: "bg-[#EFF6FF] text-[#1D4ED8] border-[#3B82F6]/25 hover:bg-[#EFF6FF]",
-    color: "#1D4ED8"
+    badgeClass: "bg-[#E6F8FA] text-[#00627A] border-[#00A4B4]/25 hover:bg-[#E6F8FA]",
+    color: "#0083A0"
   },
   Specialty: { 
     badgeClass: "bg-[#F8F5FF] text-[#5A30A6] border-[#8C60D6]/25 hover:bg-[#F8F5FF]",

@@ -1220,7 +1220,7 @@ export default function CreateEventPage() {
 
     createEvent.mutate(payload, {
       onSuccess: () => {
-        router.push('/events');
+        router.push('/core/events');
       },
     });
   }
@@ -1235,9 +1235,9 @@ export default function CreateEventPage() {
         <div className="flex items-center justify-between mb-6">
           <Link
             href="/core/events"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black border border-black hover:bg-slate-900 text-white hover:text-white font-bold rounded-[8px] text-[11px] shadow-sm transition-all duration-150 group cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 hover:text-slate-950 font-semibold rounded-lg text-xs shadow-sm hover:shadow hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer"
           >
-            <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform duration-150 text-white/80 group-hover:text-white" />
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-750 group-hover:-translate-x-0.5 transition-all duration-200" />
             <span className="tracking-wide">Cancel & Back</span>
           </Link>
         </div>

@@ -1338,7 +1338,7 @@ export default function EditEventPage() {
       { id: eventId, data: payload },
       {
         onSuccess: () => {
-          router.push('/events');
+          router.push('/core/events');
         },
       },
     );

@@ -188,11 +188,9 @@ function RegistrationsPageContent() {
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-2.5">
               <Link href="/core/dashboard" className="hover:text-[#FF9900] transition-colors">Admin</Link>
               <span className="text-slate-300">/</span>
-              {eventTitle ? (
-                <Link href="/core/registrations" className="text-[#FF9900] hover:text-orange-600 font-semibold transition-colors">Registrations</Link>
-              ) : (
-                <span className="text-[#FF9900] font-semibold">Registrations</span>
-              )}
+              <Link href="/core/events" className="hover:text-[#FF9900] transition-colors">Events</Link>
+              <span className="text-slate-300">/</span>
+              <span className="text-[#FF9900] font-semibold">Registrations</span>
             </div>
             
             <div className="flex items-center gap-2">
@@ -393,8 +391,8 @@ function RegistrationsPageContent() {
             ) : (
               <div className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.005)_0%,transparent_50%)] pointer-events-none" />
-                <div className="relative z-10">
-                  <table className="w-full text-left border-collapse table-fixed">
+                <div className="relative z-10 overflow-x-auto w-full">
+                  <table className="w-full min-w-[960px] text-left border-collapse table-fixed">
                     <colgroup>
                       {(eventFilter || initialEventId) ? (
                         // Event-specific view: checkbox | Attendee | Email | Date | Status | Ticket | Actions

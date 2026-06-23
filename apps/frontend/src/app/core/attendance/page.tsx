@@ -485,7 +485,7 @@ function AttendancePageContent() {
           ) : (
             <div className="overflow-x-auto relative z-10">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,115,187,0.01)_0%,transparent_50%)] pointer-events-none" />
-              <table className="w-full text-left border-collapse">
+              <table className="min-w-[960px] w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-100/80">
                     {([

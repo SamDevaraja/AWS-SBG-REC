@@ -9,7 +9,7 @@ import { workAssignments, attendanceRecords } from "@/lib/data/crewMockData";
 
 function WorkAssignmentsIcon({ className }: { className?: string }) {
   return (
-    <img src="/aws-CloudWatch.svg" alt="Work Assignments" className={className} />
+    <img src="/aws-DevOpsGuru.svg" alt="Work Assignments" className={className} />
   );
 }
 

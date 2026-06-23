@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Html } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as THREE from 'three';
@@ -50,6 +50,11 @@ function Dot({
   const haloRef = useRef<THREE.Mesh>(null);
   const selectedWireframeRef = useRef<THREE.Mesh>(null);
 
+  // Reset hover state when selection status changes to prevent stuck hover labels
+  useEffect(() => {
+    setHovered(false);
+  }, [isSelected, isDimmed]);
+
   // AWS Brand Orange Theme Colors
   const coreColor = isSelected
     ? '#FFC766' // Selected
@@ -92,16 +97,12 @@ function Dot({
         onClick={(e) => { e.stopPropagation(); onSelect(item); }}
         onPointerOver={(e) => {
           e.stopPropagation();
-          if (!isSelected) {
-            setHovered(true);
-          }
+          setHovered(true);
           document.body.style.cursor = 'pointer';
         }}
         onPointerOut={(e) => {
           e.stopPropagation();
-          if (!isSelected) {
-            setHovered(false);
-          }
+          setHovered(false);
           document.body.style.cursor = 'auto';
         }}
       >
@@ -156,19 +157,27 @@ function Dot({
       )}
 
       {/* Hover label */}
-      {hovered && !isSelected && (
-        <Html position={labelPosition} pointerEvents="none" center>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            style={{ fontSize: '10px' }}
-            className="px-3 py-1.5 bg-white/95 backdrop-blur-md text-[#1A1C1E] rounded-xl shadow-[0_10px_30px_rgba(0,115,187,0.15)] border border-slate-100 whitespace-nowrap flex items-center gap-2"
-          >
-            <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 object-contain" />
-            <span className="font-black tracking-tight text-slate-800 uppercase">{item.name}</span>
-          </motion.div>
-        </Html>
-      )}
+      {/* Hover label */}
+      <Html
+        position={labelPosition}
+        pointerEvents="none"
+        center
+        style={{
+          pointerEvents: 'none',
+          transition: 'opacity 0.12s ease-out, transform 0.12s ease-out, visibility 0.12s',
+          opacity: hovered && !isSelected ? 1 : 0,
+          transform: hovered && !isSelected ? 'scale(1)' : 'scale(0.92)',
+          visibility: hovered && !isSelected ? 'visible' : 'hidden',
+        }}
+      >
+        <div
+          style={{ fontSize: '10px' }}
+          className="w-max inline-flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur-md text-[#1A1C1E] rounded-xl shadow-[0_10px_30px_rgba(0,115,187,0.15)] border border-slate-100 whitespace-nowrap"
+        >
+          <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 object-contain flex-shrink-0" />
+          <span className="font-black tracking-tight text-slate-800 uppercase">{item.name}</span>
+        </div>
+      </Html>
 
       {/* Selected label */}
       <AnimatePresence>
@@ -180,9 +189,9 @@ function Dot({
               exit={{ opacity: 0, scale: 0.8, y: 5 }}
               transition={{ duration: 0.2 }}
               style={{ fontSize: '10px' }}
-              className="px-3 py-1.5 bg-[#FF9900] text-white rounded-xl shadow-[0_10px_30px_rgba(255,153,0,0.3)] border border-[#FF9900]/30 whitespace-nowrap font-black uppercase tracking-wider flex items-center gap-2"
+              className="w-max inline-flex items-center gap-2 px-3 py-1.5 bg-[#FF9900] text-white rounded-xl shadow-[0_10px_30px_rgba(255,153,0,0.3)] border border-[#FF9900]/30 whitespace-nowrap font-black uppercase tracking-wider"
             >
-              <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 object-contain" />
+              <FlagImage flag={item.flagUrl || item.flag} name={item.name} className="w-5 h-3.5 object-contain flex-shrink-0" />
               <span className="font-extrabold">{item.name}</span>
             </motion.div>
           </Html>

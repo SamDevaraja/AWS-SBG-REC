@@ -87,9 +87,7 @@ export default function HeroBanner() {
             </h1>
 
             <p className="text-black/80 max-w-xl text-[14px] md:text-base leading-relaxed mb-6">
-              You&apos;re on track. Complete upcoming activities, attend community
-              events, and continue climbing the leaderboard to unlock premium
-              rewards and certifications.
+              Welcome to the Crew Operations Console. Coordinate upcoming community activities, manage registration lists, review attendee ticketing, and monitor check-in statistics in real time.
             </p>
 
             <div className="flex flex-wrap items-center gap-4">

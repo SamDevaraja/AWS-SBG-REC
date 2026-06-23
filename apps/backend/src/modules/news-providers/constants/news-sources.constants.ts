@@ -9,6 +9,8 @@ export const NEWS_API_ENDPOINTS = {
 export const NEWS_API_QUERY = {
   KEYWORDS:
     'AWS OR cloud OR Azure OR "Google Cloud" OR GCP OR Kubernetes OR DevOps OR technology',
+  DOMAINS:
+    'techcrunch.com,thenextweb.com,wired.com,theverge.com,zdnet.com,infoworld.com,aws.amazon.com,cloud.google.com,azure.microsoft.com,venturebeat.com,arstechnica.com,siliconangle.com',
   LANGUAGE: 'en',
   SORT_BY: 'publishedAt',
   PAGE_SIZE: 100,

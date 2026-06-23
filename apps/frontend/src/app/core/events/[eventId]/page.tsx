@@ -367,7 +367,7 @@ export default function EventDetailsPage() {
               {/* Action Buttons */}
               <div className="flex items-center gap-2 flex-wrap pt-2">
                 <Link
-                  href={`/events/edit/${event.id}`}
+                  href={`/core/events/edit/${event.id}`}
                   className="inline-flex items-center gap-1.5 border border-slate-200 rounded-[8px] text-xs font-medium px-4 py-2 text-slate-600 hover:bg-slate-50 transition"
                 >
                   <Edit className="h-3.5 w-3.5" />
@@ -537,7 +537,7 @@ export default function EventDetailsPage() {
               </span>
             </div>
             <Link
-              href={`/events/${event.id}/registrations`}
+              href={`/core/registrations?eventId=${event.id}`}
               className="text-xs font-medium text-[#232F3E] hover:underline"
             >
               View All
