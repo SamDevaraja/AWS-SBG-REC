@@ -49,11 +49,11 @@ const STAGE_ICONS: Record<string, React.ComponentType<{ size: number; color: str
 };
 
 const STAGES = [
-  { label:"Register",  sub:"First Step",      color:"#38b2ac", light:"#e6f9f8", glow:"rgba(56,178,172,.2)"  },
-  { label:"Learn",     sub:"Core AWS",        color:"#0073BB", light:"#e8f4fd", glow:"rgba(0,115,187,.18)"  },
-  { label:"Certify",   sub:"Get Badges",      color:"#FF9900", light:"#fff3e0", glow:"rgba(255,153,0,.22)"  },
-  { label:"Lead",      sub:"Be a Mentor",     color:"#1e2d3d", light:"#edf2f7", glow:"rgba(30,45,61,.18)"  },
-  { label:"Share",     sub:"Impact",          color:"#E68900", light:"#fff8e8", glow:"rgba(230,137,0,.2)"   },
+  { label:"Register",  sub:"First Step",      color:"#FF9900", light:"rgba(255, 153, 0, 0.08)", glow:"rgba(255, 153, 0, 0.15)" },
+  { label:"Learn",     sub:"Core AWS",        color:"#FF9900", light:"rgba(255, 153, 0, 0.08)", glow:"rgba(255, 153, 0, 0.15)" },
+  { label:"Certify",   sub:"Get Badges",      color:"#FF9900", light:"rgba(255, 153, 0, 0.08)", glow:"rgba(255, 153, 0, 0.15)" },
+  { label:"Lead",      sub:"Be a Mentor",     color:"#FF9900", light:"rgba(255, 153, 0, 0.08)", glow:"rgba(255, 153, 0, 0.15)" },
+  { label:"Share",     sub:"Impact",          color:"#FF9900", light:"rgba(255, 153, 0, 0.08)", glow:"rgba(255, 153, 0, 0.15)" },
 ];
 const DESCS = [
   "Join AWS SBG REC, explore cloud fundamentals and set up your first AWS services.",
@@ -63,7 +63,7 @@ const DESCS = [
   "Share your expertise with the community, build open source projects, and grow together.",
 ];
 
-export default function JourneyCard({ plain = false, hideDesc = false, isDark = false }: { plain?: boolean; hideDesc?: boolean; isDark?: boolean }) {
+export default function JourneyCard({ plain = false, hideDesc = false, isDark = false, hideTitle = false }: { plain?: boolean; hideDesc?: boolean; isDark?: boolean; hideTitle?: boolean }) {
   const [active, setActive] = useState(0);
   const [hov, setHov] = useState<number|null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -104,30 +104,32 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
       )}
 
       <div style={plain ? { padding: "0" } : { padding:"32px 30px 28px" }}>
-        <div style={{textAlign:"center",marginBottom: plain ? 20 : 32}}>
-          <div style={{fontWeight:800,fontSize: isMobile ? 16 : 18,color: isDark ? "#FFFFFF" : "#1d2939",marginBottom:6}}>
-            Your Journey with AWS SBG REC
+        {!hideTitle && (
+          <div style={{textAlign:"center",marginBottom: plain ? 20 : 32}}>
+            <div style={{fontWeight:800,fontSize: isMobile ? 16 : 18,color: isDark ? "#FFFFFF" : "#1d2939",marginBottom:6}}>
+              Your Journey with AWS SBG REC
+            </div>
+            <div style={{fontSize: isMobile ? 11 : 13,color: isDark ? "#94A3B8" : "#9ca3af"}}>From beginner to cloud professional</div>
           </div>
-          <div style={{fontSize: isMobile ? 11 : 13,color: isDark ? "#94A3B8" : "#9ca3af"}}>From beginner to cloud professional</div>
-        </div>
+        )}
 
         {/* nodes */}
         <div style={{
           position: "relative",
           width: "100%",
           maxWidth: "800px",
-          margin: hideDesc ? "0 auto 8px" : "0 auto 32px",
+          margin: hideDesc ? "0 auto 8px" : "0 auto 24px",
           padding: plain ? (isMobile ? "0 2px" : "0 32px") : "0 32px",
           boxSizing: "border-box"
         }}>
           {/* Progress bar background line */}
           <div style={{
             position: "absolute",
-            top: isMobile ? 18 : 33, // center of 36px/66px circle container height
+            top: isMobile ? 18 : 24, // perfectly centered for 36px/48px height
             left: isMobile ? "30px" : "50px",
             right: isMobile ? "30px" : "50px",
             height: 2,
-            background: isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(35, 47, 62, 0.08)",
+            background: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(35, 47, 62, 0.08)",
             borderRadius: 2,
             zIndex: 1
           }} />
@@ -139,11 +141,11 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
             transition={{ duration: 0.4 }}
             style={{
               position: "absolute",
-              top: isMobile ? 18 : 33,
+              top: isMobile ? 18 : 24,
               left: isMobile ? "30px" : "50px",
               width: `calc(100% - ${isMobile ? '60px' : '100px'})`,
               height: 2,
-              background: `linear-gradient(90deg, ${STAGES[0].color}, ${STAGES[active].color})`,
+              background: "#FF9900",
               transformOrigin: "left",
               borderRadius: 2,
               zIndex: 2
@@ -161,10 +163,28 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
           }}>
             {STAGES.map((st, i) => {
               const isA = i === active, isP = i < active, isH = hov === i;
-              const circleSize = isMobile ? (isA ? 36 : 24) : (isA ? 66 : 48);
-              const labelSize = isMobile ? (isA ? 8 : 6.5) : (isA ? 11 : 9);
+              const circleSize = isMobile ? 36 : 48; // Uniform node size
               const IconComponent = STAGE_ICONS[st.label];
-              const iconColor = isA ? "#ffffff" : (isP || isH ? st.color : (isDark ? "#94A3B8" : "#9ca3af"));
+              
+              // Icon color: white for active, stage color for completed, muted for future
+              const iconColor = isA ? "#ffffff" : (isP ? st.color : (isDark ? "rgba(255, 255, 255, 0.35)" : "rgba(15, 23, 42, 0.35)"));
+
+              // Background and borders based on state:
+              let nodeBg = "";
+              let nodeBorder = "";
+              let nodeShadow = "none";
+
+              if (isA) {
+                nodeBg = st.color;
+                nodeBorder = `2px solid ${st.color}`;
+                nodeShadow = `0 0 0 4px ${st.glow}, 0 4px 16px ${st.glow}`;
+              } else if (isP) {
+                nodeBg = isDark ? "rgba(255, 255, 255, 0.02)" : "rgba(0, 0, 0, 0.01)";
+                nodeBorder = `2px solid ${st.color}`;
+              } else {
+                nodeBg = isDark ? "rgba(255, 255, 255, 0.03)" : "#ffffff";
+                nodeBorder = `1.5px solid ${isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(35, 47, 62, 0.12)"}`;
+              }
 
               return (
                 <motion.div
@@ -172,58 +192,61 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
                   onClick={() => setActive(i)}
                   onMouseEnter={() => setHov(i)}
                   onMouseLeave={() => setHov(null)}
-                  whileHover={{ scale: 1.08 }}
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   style={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: 8,
+                    gap: 10,
                     cursor: "pointer",
                     zIndex: 10,
-                    width: isMobile ? "60px" : "100px",
+                    width: isMobile ? "60px" : "110px",
                   }}
                 >
-                  {/* Fixed-height wrapper to center the varying-size circle perfectly */}
+                  {/* Fixed-height wrapper to center the circle perfectly */}
                   <div style={{
-                    height: isMobile ? 36 : 66,
+                    height: isMobile ? 36 : 48,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     width: "100%"
                   }}>
                     <motion.div
-                      animate={isA ? { scale: [1, 1.06, 1] } : {}}
-                      transition={{ duration: 1.5, repeat: Infinity }}
                       style={{
                         width: circleSize,
                         height: circleSize,
                         borderRadius: "50%",
-                        background: isA ? st.color : isP ? st.light : isH ? st.light : (isDark ? "rgba(255,255,255,0.05)" : "#ffffff"),
-                        border: `2.5px solid ${isA || isP || isH ? st.color : (isDark ? "rgba(255,255,255,0.2)" : "#e0d8cf")}`,
+                        background: nodeBg,
+                        border: nodeBorder,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        boxShadow: isA ? `0 0 0 ${isMobile ? '5px' : '8px'} ${st.glow}, 0 6px 22px ${st.glow}` : isH ? `0 4px 14px ${st.glow}` : "none",
-                        transition: "width 0.25s ease, height 0.25s ease, border-color 0.25s ease, background-color 0.25s ease",
+                        boxShadow: nodeShadow,
+                        transition: "all 0.25s ease",
                       }}
                     >
-                      {IconComponent && <IconComponent size={isMobile ? (isA ? 14 : 10) : (isA ? 28 : 20)} color={iconColor} />}
+                      {IconComponent && <IconComponent size={isMobile ? 14 : 20} color={iconColor} />}
                     </motion.div>
                   </div>
+                  
+                  {/* Label Text */}
                   <div style={{ textAlign: "center", width: "100%" }}>
                     <div style={{
-                      fontSize: labelSize,
-                      fontWeight: isA ? 800 : 700,
-                      color: isA ? st.color : isP ? st.color : (isDark ? "#94A3B8" : "#9ca3af"),
-                      whiteSpace: "nowrap"
+                      fontSize: isMobile ? "11px" : "13.5px",
+                      fontWeight: isA ? 700 : 600,
+                      color: isA ? (isDark ? "#ffffff" : st.color) : (isP ? (isDark ? "#E2E8F0" : "#475569") : (isDark ? "#64748B" : "#94A3B8")),
+                      whiteSpace: "nowrap",
+                      transition: "color 0.2s ease",
                     }}>
                       {st.label}
                     </div>
                     <div style={{
-                      fontSize: isMobile ? 7 : 8,
-                      color: isA ? st.color + "BB" : (isDark ? "#64748B" : "#9ca3af"),
-                      whiteSpace: "nowrap"
+                      fontSize: isMobile ? "8px" : "10.5px",
+                      color: isA ? "#FF9900" : (isDark ? "#475569" : "#94A3B8"),
+                      whiteSpace: "nowrap",
+                      fontWeight: 500,
+                      marginTop: 2,
                     }}>
                       {st.sub}
                     </div>
@@ -236,38 +259,48 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
 
         {/* desc */}
         {!hideDesc && (
-          <div style={{ width: "100%", maxWidth: "600px", margin: "0 auto 24px" }}>
+          <div style={{ width: "100%", maxWidth: "600px", margin: "0 auto 16px" }}>
             <AnimatePresence mode="wait">
               <motion.div key={active}
-                initial={{ opacity:0, y:8 }}
-                animate={{ opacity:1, y:0 }}
-                exit={{ opacity:0, y:-8 }}
-                transition={{ duration:.3 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3 }}
                 style={{
-                  background:cur.light, border:`1.5px solid ${cur.color}28`,
-                  borderRadius:16, padding: isMobile ? "10px 12px" : "15px 17px",
-                  display:"flex", alignItems:"center", gap: 10,
+                  background: isDark ? "rgba(255, 255, 255, 0.03)" : cur.light,
+                  border: isDark ? "1px solid rgba(255, 255, 255, 0.08)" : `1.5px solid ${cur.color}28`,
+                  borderRadius: 16,
+                  padding: isMobile ? "10px 12px" : "15px 17px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
                 }}>
-                  <div style={{width: isMobile ? 28 : 34, height: isMobile ? 28 : 34, borderRadius:10,flexShrink:0,background:cur.color+"22",border:`1px solid ${cur.color}33`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  <div style={{
+                    width: isMobile ? 28 : 34,
+                    height: isMobile ? 28 : 34,
+                    borderRadius: 10,
+                    flexShrink: 0,
+                    background: isDark ? `${cur.color}15` : cur.color + "22",
+                    border: `1px solid ${cur.color}33`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}>
                     {DescIconComponent && <DescIconComponent size={isMobile ? 13 : 16} color={cur.color} />}
                   </div>
-                <span style={{fontSize: isMobile ? 11.5 : 13, color:"#1d2939",fontWeight:600,lineHeight:1.6}}>{DESCS[active]}</span>
+                <span style={{
+                  fontSize: isMobile ? 11.5 : 13.5,
+                  color: isDark ? "#E2E8F0" : "#1d2939",
+                  fontWeight: 500,
+                  lineHeight: 1.6,
+                  textAlign: "left"
+                }}>{DESCS[active]}</span>
               </motion.div>
             </AnimatePresence>
           </div>
         )}
 
-        {/* dots */}
-        {!hideDesc && (
-          <div style={{display:"flex",justifyContent:"center",gap:7}}>
-            {STAGES.map((st,i)=>(
-              <motion.div key={i} onClick={()=>setActive(i)}
-                animate={{ width:i===active?24:8, background:i<=active?st.color:"rgba(35,47,62,.07)" }}
-                transition={{ duration:.35 }}
-                style={{height:8,borderRadius:100,cursor:"pointer"}}/>
-            ))}
-          </div>
-        )}
+
       </div>
     </div>
   );

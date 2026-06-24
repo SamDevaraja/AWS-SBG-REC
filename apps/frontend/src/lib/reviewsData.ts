@@ -41,7 +41,7 @@ export const REVIEWS: Review[] = [
     text: "Attended Cloud Matrix — got a clear view on what is cloud, its basics and about certifications and how to build a career in cloud-based jobs.",
   },
   {
-    name: "Prathakshanaa",
+    name: "Prathakshanaa T",
     role: "3rd Year · ECE Department",
     initials: "PR",
     stars: 5,

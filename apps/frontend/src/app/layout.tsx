@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/modules/cloud-enthusiasts/shared/components/Providers";
 import { AuthWrapper } from "@/components/AuthWrapper";
 import { Toaster } from "sonner";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-plus-jakarta",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "AWS SBG REC Event Registration",
@@ -29,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className={`h-full ${plusJakartaSans.variable}`}>
       <body className="min-h-full flex flex-col cloud-mesh-bg antialiased">
         <Providers>
           <AuthWrapper>
