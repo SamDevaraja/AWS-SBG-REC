@@ -2,51 +2,17 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// SVG Components for each stage
-const CompassIcon = ({ size, color }: { size: number; color: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-  </svg>
-);
+import { Fingerprint, Lightbulb, BadgeCheck, Star, Share2 } from "lucide-react";
 
-const BookOpenIcon = ({ size, color }: { size: number; color: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-  </svg>
-);
-
-const WrenchIcon = ({ size, color }: { size: number; color: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-  </svg>
-);
-
-const AwardIcon = ({ size, color }: { size: number; color: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="7" />
-    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-  </svg>
-);
-
-const TrophyIcon = ({ size, color }: { size: number; color: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-    <path d="M4 22h16" />
-    <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
-    <path d="M12 2a6 6 0 0 0-6 6v5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6z" />
-  </svg>
-);
-
-const STAGE_ICONS: Record<string, React.ComponentType<{ size: number; color: string }>> = {
-  Register: CompassIcon,
-  Learn: BookOpenIcon,
-  Certify: AwardIcon,
-  Lead: TrophyIcon,
-  Share: WrenchIcon,
+const STAGE_ICONS: Record<string, React.ComponentType<{ size: number; color: string; strokeWidth?: number }>> = {
+  Register: Fingerprint,
+  Learn:    Lightbulb,
+  Certify:  BadgeCheck,
+  Lead:     Star,
+  Share:    Share2,
 };
+
+
 
 const STAGES = [
   { label:"Register",  sub:"First Step",      color:"#FF9900", light:"rgba(255, 153, 0, 0.08)", glow:"rgba(255, 153, 0, 0.15)" },
@@ -122,19 +88,19 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
           padding: plain ? (isMobile ? "0 2px" : "0 32px") : "0 32px",
           boxSizing: "border-box"
         }}>
-          {/* Progress bar background line */}
+          {/* Progress bar background line — starts/ends at center of first/last circle */}
           <div style={{
             position: "absolute",
-            top: isMobile ? 18 : 24, // perfectly centered for 36px/48px height
-            left: isMobile ? "30px" : "50px",
-            right: isMobile ? "30px" : "50px",
+            top: isMobile ? 18 : 24, // vertically centered with node circles
+            left: isMobile ? "30px" : "55px",   // = half of node column width (60px / 110px)
+            right: isMobile ? "30px" : "55px",
             height: 2,
             background: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(35, 47, 62, 0.08)",
             borderRadius: 2,
-            zIndex: 1
+            zIndex: 1  // circles are zIndex:3 so they sit on top of the line
           }} />
           
-          {/* Active progress bar line fill */}
+          {/* Active progress bar line fill — same bounds as background track */}
           <motion.div 
             initial={{ scaleX: 0 }}
             animate={{ scaleX: active / (STAGES.length - 1) }}
@@ -142,13 +108,13 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
             style={{
               position: "absolute",
               top: isMobile ? 18 : 24,
-              left: isMobile ? "30px" : "50px",
-              width: `calc(100% - ${isMobile ? '60px' : '100px'})`,
+              left: isMobile ? "30px" : "55px",
+              width: `calc(100% - ${isMobile ? '60px' : '110px'})`,
               height: 2,
               background: "#FF9900",
               transformOrigin: "left",
               borderRadius: 2,
-              zIndex: 2
+              zIndex: 2  // circles are zIndex:3 so they sit on top of the line
             }}
           />
 
@@ -179,10 +145,12 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
                 nodeBorder = `2px solid ${st.color}`;
                 nodeShadow = `0 0 0 4px ${st.glow}, 0 4px 16px ${st.glow}`;
               } else if (isP) {
-                nodeBg = isDark ? "rgba(255, 255, 255, 0.02)" : "rgba(0, 0, 0, 0.01)";
+                // Solid background so the progress line doesn't bleed through the circle
+                nodeBg = isDark ? "#1e2d3d" : "#ffffff";
                 nodeBorder = `2px solid ${st.color}`;
               } else {
-                nodeBg = isDark ? "rgba(255, 255, 255, 0.03)" : "#ffffff";
+                // Solid background so the track line doesn't bleed through the circle
+                nodeBg = isDark ? "#1a2535" : "#ffffff";
                 nodeBorder = `1.5px solid ${isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(35, 47, 62, 0.12)"}`;
               }
 
@@ -226,7 +194,7 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
                         transition: "all 0.25s ease",
                       }}
                     >
-                      {IconComponent && <IconComponent size={isMobile ? 14 : 20} color={iconColor} />}
+                      {IconComponent && <IconComponent size={isMobile ? 16 : 22} color={iconColor} strokeWidth={2} />}
                     </motion.div>
                   </div>
                   
@@ -286,7 +254,7 @@ export default function JourneyCard({ plain = false, hideDesc = false, isDark = 
                     alignItems: "center",
                     justifyContent: "center"
                   }}>
-                    {DescIconComponent && <DescIconComponent size={isMobile ? 13 : 16} color={cur.color} />}
+                    {DescIconComponent && <DescIconComponent size={isMobile ? 13 : 16} color={cur.color} strokeWidth={2} />}
                   </div>
                 <span style={{
                   fontSize: isMobile ? 11.5 : 13.5,
