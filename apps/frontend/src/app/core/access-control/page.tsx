@@ -20,7 +20,9 @@ import {
   MessageSquare,
   Map as MapIcon,
   Power,
-  Clock
+  Clock,
+  Pencil,
+  Trash2
 } from "lucide-react";
 
 // User context & API imports
@@ -148,6 +150,8 @@ function AccessControlDashboard() {
   const [taskDeadline, setTaskDeadline] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [assigningTask, setAssigningTask] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
 
   const isCore = currentUser?.role === "core";
 
@@ -197,6 +201,37 @@ function AccessControlDashboard() {
     }
   };
 
+  // Load events list for dropdown
+  const loadEventsData = async () => {
+    try {
+      const headers: Record<string, string> = {};
+      const userId = typeof window !== 'undefined' ? (localStorage.getItem('selected_user_id') || currentUser?.id) : currentUser?.id;
+      if (userId) {
+        headers['x-user-id'] = userId;
+      }
+      const res = await fetch("/api/events?limit=100", { headers });
+      if (!res.ok) {
+        throw new Error("Failed to query events database.");
+      }
+      const responseJson = await res.json();
+      let eventsList: any[] = [];
+      if (responseJson && responseJson.success && responseJson.data) {
+        if (Array.isArray(responseJson.data.data)) {
+          eventsList = responseJson.data.data;
+        } else if (Array.isArray(responseJson.data)) {
+          eventsList = responseJson.data;
+        }
+      } else if (responseJson && Array.isArray(responseJson.data)) {
+        eventsList = responseJson.data;
+      } else if (Array.isArray(responseJson)) {
+        eventsList = responseJson;
+      }
+      setEvents(eventsList);
+    } catch (err) {
+      console.error("Failed to load events:", err);
+    }
+  };
+
   // Core API loader
   const loadWorkspaceData = async () => {
     if (!currentUser) return;
@@ -206,6 +241,7 @@ function AccessControlDashboard() {
         const logs = await api.getSecurityLogs();
         setSecurityLogs(logs);
         await loadPermissionsData();
+        await loadEventsData();
       } else {
         await loadPermissionsData();
       }
@@ -290,7 +326,7 @@ function AccessControlDashboard() {
     }
   };
 
-  // Task Assign Form Submission
+  // Task Assign Form Submission / Update
   const handleAssignTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCrewMemberId) {
@@ -301,10 +337,6 @@ function AccessControlDashboard() {
       showToast("Task name is required.", "error");
       return;
     }
-    if (!taskEventName.trim()) {
-      showToast("Event name is required.", "error");
-      return;
-    }
     if (!taskDeadline) {
       showToast("Deadline is required.", "error");
       return;
@@ -312,16 +344,26 @@ function AccessControlDashboard() {
 
     try {
       setAssigningTask(true);
-      await api.createTask({
-        name: taskName.trim(),
-        category: "during_event", // default enum category compatibility
-        priority: taskPriority as any,
-        assignedToId: selectedCrewMemberId,
-        dueDate: new Date(taskDeadline).toISOString(),
-        notes: `Event: ${taskEventName.trim()}\nDescription: ${taskDescription.trim() || 'No description provided.'}`
-      });
-
-      showToast(`Task assigned & announcement posted!`, "success");
+      if (editingTaskId) {
+        await api.updateTask(editingTaskId, {
+          name: taskName.trim(),
+          priority: taskPriority as any,
+          dueDate: new Date(taskDeadline).toISOString(),
+          notes: `Event: ${taskEventName.trim()}\nDescription: ${taskDescription.trim() || 'No description provided.'}`
+        });
+        showToast("Task updated successfully.", "success");
+        setEditingTaskId(null);
+      } else {
+        await api.createTask({
+          name: taskName.trim(),
+          category: "during_event", // default enum category compatibility
+          priority: taskPriority as any,
+          assignedToId: selectedCrewMemberId,
+          dueDate: new Date(taskDeadline).toISOString(),
+          notes: `Event: ${taskEventName.trim()}\nDescription: ${taskDescription.trim() || 'No description provided.'}`
+        });
+        showToast(`Task assigned & announcement posted!`, "success");
+      }
       
       // Reset task fields
       setTaskName("");
@@ -335,9 +377,49 @@ function AccessControlDashboard() {
       setSecurityLogs(logs);
     } catch (err: any) {
       console.error(err);
-      showToast(err.message || "Failed to assign task.", "error");
+      showToast(err.message || "Failed to save task.", "error");
     } finally {
       setAssigningTask(false);
+    }
+  };
+
+  const handleEditClick = (task: any) => {
+    const { eventName, description } = parseTaskNotes(task.notes);
+    setEditingTaskId(task.id);
+    setTaskName(task.name);
+    setTaskEventName(eventName || "");
+    setTaskPriority(task.priority);
+    if (task.dueDate) {
+      const d = new Date(task.dueDate);
+      const tzoffset = d.getTimezoneOffset() * 60000;
+      const localISOTime = (new Date(d.getTime() - tzoffset)).toISOString().slice(0, 16);
+      setTaskDeadline(localISOTime);
+    } else {
+      setTaskDeadline("");
+    }
+    setTaskDescription(description || "");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTaskId(null);
+    setTaskName("");
+    setTaskEventName("");
+    setTaskPriority("medium");
+    setTaskDeadline("");
+    setTaskDescription("");
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!confirm("Are you sure you want to delete this task?")) return;
+    try {
+      await api.deleteTask(taskId);
+      showToast("Task deleted successfully.", "success");
+      await loadAssignedTasks(selectedCrewMemberId);
+      const logs = await api.getSecurityLogs();
+      setSecurityLogs(logs);
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || "Failed to delete task.", "error");
     }
   };
 
@@ -345,6 +427,15 @@ function AccessControlDashboard() {
   const selectedCrewMember = useMemo(() => {
     return tempCrew.find(c => c.id === selectedCrewMemberId);
   }, [tempCrew, selectedCrewMemberId]);
+
+  // Include taskEventName in options if not present
+  const eventOptions = useMemo(() => {
+    const list = [...events];
+    if (taskEventName && !list.some(e => e.title === taskEventName)) {
+      list.push({ id: "temp-event", title: taskEventName });
+    }
+    return list;
+  }, [events, taskEventName]);
 
   // Memoized crew members with active permissions
   const activeMembers = useMemo(() => {
@@ -621,11 +712,17 @@ function AccessControlDashboard() {
                           <div>
                             <div className="pb-3 border-b border-slate-200/60 mb-6 flex items-center justify-between">
                               <div>
-                                <h3 className="text-lg font-bold text-[#232F3E] tracking-tight">Assign New Task</h3>
-                                <p className="text-xs text-slate-455 uppercase font-bold tracking-wide mt-0.5">Delegate event duties to {selectedCrewMember.name}</p>
+                                <h3 className="text-lg font-bold text-[#232F3E] tracking-tight">
+                                  {editingTaskId ? "Edit Task" : "Assign New Task"}
+                                </h3>
+                                <p className="text-xs text-slate-455 uppercase font-bold tracking-wide mt-0.5">
+                                  {editingTaskId 
+                                    ? `Modify event duties for ${selectedCrewMember.name}` 
+                                    : `Delegate event duties to ${selectedCrewMember.name}`}
+                                </p>
                               </div>
                               <span className="inline-block bg-orange-50 text-[#FF9900] border border-orange-100 px-2.5 py-0.5 rounded-[6px] text-xs font-bold uppercase tracking-wide">
-                                TASK DELEGATOR
+                                {editingTaskId ? "TASK EDITOR" : "TASK DELEGATOR"}
                               </span>
                             </div>
 
@@ -633,13 +730,18 @@ function AccessControlDashboard() {
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-tight mb-2">Event Name</label>
-                                  <input
-                                    type="text"
-                                    placeholder="e.g. AWS Cloud Day, GenAI Hackathon..."
+                                  <select
                                     value={taskEventName}
                                     onChange={(e) => setTaskEventName(e.target.value)}
-                                    className="w-full bg-white border border-slate-200 rounded-[8px] text-sm px-3.5 py-3 outline-none font-semibold text-slate-800 focus:border-slate-350"
-                                  />
+                                    className="w-full bg-white border border-slate-200 rounded-[8px] text-sm px-3.5 py-3 outline-none font-semibold text-slate-800 focus:border-slate-350 cursor-pointer"
+                                  >
+                                    <option value="">Select Event (Optional)</option>
+                                    {eventOptions.map((evt) => (
+                                      <option key={evt.id} value={evt.title}>
+                                        {evt.title}
+                                      </option>
+                                    ))}
+                                  </select>
                                 </div>
 
                                 <div>
@@ -689,17 +791,30 @@ function AccessControlDashboard() {
                                 />
                               </div>
 
-                              <button
-                                type="submit"
-                                disabled={assigningTask}
-                                className="w-full bg-[#232F3E] hover:bg-[#1a232f] text-white py-3.5 rounded-[8px] font-bold text-sm uppercase tracking-tight transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm hover:shadow"
-                              >
-                                {assigningTask ? (
-                                  <RefreshCw size={14} className="animate-spin" />
-                                ) : (
-                                  "Assign Task & Notify"
+                              <div className="flex gap-3">
+                                {editingTaskId && (
+                                  <button
+                                    type="button"
+                                    onClick={handleCancelEdit}
+                                    className="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-[8px] font-bold text-sm uppercase tracking-tight transition-all cursor-pointer flex items-center justify-center shadow-sm hover:shadow border border-slate-200"
+                                  >
+                                    Cancel
+                                  </button>
                                 )}
-                              </button>
+                                <button
+                                  type="submit"
+                                  disabled={assigningTask}
+                                  className={`${editingTaskId ? "w-2/3" : "w-full"} bg-[#232F3E] hover:bg-[#1a232f] text-white py-3.5 rounded-[8px] font-bold text-sm uppercase tracking-tight transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm hover:shadow`}
+                                >
+                                  {assigningTask ? (
+                                    <RefreshCw size={14} className="animate-spin" />
+                                  ) : editingTaskId ? (
+                                    "Save Changes"
+                                  ) : (
+                                    "Assign Task & Notify"
+                                  )}
+                                </button>
+                              </div>
                             </form>
                           </div>
                         </div>
@@ -794,14 +909,15 @@ function AccessControlDashboard() {
                           </div>
                         ) : (
                           <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
+                             <table className="w-full text-left border-collapse table-fixed">
                               <thead>
                                 <tr className="border-b border-slate-200/60 text-xs uppercase tracking-tight text-slate-400 font-bold">
-                                  <th className="pb-3 font-bold">Task Name</th>
-                                  <th className="pb-3 font-bold">Event Name</th>
-                                  <th className="pb-3 font-bold">Priority</th>
-                                  <th className="pb-3 font-bold">Deadline</th>
-                                  <th className="pb-3 font-bold">Status</th>
+                                  <th className="pb-3 text-left font-bold w-[28%] pr-4">Task Name</th>
+                                  <th className="pb-3 text-left font-bold w-[22%] pr-4">Event Name</th>
+                                  <th className="pb-3 text-left font-bold w-[11%] pr-4">Priority</th>
+                                  <th className="pb-3 text-left font-bold w-[14%] pr-4">Deadline</th>
+                                  <th className="pb-3 text-left font-bold w-[13%] pr-4">Status</th>
+                                  <th className="pb-3 text-right font-bold w-[12%] pr-2">Actions</th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-700">
@@ -823,33 +939,63 @@ function AccessControlDashboard() {
                                     blocked: "bg-red-50 text-red-800 border-red-100"
                                   };
 
+                                  const isEditing = editingTaskId === task.id;
+
                                   return (
-                                    <tr key={task.id} className="hover:bg-slate-50/20 transition-colors">
-                                      <td className="py-3.5 pr-4">
-                                        <div className="font-semibold text-slate-800 text-sm">{task.name}</div>
+                                    <tr 
+                                      key={task.id} 
+                                      className={`hover:bg-slate-55/20 transition-all duration-200 ${
+                                        isEditing ? "bg-orange-50/40" : ""
+                                      }`}
+                                    >
+                                      <td className="py-3.5 pr-4 align-middle w-[28%] text-left">
+                                        <div className="font-semibold text-slate-800 text-sm break-words">{task.name}</div>
                                         {description && (
-                                          <div className="text-xs text-slate-400 font-medium mt-0.5 line-clamp-1 max-w-sm">
+                                          <div className="text-xs text-slate-400 font-medium mt-0.5 line-clamp-1 max-w-sm break-words" title={description}>
                                             {description}
                                           </div>
                                         )}
                                       </td>
-                                      <td className="py-3.5">
-                                        <span className="px-2.5 py-1 rounded-[6px] text-xs font-semibold bg-white text-slate-700 border border-slate-200/60 uppercase">
+                                      <td className="py-3.5 pr-4 align-middle w-[22%] text-left">
+                                        <span 
+                                          className="inline-block max-w-full break-words px-2.5 py-1 rounded-[6px] text-xs font-semibold bg-white text-slate-700 border border-slate-200/60 uppercase align-middle"
+                                          title={eventName || undefined}
+                                        >
                                           {eventName || "—"}
                                         </span>
                                       </td>
-                                      <td className="py-3.5">
-                                        <span className={`px-2.5 py-1 rounded-[6px] text-xs font-semibold border uppercase ${priorityColors[task.priority] || "bg-slate-55 text-slate-700 border-slate-150"}`}>
+                                      <td className="py-3.5 pr-4 align-middle w-[11%] text-left">
+                                        <span className={`inline-block px-2.5 py-1 rounded-[6px] text-xs font-semibold border uppercase align-middle ${priorityColors[task.priority] || "bg-slate-55 text-slate-700 border-slate-150"}`}>
                                           {task.priority}
                                         </span>
                                       </td>
-                                      <td className="py-3.5 text-slate-500 font-medium text-xs">
+                                      <td className="py-3.5 pr-4 text-slate-500 font-medium text-xs align-middle w-[14%] text-left">
                                         {formatDate(task.dueDate)}
                                       </td>
-                                      <td className="py-3.5">
-                                        <span className={`px-2.5 py-1 rounded-[6px] text-xs font-bold uppercase tracking-tight border ${statusColors[task.status] || "bg-slate-55 text-slate-700 border-slate-150"}`}>
+                                      <td className="py-3.5 pr-4 align-middle w-[13%] text-left">
+                                        <span className={`inline-block px-2.5 py-1 rounded-[6px] text-xs font-bold uppercase tracking-tight border align-middle ${statusColors[task.status] || "bg-slate-55 text-slate-700 border-slate-150"}`}>
                                           {task.status.replace(/_/g, ' ')}
                                         </span>
+                                      </td>
+                                      <td className="py-3.5 pr-2 align-middle w-[12%] text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                          <button
+                                            onClick={() => handleEditClick(task)}
+                                            className={`transition-colors p-1.5 rounded-[6px] hover:bg-slate-100 cursor-pointer ${
+                                              isEditing ? "text-[#FF9900]" : "text-slate-400 hover:text-[#FF9900]"
+                                            }`}
+                                            title="Edit Task"
+                                          >
+                                            <Pencil size={14} />
+                                          </button>
+                                          <button
+                                            onClick={() => handleDeleteTask(task.id)}
+                                            className="text-slate-400 hover:text-red-600 transition-colors p-1.5 rounded-[6px] hover:bg-red-50 cursor-pointer"
+                                            title="Delete Task"
+                                          >
+                                            <Trash2 size={14} />
+                                          </button>
+                                        </div>
                                       </td>
                                     </tr>
                                   );

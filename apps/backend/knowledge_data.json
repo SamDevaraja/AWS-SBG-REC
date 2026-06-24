@@ -1,0 +1,32 @@
+[
+  {
+    "id": "aws_faq_1",
+    "text": "What is the AWS Certified Cloud Practitioner exam? The AWS Certified Cloud Practitioner (CLF-C02) exam is a foundational exam designed for individuals who want to demonstrate a basic, overall understanding of the AWS Cloud platform. It covers cloud concepts, security, technology, and billing/pricing models.",
+    "category": "certifications",
+    "tags": ["CCP", "foundational", "exam"]
+  },
+  {
+    "id": "aws_faq_2",
+    "text": "What is the AWS Certified Solutions Architect - Associate? The AWS Certified Solutions Architect - Associate (SAA-C03) exam is designed for individuals who perform a solutions architect role and have one or more years of hands-on experience designing available, cost-efficient, fault-tolerant, and scalable distributed systems on AWS.",
+    "category": "certifications",
+    "tags": ["SAA", "associate", "solutions architect"]
+  },
+  {
+    "id": "aws_faq_3",
+    "text": "How can I register for AWS Study Group events? You can register for AWS Study Group events directly through the Events page of this platform. Select an active event, fill in the custom registration form details, and a QR-code ticket will be generated for you.",
+    "category": "events",
+    "tags": ["registration", "study group", "tickets"]
+  },
+  {
+    "id": "aws_faq_4",
+    "text": "Is there a free tier for AWS services? Yes, AWS offers a Free Tier which includes 12 months of free access to many common services (like Amazon EC2, Amazon S3, and Amazon RDS) up to certain usage limits, as well as always-free offers.",
+    "category": "aws_services",
+    "tags": ["free tier", "billing", "pricing"]
+  },
+  {
+    "id": "aws_faq_5",
+    "text": "How is the leaderboard score calculated? The leaderboard ranking is calculated based on your XP (Experience Points). You earn XP by completing learning pathway modules, watching slides, and scoring highly on topic quizzes.",
+    "category": "leaderboard",
+    "tags": ["XP", "gamification", "quizzes"]
+  }
+]

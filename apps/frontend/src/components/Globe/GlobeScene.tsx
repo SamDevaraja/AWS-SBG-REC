@@ -14,23 +14,40 @@ interface GlobeSceneProps {
 
 export default function GlobeScene({ regions, onSelectRegion, selectedRegion }: GlobeSceneProps) {
   const controlsRef = useRef<any>(null);
+  const prevRegionRef = useRef<AWSRegionData | null>(null);
 
   useEffect(() => {
     if (selectedRegion && controlsRef.current) {
-      const camera = controlsRef.current.object;
-      const target = controlsRef.current.target;
-      // Default position of camera is [0, 0, 6.5] and target is [0, 0, 0]
-      const hasMoved = Math.abs(camera.position.x) > 0.05 ||
-                       Math.abs(camera.position.y) > 0.05 ||
-                       Math.abs(camera.position.z - 6.5) > 0.05 ||
-                       Math.abs(target.x) > 0.05 ||
-                       Math.abs(target.y) > 0.05 ||
-                       Math.abs(target.z) > 0.05;
-      
-      if (hasMoved) {
-        controlsRef.current.reset();
+      let shouldReset = true;
+      if (prevRegionRef.current) {
+        const latDiff = Math.abs(selectedRegion.lat - prevRegionRef.current.lat);
+        const lngDiff = Math.abs(selectedRegion.lng - prevRegionRef.current.lng);
+        const shortestLngDiff = Math.abs(((lngDiff + 180) % 360) - 180);
+        
+        // If the transition is between nearby regions (within 25 degrees lat/lng),
+        // skip resetting camera controls to avoid visual snapping or jumping.
+        if (latDiff < 25 && shortestLngDiff < 25) {
+          shouldReset = false;
+        }
+      }
+
+      if (shouldReset) {
+        const camera = controlsRef.current.object;
+        const target = controlsRef.current.target;
+        // Default position of camera is [0, 0, 6.5] and target is [0, 0, 0]
+        const hasMoved = Math.abs(camera.position.x) > 0.05 ||
+                         Math.abs(camera.position.y) > 0.05 ||
+                         Math.abs(camera.position.z - 6.5) > 0.05 ||
+                         Math.abs(target.x) > 0.05 ||
+                         Math.abs(target.y) > 0.05 ||
+                         Math.abs(target.z) > 0.05;
+        
+        if (hasMoved) {
+          controlsRef.current.reset();
+        }
       }
     }
+    prevRegionRef.current = selectedRegion;
   }, [selectedRegion]);
 
   return (

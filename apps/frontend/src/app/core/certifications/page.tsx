@@ -14,7 +14,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import {
   Clock,
-  DollarSign,
+  Banknote,
   Loader2,
   User,
   FileText,
@@ -178,7 +178,7 @@ function CertCard({
           </span>
         </div>
 
-        <h3 className="mt-3 text-lg font-bold text-slate-800 tracking-tight leading-tight pr-8">
+        <h3 className="mt-3 text-lg font-semibold text-slate-800 tracking-tight leading-tight pr-8">
           {cert.title}
         </h3>
 
@@ -211,7 +211,7 @@ function CertCard({
             </div>
 
             <div className="flex items-center gap-2 rounded-xl bg-slate-50/50 border border-slate-100/80 p-2 min-w-0">
-              <DollarSign className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
+              <Banknote className={cn("h-4 w-4 shrink-0", theme.iconColor)} />
               <div className="flex flex-col min-w-0">
                 <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">COST</span>
                 <span className="text-xs font-bold text-slate-700 leading-none">

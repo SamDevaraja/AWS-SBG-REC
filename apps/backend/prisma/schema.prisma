@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model Role {
@@ -1115,3 +1117,25 @@ model ReviewDecision {
   @@index([taskId, createdAt])
   @@map("review_decisions")
 }
+
+model AWSKnowledgeBase {
+  id        String                     @id @default(uuid())
+  text      String
+  embedding Unsupported("vector(384)")?
+  metadata  Json
+  createdAt DateTime                   @default(now()) @map("created_at")
+
+  @@map("aws_knowledge_base")
+}
+
+model ConversationMemory {
+  id        String                     @id @default(uuid())
+  text      String
+  embedding Unsupported("vector(384)")?
+  sessionId String                     @map("session_id")
+  role      String
+  timestamp DateTime                   @default(now())
+
+  @@map("conversation_memory")
+}
+

@@ -2,22 +2,68 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// SVG Components for each stage
+const CompassIcon = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+  </svg>
+);
+
+const BookOpenIcon = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+);
+
+const WrenchIcon = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+  </svg>
+);
+
+const AwardIcon = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="7" />
+    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+  </svg>
+);
+
+const TrophyIcon = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+    <path d="M4 22h16" />
+    <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
+    <path d="M12 2a6 6 0 0 0-6 6v5a6 6 0 0 0 12 0V8a6 6 0 0 0-6-6z" />
+  </svg>
+);
+
+const STAGE_ICONS: Record<string, React.ComponentType<{ size: number; color: string }>> = {
+  Register: CompassIcon,
+  Learn: BookOpenIcon,
+  Certify: AwardIcon,
+  Lead: TrophyIcon,
+  Share: WrenchIcon,
+};
+
 const STAGES = [
-  { icon:"🌱", label:"Beginner",  sub:"Cloud Basics",    color:"#38b2ac", light:"#e6f9f8", glow:"rgba(56,178,172,.2)"  },
-  { icon:"📚", label:"Learner",   sub:"AWS Services",    color:"#0073BB", light:"#e8f4fd", glow:"rgba(0,115,187,.18)"  },
-  { icon:"🛠",  label:"Builder",   sub:"Real Projects",   color:"#FF9900", light:"#fff3e0", glow:"rgba(255,153,0,.22)"  },
-  { icon:"🏅",  label:"Certified", sub:"AWS Credentials", color:"#1e2d3d", light:"#edf2f7", glow:"rgba(30,45,61,.18)"  },
-  { icon:"🚀",  label:"Expert",    sub:"Cloud Leader",    color:"#E68900", light:"#fff8e8", glow:"rgba(230,137,0,.2)"   },
+  { label:"Register",  sub:"First Step",      color:"#38b2ac", light:"#e6f9f8", glow:"rgba(56,178,172,.2)"  },
+  { label:"Learn",     sub:"Core AWS",        color:"#0073BB", light:"#e8f4fd", glow:"rgba(0,115,187,.18)"  },
+  { label:"Certify",   sub:"Get Badges",      color:"#FF9900", light:"#fff3e0", glow:"rgba(255,153,0,.22)"  },
+  { label:"Lead",      sub:"Be a Mentor",     color:"#1e2d3d", light:"#edf2f7", glow:"rgba(30,45,61,.18)"  },
+  { label:"Share",     sub:"Impact",          color:"#E68900", light:"#fff8e8", glow:"rgba(230,137,0,.2)"   },
 ];
 const DESCS = [
   "Join AWS SBG REC, explore cloud fundamentals and set up your first AWS services.",
   "Follow structured courses and roadmaps. Learn by doing alongside driven peers.",
-  "Ship real AWS projects, join hackathons and build a portfolio that stands out.",
   "Prep with Quiz Arena and mock exams, then earn your AWS certifications.",
   "Mentor others, lead projects and launch your cloud career with confidence.",
+  "Share your expertise with the community, build open source projects, and grow together.",
 ];
 
-export default function JourneyCard({ plain = false, hideDesc = false }: { plain?: boolean; hideDesc?: boolean }) {
+export default function JourneyCard({ plain = false, hideDesc = false, isDark = false }: { plain?: boolean; hideDesc?: boolean; isDark?: boolean }) {
   const [active, setActive] = useState(0);
   const [hov, setHov] = useState<number|null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -35,6 +81,7 @@ export default function JourneyCard({ plain = false, hideDesc = false }: { plain
   }, []);
 
   const cur = STAGES[active];
+  const DescIconComponent = STAGE_ICONS[cur.label];
 
   return (
     <div
@@ -58,72 +105,133 @@ export default function JourneyCard({ plain = false, hideDesc = false }: { plain
 
       <div style={plain ? { padding: "0" } : { padding:"32px 30px 28px" }}>
         <div style={{textAlign:"center",marginBottom: plain ? 20 : 32}}>
-          <div style={{fontWeight:800,fontSize: isMobile ? 16 : 18,color:"#1d2939",marginBottom:6}}>
+          <div style={{fontWeight:800,fontSize: isMobile ? 16 : 18,color: isDark ? "#FFFFFF" : "#1d2939",marginBottom:6}}>
             Your Journey with AWS SBG REC
           </div>
-          <div style={{fontSize: isMobile ? 11 : 13,color:"#9ca3af"}}>From beginner to cloud professional</div>
+          <div style={{fontSize: isMobile ? 11 : 13,color: isDark ? "#94A3B8" : "#9ca3af"}}>From beginner to cloud professional</div>
         </div>
 
         {/* nodes */}
         <div style={{
-          display:"flex",
-          alignItems:"flex-start",
-          justifyContent:"space-between",
+          position: "relative",
           width: "100%",
           maxWidth: "800px",
           margin: hideDesc ? "0 auto 8px" : "0 auto 32px",
-          padding: plain ? (isMobile ? "0 8px" : "0 32px") : "0 32px",
+          padding: plain ? (isMobile ? "0 2px" : "0 32px") : "0 32px",
           boxSizing: "border-box"
         }}>
-          {STAGES.map((st,i)=>{
-            const isA=i===active, isP=i<active, isH=hov===i;
-            const circleSize = isMobile ? (isA ? 50 : 36) : (isA ? 66 : 48);
-            const labelSize = isMobile ? (isA ? 9.5 : 8) : (isA ? 11 : 9);
-            const lineMargin = isMobile ? "0 2px 26px" : "0 4px 36px";
+          {/* Progress bar background line */}
+          <div style={{
+            position: "absolute",
+            top: isMobile ? 18 : 33, // center of 36px/66px circle container height
+            left: isMobile ? "30px" : "50px",
+            right: isMobile ? "30px" : "50px",
+            height: 2,
+            background: isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(35, 47, 62, 0.08)",
+            borderRadius: 2,
+            zIndex: 1
+          }} />
+          
+          {/* Active progress bar line fill */}
+          <motion.div 
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: active / (STAGES.length - 1) }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: "absolute",
+              top: isMobile ? 18 : 33,
+              left: isMobile ? "30px" : "50px",
+              width: `calc(100% - ${isMobile ? '60px' : '100px'})`,
+              height: 2,
+              background: `linear-gradient(90deg, ${STAGES[0].color}, ${STAGES[active].color})`,
+              transformOrigin: "left",
+              borderRadius: 2,
+              zIndex: 2
+            }}
+          />
 
-            return (
-              <div key={i} style={{display:"flex",alignItems:"center",flex:i<STAGES.length-1?1:"none"}}>
+          {/* Flex Container for Nodes */}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            position: "relative",
+            zIndex: 3,
+            width: "100%"
+          }}>
+            {STAGES.map((st, i) => {
+              const isA = i === active, isP = i < active, isH = hov === i;
+              const circleSize = isMobile ? (isA ? 36 : 24) : (isA ? 66 : 48);
+              const labelSize = isMobile ? (isA ? 8 : 6.5) : (isA ? 11 : 9);
+              const IconComponent = STAGE_ICONS[st.label];
+              const iconColor = isA ? "#ffffff" : (isP || isH ? st.color : (isDark ? "#94A3B8" : "#9ca3af"));
+
+              return (
                 <motion.div
-                  onClick={()=>setActive(i)}
-                  onMouseEnter={()=>setHov(i)}
-                  onMouseLeave={()=>setHov(null)}
-                  whileHover={{ scale:1.12 }}
-                  whileTap={{ scale:.95 }}
-                  style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,flexShrink:0,cursor:"pointer"}}>
-                  <motion.div
-                    animate={isA ? { scale:[1,1.08,1] } : {}}
-                    transition={{ duration:1.5, repeat:Infinity }}
-                    style={{
-                      width:circleSize, height:circleSize,
-                      borderRadius:"50%",
-                      background:isA?st.color:isP?st.light:isH?st.light:"#ffffff",
-                      border:`2.5px solid ${isA||isP||isH?st.color:"#e0d8cf"}`,
-                      display:"flex",alignItems:"center",justifyContent:"center",
-                      fontSize: isMobile ? (isA ? "1.2rem" : "0.9rem") : (isA ? "1.65rem" : "1.1rem"),
-                      boxShadow:isA?`0 0 0 ${isMobile ? '5px' : '8px'} ${st.glow},0 6px 22px ${st.glow}`:isH?`0 4px 14px ${st.glow}`:"none",
+                  key={i}
+                  onClick={() => setActive(i)}
+                  onMouseEnter={() => setHov(i)}
+                  onMouseLeave={() => setHov(null)}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 8,
+                    cursor: "pointer",
+                    zIndex: 10,
+                    width: isMobile ? "60px" : "100px",
+                  }}
+                >
+                  {/* Fixed-height wrapper to center the varying-size circle perfectly */}
+                  <div style={{
+                    height: isMobile ? 36 : 66,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%"
+                  }}>
+                    <motion.div
+                      animate={isA ? { scale: [1, 1.06, 1] } : {}}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      style={{
+                        width: circleSize,
+                        height: circleSize,
+                        borderRadius: "50%",
+                        background: isA ? st.color : isP ? st.light : isH ? st.light : (isDark ? "rgba(255,255,255,0.05)" : "#ffffff"),
+                        border: `2.5px solid ${isA || isP || isH ? st.color : (isDark ? "rgba(255,255,255,0.2)" : "#e0d8cf")}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: isA ? `0 0 0 ${isMobile ? '5px' : '8px'} ${st.glow}, 0 6px 22px ${st.glow}` : isH ? `0 4px 14px ${st.glow}` : "none",
+                        transition: "width 0.25s ease, height 0.25s ease, border-color 0.25s ease, background-color 0.25s ease",
+                      }}
+                    >
+                      {IconComponent && <IconComponent size={isMobile ? (isA ? 14 : 10) : (isA ? 28 : 20)} color={iconColor} />}
+                    </motion.div>
+                  </div>
+                  <div style={{ textAlign: "center", width: "100%" }}>
+                    <div style={{
+                      fontSize: labelSize,
+                      fontWeight: isA ? 800 : 700,
+                      color: isA ? st.color : isP ? st.color : (isDark ? "#94A3B8" : "#9ca3af"),
+                      whiteSpace: "nowrap"
                     }}>
-                    {st.icon}
-                  </motion.div>
-                  <div style={{textAlign:"center"}}>
-                    <div style={{fontSize:labelSize,fontWeight:isA?800:700,color:isA?st.color:isP?st.color:"#9ca3af",whiteSpace:"nowrap" as const}}>{st.label}</div>
-                    <div style={{fontSize: isMobile ? 7 : 8,color:isA?st.color+"BB":"#9ca3af",whiteSpace:"nowrap" as const}}>{st.sub}</div>
+                      {st.label}
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? 7 : 8,
+                      color: isA ? st.color + "BB" : (isDark ? "#64748B" : "#9ca3af"),
+                      whiteSpace: "nowrap"
+                    }}>
+                      {st.sub}
+                    </div>
                   </div>
                 </motion.div>
-                {i<STAGES.length-1&&(
-                  <motion.div
-                    initial={{ scaleX:0 }}
-                    animate={{ scaleX: i<active?1:0 }}
-                    transition={{ duration:.5 }}
-                    style={{flex:1,height:2,margin:lineMargin,borderRadius:2,
-                      background:`linear-gradient(90deg,${STAGES[i].color},${STAGES[i+1].color})`,
-                      transformOrigin:"left",position:"relative"}}/>
-                )}
-                {i<STAGES.length-1&&i>=active&&(
-                  <div style={{flex:1,height:2,margin:lineMargin,borderRadius:2,background:"rgba(35,47,62,.07)"}}/>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* desc */}
@@ -137,11 +245,13 @@ export default function JourneyCard({ plain = false, hideDesc = false }: { plain
                 transition={{ duration:.3 }}
                 style={{
                   background:cur.light, border:`1.5px solid ${cur.color}28`,
-                  borderRadius:16, padding:"15px 17px",
-                  display:"flex", alignItems:"center", gap:13,
+                  borderRadius:16, padding: isMobile ? "10px 12px" : "15px 17px",
+                  display:"flex", alignItems:"center", gap: 10,
                 }}>
-                <div style={{width:34,height:34,borderRadius:10,flexShrink:0,background:cur.color+"22",border:`1px solid ${cur.color}33`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"1rem"}}>{cur.icon}</div>
-                <span style={{fontSize:13,color:"#1d2939",fontWeight:600,lineHeight:1.6}}>{DESCS[active]}</span>
+                  <div style={{width: isMobile ? 28 : 34, height: isMobile ? 28 : 34, borderRadius:10,flexShrink:0,background:cur.color+"22",border:`1px solid ${cur.color}33`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    {DescIconComponent && <DescIconComponent size={isMobile ? 13 : 16} color={cur.color} />}
+                  </div>
+                <span style={{fontSize: isMobile ? 11.5 : 13, color:"#1d2939",fontWeight:600,lineHeight:1.6}}>{DESCS[active]}</span>
               </motion.div>
             </AnimatePresence>
           </div>

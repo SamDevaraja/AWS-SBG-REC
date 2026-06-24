@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '@/database/prisma.module';
 import { ChatController } from './chat.controller';
-import { ChromaService } from './services/chroma.service';
+import { PgVectorService } from './services/pgvector.service';
 import { EmbeddingService } from './services/embedding.service';
 
 @Module({
   imports: [PrismaModule],
   controllers: [ChatController],
-  providers: [ChromaService, EmbeddingService],
-  exports: [ChromaService, EmbeddingService],
+  providers: [PgVectorService, EmbeddingService],
+  exports: [PgVectorService, EmbeddingService],
 })
 export class ChatModule {}

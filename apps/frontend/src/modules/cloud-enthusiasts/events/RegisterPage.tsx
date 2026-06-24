@@ -212,11 +212,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] font-sans relative py-5 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-8 overflow-y-auto premium-scrollbar scroll-smooth">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] font-sans relative py-6 px-4 sm:px-6 lg:px-8 pb-12 overflow-y-auto premium-scrollbar scroll-smooth">
       {/* Background ambient glow (matches events page style) */}
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.07)_0%,rgba(255,153,0,0.03)_40%,transparent_70%)] pointer-events-none z-0" />
 
-      <div className="max-w-screen-xl w-full mx-auto z-10 relative">
+      <div className="max-w-3xl w-full mx-auto z-10 relative">
         {/* Top Header & Breadcrumbs / Cancel & Back */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <Link
@@ -294,15 +294,15 @@ export default function RegisterPage() {
                     {/* Panel Body */}
                     {currentStep === 1 && (
                       <div className="mt-4 space-y-4 pt-3.5 border-t border-slate-100">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                           {/* Full Name */}
                           <div className="space-y-1.5">
-                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
                               Full Name <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <User className="w-4 h-4" />
+                                <User className="w-[18px] h-[18px]" />
                               </span>
                               <input
                                 type="text"
@@ -310,8 +310,8 @@ export default function RegisterPage() {
                                 value={formData.fullName}
                                 onChange={(e) => handleFixedChange('fullName', e.target.value)}
                                 placeholder="Enter your full name"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
-                                  validationErrors.fullName ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                className={`w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.fullName ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : ''
                                 }`}
                               />
                             </div>
@@ -325,12 +325,12 @@ export default function RegisterPage() {
 
                           {/* Roll Number */}
                           <div className="space-y-1.5">
-                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
                               Registration / Roll Number <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <ClipboardList className="w-4 h-4" />
+                                <ClipboardList className="w-[18px] h-[18px]" />
                               </span>
                               <input
                                 type="text"
@@ -338,8 +338,8 @@ export default function RegisterPage() {
                                 value={formData.rollNumber}
                                 onChange={(e) => handleFixedChange('rollNumber', e.target.value)}
                                 placeholder="Enter your college registration number"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
-                                  validationErrors.rollNumber ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                className={`w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.rollNumber ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : ''
                                 }`}
                               />
                             </div>
@@ -353,12 +353,12 @@ export default function RegisterPage() {
 
                           {/* Department */}
                           <div className="space-y-1.5">
-                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
                               Department <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <GraduationCap className="w-4.5 h-4.5" />
+                                <GraduationCap className="w-[18px] h-[18px]" />
                               </span>
                               <input
                                 type="text"
@@ -366,8 +366,8 @@ export default function RegisterPage() {
                                 value={formData.department}
                                 onChange={(e) => handleFixedChange('department', e.target.value)}
                                 placeholder="e.g. Computer Science & Engineering"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
-                                  validationErrors.department ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                className={`w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.department ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : ''
                                 }`}
                               />
                             </div>
@@ -381,12 +381,12 @@ export default function RegisterPage() {
 
                           {/* Email */}
                           <div className="space-y-1.5">
-                            <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
+                            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
                               Email Address <span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
                               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                                <Mail className="w-4 h-4" />
+                                <Mail className="w-[18px] h-[18px]" />
                               </span>
                               <input
                                 type="email"
@@ -394,8 +394,8 @@ export default function RegisterPage() {
                                 value={formData.email}
                                 onChange={(e) => handleFixedChange('email', e.target.value)}
                                 placeholder="yourname@rajalakshmi.edu.in"
-                                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
-                                  validationErrors.email ? 'border-rose-300 focus:border-rose-500 focus:ring-0' : ''
+                                className={`w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
+                                  validationErrors.email ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : ''
                                 }`}
                               />
                             </div>
@@ -480,7 +480,7 @@ export default function RegisterPage() {
                       {/* Panel Body */}
                       {currentStep === 2 && (
                         <div className="mt-4 pt-3.5 border-t border-slate-100">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                             {customFields.map((field) => {
                               const isRequired = field.is_required;
                               const value = responses[field.field_label] || '';
@@ -489,7 +489,7 @@ export default function RegisterPage() {
 
                               return (
                                 <div key={field.field_id} className={cn("space-y-1.5", isFullWidth && "md:col-span-2")}>
-                                  <label className="block text-[11px] font-bold text-[#FF9900] uppercase tracking-wider font-sans">
+                                  <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider font-sans mb-1">
                                     {field.field_label} {isRequired && <span className="text-red-500">*</span>}
                                   </label>
 
@@ -500,7 +500,7 @@ export default function RegisterPage() {
                                         required={isRequired}
                                         value={value}
                                         onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
-                                        className={`w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] cursor-pointer transition-all appearance-none ${
+                                        className={`w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] cursor-pointer transition-all appearance-none ${
                                           errorText ? 'border-rose-300 focus:border-rose-500' : ''
                                         }`}
                                       >
@@ -517,7 +517,7 @@ export default function RegisterPage() {
                                   {field.field_type === 'radio' && (
                                     <div className="space-y-2 py-1">
                                       {field.select_options?.map(opt => (
-                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-[#232F3E] hover:text-slate-900 transition-colors">
+                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-sm text-[#232F3E] hover:text-slate-900 transition-colors">
                                           <input
                                             type="radio"
                                             name={field.field_id}
@@ -526,7 +526,7 @@ export default function RegisterPage() {
                                             onChange={() => handleCustomChange(field.field_label, opt)}
                                             className="w-4 h-4 text-[#232F3E] focus:ring-[#FF9900] border-slate-300"
                                           />
-                                          <span className="font-medium">{opt}</span>
+                                          <span className="font-semibold text-sm">{opt}</span>
                                         </label>
                                       ))}
                                     </div>
@@ -536,7 +536,7 @@ export default function RegisterPage() {
                                   {field.field_type === 'checkbox' && (
                                     <div className="space-y-2 py-1">
                                       {field.select_options?.map(opt => (
-                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-[13px] text-[#232F3E] hover:text-slate-900 transition-colors">
+                                        <label key={opt} className="flex items-center space-x-3 cursor-pointer text-sm text-[#232F3E] hover:text-slate-900 transition-colors">
                                           <input
                                             type="checkbox"
                                             name={field.field_id}
@@ -545,7 +545,7 @@ export default function RegisterPage() {
                                             onChange={(e) => handleCustomChange(field.field_label, e.target.checked ? opt : '')}
                                             className="w-4 h-4 rounded text-[#232F3E] focus:ring-[#FF9900] border-slate-300"
                                           />
-                                          <span className="font-medium">{opt}</span>
+                                          <span className="font-semibold text-sm">{opt}</span>
                                         </label>
                                       ))}
                                     </div>
@@ -559,7 +559,7 @@ export default function RegisterPage() {
                                       rows={3}
                                       onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
                                       placeholder={`Enter your answer for ${field.field_label.toLowerCase()}...`}
-                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
+                                      className={`w-full px-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                         errorText ? 'border-rose-300 focus:border-rose-500' : ''
                                       }`}
                                     />
@@ -598,7 +598,7 @@ export default function RegisterPage() {
                                       value={value}
                                       onChange={(e) => handleCustomChange(field.field_label, e.target.value)}
                                       placeholder={`Enter ${field.field_label.toLowerCase()}`}
-                                      className={`w-full px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:bg-white focus:outline-none rounded-xl text-[13px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
+                                      className={`w-full px-4 py-3 bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#FF9900] focus:ring-4 focus:ring-[#FF9900]/5 focus:bg-white focus:outline-none rounded-xl text-[14.5px] text-[#232F3E] placeholder-slate-400 transition-all font-medium ${
                                         errorText ? 'border-rose-300 focus:border-rose-500' : ''
                                       }`}
                                     />

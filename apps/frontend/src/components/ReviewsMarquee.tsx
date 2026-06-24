@@ -1,112 +1,344 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 import { REVIEWS } from "@/lib/reviewsData";
 
-const StarRating = () => (
-  <div style={{ display: "flex", gap: 2 }}>
+const QuoteIcon = ({ color }: { color: string }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    style={{
+      opacity: 0.12,
+      position: "absolute",
+      top: "20px",
+      right: "20px",
+      color: color,
+      pointerEvents: "none"
+    }}
+  >
+    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.987z" />
+  </svg>
+);
+
+const VerifiedBadge = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#0073BB"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{
+      display: "inline-block",
+      marginLeft: 4,
+      verticalAlign: "middle",
+      flexShrink: 0
+    }}
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const StarsRow = () => (
+  <div style={{ display: "flex", gap: 2.5, alignItems: "center" }}>
     {[...Array(5)].map((_, i) => (
-      <svg key={i} width="12" height="12" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" strokeWidth="2">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      <svg
+        key={i}
+        width="11"
+        height="11"
+        viewBox="0 0 24 24"
+        fill="#FF9900"
+        style={{ flexShrink: 0 }}
+      >
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </svg>
     ))}
   </div>
 );
 
+const GAP = 22;
+
+interface ReviewCardProps {
+  review: typeof REVIEWS[0];
+  idx: number;
+  half: "a" | "b";
+  isZoomed: boolean;
+  isDimmed: boolean;
+  onClick: () => void;
+}
+
+const ReviewCard = ({ review, idx, half, isZoomed, isDimmed, onClick }: ReviewCardProps) => {
+  return (
+    <motion.div
+      key={`${half}-${idx}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      whileHover={!isZoomed ? {
+        borderColor: "rgba(255, 153, 0, 0.4)",
+        boxShadow: "0 10px 20px -10px rgba(255, 153, 0, 0.08)",
+      } : undefined}
+      animate={{
+        scale: isZoomed ? 1.06 : 1,
+        borderColor: isZoomed ? "#FF9900" : "rgba(15, 23, 42, 0.06)",
+        boxShadow: isZoomed 
+          ? "0 12px 30px rgba(255, 153, 0, 0.15)" 
+          : "0 2px 8px rgba(15, 23, 42, 0.02)",
+        opacity: isDimmed ? 0.4 : 1,
+      }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      style={{
+        width: 340,
+        height: 190,
+        background: "#FFFFFF",
+        borderRadius: 12,
+        border: "1px solid",
+        padding: "16px 20px",
+        display: "flex",
+        flexDirection: "column",
+        cursor: "pointer",
+        position: "relative",
+        flexShrink: 0,
+        boxSizing: "border-box",
+        zIndex: isZoomed ? 20 : 1,
+      }}
+    >
+      {/* Header Row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", position: "relative" }}>
+        {/* Avatar */}
+        <div style={{
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "#f8fafc",
+          border: `1.5px solid ${review.color}22`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "13px",
+          fontWeight: 700,
+          color: review.color,
+          flexShrink: 0,
+        }}>
+          {review.initials}
+        </div>
+
+        {/* Name and Department */}
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+          <h4 style={{
+            margin: 0,
+            fontSize: "14px",
+            fontWeight: 655,
+            color: "#0f172a",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            letterSpacing: "-0.01em",
+          }}>
+            {review.name}
+            <VerifiedBadge />
+          </h4>
+          <p style={{
+            margin: 0,
+            fontSize: "11.5px",
+            fontWeight: 500,
+            color: "#64748b",
+          }}>
+            {review.role}
+          </p>
+        </div>
+      </div>
+
+      {/* Quote Icon */}
+      <QuoteIcon color={review.color} />
+
+      {/* Stars rating & Quote Text */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+        <StarsRow />
+        <p style={{
+          margin: 0,
+          fontSize: "13px",
+          color: "#334155",
+          lineHeight: 1.55,
+          fontWeight: 450,
+          display: "-webkit-box",
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}>
+          {review.text}
+        </p>
+      </div>
+
+      {/* Card Footer Row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginTop: "auto" }}>
+        {review.badge && (
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            fontSize: "10px",
+            fontWeight: 600,
+            color: "#475569",
+            background: "#f1f5f9",
+            border: "1px solid #e2e8f0",
+            padding: "2px 8px",
+            borderRadius: "9999px",
+          }}>
+            {review.badge}
+          </div>
+        )}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: "10.5px", color: "#16a34a", fontWeight: 600 }}>
+          <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#16a34a" }} />
+          Verified Builder
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 export default function ReviewsMarquee() {
   const [isPaused, setIsPaused] = useState(false);
-  const containerRef = useRef(null);
-  const inView = useInView(containerRef, { once: false, margin: "-60px" });
+  const [trackOffset, setTrackOffset] = useState(0);
+  const [isInView, setIsInView] = useState(false);
+  const [clickedIndex, setClickedIndex] = useState<{ idx: number; half: "a" | "b" } | null>(null);
+  
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const firstHalfRef = useRef<HTMLDivElement>(null);
 
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+  // Filter and order reviews so Prathakshanaa ("Captain") is always first
+  const marqueeReviews = React.useMemo(() => {
+    const unfiltered = REVIEWS.filter(r => !r.featured);
+    const captain = unfiltered.filter(r => r.name.toLowerCase().includes("prathakshanaa"));
+    const others = unfiltered.filter(r => !r.name.toLowerCase().includes("prathakshanaa"));
+    return [...captain, ...others];
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
+  const measure = useCallback(() => {
+    if (firstHalfRef.current) {
+      setTrackOffset(firstHalfRef.current.offsetWidth + GAP);
+    }
+  }, []);
 
-  const xMarqueeOffset = useTransform(scrollYProgress, [0, 1], [-80, 80]);
-  
-  // Filtering out grid reviews to display in the marquee
-  const marqueeReviews = REVIEWS.filter(r => !r.featured);
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [measure, marqueeReviews.length]);
+
+  // Set up intersection observer to only play when in view
+  useEffect(() => {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+      setIsInView(true);
+      return;
+    }
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  // Calculate translation required to center the clicked card
+  const clickedTranslation = useMemo(() => {
+    if (!clickedIndex || !containerRef.current) return 0;
+    const cardWidth = 340;
+    const cardGap = GAP;
+    const containerWidth = containerRef.current.offsetWidth;
+    
+    // Calculate the left position of the clicked card inside the track
+    const baseOffset = clickedIndex.idx * (cardWidth + cardGap);
+    const absoluteLeft = clickedIndex.half === "a" ? trackOffset + baseOffset : baseOffset;
+    
+    // Center of the card
+    const cardCenter = absoluteLeft + cardWidth / 2;
+    
+    // Translation needed to align cardCenter with containerWidth / 2
+    return (containerWidth / 2) - cardCenter;
+  }, [clickedIndex, trackOffset]);
+
+  const handleCardClick = (idx: number, half: "a" | "b") => {
+    if (clickedIndex && clickedIndex.idx === idx && clickedIndex.half === half) {
+      setClickedIndex(null);
+    } else {
+      setClickedIndex({ idx, half });
+    }
+  };
 
   return (
     <section
       id="reviews"
-      ref={containerRef}
+      ref={sectionRef}
+      onClick={() => setClickedIndex(null)}
       style={{
-        width: "100vw",
-        background: "linear-gradient(180deg, #FFFDF9 0%, #FFFFFF 50%, #FFFDF9 100%)",
-        padding: "20px 0 20px",
+        width: "100%",
+        background: "linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%)",
+        padding: "24px 0 28px",
         position: "relative",
         overflow: "hidden",
         zIndex: 10,
         scrollMarginTop: "100px",
+        borderTop: "1px solid #e2e8f0",
+        borderBottom: "1px solid #e2e8f0",
       }}
     >
-      {/* Orange line draws left->right at very top */}
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "#FF9900",
-          boxShadow: "0 0 20px rgba(255,153,0,0.3)",
-          transformOrigin: "left",
-          zIndex: 10,
-        }}
-      />
+      <style>{`
+        @keyframes marquee-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-${trackOffset}px); }
+        }
+      `}</style>
 
-      {/* Orange line draws right->left at very bottom */}
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: "#FF9900",
-          boxShadow: "0 0 20px rgba(255,153,0,0.3)",
-          transformOrigin: "right",
-          zIndex: 10,
-        }}
-      />
-      {/* Background Glows */}
-      <div style={{ position: "absolute", top: "-10%", left: "5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle,rgba(255,153,0,.08) 0%,transparent 70%)", filter: "blur(80px)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "-10%", right: "5%", width: "40vw", height: "40vw", borderRadius: "50%", background: "radial-gradient(circle,rgba(255,153,0,0.08) 0%,transparent 70%)", filter: "blur(80px)", pointerEvents: "none" }} />
-
-      {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
+      <div style={{ textAlign: "center", marginBottom: 18, padding: "0 24px" }}>
+        <span style={{
+          fontSize: "11px",
+          fontWeight: 700,
+          letterSpacing: "1.2px",
+          textTransform: "uppercase",
+          color: "#FF9900",
+          display: "block",
+          marginBottom: "6px"
+        }}>
+          BUILDER TESTIMONIALS
+        </span>
         <h2 style={{ 
-          fontSize: "clamp(26px, 3.5vw, 36px)", 
-          fontWeight: 700, 
-          color: "#232F3E", 
-          margin: "0 0 10px 0", 
+          fontSize: "clamp(24px, 3.2vw, 32px)", 
+          fontWeight: 750, 
+          color: "#0f172a", 
+          margin: "0 0 6px 0", 
           letterSpacing: "-0.02em",
           lineHeight: 1.2 
         }}>
           What Our Builders Say
         </h2>
         <p style={{ 
-          fontSize: 15, 
+          fontSize: "14.5px", 
           color: "#475569", 
           margin: 0, 
-          fontWeight: 500, 
-          maxWidth: 600, 
+          fontWeight: 450, 
+          maxWidth: 580, 
           marginLeft: "auto", 
           marginRight: "auto", 
           lineHeight: 1.6 
@@ -114,112 +346,75 @@ export default function ReviewsMarquee() {
           Real feedback and experiences from active community members building their cloud foundations.
         </p>
       </div>
-      {/* Sliding Marquee Container */}
+
       <div
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
+        ref={containerRef}
+        onMouseEnter={() => !clickedIndex && setIsPaused(true)}
+        onMouseLeave={() => !clickedIndex && setIsPaused(false)}
         style={{
           width: "100%",
           display: "flex",
           overflow: "hidden",
           position: "relative",
-          padding: "20px 0",
+          padding: "16px 0",
         }}
       >
-          {/* Edge Fade Gradients */}
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "120px", background: "linear-gradient(90deg, #FFFFFF, transparent)", zIndex: 5, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "120px", background: "linear-gradient(270deg, #FFFDF9, transparent)", zIndex: 5, pointerEvents: "none" }} />
-        {/* Purple Glow Edge */}
-        <div style={{ position: "absolute", left: "15%", top: "-10px", width: "200px", height: "60px", background: "radial-gradient(ellipse, rgba(130,68,239,.08) 0%, transparent 70%)", filter: "blur(20px)", pointerEvents: "none", zIndex: 1 }} />
+        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "140px", background: "linear-gradient(90deg, #f8fafc, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "140px", background: "linear-gradient(270deg, #ffffff, transparent 80%, transparent)", zIndex: 5, pointerEvents: "none" }} />
 
-        {/* Scroll-driven Parallax Wrapper */}
-        <motion.div
+        <div
           style={{
-            x: isMobile ? 0 : xMarqueeOffset,
             display: "flex",
-            width: "100%",
+            gap: GAP,
+            width: "max-content",
+            animationName: (trackOffset > 0 && !clickedIndex) ? "marquee-scroll" : "none",
+            animationDuration: "30s",
+            animationTimingFunction: "linear",
+            animationIterationCount: "infinite",
+            animationPlayState: (isPaused || !isInView) ? "paused" : "running",
+            transform: clickedIndex ? `translateX(${clickedTranslation}px)` : undefined,
+            transition: clickedIndex ? "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
+            willChange: "transform",
           }}
         >
-          {/* Marquee Track */}
-          <div
-            style={{
-              display: "flex",
-              gap: 28,
-              width: "max-content",
-              animation: "marquee 45s linear infinite",
-              animationPlayState: isPaused ? "paused" : "running",
-            }}
-          >
-            {/* Double map to allow seamless looping */}
-            {[...marqueeReviews, ...marqueeReviews].map((review, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(15,23,42,0.06), 0 0 0 1.5px rgba(255,153,0,0.18)" }}
-                style={{
-                  width: 340,
-                  minHeight: 200,
-                  background: "rgba(255, 255, 255, 0.85)",
-                  backdropFilter: "blur(16px)",
-                  border: "1.5px solid rgba(15, 23, 42, 0.08)",
-                  borderRadius: 24,
-                  boxShadow: "0 10px 25px -12px rgba(15,23,42,0.04), inset 0 1px 0 rgba(255,255,255,.95)",
-                  padding: "16px 20px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10,
-                  cursor: "pointer",
-                  transition: "all 0.35s ease",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Card Top Banner Line */}
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3.5, background: "linear-gradient(90deg, #FF9900, #EC7211)", borderRadius: "24px 24px 0 0" }} />
-
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{
-                    width: 44, height: 44, borderRadius: "50%",
-                    background: "linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%)",
-                    border: "1.5px solid rgba(15, 23, 42, 0.08)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 14, fontWeight: 700, color: "#475569", flexShrink: 0
-                  }}>
-                    {review.initials}
-                  </div>
-                  <div>
-                    <h4 style={{ margin: "0 0 2px 0", fontSize: 15, fontWeight: 600, color: "#1E293B" }}>{review.name}</h4>
-                    <p style={{ margin: 0, fontSize: 12, color: "#64748B", fontWeight: 400 }}>{review.role}</p>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <StarRating />
-                  <span style={{
-                    background: "#F1F5F9", border: "1px solid #E2E8F0",
-                    color: "#475569", borderRadius: 100, padding: "3px 10px",
-                    fontSize: 10, fontWeight: 600,
-                  }}>
-                    {review.tag}
-                  </span>
-                </div>
-
-                <p style={{
-                  margin: 0,
-                  fontSize: 13,
-                  color: "#475569",
-                  lineHeight: 1.5,
-                  overflow: "hidden",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 4,
-                  WebkitBoxOrient: "vertical",
-                  textOverflow: "ellipsis",
-                }}>
-                  "{review.text}"
-                </p>
-              </motion.div>
-            ))}
+          {/* Second half — starts visible on left */}
+          <div style={{ display: "flex", gap: GAP }}>
+            {marqueeReviews.map((review, idx) => {
+              const isZoomed = !!clickedIndex && clickedIndex.idx === idx && clickedIndex.half === "b";
+              const isDimmed = !!clickedIndex && !isZoomed;
+              return (
+                <ReviewCard
+                  key={`b-${idx}`}
+                  review={review}
+                  idx={idx}
+                  half="b"
+                  isZoomed={isZoomed}
+                  isDimmed={isDimmed}
+                  onClick={() => handleCardClick(idx, "b")}
+                />
+              );
+            })}
           </div>
-        </motion.div>
+
+          {/* First half — slides in from left */}
+          <div ref={firstHalfRef} style={{ display: "flex", gap: GAP }}>
+            {marqueeReviews.map((review, idx) => {
+              const isZoomed = !!clickedIndex && clickedIndex.idx === idx && clickedIndex.half === "a";
+              const isDimmed = !!clickedIndex && !isZoomed;
+              return (
+                <ReviewCard
+                  key={`a-${idx}`}
+                  review={review}
+                  idx={idx}
+                  half="a"
+                  isZoomed={isZoomed}
+                  isDimmed={isDimmed}
+                  onClick={() => handleCardClick(idx, "a")}
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );

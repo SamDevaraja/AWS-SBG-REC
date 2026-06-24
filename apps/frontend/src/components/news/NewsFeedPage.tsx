@@ -95,35 +95,64 @@ export function NewsFeedPage() {
           />
 
           {newsroom.editorHighlights.length > 0 ? (
-            <div className="hidden grid-rows-[1fr_1.15fr] gap-3 lg:grid">
-              <div className="grid grid-cols-2 gap-3">
-                {newsroom.editorHighlights.slice(0, 2).map((article) => (
-                  <FeaturedCompactCard
-                    key={article.id}
-                    article={article}
-                    onClick={setSelectedArticleId}
-                  />
-                ))}
-              </div>
-
-              {newsroom.editorHighlights[2] ? (
+            <div className="hidden gap-3 lg:flex lg:flex-col lg:h-[380px] w-full">
+              {newsroom.editorHighlights.length === 1 && (
                 <FeaturedCompactCard
-                  article={newsroom.editorHighlights[2]}
+                  article={newsroom.editorHighlights[0]}
                   onClick={setSelectedArticleId}
                   size="medium"
+                  className="h-full"
                 />
-              ) : null}
+              )}
+              {newsroom.editorHighlights.length === 2 && (
+                <>
+                  {newsroom.editorHighlights.map((article) => (
+                    <FeaturedCompactCard
+                      key={article.id}
+                      article={article}
+                      onClick={setSelectedArticleId}
+                      className="flex-1"
+                    />
+                  ))}
+                </>
+              )}
+              {newsroom.editorHighlights.length === 3 && (
+                <div className="grid grid-rows-[1fr_1.15fr] gap-3 h-full w-full">
+                  <div className="grid grid-cols-2 gap-3">
+                    <FeaturedCompactCard
+                      article={newsroom.editorHighlights[0]}
+                      onClick={setSelectedArticleId}
+                    />
+                    <FeaturedCompactCard
+                      article={newsroom.editorHighlights[1]}
+                      onClick={setSelectedArticleId}
+                    />
+                  </div>
+                  <FeaturedCompactCard
+                    article={newsroom.editorHighlights[2]}
+                    onClick={setSelectedArticleId}
+                    size="medium"
+                    className="h-full"
+                  />
+                </div>
+              )}
             </div>
           ) : null}
         </section>
 
         {newsroom.editorHighlights.length > 0 ? (
-          <div className="mt-3 grid gap-3 md:grid-cols-2 lg:hidden">
-            {newsroom.editorHighlights.map((article) => (
+          <div className={cn(
+            "mt-3 grid gap-3 lg:hidden",
+            newsroom.editorHighlights.length === 1 ? "grid-cols-1" : "md:grid-cols-2"
+          )}>
+            {newsroom.editorHighlights.map((article, index) => (
               <NewsCard
                 key={article.id}
                 article={article}
                 onClick={setSelectedArticleId}
+                className={cn(
+                  newsroom.editorHighlights.length === 3 && index === 2 && "md:col-span-2"
+                )}
               />
             ))}
           </div>
@@ -244,23 +273,25 @@ function CloudSpotlightCollage({
         />
         {articles.length > 1 ? (
           /* Right: Stacked overlay items matching left height */
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 h-full">
             {item1 ? (
               <NewsCard
                 article={item1}
                 onClick={onArticleClick}
                 variant="overlay"
-                className="h-[200px]"
+                className={cn(
+                  (!item2 && !item3) ? "flex-1 h-full" : "h-[200px]"
+                )}
               />
             ) : null}
             {item2 || item3 ? (
-              <div className="grid grid-cols-2 gap-3">
+              <div className={cn("grid gap-3 flex-1", (item2 && item3) ? "grid-cols-2" : "grid-cols-1")}>
                 {item2 ? (
                   <NewsCard
                     article={item2}
                     onClick={onArticleClick}
                     variant="overlay"
-                    className="h-[200px]"
+                    className="h-full min-h-[200px]"
                   />
                 ) : null}
                 {item3 ? (
@@ -268,7 +299,7 @@ function CloudSpotlightCollage({
                     article={item3}
                     onClick={onArticleClick}
                     variant="overlay"
-                    className="h-[200px]"
+                    className="h-full min-h-[200px]"
                   />
                 ) : null}
               </div>
@@ -339,36 +370,70 @@ function AiEmergingLayout({
   return (
     <>
       {/* Desktop Layout */}
-      <div className={cn("hidden md:grid", others.length > 0 ? "ai-emerging-grid" : "grid-cols-1")}>
+      <div className={cn(
+        "hidden md:grid",
+        others.length === 1 ? "grid-cols-2 gap-5" :
+        others.length === 2 ? "grid-cols-3 gap-5" :
+        others.length > 2 ? "ai-emerging-grid" : "grid-cols-1"
+      )}>
         {/* Left Column: Featured editorial article */}
-        <NewsCard
-          article={featured}
-          onClick={onArticleClick}
-          variant="flat-editorial"
-          className={cn(others.length === 0 && "w-full")}
-        />
+        {others.length === 2 ? (
+          <NewsCard
+            article={featured}
+            onClick={onArticleClick}
+            variant="flat-editorial"
+          />
+        ) : (
+          <NewsCard
+            article={featured}
+            onClick={onArticleClick}
+            variant="flat-editorial"
+            className={cn(others.length === 0 && "w-full")}
+          />
+        )}
         {others.length > 0 ? (
           /* Right Column: Compact Rail & Summaries */
-          <div className="flex flex-col gap-3.5 justify-between">
-            <div className="flex flex-col gap-3.5">
-              {others.slice(0, 2).map((article) => (
-                <NewsCard
-                  key={article.id}
-                  article={article}
-                  onClick={onArticleClick}
-                  variant="flat-horizontal"
-                  className="border-b border-border/40 pb-3.5 last:border-b-0 last:pb-0"
-                />
-              ))}
-            </div>
-            {others[2] ? (
+          others.length === 1 ? (
+            <NewsCard
+              article={others[0]}
+              onClick={onArticleClick}
+              variant="flat-editorial"
+            />
+          ) : others.length === 2 ? (
+            <>
               <NewsCard
-                article={others[2]}
+                article={others[0]}
                 onClick={onArticleClick}
-                variant="quote"
+                variant="flat-editorial"
               />
-            ) : null}
-          </div>
+              <NewsCard
+                article={others[1]}
+                onClick={onArticleClick}
+                variant="flat-editorial"
+              />
+            </>
+          ) : (
+            <div className="flex flex-col gap-3.5 justify-start">
+              <div className="flex flex-col gap-3.5">
+                {others.slice(0, 2).map((article) => (
+                  <NewsCard
+                    key={article.id}
+                    article={article}
+                    onClick={onArticleClick}
+                    variant="flat-horizontal"
+                    className="border-b border-border/40 pb-3.5 last:border-b-0 last:pb-0"
+                  />
+                ))}
+              </div>
+              {others[2] ? (
+                <NewsCard
+                  article={others[2]}
+                  onClick={onArticleClick}
+                  variant="quote"
+                />
+              ) : null}
+            </div>
+          )
         ) : null}
       </div>
 
@@ -436,7 +501,7 @@ function SecurityBulletin({
             type="button"
             aria-label={`Open article: ${lead.title}`}
             onClick={() => onArticleClick(lead.id)}
-            className="group relative flex min-h-[260px] w-full overflow-hidden text-left transition focus:outline-none focus:ring-2 focus:ring-red-500/50"
+            className="group relative flex min-h-[260px] w-full overflow-hidden text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
           >
             <NewsImage
               src={lead.imageUrl}
@@ -448,7 +513,7 @@ function SecurityBulletin({
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#131921] via-black/45 to-transparent" />
             <div className="relative flex w-full flex-col justify-end p-5">
-              <span className="mb-2 inline-flex w-fit rounded-full bg-red-500/20 border border-red-500/30 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.2em] text-red-200 backdrop-blur-sm">
+              <span className="mb-2 inline-flex w-fit rounded-full bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-red-200 backdrop-blur-sm">
                 SECURITY ADVISORY
               </span>
               <h3 className="break-words font-display text-[15px] font-semibold leading-[1.3] tracking-tight text-white group-hover:text-red-300 transition-colors duration-200">
@@ -467,12 +532,12 @@ function SecurityBulletin({
 
           {/* Incident logs/briefing feed */}
           {others.length > 0 ? (
-            <div className="flex flex-col justify-between border-t border-white/10 p-5 lg:border-l lg:border-t-0 bg-black/10">
+            <div className="flex flex-col border-t border-white/10 p-5 lg:border-l lg:border-t-0">
               <div>
-                <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.2em] text-white/40">
+                <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.06em] text-white/40">
                   {"// LATEST INCIDENT LOGS"}
                 </p>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col">
                   {others.map((article, index) => {
                     const tags = ["HIGH", "INFO", "CRITICAL"];
                     const tag = tags[index % tags.length];
@@ -489,7 +554,7 @@ function SecurityBulletin({
                         type="button"
                         aria-label={`Open article: ${article.title}`}
                         onClick={() => onArticleClick(article.id)}
-                        className="group block w-full border-b border-white/5 pb-3 text-left transition last:border-b-0 last:pb-0 focus:outline-none"
+                        className="group block w-full border-b border-white/5 py-2.5 text-left transition last:border-b-0 last:pb-0 first:pt-0 focus:outline-none"
                       >
                         <div className="flex items-center gap-2">
                           <span className={cn("rounded border px-1.5 py-0.5 text-[8px] font-mono font-bold tracking-wider", tagColor)}>
@@ -506,10 +571,6 @@ function SecurityBulletin({
                     );
                   })}
                 </div>
-              </div>
-              <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[9px] font-mono text-white/30">
-                <span>SECURE PROTOCOL V2</span>
-                <span>FEED UPDATED LIVE</span>
               </div>
             </div>
           ) : null}
@@ -560,23 +621,6 @@ function TrendingStoryRail({
           <p className="mt-1 text-[12px] leading-relaxed text-muted">
             Fast-moving stories worth scanning before your next build session.
           </p>
-        </div>
-        {/* Carousel controls */}
-        <div className="hidden items-center gap-1.5 sm:flex">
-          <button
-            onClick={() => scroll("left")}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors duration-200 hover:bg-white focus:outline-none cursor-pointer text-xs"
-            aria-label="Scroll left"
-          >
-            ←
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors duration-200 hover:bg-white focus:outline-none cursor-pointer text-xs"
-            aria-label="Scroll right"
-          >
-            →
-          </button>
         </div>
       </div>
 
@@ -652,7 +696,7 @@ function TrendingStoryRail({
                     boxSizing: 'border-box'
                   }}
                 >
-                  <span className="mb-1 inline-flex w-fit rounded-full bg-white/20 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                  <span className="mb-1 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.06em] text-white backdrop-blur-sm">
                     {getCategoryLabel(article.category)}
                   </span>
                   <h3 className="break-words font-display text-[13px] font-semibold leading-[1.3] tracking-tight text-white group-hover:text-[#B07024] transition-colors duration-200">
@@ -795,15 +839,23 @@ function buildBalancedMasonryColumns(
   const columns = Array.from({ length: columnCount }, () => [] as MasonryItem[]);
   const columnWeights = Array.from({ length: columnCount }, () => 0);
 
-  articles.forEach((article, index) => {
+  // Map to items with weight
+  const itemsWithWeight = articles.map((article, index) => {
     const variant = getMasonryVariant(article, index);
-    const targetColumnIndex = getLightestColumnIndex(columnWeights);
+    const weight = estimateMasonryWeight(article, variant);
+    return { article, variant, weight };
+  });
 
+  // Sort descending by weight (LPT bin-packing)
+  itemsWithWeight.sort((a, b) => b.weight - a.weight);
+
+  itemsWithWeight.forEach((item) => {
+    const targetColumnIndex = getLightestColumnIndex(columnWeights);
     columns[targetColumnIndex].push({
-      article,
-      variant,
+      article: item.article,
+      variant: item.variant,
     });
-    columnWeights[targetColumnIndex] += estimateMasonryWeight(article, variant);
+    columnWeights[targetColumnIndex] += item.weight;
   });
 
   return columns;
@@ -849,12 +901,14 @@ function buildNewsroomSections(articles: NewsArticle[]) {
     usedArticleIds,
     limit: 4,
     predicate: isAiArticle,
+    fillWithLatest: true,
   });
   const securityWatch = selectArticles({
     articles,
     usedArticleIds,
-    limit: 3,
+    limit: 4,
     predicate: isSecurityArticle,
+    fillWithLatest: true,
   });
   const trending = selectArticles({
     articles,
@@ -862,9 +916,9 @@ function buildNewsroomSections(articles: NewsArticle[]) {
     limit: 6,
     fillWithLatest: true,
   });
-  const latestUpdates = articles.filter(
-    (article) => !usedArticleIds.has(article.id),
-  );
+  const latestUpdates = articles
+    .filter((article) => !usedArticleIds.has(article.id))
+    .slice(0, 6);
 
   return {
     featured,
@@ -1010,14 +1064,14 @@ function estimateMasonryWeight(
     | "quote",
 ) {
   const variantWeight: Record<string, number> = {
-    headline: 0.6,
-    quote: 0.7,
-    "flat-horizontal": 0.65,
-    "flat-editorial": 1.0,
-    compact: 0.75,
-    standard: 1.0,
-    overlay: 1.05,
-    large: 1.25,
+    headline: 0.35,
+    quote: 0.5,
+    "flat-horizontal": 0.45,
+    "flat-editorial": 1.4,
+    compact: 1.25,
+    standard: 1.6,
+    overlay: 1.0,
+    large: 1.75,
   };
   const weight = variantWeight[variant] ?? 1;
 
@@ -1025,14 +1079,16 @@ function estimateMasonryWeight(
   const titleLength = article.title.length;
   const titleWeight =
     titleLength < 40
-      ? 0.08
+      ? 0.05
       : titleLength < 70
-        ? 0.2
-        : Math.min(titleLength / 100, 0.45);
+        ? 0.1
+        : Math.min(titleLength / 100, 0.25);
 
-  const summaryWeight = article.aiSummary ? 0.22 : 0;
-  const hasImage = Boolean(article.imageUrl?.trim());
-  const imageBonus = hasImage ? 0.05 : 0;
+  const summaryWeight = article.aiSummary ? 0.15 : 0;
+  const hasFullWidthImage =
+    Boolean(article.imageUrl?.trim()) &&
+    ["standard", "large", "compact", "overlay", "flat-editorial"].includes(variant);
+  const imageBonus = hasFullWidthImage ? 0.8 : 0;
 
   return weight + titleWeight + summaryWeight + imageBonus;
 }

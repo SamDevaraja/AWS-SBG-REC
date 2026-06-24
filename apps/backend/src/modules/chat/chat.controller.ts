@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
-import { ChromaService } from './services/chroma.service';
+import { PgVectorService } from './services/pgvector.service';
 import { EmbeddingService } from './services/embedding.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -133,14 +133,14 @@ export class ChatController {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly chromaService: ChromaService,
+    private readonly vectorService: PgVectorService,
     private readonly embeddingService: EmbeddingService,
   ) {}
 
   @Get('health')
   async health() {
-    const kbCount = await this.chromaService.countKnowledge();
-    const memCount = await this.chromaService.countMemory();
+    const kbCount = await this.vectorService.countKnowledge();
+    const memCount = await this.vectorService.countMemory();
     
     // Get live count
     const liveCount = await this.prisma.unhandledQuery.count({
@@ -271,7 +271,7 @@ export class ChatController {
 
     // Embed and query knowledge
     const queryVector = await this.embeddingService.embed(req.message);
-    const docs = await this.chromaService.queryKnowledge(queryVector, 1);
+    const docs = await this.vectorService.queryKnowledge(queryVector, 1);
 
     let similarity = 0.0;
     let docText = null;
@@ -296,8 +296,8 @@ export class ChatController {
       const botId = `${sessionId}_b_${timeMs + 1}`;
       
       const nowIso = new Date().toISOString();
-      await this.chromaService.storeMemory(userId, req.message, queryVector, sessionId, 'user', nowIso);
-      await this.chromaService.storeMemory(botId, docText.substring(0, 500), await this.embeddingService.embed(docText.substring(0, 500)), sessionId, 'assistant', nowIso);
+      await this.vectorService.storeMemory(userId, req.message, queryVector, sessionId, 'user', nowIso);
+      await this.vectorService.storeMemory(botId, docText.substring(0, 500), await this.embeddingService.embed(docText.substring(0, 500)), sessionId, 'assistant', nowIso);
 
       return {
         status: 'answered',
@@ -366,7 +366,7 @@ export class ChatController {
 
   @Get('admin/stats')
   async adminStats() {
-    const kbDocs = await this.chromaService.countKnowledge();
+    const kbDocs = await this.vectorService.countKnowledge();
     
     const live = await this.prisma.unhandledQuery.count({ where: { status: 'live' } });
     const pending = await this.prisma.unhandledQuery.count({ where: { status: 'pending' } });
@@ -413,9 +413,9 @@ export class ChatController {
     const question = row.message;
     const answer = body.answer.trim();
 
-    // Embed question -> upsert ChromaDB
+    // Embed question -> upsert pgvector
     const questionVec = await this.embeddingService.embed(question);
-    await this.chromaService.upsertKnowledge(
+    await this.vectorService.upsertKnowledge(
       docId,
       question,
       questionVec,
@@ -437,7 +437,7 @@ export class ChatController {
       },
     });
 
-    const totalDocs = await this.chromaService.countKnowledge();
+    const totalDocs = await this.vectorService.countKnowledge();
     console.log(`[admin] reply-live #${queryId}: saved doc '${docId}'. KB=${totalDocs} docs.`);
 
     return {
@@ -458,7 +458,7 @@ export class ChatController {
     const docId = `admin_${queryId}_${tsMs}`;
 
     const questionVec = await this.embeddingService.embed(body.question.trim());
-    await this.chromaService.upsertKnowledge(
+    await this.vectorService.upsertKnowledge(
       docId,
       body.question.trim(),
       questionVec,
@@ -479,7 +479,7 @@ export class ChatController {
       },
     });
 
-    const totalDocs = await this.chromaService.countKnowledge();
+    const totalDocs = await this.vectorService.countKnowledge();
     return {
       success: true,
       doc_id: docId,
@@ -522,8 +522,8 @@ export class ChatController {
   async seed(@Query('force') force?: string) {
     const forceReload = force === 'true';
     
-    // Read seed data from desktop path
-    const dataPath = 'C:\\Users\\Sam Devaraja\\Desktop\\CHATBOX_AWS1\\aws-club-ACC-QUE copy\\backend\\knowledge_data.json';
+    // Read seed data from portable local path
+    const dataPath = path.join(__dirname, '..', '..', '..', 'knowledge_data.json');
     
     if (!fs.existsSync(dataPath)) {
       throw new HttpException(`knowledge_data.json not found at ${dataPath}`, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -539,7 +539,7 @@ export class ChatController {
 
       if (forceReload) {
         console.log('[loader] Force reload requested — dropping collection...');
-        await this.chromaService.dropKnowledgeCollection();
+        await this.vectorService.dropKnowledgeCollection();
       }
 
       console.log(`[loader] Embedding and seeding ${documents.length} AWS QA documents...`);
@@ -551,10 +551,10 @@ export class ChatController {
           category: doc.category || 'general',
           tags: (doc.tags || []).join(','),
         };
-        await this.chromaService.upsertKnowledge(doc.id, text, embedding, metadata);
+        await this.vectorService.upsertKnowledge(doc.id, text, embedding, metadata);
       }
 
-      const total = await this.chromaService.countKnowledge();
+      const total = await this.vectorService.countKnowledge();
       console.log(`[loader] Knowledge base now contains ${total} documents.`);
 
       // Also seed default faq chips in Postgres if empty
@@ -583,7 +583,7 @@ export class ChatController {
       return {
         success: true,
         documents_loaded: documents.length,
-        message: `Loaded ${documents.length} documents into ChromaDB.`,
+        message: `Loaded ${documents.length} documents into PostgreSQL via pgvector.`,
       };
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -592,7 +592,7 @@ export class ChatController {
 
   @Delete('session/:session_id')
   async clearSession(@Param('session_id') sessionId: string) {
-    const deletedCount = await this.chromaService.clearSessionMemory(sessionId);
+    const deletedCount = await this.vectorService.clearSessionMemory(sessionId);
     return { deleted: deletedCount, session_id: sessionId };
   }
 

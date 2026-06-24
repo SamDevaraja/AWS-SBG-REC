@@ -16,29 +16,31 @@ export function NewsImageFallback({
   return (
     <div
       className={cn(
-        "absolute inset-0 flex items-center justify-center overflow-hidden",
+        "absolute inset-0 flex flex-col items-center justify-center bg-slate-50 overflow-hidden border border-slate-100",
         className,
       )}
-      style={{ background: 'var(--aws-gradient)' }}
       aria-hidden="true"
     >
-      <div className="gradient-overlay opacity-70" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.46),transparent_30%)]" />
-      <div
-        className={cn(
-          "relative mx-6 rounded-[var(--radius-lg)] border px-5 py-4 text-center backdrop-blur-md",
-          tone === "dark"
-            ? "border-white/35 bg-black/20 text-white"
-            : "border-white/55 bg-white/45 text-foreground",
+      {/* Subtle grid pattern background */}
+      <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px]" />
+      
+      {/* AWS logo container */}
+      <div className="relative z-10 flex flex-col items-center justify-center gap-3">
+        <div className="w-20 h-12 flex items-center justify-center">
+          <img
+            src="/aws-logo.svg"
+            alt="AWS Logo"
+            className="w-full h-full object-contain"
+          />
+        </div>
+        
+        {category && (
+          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 bg-slate-200/50 border border-slate-200 px-2 py-0.5 rounded-[4px]">
+            {getCategoryLabel(category)}
+          </span>
         )}
-      >
-        <p className="text-xs font-semibold uppercase tracking-[0.22em]">
-          {getCategoryLabel(category)}
-        </p>
-        <p className="mt-2 font-display text-lg font-semibold">
-          AWS Community Newsroom
-        </p>
       </div>
     </div>
   );
 }
+

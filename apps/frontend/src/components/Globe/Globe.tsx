@@ -48,7 +48,11 @@ export default function Globe({ regions, onSelectRegion, selectedRegion }: Globe
     // Shift focus slightly left to avoid info panel overlap
     const ryOffset = -0.35;
 
-    return { x: rx, y: ry + ryOffset };
+    // ALWAYS normalize target angles to [-PI, PI] to prevent unexpected wrapping/360-spinning
+    return {
+      x: Math.atan2(Math.sin(rx), Math.cos(rx)),
+      y: Math.atan2(Math.sin(ry + ryOffset), Math.cos(ry + ryOffset))
+    };
   };
 
   useFrame((state, delta) => {
@@ -56,6 +60,7 @@ export default function Globe({ regions, onSelectRegion, selectedRegion }: Globe
       if (selectedRegion) {
         // Reset locking state and calculate static target rotation once when a new region is selected
         if (prevSelectedRegionIdRef.current !== selectedRegion.id) {
+          const wasIdle = prevSelectedRegionIdRef.current === null;
           prevSelectedRegionIdRef.current = selectedRegion.id;
           isLockedRef.current = false;
           loggedFinalRef.current = false;
@@ -72,12 +77,13 @@ export default function Globe({ regions, onSelectRegion, selectedRegion }: Globe
           let diffY = newTarget.y - globeGroupRef.current.rotation.y;
           diffY = Math.atan2(Math.sin(diffY), Math.cos(diffY));
 
-          // If the point is already nearby (within ~25 degrees / 0.45 radians), just do a minor tilt
-          const isNearby = Math.abs(diffX) < 0.45 && Math.abs(diffY) < 0.45;
+          // We only skip revolving/tilting (keep X and Y unchanged) if transitioning from a previously selected region
+          // that is adjacent/local (within ~25 degrees / 0.45 radians).
+          const isNearby = !wasIdle && Math.abs(diffX) < 0.45 && Math.abs(diffY) < 0.45;
           if (isNearby) {
             targetRotationRef.current = {
-              x: globeGroupRef.current.rotation.x + diffX * 0.2,
-              y: globeGroupRef.current.rotation.y + diffY * 0.2
+              x: globeGroupRef.current.rotation.x, // Keep current X rotation unchanged (no tilt)
+              y: globeGroupRef.current.rotation.y  // Keep current Y rotation unchanged (no revolving)
             };
           } else {
             targetRotationRef.current = newTarget;
@@ -100,7 +106,7 @@ export default function Globe({ regions, onSelectRegion, selectedRegion }: Globe
           globeGroupRef.current.rotation.x = target.x;
           xCompleted = true;
         } else {
-          globeGroupRef.current.rotation.x += diffX * 0.05;
+          globeGroupRef.current.rotation.x += diffX * 0.12;
         }
 
         // Shortest-path Y rotation
@@ -111,7 +117,7 @@ export default function Globe({ regions, onSelectRegion, selectedRegion }: Globe
           globeGroupRef.current.rotation.y = target.y;
           yCompleted = true;
         } else {
-          globeGroupRef.current.rotation.y += diffY * 0.05;
+          globeGroupRef.current.rotation.y += diffY * 0.12;
         }
 
         // Add progress logging while animating

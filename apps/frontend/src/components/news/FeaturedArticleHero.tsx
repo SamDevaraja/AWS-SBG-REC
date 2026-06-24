@@ -19,7 +19,7 @@ export const FeaturedArticleHero = memo(function FeaturedArticleHero({
       type="button"
       aria-label={`Open article: ${article.title}`}
       onClick={() => onClick(article.id)}
-      className="group hover:-translate-y-[2px] hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-foreground/20"
+      className="group hover:-translate-y-[2px] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
       style={{
         position: 'relative',
         height: '380px',
@@ -74,7 +74,7 @@ export const FeaturedArticleHero = memo(function FeaturedArticleHero({
           width: '100%'
         }}
       >
-        <span className="mb-3 inline-flex w-fit rounded-full border border-white/30 bg-white/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] backdrop-blur">
+        <span className="mb-3 inline-flex w-fit rounded-full border border-white/10 bg-white/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] backdrop-blur">
           {getCategoryLabel(article.category)}
         </span>
         <h2 className="max-w-[calc(100vw-4rem)] break-words font-display text-xl font-semibold leading-tight tracking-tight [overflow-wrap:anywhere] sm:max-w-3xl sm:text-2xl lg:text-3xl" style={{ color: 'white' }}>

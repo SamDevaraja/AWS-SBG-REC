@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { sql, ensureDbInitialized, getPool } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // Helper to check headers for selected user context
 function getContextUserId(request: Request): string | null {
   return request.headers.get("x-user-id") || null;

@@ -427,14 +427,14 @@ export default function ContentEditorPage() {
   if (!module) return null;
 
   return (
-    <div className="space-y-6 flex flex-col h-full">
+    <div className="p-6 md:p-8 space-y-6 flex flex-col h-full">
       
       {/* Top Navigation Row */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4 flex-shrink-0 relative">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between border-b border-slate-200 pb-4 flex-shrink-0 relative">
+        <div className="flex items-start gap-3">
           <Link
             href={module?.topicId ? `/core/topics/${module.topicId}/roadmap?selected=${module.id}` : '/core/topics'}
-            className="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-colors shadow-sm"
+            className="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-colors shadow-sm mt-0.5"
           >
             <Icons.ArrowLeft className="w-4 h-4" />
           </Link>
@@ -457,16 +457,16 @@ export default function ContentEditorPage() {
         <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 flex items-center bg-slate-100 rounded-xl p-1 gap-1">
           <Link
             href={`/core/module/${module.dbId}/content`}
-            className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all bg-white text-slate-900 shadow-sm"
+            className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all bg-white text-slate-900 shadow-sm flex items-center justify-center"
           >
-            <Icons.FileText className="w-3.5 h-3.5 inline mr-1.5" />
+            <Icons.FileText className="w-3.5 h-3.5 mr-1.5" />
             Slides
           </Link>
           <Link
             href={`/core/module/${module.dbId}/quiz`}
-            className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-white/50"
+            className="px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all text-slate-500 hover:text-slate-700 hover:bg-white/50 flex items-center justify-center"
           >
-            <Icons.HelpCircle className="w-3.5 h-3.5 inline mr-1.5" />
+            <Icons.HelpCircle className="w-3.5 h-3.5 mr-1.5" />
             Quiz
           </Link>
         </div>
@@ -573,7 +573,7 @@ export default function ContentEditorPage() {
                     className={cn(
                       "py-2 px-3 border rounded-xl flex flex-col items-center gap-1.5 transition-all font-bold text-[10px]",
                       activeSlide.layoutType === layout.value || (!activeSlide.layoutType && layout.value === 'text-only')
-                        ? "bg-indigo-55/45 border-indigo-300 text-indigo-700 font-bold"
+                        ? "bg-indigo-50 border-indigo-300 text-indigo-700 font-bold"
                         : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                     )}
                   >

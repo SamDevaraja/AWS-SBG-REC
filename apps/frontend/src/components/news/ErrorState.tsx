@@ -33,7 +33,7 @@ export const ErrorState = memo(function ErrorState({
           <button
             type="button"
             onClick={onRetry}
-            className="mt-7 inline-flex items-center gap-2 rounded-full border border-border bg-white/75 px-5 py-3 text-sm font-semibold text-foreground [box-shadow:var(--shadow-soft)] transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-4 focus:ring-foreground/15"
+            className="mt-7 inline-flex items-center gap-2 rounded-full border border-border bg-white/75 px-5 py-3 text-sm font-semibold text-foreground [box-shadow:var(--shadow-soft)] transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]"
           >
             <RefreshCw className="size-4" aria-hidden="true" />
             {actionLabel}

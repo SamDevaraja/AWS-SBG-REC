@@ -10,23 +10,28 @@ type FeaturedCompactCardProps = {
   article: NewsArticle;
   onClick: (articleId: string) => void;
   size?: "small" | "medium";
+  className?: string;
 };
 
 export const FeaturedCompactCard = memo(function FeaturedCompactCard({
   article,
   onClick,
   size = "small",
+  className,
 }: FeaturedCompactCardProps) {
   return (
     <button
       type="button"
       aria-label={`Open article: ${article.title}`}
       onClick={() => onClick(article.id)}
-      className="group hover:-translate-y-[2px] hover:shadow-md focus:outline-none focus:ring-4 focus:ring-foreground/20"
+      className={cn(
+        "group hover:-translate-y-[2px] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
+        className
+      )}
       style={{
         position: 'relative',
         width: '100%',
-        height: size === 'medium' ? '240px' : '182px',
+        height: className?.includes("h-") ? undefined : (size === 'medium' ? '240px' : '182px'),
         overflow: 'hidden',
         borderRadius: '16px',
         textAlign: 'left',
@@ -68,7 +73,7 @@ export const FeaturedCompactCard = memo(function FeaturedCompactCard({
           width: '100%'
         }}
       >
-        <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] backdrop-blur" style={{ color: 'white' }}>
+        <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] backdrop-blur" style={{ color: 'white' }}>
           {getCategoryLabel(article.category)}
         </span>
         <h3

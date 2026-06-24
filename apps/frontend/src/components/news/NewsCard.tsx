@@ -37,7 +37,7 @@ export const NewsCard = memo(function NewsCard({
         aria-label={`Open article: ${article.title}`}
         onClick={() => onClick(article.id)}
         className={cn(
-          "group relative flex min-h-[200px] w-full overflow-hidden rounded-[var(--radius-lg)] text-left text-white [box-shadow:var(--shadow-soft)] transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-[var(--shadow-hover)] focus:outline-none focus:ring-4 focus:ring-foreground/15",
+          "group relative flex min-h-[200px] w-full overflow-hidden rounded-[var(--radius-lg)] text-left text-white [box-shadow:var(--shadow-soft)] transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-[var(--shadow-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
           className,
         )}
       >
@@ -51,7 +51,7 @@ export const NewsCard = memo(function NewsCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/5" />
         <div className="relative flex w-full min-w-0 flex-col justify-end p-4">
-          <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
+          <span className="mb-1.5 inline-flex w-fit rounded-full bg-white/15 border border-white/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] backdrop-blur-sm">
             {getCategoryLabel(article.category)}
           </span>
           <h2 className="break-words font-display text-[15px] font-semibold leading-[1.3] tracking-tight [overflow-wrap:anywhere] group-hover:text-[color:var(--accent)] transition-colors duration-200">
@@ -73,12 +73,12 @@ export const NewsCard = memo(function NewsCard({
         aria-label={`Open article: ${article.title}`}
         onClick={() => onClick(article.id)}
         className={cn(
-          "group block w-full border-b border-border/50 py-3 text-left transition-colors duration-200 first:pt-0 hover:bg-white/40 focus:outline-none focus:ring-4 focus:ring-foreground/10",
+          "group block w-full border-b border-border/50 py-3 text-left transition-colors duration-200 first:pt-0 hover:bg-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
           className,
         )}
       >
         <div className="flex items-start gap-2">
-          <span className="mt-0.5 shrink-0 text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--accent)]">
+          <span className="mt-0.5 shrink-0 text-[10px] font-semibold uppercase tracking-[0.06em] text-[color:var(--accent)]">
             {getCategoryLabel(article.category)}
           </span>
           <span className="text-[10px] font-medium text-muted">
@@ -108,11 +108,11 @@ export const NewsCard = memo(function NewsCard({
         aria-label={`Open article: ${article.title}`}
         onClick={() => onClick(article.id)}
         className={cn(
-          "group flex w-full items-center gap-3 border-b border-border/40 py-2.5 text-left transition-colors duration-200 hover:bg-white/40 focus:outline-none focus:ring-4 focus:ring-foreground/10",
+          "group flex w-full items-center gap-3 border-b border-border/40 py-2.5 text-left transition-colors duration-200 hover:bg-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
           className,
         )}
       >
-        <span className="shrink-0 rounded bg-foreground/5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-muted">
+        <span className="shrink-0 rounded bg-foreground/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.05em] text-muted">
           {getCategoryLabel(article.category)}
         </span>
         <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-foreground transition-colors duration-200 group-hover:text-[color:var(--accent)]">
@@ -133,7 +133,7 @@ export const NewsCard = memo(function NewsCard({
         aria-label={`Open article: ${article.title}`}
         onClick={() => onClick(article.id)}
         className={cn(
-          "group flex w-full flex-col text-left transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-foreground/15",
+          "group flex w-full flex-col text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
           className,
         )}
       >
@@ -146,7 +146,7 @@ export const NewsCard = memo(function NewsCard({
             sizes="(min-width: 1024px) 33vw, 100vw"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
           />
-          <span className="absolute left-2.5 top-2.5 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white backdrop-blur">
+          <span className="absolute left-2.5 top-2.5 rounded-full border border-white/10 bg-black/50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.05em] text-white backdrop-blur">
             {getCategoryLabel(article.category)}
           </span>
         </div>
@@ -175,28 +175,28 @@ export const NewsCard = memo(function NewsCard({
         aria-label={`Open article: ${article.title}`}
         onClick={() => onClick(article.id)}
         className={cn(
-          "group flex w-full gap-3.5 text-left transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-foreground/15",
+          "group flex w-full gap-3.5 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
           className,
         )}
       >
-        <div className="relative aspect-[4/3] w-20 shrink-0 overflow-hidden rounded-md sm:w-24">
+        <div className="relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-lg sm:w-32">
           <NewsImage
             src={article.imageUrl}
             category={article.category}
             articleId={article.id}
             alt={article.title}
-            sizes="96px"
+            sizes="128px"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
           />
         </div>
         <div className="flex min-w-0 flex-col justify-center">
-          <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-[color:var(--accent)]">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[color:var(--accent)]">
             {getCategoryLabel(article.category)}
           </span>
-          <h2 className="mt-0.5 break-words font-display text-[13px] font-semibold leading-[1.3] tracking-tight text-foreground transition-colors duration-200 group-hover:text-[color:var(--accent)] line-clamp-2">
+          <h2 className="mt-0.5 break-words font-display text-[15px] sm:text-[16.5px] font-bold leading-[1.3] tracking-tight text-foreground transition-colors duration-200 group-hover:text-[color:var(--accent)] line-clamp-2">
             {article.title}
           </h2>
-          <p className="mt-1 text-[9px] font-medium text-muted/60">
+          <p className="mt-1.5 text-[11px] font-semibold text-muted/60">
             {article.sourceName} · {formatPublishedDate(article.publishedAt)}
           </p>
         </div>
@@ -212,7 +212,7 @@ export const NewsCard = memo(function NewsCard({
         aria-label={`Quote article: ${article.title}`}
         onClick={() => onClick(article.id)}
         className={cn(
-          "group relative flex w-full flex-col justify-between overflow-hidden rounded-[var(--radius-lg)] bg-[color:var(--surface-alt)] p-4 text-left border border-border/40 [box-shadow:var(--shadow-soft)] transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-[var(--shadow-hover)] focus:outline-none focus:ring-4 focus:ring-foreground/15",
+          "group relative flex w-full flex-col justify-between overflow-hidden rounded-[var(--radius-lg)] bg-[color:var(--surface-alt)] p-4 text-left border border-border/40 [box-shadow:var(--shadow-soft)] transition-all duration-300 ease-out hover:-translate-y-[2px] hover:shadow-[var(--shadow-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
           className,
         )}
       >
@@ -248,7 +248,7 @@ export const NewsCard = memo(function NewsCard({
       aria-label={`Open article: ${article.title}`}
       onClick={() => onClick(article.id)}
       className={cn(
-        "group inline-flex w-full break-inside-avoid overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card text-left [box-shadow:var(--shadow-soft)] transition-all duration-300 ease-out hover:-translate-y-[2px] hover:bg-white/92 hover:shadow-[var(--shadow-hover)] focus:outline-none focus:ring-4 focus:ring-foreground/15",
+        "group inline-flex w-full break-inside-avoid overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card text-left [box-shadow:var(--shadow-soft)] transition-all duration-300 ease-out hover:-translate-y-[2px] hover:bg-white/92 hover:shadow-[var(--shadow-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
         isHorizontal ? "min-w-[260px] flex-row md:min-w-[320px]" : "flex-col",
         isLarge && "rounded-[var(--radius-xl)]",
         className,
@@ -274,7 +274,7 @@ export const NewsCard = memo(function NewsCard({
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
         />
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
-        <span className="absolute left-3 top-3 rounded-full border border-white/35 bg-white/85 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground backdrop-blur">
+        <span className="absolute left-3 top-3 rounded-full border border-white/10 bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground backdrop-blur">
           {getCategoryLabel(article.category)}
         </span>
       </div>
