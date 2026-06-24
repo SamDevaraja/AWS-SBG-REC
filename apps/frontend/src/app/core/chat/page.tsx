@@ -1,25 +1,35 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import GroupChatPanel from "@/components/chat/GroupChatPanel";
+import {
+  MessageSquare, Users, Database, Zap,
+  Search, Clock, CheckCircle2, XCircle, AlertCircle,
+  BookOpen, Trash2, Plus, X, ChevronDown,
+  UserCog, UserPlus, Ban, RefreshCw, SlidersHorizontal,
+} from "lucide-react";
 
-// Design tokens
-const A = {
-  bg: "#F8FAFC",
-  surface: "rgba(255, 255, 255, 0.65)",
-  surface2: "rgba(35, 47, 62, 0.05)",
-  border: "rgba(35, 47, 62, 0.1)",
-  accent: "#FF9900",
-  accentHov: "#E08500",
-  success: "#10b981",
-  warning: "#f59e0b",
-  danger: "#ef4444",
-  text: "#0F172A",
-  muted: "#475569",
-  highlight: "#232F3E",
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+const T = {
+  bg:        "#F8FAFC",         // Slate-50 main page background
+  surface:   "#FFFFFF",         // Pure white panels
+  surface2:  "#F1F5F9",         // Slate-100 sub-zones
+  surface3:  "#E2E8F0",         // Slate-200 hover states
+  border:    "#E2E8F0",         // Clean border separator
+  borderHov: "#CBD5E1",         // Border hover state
+  accent:    "#FF9900",         // AWS Orange accent
+  accentHov: "#E68A00",         // Orange active
+  accentLow: "rgba(255,153,0,0.08)", // Soft orange highlight background
+  success:   "#16a34a",         // Emerald-600
+  warning:   "#d97706",         // Amber-600
+  danger:    "#dc2626",         // Red-600
+  text:      "#0F172A",         // Slate-900 high contrast readable text
+  muted:     "#64748B",         // Slate-500 secondary labels
+  muted2:    "#475569",         // Slate-600 tertiary labels
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 const relativeTime = (isoStr: string) => {
   if (!isoStr) return "—";
   const diff = Date.now() - new Date(isoStr).getTime();
@@ -32,133 +42,98 @@ const relativeTime = (isoStr: string) => {
   return `${Math.floor(h / 24)}d ago`;
 };
 
-const statusColor = (s: string) => {
-  if (s === "pending" || s === "live") return A.warning;
-  if (s === "resolved" || s === "replied") return A.success;
-  if (s === "dismissed") return A.muted;
-  return A.muted;
+const statusMeta = (s: string) => {
+  if (s === "live" || s === "pending")    return { color: T.warning,  icon: <AlertCircle size={12} />, label: "Live" };
+  if (s === "resolved" || s === "replied") return { color: T.success,  icon: <CheckCircle2 size={12} />, label: "Resolved" };
+  if (s === "dismissed")                   return { color: T.muted,   icon: <XCircle size={12} />, label: "Dismissed" };
+  return { color: T.muted, icon: null, label: s };
 };
 
 const simPct = (v: number | null) => (v != null ? `${Math.round(v * 100)}%` : "—");
 
-// Tiny Toast component
+// ─── Toast ────────────────────────────────────────────────────────────────────
 interface ToastProps {
   toast: { type: "success" | "error"; title: string; body?: string } | null;
   onClose: () => void;
 }
-
 function Toast({ toast, onClose }: ToastProps) {
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(onClose, 4000);
     return () => clearTimeout(t);
   }, [toast, onClose]);
-
   if (!toast) return null;
   const isErr = toast.type === "error";
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 28,
-        right: 28,
-        zIndex: 1000,
-        background: isErr ? "rgba(239,68,68,0.15)" : "rgba(16,185,129,0.15)",
-        border: `1px solid ${isErr ? A.danger : A.success}`,
-        borderRadius: 12,
-        padding: "14px 18px",
-        display: "flex",
-        alignItems: "flex-start",
-        gap: 12,
-        maxWidth: 360,
-        animation: "slideUp .3s ease",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-        backdropFilter: "blur(10px)",
-      }}
-    >
-      <span style={{ fontSize: 16, lineHeight: 1 }}>{isErr ? "❌" : "✅"}</span>
+    <div style={{
+      position: "fixed", bottom: 24, right: 24, zIndex: 1000,
+      background: "#FFFFFF",
+      border: `1px solid ${isErr ? T.danger : T.success}40`,
+      borderRadius: 12, padding: "14px 18px",
+      display: "flex", alignItems: "flex-start", gap: 12,
+      maxWidth: 360, boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
+      animation: "slideUp .3s ease",
+    }}>
+      <span style={{ color: isErr ? T.danger : T.success, marginTop: 1 }}>
+        {isErr ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
+      </span>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 12, color: A.text, fontWeight: 600 }}>{toast.title}</div>
-        {toast.body && <div style={{ fontSize: 10, color: A.muted, marginTop: 4, lineHeight: 1.5 }}>{toast.body}</div>}
+        <div style={{ fontSize: 12, color: T.text, fontWeight: 700 }}>{toast.title}</div>
+        {toast.body && <div style={{ fontSize: 11, color: T.muted2, marginTop: 3, lineHeight: 1.5 }}>{toast.body}</div>}
       </div>
-      <button onClick={onClose} style={{ background: "none", border: "none", color: A.muted, cursor: "pointer", padding: 0, fontSize: 14 }}>×</button>
+      <button onClick={onClose} style={{ background: "none", border: "none", color: T.muted, cursor: "pointer", padding: 0 }}>
+        <X size={14} />
+      </button>
     </div>
   );
 }
 
-// Stats Pill
-const StatPill = ({ label, value, color }: { label: string; value: number | undefined; color: string }) => (
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: 2,
-      padding: "8px 16px",
-      background: A.surface2,
-      borderRadius: 10,
-      border: `1px solid ${A.border}`,
-      minWidth: 80,
-    }}
-  >
-    <span style={{ fontSize: 16, fontWeight: 700, color }}>{value ?? "—"}</span>
-    <span style={{ fontSize: 9, color: A.muted, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
-  </div>
-);
-
-// Query row
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Query {
-  id: string;
-  sessionId: string;
-  message: string;
-  bestSimilarity: number;
-  bestMatchDoc?: string | null;
-  timestamp: string;
-  status: string;
+  id: string; sessionId: string; message: string;
+  bestSimilarity: number; bestMatchDoc?: string | null;
+  timestamp: string; status: string;
 }
 
-interface QueryRowProps {
-  q: Query;
-  isSelected: boolean;
-  onSelect: (q: Query) => void;
-}
-
-const QueryRow = ({ q, isSelected, onSelect }: QueryRowProps) => (
-  <tr
-    onClick={() => onSelect(q)}
-    style={{
-      cursor: "pointer",
-      background: isSelected ? `${A.accent}18` : "transparent",
-      borderBottom: `1px solid ${A.border}`,
-      transition: "background .15s",
-    }}
-  >
-    <td style={{ padding: "10px 14px", color: A.muted, fontSize: 10, whiteSpace: "nowrap" }}>#{q.id.slice(-6)}</td>
-    <td style={{ padding: "10px 14px", color: A.text, fontSize: 12, maxWidth: 280 }}>
-      <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 280 }} title={q.message}>
+// ─── Query Row ────────────────────────────────────────────────────────────────
+const QueryRow = ({ q, isSelected, onSelect }: { q: Query; isSelected: boolean; onSelect: (q: Query) => void }) => {
+  const { color, icon, label } = statusMeta(q.status);
+  return (
+    <div
+      onClick={() => onSelect(q)}
+      style={{
+        cursor: "pointer",
+        background: isSelected ? `${T.accent}0d` : "transparent",
+        borderBottom: `1px solid ${T.border}`,
+        padding: "0 32px",
+        height: "48px",
+        display: "grid",
+        gridTemplateColumns: "48px 1fr 64px 64px 90px",
+        alignItems: "center",
+        gap: 12,
+        transition: "background .15s",
+        borderLeft: isSelected ? `4px solid ${T.accent}` : "4px solid transparent",
+      }}
+      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = T.surface2; }}
+      onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
+    >
+      <span style={{ fontSize: 10, color: T.muted, fontFamily: "monospace" }}>#{q.id.slice(-4)}</span>
+      <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 13, color: T.text, fontWeight: 500 }} title={q.message}>
         {q.message}
       </div>
-    </td>
-    <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
-      <span style={{ padding: "2px 8px", borderRadius: 99, background: `${A.accent}22`, border: `1px solid ${A.accent}44`, color: A.accent, fontSize: 10, fontWeight: 600 }}>
+      <span style={{ padding: "2px 7px", borderRadius: 99, background: `${T.accent}12`, border: `1px solid ${T.accent}25`, color: T.accent, fontSize: 10, fontWeight: 700, textAlign: "center" }}>
         {simPct(q.bestSimilarity)}
       </span>
-    </td>
-    <td style={{ padding: "10px 14px", color: A.muted, fontSize: 10, whiteSpace: "nowrap" }}>{relativeTime(q.timestamp)}</td>
-    <td style={{ padding: "10px 14px", whiteSpace: "nowrap" }}>
-      <span style={{ padding: "3px 10px", borderRadius: 99, background: `${statusColor(q.status)}22`, border: `1px solid ${statusColor(q.status)}44`, color: statusColor(q.status), fontSize: 10, fontWeight: 600, textTransform: "capitalize" }}>
-        {q.status}
+      <span style={{ fontSize: 10, color: T.muted, whiteSpace: "nowrap" }}>{relativeTime(q.timestamp)}</span>
+      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "3px 8px", borderRadius: 99, background: `${color}12`, border: `1px solid ${color}20`, color, fontSize: 10, fontWeight: 700 }}>
+        {icon} {label}
       </span>
-    </td>
-  </tr>
-);
+    </div>
+  );
+};
 
-// FAQ Chips Manager Component
-interface FAQChip {
-  id: string;
-  question: string;
-  answer: string;
-}
+// ─── FAQ Chips Manager ────────────────────────────────────────────────────────
+interface FAQChip { id: string; question: string; answer: string; }
 
 function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
   const [chips, setChips] = useState<FAQChip[]>([]);
@@ -168,26 +143,16 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
   const [adding, setAdding] = useState(false);
   const [expandedChips, setExpandedChips] = useState<Record<string, boolean>>({});
 
-  const toggleChip = (id: string) => {
-    setExpandedChips((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
   const fetchChips = useCallback(async () => {
     try {
       const res = await fetch("/api/faq-chips");
       const data = await res.json();
-      const chipsList = data.data?.chips ?? data.chips ?? [];
-      setChips(chipsList);
-    } catch {
-      showToast({ type: "error", title: "Failed to load FAQ chips." });
-    } finally {
-      setLoading(false);
-    }
+      setChips(data.data?.chips ?? data.chips ?? []);
+    } catch { showToast({ type: "error", title: "Failed to load FAQ chips." }); }
+    finally { setLoading(false); }
   }, [showToast]);
 
-  useEffect(() => {
-    fetchChips();
-  }, [fetchChips]);
+  useEffect(() => { fetchChips(); }, [fetchChips]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,255 +160,154 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
     setAdding(true);
     try {
       const res = await fetch("/api/admin/faq-chips", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: newQuestion.trim(), answer: newAnswer.trim() }),
       });
       if (!res.ok) throw new Error();
       await fetchChips();
-      setNewQuestion("");
-      setNewAnswer("");
+      setNewQuestion(""); setNewAnswer("");
       showToast({ type: "success", title: "FAQ Chip Added" });
-    } catch {
-      showToast({ type: "error", title: "Failed to add FAQ chip" });
-    } finally {
-      setAdding(false);
-    }
+    } catch { showToast({ type: "error", title: "Failed to add FAQ chip" }); }
+    finally { setAdding(false); }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this FAQ chip?")) return;
+    if (!window.confirm("Delete this FAQ chip?")) return;
     try {
       const res = await fetch(`/api/admin/faq-chips/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
-      setChips((prev) => prev.filter((c) => c.id !== id));
+      setChips(prev => prev.filter(c => c.id !== id));
       showToast({ type: "success", title: "FAQ Chip Deleted" });
-    } catch {
-      showToast({ type: "error", title: "Delete failed" });
-    }
+    } catch { showToast({ type: "error", title: "Delete failed" }); }
   };
 
   return (
-    <div style={{ background: A.surface, border: `1px solid ${A.border}`, borderRadius: 14, padding: 18, marginTop: 16 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: A.muted, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>
-        🏷️ FAQ Chips Manager
-      </div>
-      
-      {loading ? (
-        <div style={{ fontSize: 12, color: A.muted }}>Loading FAQ chips...</div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16, maxHeight: 300, overflowY: "auto" }}>
-          {chips.map((chip) => {
-            const isExpanded = !!expandedChips[chip.id];
-            return (
-              <div 
-                key={chip.id} 
-                onClick={() => toggleChip(chip.id)}
-                style={{ 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  background: A.surface2, 
-                  padding: "10px 14px", 
-                  borderRadius: 8, 
-                  border: `1px solid ${A.border}`,
-                  cursor: "pointer",
-                  userSelect: "none",
-                  transition: "background 0.2s"
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(35, 47, 62, 0.08)"}
-                onMouseLeave={(e) => e.currentTarget.style.background = A.surface2}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                  <div style={{ fontSize: 12, color: A.text, fontWeight: 600, flex: 1 }}>
-                    {chip.question}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-                    <svg 
-                      width="12" 
-                      height="12" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2.5" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                      style={{ 
-                        transition: "transform 0.2s ease-in-out", 
-                        transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                        color: A.muted
-                      }}
-                    >
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleDelete(chip.id); }} 
-                      style={{ 
-                        background: "none", 
-                        border: "none", 
-                        color: A.muted, 
-                        cursor: "pointer", 
-                        fontSize: 16, 
-                        padding: 0,
-                        lineHeight: 1
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = A.danger}
-                      onMouseLeave={(e) => e.currentTarget.style.color = A.muted}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-                {isExpanded && (
-                  <div 
-                    style={{ 
-                      fontSize: "10.5px", 
-                      color: A.muted, 
-                      marginTop: 8, 
-                      paddingTop: 8, 
-                      borderTop: `1px dashed ${A.border}`, 
-                      lineHeight: 1.5 
-                    }}
-                  >
-                    {chip.answer}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          {chips.length === 0 && <div style={{ fontSize: 12, color: A.muted }}>No FAQ chips configured.</div>}
+    <div style={{ display: "flex", gap: "24px", width: "100%", height: "100%", alignItems: "stretch", minHeight: 0 }}>
+      {/* FAQ list */}
+      <div style={{ flex: "1 1 60%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+        <div style={{ padding: "16px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: T.surface2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <BookOpen size={14} color={T.accent} />
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>FAQ Knowledge Chips</div>
+              <div style={{ fontSize: 10, color: T.muted }}>Automated response triggers</div>
+            </div>
+          </div>
+          <span style={{ fontSize: 10, padding: "3px 8px", background: T.accentLow, color: T.accent, borderRadius: 99, fontWeight: 700 }}>{chips.length} chips</span>
         </div>
-      )}
+        <div style={{ padding: "8px 32px", overflowY: "auto", flex: 1 }}>
+          {loading ? (
+            <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>Loading FAQ chips…</div>
+          ) : chips.length === 0 ? (
+            <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No FAQ chips yet.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 0" }}>
+              {chips.map(chip => {
+                const isExpanded = !!expandedChips[chip.id];
+                return (
+                  <div key={chip.id} onClick={() => setExpandedChips(p => ({ ...p, [chip.id]: !p[chip.id] }))}
+                    style={{ borderRadius: 8, background: T.surface2, border: `1px solid ${T.border}`, padding: "12px 14px", cursor: "pointer", transition: "border-color .15s" }}
+                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = T.borderHov}
+                    onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = T.border}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ fontSize: 12, color: T.text, fontWeight: 600, flex: 1 }}>{chip.question}</div>
+                      <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
+                        <ChevronDown size={14} color={T.muted} style={{ transition: "transform .2s", transform: isExpanded ? "rotate(180deg)" : "none" }} />
+                        <button onClick={e => { e.stopPropagation(); handleDelete(chip.id); }}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: T.muted, padding: 0, display: "flex", alignItems: "center" }}
+                          onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = T.danger}
+                          onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = T.muted}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div style={{ fontSize: 11, color: T.muted2, marginTop: 10, paddingTop: 10, borderTop: `1px dashed ${T.border}`, lineHeight: 1.6 }}>
+                        {chip.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
 
-      <form onSubmit={handleAdd} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <input
-          type="text"
-          value={newQuestion}
-          onChange={(e) => setNewQuestion(e.target.value)}
-          placeholder="New FAQ question..."
-          style={{ width: "100%", background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none" }}
-        />
-        <textarea
-          value={newAnswer}
-          onChange={(e) => setNewAnswer(e.target.value)}
-          placeholder="Predefined answer..."
-          rows={3}
-          className="custom-textarea"
-          style={{ minHeight: "90px", padding: "8px 12px", fontSize: "12px", background: A.surface2 }}
-        />
-        <button
-          type="submit"
-          disabled={adding || !newQuestion.trim() || !newAnswer.trim()}
-          className="btn-3d-pill-accent"
-          style={{
-            alignSelf: "flex-end",
-            background: A.accent,
-            border: "none",
-            padding: "8px 20px",
-            color: "#fff",
-            fontWeight: 600,
-            fontSize: 12,
-            borderRadius: 9999,
-            cursor: adding || !newQuestion.trim() || !newAnswer.trim() ? "not-allowed" : "pointer",
-            opacity: adding || !newQuestion.trim() || !newAnswer.trim() ? 0.6 : 1,
-          }}
-        >
-          {adding ? "Adding..." : "Add FAQ Chip"}
-        </button>
-      </form>
+      {/* Add form */}
+      <div style={{ flex: "1 1 40%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Plus size={16} color={T.accent} />
+          <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Add FAQ Chip</span>
+        </div>
+        <form onSubmit={handleAdd} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Question</label>
+            <input type="text" value={newQuestion} onChange={e => setNewQuestion(e.target.value)} placeholder="e.g. What is AWS Certified Cloud Practitioner?"
+              style={{ width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, outline: "none", boxSizing: "border-box", fontFamily: "inherit", transition: "border-color .2s" }}
+              onFocus={e => { e.target.style.borderColor = T.accent; }}
+              onBlur={e => { e.target.style.borderColor = T.border; }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Answer</label>
+            <textarea value={newAnswer} onChange={e => setNewAnswer(e.target.value)} placeholder="Provide the official response..." rows={5}
+              style={{ width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, outline: "none", resize: "vertical", fontFamily: "inherit", minHeight: 120, boxSizing: "border-box", transition: "border-color .2s" }}
+              onFocus={e => { e.target.style.borderColor = T.accent; }}
+              onBlur={e => { e.target.style.borderColor = T.border; }} />
+          </div>
+          <button type="submit" disabled={adding || !newQuestion.trim() || !newAnswer.trim()}
+            style={{ background: T.accent, border: "none", padding: "12px", color: "#fff", fontWeight: 700, borderRadius: 8, fontSize: 13, cursor: adding || !newQuestion.trim() || !newAnswer.trim() ? "not-allowed" : "pointer", opacity: adding || !newQuestion.trim() || !newAnswer.trim() ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, transition: "background .15s", marginTop: 8 }}
+            onMouseEnter={e => { if (!adding && newQuestion.trim() && newAnswer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accentHov; }}
+            onMouseLeave={e => { if (!adding && newQuestion.trim() && newAnswer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accent; }}
+          >
+            <Plus size={14} /> {adding ? "Adding Chip…" : "Add FAQ Chip"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
-// User Profile Avatar Component
+// ─── Avatar ───────────────────────────────────────────────────────────────────
 function Avatar({ initials, color, photo, size = 36 }: { initials: string; color?: string; photo?: string | null; size?: number }) {
-  // If photo is an object, attempt to extract its photo string
-  const src = typeof photo === 'object' && photo !== null ? (photo as any).photo : photo;
-
-  const isValidPhoto = src && 
-                       typeof src === 'string' && 
-                       src.trim() !== "" && 
-                       src !== "null" && 
-                       src !== "undefined" && 
-                       src !== "[object Object]";
-
-  if (isValidPhoto) {
-    return (
-      <img
-        src={src}
-        alt={initials}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          objectFit: "cover",
-          flexShrink: 0,
-          userSelect: "none",
-        }}
-      />
-    );
-  }
+  const src = typeof photo === "object" && photo !== null ? (photo as any).photo : photo;
+  const isValid = src && typeof src === "string" && src.trim() !== "" && !["null","undefined","[object Object]"].includes(src);
+  if (isValid) return <img src={src} alt={initials} style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />;
   return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: color || A.accent,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: 700,
-        fontSize: Math.floor(size * 0.38),
-        color: "#fff",
-        flexShrink: 0,
-        userSelect: "none",
-      }}
-    >
+    <div style={{ width: size, height: size, borderRadius: "50%", background: color || T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: Math.floor(size * 0.36), color: "#fff", flexShrink: 0 }}>
       {initials}
     </div>
   );
 }
 
-// CMS reply / review editor panel
-interface CMSPanelProps {
-  query: Query | null;
-  onSaved: (id: string) => void;
-  onDismissed: (id: string) => void;
-  showToast: (t: any) => void;
-}
-
-function CMSPanel({ query, onSaved, onDismissed, showToast }: CMSPanelProps) {
+// ─── CMS Panel ────────────────────────────────────────────────────────────────
+function CMSPanel({ query, onSaved, onDismissed, showToast }: { query: Query | null; onSaved: (id: string) => void; onDismissed: (id: string) => void; showToast: (t: any) => void }) {
   const [answer, setAnswer] = useState("");
-  const [saving, setSaving] = useState(""); // "" | "saving" | "dismissing"
+  const [saving, setSaving] = useState("");
   const [saveResult, setSaveResult] = useState<{ doc_id: string; total: number } | null>(null);
 
+  useEffect(() => {
+    setAnswer("");
+    setSaveResult(null);
+  }, [query]);
+
   const handleSave = async () => {
-    if (!query) return;
-    if (!answer.trim()) {
-      showToast({ type: "error", title: "Answer cannot be empty." });
-      return;
-    }
+    if (!query || !answer.trim()) { showToast({ type: "error", title: "Answer cannot be empty." }); return; }
     setSaving("saving");
     try {
       const res = await fetch(`/api/admin/reply-live/${query.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answer: answer.trim() }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
       setSaveResult({ doc_id: data.doc_id, total: data.chroma_total_docs });
-      showToast({
-        type: "success",
-        title: "Saved to Knowledge Base!",
-        body: `Future similar queries will be auto-answered.`,
-      });
+      showToast({ type: "success", title: "Saved to Knowledge Base!", body: "Future similar queries will be auto-answered." });
       onSaved(query.id);
-    } catch {
-      showToast({ type: "error", title: "Save failed." });
-    } finally {
-      setSaving("");
-    }
+    } catch { showToast({ type: "error", title: "Save failed." }); }
+    finally { setSaving(""); }
   };
 
   const handleDismiss = async () => {
@@ -454,147 +318,115 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: CMSPanelProps) {
       if (!res.ok) throw new Error();
       showToast({ type: "success", title: "Query dismissed." });
       onDismissed(query.id);
-    } catch {
-      showToast({ type: "error", title: "Dismiss failed." });
-    } finally {
-      setSaving("");
-    }
+    } catch { showToast({ type: "error", title: "Dismiss failed." }); }
+    finally { setSaving(""); }
   };
 
   if (!query) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: A.surface, borderRadius: 14, padding: 40, border: `1px solid ${A.border}`, color: A.muted, minHeight: 320, flexShrink: 0 }}>
-        <div style={{ fontSize: 32 }}>📋</div>
-        <div style={{ fontSize: 14, fontWeight: 600 }}>No query selected</div>
-        <div style={{ fontSize: 11, textAlign: "center", maxWidth: 220, lineHeight: 1.6 }}>
-          Select any query in the unhandled list to review and reply.
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, background: T.surface, padding: "80px 40px", color: T.muted, flex: 1 }}>
+        <MessageSquare size={40} color={T.muted} strokeWidth={1.2} style={{ opacity: 0.5 }} />
+        <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>No query selected</div>
+        <div style={{ fontSize: 12, textAlign: "center", maxWidth: 220, lineHeight: 1.6, color: T.muted }}>
+          Select a query from the left queue to review, respond, and save to knowledge base.
         </div>
       </div>
     );
   }
 
+  const { color: stColor, label: stLabel } = statusMeta(query.status);
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, background: A.surface, borderRadius: 14, padding: 24, border: `1px solid ${A.border}`, minHeight: 320, flexShrink: 0 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20, background: T.surface, padding: "24px 32px", flex: 1 }}>
+      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: A.muted, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-          CMS Editor · Query #{query.id.slice(-8)}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <SlidersHorizontal size={14} color={T.accent} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>CMS Editor</span>
+          <span style={{ fontSize: 10, color: T.muted, fontFamily: "monospace" }}>#{query.id.slice(-8)}</span>
         </div>
-        <span style={{ padding: "2px 8px", borderRadius: 99, background: `${statusColor(query.status)}22`, color: statusColor(query.status), fontSize: 10, fontWeight: 700, textTransform: "capitalize", border: `1px solid ${statusColor(query.status)}44` }}>
-          {query.status}
+        <span style={{ padding: "4px 10px", borderRadius: 99, background: `${stColor}12`, color: stColor, fontSize: 10, fontWeight: 700, textTransform: "capitalize", border: `1px solid ${stColor}20` }}>
+          {stLabel}
         </span>
       </div>
 
-      <div style={{ background: A.surface2, borderRadius: 10, border: `1px solid ${A.border}`, padding: 16 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: A.muted, letterSpacing: "0.1em", marginBottom: 6, textTransform: "uppercase" }}>
-          👤 User Asked
+      {/* Question card */}
+      <div style={{ background: T.surface2, borderRadius: 8, border: `1px solid ${T.border}`, padding: 16 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: "0.08em", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+          <MessageSquare size={12} /> User Question
         </div>
-        <div style={{ fontSize: 13, color: A.text, lineHeight: 1.6, fontWeight: 500 }}>{query.message}</div>
-        <div style={{ marginTop: 10, display: "flex", gap: 10, flexWrap: "wrap", fontSize: 9, color: A.muted }}>
-          <span>🕐 {relativeTime(query.timestamp)}</span>
-          <span>📊 Similarity Match: {simPct(query.bestSimilarity)}</span>
+        <div style={{ fontSize: 14, color: T.text, lineHeight: 1.6, fontWeight: 500 }}>{query.message}</div>
+        <div style={{ marginTop: 12, display: "flex", gap: 14, fontSize: 10, color: T.muted, alignItems: "center" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={10} /> {relativeTime(query.timestamp)}</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Zap size={10} color={T.accent} /> Match: {simPct(query.bestSimilarity)}</span>
         </div>
       </div>
 
       {query.bestMatchDoc && (
-        <details style={{ background: A.surface2, borderRadius: 8, border: `1px solid ${A.border}`, padding: "8px 12px" }}>
-          <summary style={{ cursor: "pointer", fontSize: 11, color: A.muted, fontWeight: 600, userSelect: "none" }}>
-            💡 Closest KB match (for context)
+        <details style={{ background: T.surface2, borderRadius: 8, border: `1px solid ${T.border}`, padding: "10px 14px" }}>
+          <summary style={{ cursor: "pointer", fontSize: 12, color: T.text, fontWeight: 600, userSelect: "none", listStyle: "none", display: "flex", alignItems: "center", gap: 6 }}>
+            <Database size={12} color={T.accent} /> Closest KB match (Auto-Reply Source)
           </summary>
-          <div style={{ marginTop: 8, fontSize: 11, color: A.muted, lineHeight: 1.5, maxHeight: 100, overflowY: "auto" }}>
+          <div style={{ marginTop: 10, fontSize: 11.5, color: T.muted2, lineHeight: 1.6, maxHeight: 150, overflowY: "auto" }}>
             {query.bestMatchDoc}
           </div>
         </details>
       )}
 
-      <div style={{ borderTop: `1px solid ${A.border}` }} />
+      <div style={{ height: 1, background: T.border }} />
 
       {saveResult ? (
-        <div style={{ background: `${A.success}10`, border: `1px solid ${A.success}40`, borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ fontSize: 14, color: A.success, fontWeight: 700 }}>✅ Added to ChromaDB Knowledge Base</div>
-          <div style={{ fontSize: 11, color: A.muted }}>
-            Future similar queries will automatically receive this reply.
+        <div style={{ background: `${T.success}12`, border: `1px solid ${T.success}25`, borderRadius: 8, padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
+          <CheckCircle2 size={20} color={T.success} />
+          <div>
+            <div style={{ fontSize: 13, color: T.success, fontWeight: 700 }}>Saved to ChromaDB</div>
+            <div style={{ fontSize: 11, color: T.muted2, marginTop: 2 }}>Future similar queries will be auto-answered automatically.</div>
           </div>
         </div>
       ) : (
-        <>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <textarea
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            placeholder="Write the correct answer to save to database..."
-            rows={8}
-            disabled={saving !== ""}
-            className="custom-textarea"
-            style={{ minHeight: "220px", padding: "16px 20px", fontSize: "14.0px", resize: "vertical" }}
+            value={answer} onChange={e => setAnswer(e.target.value)}
+            placeholder="Write the correct answer to save to the knowledge base…"
+            rows={6} disabled={saving !== ""}
+            style={{ width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, outline: "none", resize: "vertical", fontFamily: "inherit", minHeight: 120, boxSizing: "border-box", transition: "border-color .2s" }}
+            onFocus={e => { e.target.style.borderColor = T.accent; }}
+            onBlur={e => { e.target.style.borderColor = T.border; }}
           />
-
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
             {query.status === "live" && (
-              <button
-                onClick={handleDismiss}
-                disabled={saving !== ""}
-                className="tab-btn inactive"
-                style={{ borderRadius: 20, padding: "8px 18px", border: "1px solid rgba(0,0,0,0.12)", color: A.danger, cursor: "pointer", fontSize: 12 }}
+              <button onClick={handleDismiss} disabled={saving !== ""}
+                style={{ background: "transparent", border: `1px solid ${T.danger}30`, borderRadius: 8, padding: "8px 16px", color: T.danger, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "background .15s" }}
+                onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.danger}0d`}
+                onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
               >
-                {saving === "dismissing" ? "Dismissing..." : "Dismiss Query"}
+                <XCircle size={13} /> {saving === "dismissing" ? "Dismissing…" : "Dismiss"}
               </button>
             )}
-            <button
-              onClick={handleSave}
-              disabled={saving !== "" || !answer.trim()}
-              className="btn-3d-pill-accent"
-              style={{
-                borderRadius: 9999,
-                background: A.accent,
-                border: "none",
-                padding: "8px 20px",
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: 12,
-                cursor: saving !== "" || !answer.trim() ? "not-allowed" : "pointer",
-                opacity: saving !== "" || !answer.trim() ? 0.6 : 1,
-              }}
+            <button onClick={handleSave} disabled={saving !== "" || !answer.trim()}
+              style={{ background: T.accent, border: "none", borderRadius: 8, padding: "8px 20px", color: "#fff", fontWeight: 700, fontSize: 12, cursor: saving !== "" || !answer.trim() ? "not-allowed" : "pointer", opacity: saving !== "" || !answer.trim() ? 0.55 : 1, display: "flex", alignItems: "center", gap: 6, transition: "background .15s" }}
+              onMouseEnter={e => { if (saving === "" && answer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accentHov; }}
+              onMouseLeave={e => { if (saving === "" && answer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accent; }}
             >
-              {saving === "saving" ? "Saving..." : "Save to Knowledge Base"}
+              <Database size={13} /> {saving === "saving" ? "Saving…" : "Save to KB"}
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
 }
 
-// User accounts manager panel
-interface Member {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  avatar?: { photo?: string | null; initials: string; color: string } | null;
-  banned: boolean;
-}
+// ─── Member Types ─────────────────────────────────────────────────────────────
+interface Member { id: string; name: string; email: string; role: string; avatar?: { photo?: string | null; initials: string; color: string } | null; banned: boolean; }
+interface BanLogItem { id: string; userId: string; userName: string; userEmail: string; bannedBy: string; banReason: string; bannedAt: string; }
 
-interface BanLogItem {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  bannedBy: string;
-  banReason: string;
-  bannedAt: string;
-}
-
+// ─── Manage Users Panel ───────────────────────────────────────────────────────
 function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Registration form state
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("crew");
+  const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [role, setRole] = useState("crew");
   const [creating, setCreating] = useState(false);
-
-  // Ban log state
   const [banLog, setBanLog] = useState<BanLogItem[]>([]);
   const [loadingLog, setLoadingLog] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<"members" | "log">("members");
@@ -603,161 +435,172 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
     try {
       const res = await fetch("/api/auth");
       const data = await res.json();
-      const usersList = data.data?.users ?? data.users ?? [];
-      setMembers(usersList);
-    } catch {
-      showToast({ type: "error", title: "Failed to load members list" });
-    } finally {
-      setLoading(false);
-    }
+      setMembers(data.data?.users ?? data.users ?? []);
+    } catch { showToast({ type: "error", title: "Failed to load members list" }); }
+    finally { setLoading(false); }
   };
 
   const fetchBanLog = async () => {
     setLoadingLog(true);
     try {
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "getBanLog" }),
-      });
+      const res = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "getBanLog" }) });
       const data = await res.json();
-      const logList = data.data?.banLog ?? data.banLog ?? [];
-      setBanLog(logList);
-    } catch {
-      console.error("Failed to load ban log");
-    } finally {
-      setLoadingLog(false);
-    }
+      setBanLog(data.data?.banLog ?? data.banLog ?? []);
+    } catch { console.error("Failed to load ban log"); }
+    finally { setLoadingLog(false); }
   };
 
-  useEffect(() => {
-    fetchMembers();
-    fetchBanLog();
-  }, []);
+  useEffect(() => { fetchMembers(); fetchBanLog(); }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !password || !role) {
-      showToast({ type: "error", title: "All fields are required" });
-      return;
-    }
+    if (!name || !email || !password || !role) { showToast({ type: "error", title: "All fields are required" }); return; }
     setCreating(true);
     try {
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "register", name, email, password, role }),
-      });
+      const res = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "register", name, email, password, role }) });
       const data = await res.json();
-      if (!res.ok) {
-        showToast({ type: "error", title: "Registration failed", body: data.error });
-        return;
-      }
-      showToast({ type: "success", title: "Member account created successfully!" });
-      setName("");
-      setEmail("");
-      setPassword("");
-      setRole("crew");
+      if (!res.ok) { showToast({ type: "error", title: "Registration failed", body: data.error }); return; }
+      showToast({ type: "success", title: "Account created!" });
+      setName(""); setEmail(""); setPassword(""); setRole("crew");
       fetchMembers();
-    } catch {
-      showToast({ type: "error", title: "Network error occurred" });
-    } finally {
-      setCreating(false);
-    }
+    } catch { showToast({ type: "error", title: "Network error" }); }
+    finally { setCreating(false); }
   };
 
   const handleBan = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to deactivate ${name}? They will immediately lose workspace access.`)) return;
+    if (!window.confirm(`Deactivate ${name}?`)) return;
     try {
       const res = await fetch(`/api/auth?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
-      showToast({ type: "success", title: `${name} has been deactivated.` });
-      fetchMembers();
-      fetchBanLog();
-    } catch {
-      showToast({ type: "error", title: "Failed to deactivate member" });
-    }
+      showToast({ type: "success", title: `${name} deactivated.` });
+      fetchMembers(); fetchBanLog();
+    } catch { showToast({ type: "error", title: "Failed to deactivate" }); }
   };
 
   const handleUnban = async (id: string, name: string) => {
     try {
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "unban", userId: id }),
-      });
+      const res = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unban", userId: id }) });
       if (!res.ok) throw new Error();
-      showToast({ type: "success", title: `${name} has been activated successfully!` });
-      fetchMembers();
-      fetchBanLog();
-    } catch {
-      showToast({ type: "error", title: "Failed to activate member" });
-    }
+      showToast({ type: "success", title: `${name} activated!` });
+      fetchMembers(); fetchBanLog();
+    } catch { showToast({ type: "error", title: "Failed to activate" }); }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8,
+    padding: "10px 14px", color: T.text, fontSize: 13, outline: "none", boxSizing: "border-box", fontFamily: "inherit",
+    transition: "border-color .2s",
   };
 
   return (
-    <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
-      {/* List section */}
-      <div style={{ flex: "1 1 58%", background: A.surface, border: `1px solid ${A.border}`, borderRadius: 14, overflow: "hidden" }}>
-        <div style={{ padding: "16px 20px", borderBottom: `1px solid ${A.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: A.text }}>Members Management</div>
-            <div style={{ fontSize: 11, color: A.muted, marginTop: 2 }}>Core and Crew operational accounts</div>
+    <div style={{ display: "flex", gap: "24px", width: "100%", height: "100%", alignItems: "stretch", minHeight: 0 }}>
+      {/* Members list */}
+      <div style={{ flex: "1 1 60%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+        <div style={{ padding: "16px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", background: T.surface2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Users size={14} color={T.accent} />
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Members Directory</div>
+              <div style={{ fontSize: 10, color: T.muted }}>Core & Crew administrative accounts</div>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 4, background: "rgba(0, 0, 0, 0.04)", padding: 3, borderRadius: 20 }}>
-            <button onClick={() => setActiveSubTab("members")} style={{ border: "none", background: activeSubTab === "members" ? "#fff" : "transparent", cursor: "pointer", fontSize: 10, fontWeight: 700, padding: "5px 12px", borderRadius: 20, color: A.text }}>Active</button>
-            <button onClick={() => setActiveSubTab("log")} style={{ border: "none", background: activeSubTab === "log" ? "#fff" : "transparent", cursor: "pointer", fontSize: 10, fontWeight: 700, padding: "5px 12px", borderRadius: 20, color: A.text }}>Inactive</button>
+          <div style={{ display: "flex", gap: 3, background: T.surface3, padding: 3, borderRadius: 99 }}>
+            {(["members", "log"] as const).map(k => (
+              <button key={k} onClick={() => setActiveSubTab(k)}
+                style={{ border: "none", background: activeSubTab === k ? "#FFFFFF" : "transparent", cursor: "pointer", fontSize: 10, fontWeight: 700, padding: "6px 14px", borderRadius: 99, color: activeSubTab === k ? T.text : T.muted, transition: "all .2s", boxShadow: activeSubTab === k ? "0 2px 5px rgba(0,0,0,0.05)" : "none" }}>
+                {k === "members" ? "Active" : "Inactive"}
+              </button>
+            ))}
           </div>
         </div>
-
-        <div style={{ padding: "10px 20px", maxHeight: 420, overflowY: "auto" }}>
+        <div style={{ padding: "8px 32px", overflowY: "auto", flex: 1 }}>
           {loading ? (
-            <div style={{ fontSize: 12, color: A.muted, textAlign: "center", padding: 20 }}>Loading...</div>
+            <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>Loading users…</div>
           ) : activeSubTab === "members" ? (
-            members.filter(m => !m.banned).map(m => (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${A.border}88` }}>
-                <Avatar
-                  initials={m.avatar?.initials || m.name.slice(0,2).toUpperCase()}
-                  color={m.avatar?.color || A.accent}
-                  photo={m.avatar?.photo}
-                  size={34}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: A.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</div>
-                  <div style={{ fontSize: 10, color: A.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.email}</div>
+            members.filter(m => !m.banned).length === 0 ? (
+              <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No active members.</div>
+            ) : (
+              members.filter(m => !m.banned).map(m => (
+                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
+                  <Avatar initials={m.avatar?.initials || m.name.slice(0, 2).toUpperCase()} color={m.avatar?.color || T.accent} photo={m.avatar?.photo} size={36} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: T.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.name}</div>
+                    <div style={{ fontSize: 11, color: T.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.email}</div>
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: m.role === "core" ? T.accentLow : `${T.muted}15`, color: m.role === "core" ? T.accent : T.muted2, textTransform: "uppercase" }}>{m.role}</span>
+                  <button onClick={() => handleBan(m.id, m.name)} style={{ background: "none", border: `1px solid ${T.danger}30`, borderRadius: 6, color: T.danger, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
+                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.danger}0d`}
+                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
+                  >
+                    <Ban size={10} /> Deactivate
+                  </button>
                 </div>
-                <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 10, background: m.role === "core" ? `${A.accent}20` : `${A.highlight}20`, color: m.role === "core" ? A.accent : A.highlight, textTransform: "uppercase" }}>{m.role}</span>
-                <button onClick={() => handleBan(m.id, m.name)} style={{ background: "none", border: "none", color: A.danger, fontSize: 11, cursor: "pointer", fontWeight: "bold" }}>Deactivate</button>
-              </div>
-            ))
+              ))
+            )
           ) : (
-            banLog.map(m => (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${A.border}88` }}>
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: A.muted, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 12 }}>{m.userName.slice(0, 2).toUpperCase()}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: A.text }}>{m.userName}</div>
-                  <div style={{ fontSize: 10, color: A.muted }}>{m.userEmail}</div>
+            banLog.length === 0 ? (
+              <div style={{ padding: 32, textAlign: "center", fontSize: 12, color: T.muted }}>No deactivated members.</div>
+            ) : (
+              banLog.map(m => (
+                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: T.surface2, display: "flex", alignItems: "center", justifyContent: "center", color: T.muted, fontWeight: 700, fontSize: 13 }}>{m.userName.slice(0, 2).toUpperCase()}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: T.muted }}>{m.userName}</div>
+                    <div style={{ fontSize: 11, color: T.muted }}>{m.userEmail}</div>
+                  </div>
+                  <button onClick={() => handleUnban(m.userId, m.userName)} style={{ background: "none", border: `1px solid ${T.success}30`, borderRadius: 6, color: T.success, fontSize: 11, cursor: "pointer", fontWeight: 700, padding: "5px 10px", display: "flex", alignItems: "center", gap: 4, transition: "background .15s" }}
+                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.success}0d`}
+                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
+                  >
+                    <CheckCircle2 size={10} /> Activate
+                  </button>
                 </div>
-                <button onClick={() => handleUnban(m.userId, m.userName)} style={{ background: "none", border: "none", color: A.success, fontSize: 11, cursor: "pointer", fontWeight: "bold" }}>Activate</button>
-              </div>
-            ))
+              ))
+            )
           )}
         </div>
       </div>
 
       {/* Register form */}
-      <div style={{ flex: "1 1 38%", background: A.surface, border: `1px solid ${A.border}`, borderRadius: 14, padding: 20 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: A.text, marginBottom: 12 }}>👤 Register New Member</div>
-        <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" style={{ width: "100%", background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none" }} />
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" style={{ width: "100%", background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none" }} />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Passphrase / Password" style={{ width: "100%", background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none" }} />
-          <select value={role} onChange={e => setRole(e.target.value)} style={{ width: "100%", background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "8px 12px", color: A.text, fontSize: 12, outline: "none" }}>
-            <option value="crew">Crew (Volunteer / Scanner)</option>
-            <option value="core">Core Admin</option>
-          </select>
-          <button type="submit" disabled={creating} className="btn-3d-pill-accent" style={{ background: A.accent, border: "none", padding: "10px", color: "#fff", fontWeight: 700, borderRadius: 9999, fontSize: 12, cursor: creating ? "not-allowed" : "pointer" }}>
-            {creating ? "Creating Account..." : "Create Account"}
+      <div style={{ flex: "1 1 40%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <UserPlus size={16} color={T.accent} />
+          <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Register New Account</span>
+        </div>
+        <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Full Name</label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Jane Doe" style={inputStyle}
+              onFocus={e => { e.target.style.borderColor = T.accent; }}
+              onBlur={e => { e.target.style.borderColor = T.border; }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Email Address</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. jane@awsclub.dev" style={inputStyle}
+              onFocus={e => { e.target.style.borderColor = T.accent; }}
+              onBlur={e => { e.target.style.borderColor = T.border; }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Password</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={inputStyle}
+              onFocus={e => { e.target.style.borderColor = T.accent; }}
+              onBlur={e => { e.target.style.borderColor = T.border; }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Privilege Level</label>
+            <select value={role} onChange={e => setRole(e.target.value)} style={inputStyle}
+              onFocus={e => { e.target.style.borderColor = T.accent; }}
+              onBlur={e => { e.target.style.borderColor = T.border; }}>
+              <option value="crew">Crew</option>
+              <option value="core">Core Admin</option>
+            </select>
+          </div>
+          <button type="submit" disabled={creating}
+            style={{ background: T.accent, border: "none", padding: "12px", color: "#fff", fontWeight: 700, borderRadius: 8, fontSize: 13, cursor: creating ? "not-allowed" : "pointer", opacity: creating ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, transition: "background .15s", marginTop: 8 }}
+            onMouseEnter={e => { if (!creating) (e.currentTarget as HTMLButtonElement).style.background = T.accentHov; }}
+            onMouseLeave={e => { if (!creating) (e.currentTarget as HTMLButtonElement).style.background = T.accent; }}
+          >
+            <UserPlus size={14} /> {creating ? "Creating Account…" : "Create Account"}
           </button>
         </form>
       </div>
@@ -765,12 +608,12 @@ function ManageUsersPanel({ showToast }: { showToast: (t: any) => void }) {
   );
 }
 
-// Core Admin Chat Page Main Export
+// ─── Main Export ──────────────────────────────────────────────────────────────
 export default function CoreChatPage() {
   const router = useRouter();
-  const [authorized, setAuthorized] = useState<boolean>(false);
-  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
-  const [activeView, setActiveView] = useState<"queries" | "crew_chats" | "manage_users">("queries");
+  const [authorized, setAuthorized] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [activeView, setActiveView] = useState<"queries" | "kb" | "crew_chats" | "manage_users">("queries");
   const [queries, setQueries] = useState<Query[]>([]);
   const [stats, setStats] = useState<{ live: number; pending: number; resolved: number; dismissed: number; kb_docs: number }>();
   const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
@@ -785,36 +628,20 @@ export default function CoreChatPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [qRes, sRes] = await Promise.all([
-        fetch("/api/admin/unhandled"),
-        fetch("/api/admin/stats"),
-      ]);
+      const [qRes, sRes] = await Promise.all([fetch("/api/admin/unhandled"), fetch("/api/admin/stats")]);
       if (!qRes.ok || !sRes.ok) throw new Error();
-      
-      const qData = await qRes.json();
-      const sData = await sRes.json();
-
+      const qData = await qRes.json(); const sData = await sRes.json();
       const queriesList = qData.data?.queries ?? qData.queries ?? [];
       const statsObj = sData.data ?? sData;
-
-      // Normalize prisma snake/camel case
-      const normQueries = queriesList.map((q: any) => ({
-        id: q.id,
-        sessionId: q.sessionId || q.session_id,
-        message: q.message,
+      setQueries(queriesList.map((q: any) => ({
+        id: q.id, sessionId: q.sessionId || q.session_id, message: q.message,
         bestSimilarity: q.bestSimilarity || q.best_similarity || 0,
         bestMatchDoc: q.bestMatchDoc || q.best_match_doc || null,
-        timestamp: q.timestamp,
-        status: q.status,
-      }));
-
-      setQueries(normQueries);
+        timestamp: q.timestamp, status: q.status,
+      })));
       setStats(statsObj);
-    } catch {
-      showToast({ type: "error", title: "Failed to load database stats" });
-    } finally {
-      setLoading(false);
-    }
+    } catch { showToast({ type: "error", title: "Failed to load data" }); }
+    finally { setLoading(false); }
   }, [showToast]);
 
   useEffect(() => {
@@ -828,245 +655,114 @@ export default function CoreChatPage() {
     try {
       const raw = localStorage.getItem("aws_sgb_rec_user");
       if (raw) {
-        const parsed = JSON.parse(raw);
-        setUser(parsed);
+        const parsed = JSON.parse(raw); setUser(parsed);
         const role = (parsed?.role ?? "").toLowerCase().trim();
-        if (role === "core") {
-          setAuthorized(true);
-          setCheckingAuth(false);
-        } else if (parsed.id) {
+        if (role === "core") { setAuthorized(true); setCheckingAuth(false); }
+        else if (parsed.id) {
           fetch(`/api/auth/permissions/check?userId=${parsed.id}&permission=scan_ticket`)
-            .then(res => res.json())
-            .then(data => {
-              if (data.success && data.hasPermission) {
-                setAuthorized(true);
-              } else {
-                router.replace('/crew/dashboard');
-              }
-              setCheckingAuth(false);
-            })
-            .catch(() => {
-              router.replace('/crew/dashboard');
-              setCheckingAuth(false);
-            });
-        } else {
-          router.replace('/login');
-          setCheckingAuth(false);
-        }
-      } else {
-        router.replace('/login');
-        setCheckingAuth(false);
-      }
+            .then(r => r.json()).then(d => { if (d.success && d.hasPermission) setAuthorized(true); else router.replace("/crew/dashboard"); setCheckingAuth(false); })
+            .catch(() => { router.replace("/crew/dashboard"); setCheckingAuth(false); });
+        } else { router.replace("/login"); setCheckingAuth(false); }
+      } else { router.replace("/login"); setCheckingAuth(false); }
     } catch {
       setUser({ id: "dev_core", fullName: "Core Administrator", role: "core", email: "admin@awsclub.dev" });
-      setAuthorized(true);
-      setCheckingAuth(false);
+      setAuthorized(true); setCheckingAuth(false);
     }
   }, [router]);
 
-  const handleSaved = useCallback(() => {
-    fetchData();
-    setSelectedQuery(null);
-  }, [fetchData]);
+  const handleSaved = useCallback(() => { fetchData(); setSelectedQuery(null); }, [fetchData]);
+  const handleDismissed = useCallback(() => { fetchData(); setSelectedQuery(null); }, [fetchData]);
 
-  const handleDismissed = useCallback(() => {
-    fetchData();
-    setSelectedQuery(null);
-  }, [fetchData]);
-
-  // Filtered queries list
-  const visible = queries.filter((q) => {
-    const matchTab =
-      filterTab === "all" ||
-      (filterTab === "live" && (q.status === "live" || q.status === "pending")) ||
-      (filterTab === "resolved" && (q.status === "resolved" || q.status === "replied")) ||
-      q.status === filterTab;
+  const visible = queries.filter(q => {
+    const matchTab = filterTab === "all" || (filterTab === "live" && (q.status === "live" || q.status === "pending")) || (filterTab === "resolved" && (q.status === "resolved" || q.status === "replied")) || q.status === filterTab;
     const matchSearch = !search || q.message.toLowerCase().includes(search.toLowerCase());
     return matchTab && matchSearch;
   });
 
   const TABS = [
-    { key: "live", label: "Live Chats", color: A.warning },
-    { key: "resolved", label: "Resolved", color: A.success },
-    { key: "dismissed", label: "Dismissed", color: A.muted },
-    { key: "all", label: "All", color: A.accent },
-  ];
+    { key: "live",      label: "Live",      color: T.warning, icon: <AlertCircle size={12} /> },
+    { key: "resolved",  label: "Resolved",  color: T.success, icon: <CheckCircle2 size={12} /> },
+    { key: "dismissed", label: "Dismissed", color: T.muted,   icon: <XCircle size={12} /> },
+    { key: "all",       label: "All",       color: T.accent,  icon: <Database size={12} /> },
+  ] as const;
 
+  // ── Auth checking ──
   if (checkingAuth) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 12, background: A.bg }}>
-        <div style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${A.accent}`, borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-        <span style={{ fontSize: 11, color: A.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Verifying Security Credentials...</span>
-        <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", gap: 14, background: T.bg }}>
+        <div style={{ width: 28, height: 28, borderRadius: "50%", border: `2.5px solid ${T.accent}`, borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
+        <span style={{ fontSize: 11, color: T.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Verifying credentials…</span>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
-
-  if (!authorized) {
-    return null;
-  }
+  if (!authorized) return null;
 
   return (
-    <div className="admin-chat-container">
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", color: T.text, fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif", boxSizing: "border-box", overflow: "hidden", background: T.bg }}>
       <style>{`
-        .admin-chat-container {
-          display: flex;
-          flex-direction: column;
-          height: calc(100vh - 56px);
-          padding: 16px 20px 12px;
-          color: ${A.text};
-          font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-          box-sizing: border-box;
-          overflow: hidden;
-        }
-        .tab-btn {
-          padding: 5px 14px;
-          border-radius: 9999px;
-          border: 1px solid transparent;
-          font-size: 10px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .tab-btn.active-admin {
-          background: rgba(255, 153, 0, 0.15);
-          border-color: rgba(255, 153, 0, 0.45);
-          color: #CC7A00;
-        }
-        .tab-btn.inactive {
-          background: transparent;
-          color: ${A.muted};
-        }
-        .tab-btn.inactive:hover {
-          background: rgba(0,0,0,0.03);
-          color: ${A.text};
-        }
-        .chat-grid {
-          display: flex;
-          gap: 20px;
-          align-items: stretch;
-          flex: 1;
-          min-height: 0;
-          height: 100%;
-          overflow: hidden;
-        }
-        .left-col {
-          flex: 1 1 58%;
-          background: ${A.surface};
-          border: 1px solid ${A.border};
-          border-radius: 14px;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          max-height: 100%;
-          min-height: 0;
-        }
-        .right-col {
-          flex: 1 1 38%;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          height: 100%;
-          max-height: 100%;
-          overflow-y: auto;
-          min-height: 0;
-          padding-right: 4px;
-        }
-        @media (max-width: 1024px) {
-          .admin-chat-container {
-            height: auto;
-            overflow: visible;
-          }
-          .chat-grid {
-            flex-direction: column;
-            align-items: initial;
-            height: auto;
-            flex: none;
-            overflow: visible;
-          }
-          .left-col, .right-col {
-            flex: 1 1 100%;
-            height: auto;
-            max-height: none;
-          }
-        }
-        .custom-textarea {
-          width: 100%;
-          flex-shrink: 0;
-          border-radius: 10px;
-          border: 1.5px solid ${A.border};
-          background: #ffffff;
-          color: ${A.text};
-          font-family: inherit;
-          resize: vertical;
-          transition: all 0.2s ease-in-out;
-          outline: none;
-        }
-        .custom-textarea:focus {
-          border-color: ${A.accent};
-          box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.15);
-        }
-        .custom-textarea:disabled {
-          background: ${A.surface2};
-          color: ${A.muted};
-          cursor: not-allowed;
-        }
+        @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.16); }
       `}</style>
 
-      {/* Custom Subheader inside layout wrapper */}
-      <div style={{ background: "radial-gradient(ellipse at 95% 5%, rgba(255, 153, 0, 0.18) 0%, rgba(255, 153, 0, 0.08) 35%, rgba(255, 255, 255, 0) 65%)", borderRadius: 24, padding: '16px 24px', marginBottom: 16 }}>
-        {/* Row 1: Title + Navigation */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ flexShrink: 0 }}>
-            <div style={{ fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)', fontWeight: 600, color: '#232F3E', letterSpacing: '-0.03em', lineHeight: 1.1 }}>Chat Administration</div>
-            <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>AWS Club Operations</div>
+      {/* ── Header ── */}
+      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "16px 32px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", margin: "24px 24px 0 24px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <MessageSquare size={18} color={T.accent} />
           </div>
-
-          {/* View Navigation */}
-          <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.04)", padding: "3px 4px", borderRadius: 9999 }}>
-            <button onClick={() => setActiveView("queries")} className={`tab-btn ${activeView === "queries" ? "active-admin" : "inactive"}`}>Unhandled Queries & KB</button>
-            <button onClick={() => setActiveView("crew_chats")} className={`tab-btn ${activeView === "crew_chats" ? "active-admin" : "inactive"}`}>Crew General Chat</button>
-            {user?.role === "core" && (
-              <button onClick={() => setActiveView("manage_users")} className={`tab-btn ${activeView === "manage_users" ? "active-admin" : "inactive"}`}>Manage Members</button>
-            )}
+          <div>
+            <div style={{ fontSize: "16px", fontWeight: 700, color: T.text, letterSpacing: "-0.02em", lineHeight: 1.2 }}>Chat Administration</div>
+            <div style={{ fontSize: 11, color: T.muted }}>AWS Club Operations Center</div>
           </div>
         </div>
 
-        {/* Row 2: Stats */}
-        {activeView === "queries" && (
-          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            <StatPill label="Live" value={stats?.live} color={A.warning} />
-            <StatPill label="Resolved" value={stats?.resolved} color={A.success} />
-            <StatPill label="KB Docs" value={stats?.kb_docs} color={A.accent} />
-          </div>
-        )}
-
-        {/* Orange divider */}
-        <div style={{ height: 2, background: 'linear-gradient(90deg, transparent, #FF9900 40%, #F7BA45 60%, transparent)', marginTop: 12, borderRadius: 2 }} />
+        {/* View Switcher */}
+        <div style={{ display: "flex", gap: 6, background: T.surface2, padding: "5px 6px", borderRadius: 12, border: `1px solid ${T.border}`, boxShadow: "inset 0 1px 2px rgba(15,23,42,0.03)" }}>
+          {[
+            { key: "queries",      label: "Queries",        icon: <MessageSquare size={14} /> },
+            { key: "kb",           label: "Knowledge Base", icon: <BookOpen size={14} /> },
+            { key: "crew_chats",   label: "Crew Chat",      icon: <Users size={14} /> },
+            ...(user?.role === "core" ? [{ key: "manage_users", label: "Members", icon: <UserCog size={14} /> }] : []),
+          ].map(v => {
+            const isActive = activeView === v.key;
+            return (
+              <button key={v.key} onClick={() => {
+                setActiveView(v.key as any);
+                if (v.key !== "queries") setSelectedQuery(null);
+              }}
+                onMouseEnter={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLButtonElement).style.background = T.surface3;
+                    (e.currentTarget as HTMLButtonElement).style.color = T.text;
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                    (e.currentTarget as HTMLButtonElement).style.color = T.muted;
+                  }
+                }}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 8, border: "none", background: isActive ? T.surface : "transparent", color: isActive ? T.accent : T.muted, fontWeight: 700, fontSize: 12, cursor: "pointer", transition: "all .2s cubic-bezier(0.4, 0, 0.2, 1)", whiteSpace: "nowrap", boxShadow: isActive ? "0 4px 12px rgba(255, 153, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.02)" : "none" }}>
+                {v.icon} {v.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Main panel body */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      {/* ── Content ── */}
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden", padding: "20px 24px 24px 24px" }}>
         {activeView === "crew_chats" ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              height: "100%",
-              background: A.surface,
-              borderRadius: 14,
-              border: `1px solid ${A.border}`,
-              overflow: "hidden",
-            }}
-          >
-            {/* Header selection between E2EE and general for admin */}
-            <div style={{ background: "rgba(35, 47, 62, 0.03)", color: A.text, padding: "10px 20px", borderBottom: `1px solid ${A.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ fontSize: 12, fontWeight: 700 }}>AWS Club General Core-Crew Chat</div>
+          <div style={{ display: "flex", flexDirection: "column", height: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ background: T.surface2, color: T.text, padding: "12px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", gap: 8 }}>
+              <MessageSquare size={14} color={T.accent} />
+              <span style={{ fontSize: 13, fontWeight: 700 }}>AWS Club · Core–Crew Chat</span>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: T.success, marginLeft: 4, boxShadow: `0 0 6px ${T.success}` }} />
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
               <GroupChatPanel user={user} />
@@ -1076,97 +772,75 @@ export default function CoreChatPage() {
           <div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
             <ManageUsersPanel showToast={showToast} />
           </div>
+        ) : activeView === "kb" ? (
+          <div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
+            <FAQChipsManager showToast={showToast} />
+          </div>
         ) : (
-          /* Queries & CMS View */
-          <div className="chat-grid">
-            {/* Left table */}
-            <div className="left-col">
-              <div style={{ padding: "14px 20px", borderBottom: `1px solid ${A.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+          /* ── Queries & CMS ── */
+          <div style={{ display: "flex", gap: "24px", alignItems: "stretch", flex: 1, minHeight: 0, height: "100%", overflow: "hidden" }}>
+            {/* Left: Query list */}
+            <div style={{ flex: "1 1 60%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, display: "flex", flexDirection: "column", height: "100%", minHeight: 0, overflow: "hidden" }}>
+              {/* List header */}
+              <div style={{ padding: "12px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, flexShrink: 0, background: T.surface2 }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: A.text }}>Unhandled Queries</div>
-                  <div style={{ fontSize: 10, color: A.muted }}>{visible.length} queries shown</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Unhandled Queries</div>
+                  <div style={{ fontSize: 11, color: T.muted }}>{visible.length} showing</div>
                 </div>
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="🔍 Search queries..."
-                  style={{ background: A.surface2, border: `1px solid ${A.border}`, borderRadius: 8, padding: "6px 12px", fontSize: 11, outline: "none", color: A.text, width: 180 }}
-                />
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 6, padding: "6px 10px" }}>
+                    <Search size={12} color={T.muted} />
+                    <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search queries…"
+                      style={{ background: "transparent", border: "none", fontSize: 12, outline: "none", color: T.text, width: 140 }} />
+                  </div>
+                  <button onClick={fetchData} style={{ background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 6, padding: "6px 8px", color: T.muted, cursor: "pointer", display: "flex", alignItems: "center", transition: "background .15s" }}
+                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = T.surface2}
+                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "#FFFFFF"}
+                  >
+                    <RefreshCw size={12} />
+                  </button>
+                </div>
               </div>
 
-              {/* Filters */}
-              <div style={{ display: "flex", borderBottom: `1px solid ${A.border}`, overflowX: "auto" }}>
-                {TABS.map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setFilterTab(tab.key as any)}
-                    style={{
-                      padding: "10px 16px",
-                      border: "none",
-                      background: "transparent",
-                      cursor: "pointer",
-                      fontWeight: 600,
-                      fontSize: 11,
-                      color: filterTab === tab.key ? tab.color : A.muted,
-                      borderBottom: `2.5px solid ${filterTab === tab.key ? tab.color : "transparent"}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    {tab.label}
-                    <span style={{ fontSize: 9, background: filterTab === tab.key ? `${tab.color}22` : A.surface2, color: filterTab === tab.key ? tab.color : A.muted, padding: "1px 5px", borderRadius: 10 }}>
-                      {
-                        queries.filter((q) =>
-                          tab.key === "all"
-                            ? true
-                            : tab.key === "live"
-                            ? q.status === "live" || q.status === "pending"
-                            : tab.key === "resolved"
-                            ? q.status === "resolved" || q.status === "replied"
-                            : q.status === tab.key
-                        ).length
-                      }
-                    </span>
-                  </button>
+              {/* Filter tabs */}
+              <div style={{ display: "flex", borderBottom: `1px solid ${T.border}`, overflowX: "auto", flexShrink: 0, background: "#FFFFFF", paddingLeft: 12 }}>
+                {TABS.map(tab => {
+                  const isActive = filterTab === tab.key;
+                  const count = queries.filter(q => tab.key === "all" ? true : tab.key === "live" ? (q.status === "live" || q.status === "pending") : tab.key === "resolved" ? (q.status === "resolved" || q.status === "replied") : q.status === tab.key).length;
+                  return (
+                    <button key={tab.key} onClick={() => setFilterTab(tab.key as any)}
+                      style={{ padding: "12px 20px", border: "none", background: "transparent", cursor: "pointer", fontWeight: 600, fontSize: 12, color: isActive ? T.text : T.muted, borderBottom: `2px solid ${isActive ? T.accent : "transparent"}`, display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap", transition: "color .15s, border-color .15s" }}>
+                      {tab.icon} {tab.label}
+                      <span style={{ fontSize: 10, background: isActive ? T.accentLow : T.surface2, color: isActive ? T.accent : T.muted, padding: "1px 6px", borderRadius: 99, fontWeight: 700 }}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Column headers */}
+              <div style={{ display: "grid", gridTemplateColumns: "48px 1fr 64px 64px 90px", gap: 12, padding: "8px 32px", background: T.surface2, borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
+                {["ID", "Message", "Match", "Time", "Status"].map(h => (
+                  <span key={h} style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</span>
                 ))}
               </div>
 
-              {/* Table Body */}
-              <div style={{ overflowY: "auto", overflowX: "auto", flex: 1 }}>
+              {/* List body */}
+              <div style={{ overflowY: "auto", flex: 1, background: "#FFFFFF", maxHeight: "480px" }}>
                 {visible.length === 0 ? (
-                  <div style={{ padding: 40, textAlign: "center", color: A.muted, fontSize: 12 }}>
-                    No queries found.
+                  <div style={{ padding: 48, textAlign: "center", color: T.muted, fontSize: 13 }}>
+                    <CheckCircle2 size={36} color={T.muted} style={{ marginBottom: 12, opacity: 0.4 }} />
+                    <div style={{ fontWeight: 600, color: T.text }}>No queries found</div>
+                    <div style={{ fontSize: 11, marginTop: 4 }}>All clear for this filter.</div>
                   </div>
-                ) : (
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr style={{ borderBottom: `1px solid ${A.border}`, background: "rgba(0,0,0,0.02)" }}>
-                        {["ID", "User Message", "Match", "Time", "Status"].map((h) => (
-                          <th key={h} style={{ padding: "8px 14px", textAlign: "left", fontSize: 9, fontWeight: 700, color: A.muted, textTransform: "uppercase" }}>
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {visible.map((q) => (
-                        <QueryRow key={q.id} q={q} isSelected={selectedQuery?.id === q.id} onSelect={setSelectedQuery} />
-                      ))}
-                    </tbody>
-                  </table>
-                )}
+                ) : visible.map(q => <QueryRow key={q.id} q={q} isSelected={selectedQuery?.id === q.id} onSelect={setSelectedQuery} />)}
               </div>
             </div>
 
-            {/* Right side: CMS Panel & FAQ manager */}
-            <div className="right-col">
+            {/* Right: CMS Panel Only */}
+            <div style={{ flex: "1 1 40%", display: "flex", flexDirection: "column", height: "100%", maxHeight: "100%", overflowY: "auto", minHeight: 0, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflow: "hidden" }}>
               <CMSPanel query={selectedQuery} onSaved={handleSaved} onDismissed={handleDismissed} showToast={showToast} />
-              
-              {activeView === "queries" && (
-                <FAQChipsManager showToast={showToast} />
-              )}
             </div>
           </div>
         )}
