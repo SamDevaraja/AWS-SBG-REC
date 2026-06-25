@@ -308,7 +308,13 @@ function RoleSection({
   const details = getRoleDetails(path.name);
 
   return (
-    <div className="w-full [perspective:1200px] min-h-[460px] sm:min-h-[440px] relative">
+    <motion.div 
+      className="w-full [perspective:1200px] min-h-[460px] sm:min-h-[440px] relative"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false, margin: "-120px" }}
+      variants={sectionVariants}
+    >
       <motion.div
         className="w-full h-full relative"
         style={{ transformStyle: "preserve-3d" }}
@@ -489,7 +495,7 @@ function RoleSection({
           </div>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 
