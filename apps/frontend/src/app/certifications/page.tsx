@@ -155,7 +155,16 @@ function RoleSection({
         </p>
       </div>
 
-      <div className="flex flex-nowrap items-start justify-center gap-2 sm:gap-3 w-full overflow-x-auto sm:overflow-x-visible py-2">
+      <div 
+        className={cn(
+          "flex flex-nowrap items-start gap-2 sm:gap-3 w-full overflow-x-auto py-2.5 px-1",
+          certs.length <= 2 
+            ? "justify-center" 
+            : certs.length === 3 
+              ? "justify-start lg:justify-center" 
+              : "justify-start"
+        )}
+      >
         {certs.map((pathItem: any, i: number) => {
           const cert = pathItem.certification;
           const tierColor = getTierColor(cert.level.name);
