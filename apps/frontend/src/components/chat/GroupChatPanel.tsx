@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Send, Paperclip, FileText, Download, X, CheckCheck, Shield, Wrench, User } from "lucide-react";
+import { SendHorizontal, Paperclip, FileText, Download, X, CheckCheck, Shield, Wrench, User } from "lucide-react";
 
 const COLORS = {
   bg: "#F8FAFC",
@@ -300,7 +300,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
       id: `opt_${Date.now()}`,
       senderName: user.fullName,
       senderRole: user.role,
-      avatarColor: getAvatarColor(user.fullName),
+      avatarColor: user.role?.toLowerCase() === "core" ? getAvatarColor(user.fullName) : "#232F3E",
       avatarInitials: initials,
       avatarPhoto: user.avatar || null,
       text,
@@ -317,7 +317,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         body: JSON.stringify({
           senderName: user.fullName,
           senderRole: user.role,
-          avatarColor: getAvatarColor(user.fullName),
+          avatarColor: user.role?.toLowerCase() === "core" ? getAvatarColor(user.fullName) : "#232F3E",
           avatarInitials: initials,
           avatarPhoto: user.avatar || null,
           text,
@@ -425,58 +425,60 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
             grouped.map((item) => {
               if (item.type === "divider") {
                 return (
-                   <div key={item.key} className="flex items-center gap-4 my-5 justify-center relative select-none">
-                     <div className="h-[1px] flex-1 bg-slate-200/60" />
-                     <span className="text-[11px] font-semibold text-slate-500 font-sans tracking-wide">
-                       {item.label}
-                     </span>
-                     <div className="h-[1px] flex-1 bg-slate-200/60" />
-                   </div>
+                  <div key={item.key} className="flex items-center my-6 select-none w-full">
+                    <div className="flex-1 border-t border-slate-200/80"></div>
+                    <span className="px-4 text-[10px] font-bold text-slate-400 font-sans tracking-wider uppercase">
+                      {item.label}
+                    </span>
+                    <div className="flex-1 border-t border-slate-200/80"></div>
+                  </div>
                 );
               }
 
               const { msg } = item;
-              const isMe = user && msg.senderName === user.fullName && msg.senderRole === user.role;
+              const isCore = msg.senderRole?.toLowerCase() === "core";
+
               return (
                 <div 
                   key={msg.id} 
-                  className="flex gap-4 px-4 py-2 hover:bg-slate-900/[0.03] transition-colors items-start w-full animate-fadeIn group rounded-lg"
+                  className="flex gap-3.5 px-4 py-2.5 hover:bg-slate-900/[0.02] transition-colors items-start w-full animate-fadeIn group rounded-lg"
                 >
-                  <Avatar
-                    initials={msg.avatarInitials}
-                    color={getAvatarColor(msg.senderName)}
-                    photo={userPhotos[`${msg.senderName.toLowerCase()}_${msg.senderRole.toLowerCase()}`] || msg.avatarPhoto}
-                    size={38}
-                    role={msg.senderRole}
-                  />
+                  <div className="shrink-0 pt-0.5">
+                    <Avatar
+                      initials={msg.avatarInitials}
+                      color={isCore ? getAvatarColor(msg.senderName) : "#232F3E"}
+                      photo={userPhotos[`${msg.senderName.toLowerCase()}_${msg.senderRole.toLowerCase()}`] || msg.avatarPhoto}
+                      size={36}
+                      role={msg.senderRole}
+                    />
+                  </div>
 
                   <div className="flex-1 min-w-0 flex flex-col">
+                    {/* Metadata Header */}
                     <div className="flex items-baseline gap-2 mb-0.5 select-none">
-                      <span className="text-[14px] font-semibold text-slate-900 font-sans tracking-tight">
+                      <span 
+                        style={{ color: isCore ? getAvatarColor(msg.senderName) : "#232F3E" }}
+                        className="text-[13.5px] font-bold font-sans tracking-tight"
+                      >
                         {msg.senderName}
                       </span>
-                      <span className="text-[11px] text-slate-400 font-medium font-sans flex items-center gap-1">
+                      <span className="text-[10px] text-slate-400 font-medium font-sans">
                         {formatDateTime(msg.timestamp)}
-                        {isMe && (
-                          <CheckCheck className="w-3.5 h-3.5 text-[#34b7f1] shrink-0" />
-                        )}
                       </span>
                     </div>
 
-                    {/* Message text */}
-                    {msg.text && (
-                      <div className="text-[14px] text-slate-850 leading-relaxed font-sans whitespace-pre-wrap break-words">
-                        {msg.text}
-                      </div>
-                    )}
+                    {/* Chat Text */}
+                    <div className="text-[13px] leading-relaxed text-slate-700 font-sans whitespace-pre-wrap break-words">
+                      {msg.text}
+                    </div>
 
                     {/* Attachments */}
                     {msg.attachments && msg.attachments.length > 0 && (
-                      <div className="flex flex-col gap-2 mt-2">
+                      <div className="flex flex-col gap-2 mt-2 w-full">
                         {msg.attachments.map((att, attIdx) => (
                           <div
                             key={attIdx}
-                            className="rounded-lg overflow-hidden max-w-xs border border-slate-200 bg-white shadow-sm"
+                            className="rounded-xl overflow-hidden max-w-xs border border-slate-200 bg-white shadow-xs"
                           >
                             {att.type === "image" ? (
                               <img
@@ -494,7 +496,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
                               <a
                                 href={att.url}
                                 download={att.name || "file"}
-                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold border border-slate-200 text-slate-750 bg-slate-55 hover:bg-slate-100 transition-all duration-150 select-none"
+                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold border border-slate-200 text-slate-750 bg-slate-50 hover:bg-slate-100 transition-all select-none"
                               >
                                 <FileText className="w-4.5 h-4.5 text-slate-400 shrink-0" />
                                 <div className="flex-1 min-w-0">
@@ -503,7 +505,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
                                     {att.size ? `${(att.size / 1024).toFixed(1)} KB` : "File"}
                                   </div>
                                 </div>
-                                <Download className="w-3.5 h-3.5 text-slate-450 hover:text-slate-650 transition-colors shrink-0" />
+                                <Download className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                               </a>
                             )}
                           </div>
@@ -562,7 +564,7 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
       >
         <Avatar
           initials={user.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-          color={getAvatarColor(user.fullName)}
+          color={user.role?.toLowerCase() === "core" ? getAvatarColor(user.fullName) : "#232F3E"}
           photo={user.avatar}
           size={34}
           role={user.role}
@@ -598,14 +600,13 @@ export default function GroupChatPanel({ user }: GroupChatPanelProps) {
         <button
           type="submit"
           disabled={(!inputText.trim() && selectedFiles.length === 0) || sending}
-          className="flex items-center justify-center w-9 h-9 bg-[#232F3E] hover:bg-[#FF9900] text-white rounded-xl shadow-sm hover:shadow transition-all duration-150 disabled:bg-slate-300 disabled:cursor-not-allowed cursor-pointer shrink-0 hover:scale-102"
+          className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#232F3E] to-[#1A222D] hover:from-[#FF9900] hover:to-[#FF7700] text-white rounded-xl border border-slate-200/10 shadow-[0_3px_8px_rgba(35,47,62,0.12)] hover:shadow-[0_4px_16px_rgba(255,153,0,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none cursor-pointer shrink-0 transition-all duration-300 ease-out"
         >
-          <Send className="w-4 h-4" />
+          <SendHorizontal className="w-4.5 h-4.5 transition-transform duration-300 group-hover:translate-x-0.5" />
         </button>
       </form>
     </div>
   );
 }
-
 
 

@@ -237,30 +237,39 @@ function FAQChipsManager({ showToast }: { showToast: (t: any) => void }) {
       </div>
 
       {/* Add form */}
-      <div style={{ flex: "1 1 40%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "24px 32px", display: "flex", flexDirection: "column", gap: 20, overflowY: "auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Plus size={16} color={T.accent} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: T.text }}>Add FAQ Chip</span>
+      <div style={{ flex: "1 1 40%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "28px 32px", display: "flex", flexDirection: "column", gap: 24, overflowY: "auto" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Plus size={16} color={T.accent} />
+            <span style={{ fontSize: 14, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>Add FAQ Chip</span>
+          </div>
+          <span style={{ fontSize: 11, color: T.muted }}>Add a quick reply trigger to the knowledge base.</span>
         </div>
-        <form onSubmit={handleAdd} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={handleAdd} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Question</label>
-            <input type="text" value={newQuestion} onChange={e => setNewQuestion(e.target.value)} placeholder="e.g. What is AWS Certified Cloud Practitioner?"
-              style={{ width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, outline: "none", boxSizing: "border-box", fontFamily: "inherit", transition: "border-color .2s" }}
-              onFocus={e => { e.target.style.borderColor = T.accent; }}
-              onBlur={e => { e.target.style.borderColor = T.border; }} />
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase", letterSpacing: "0.05em" }}>Question</label>
+            <input 
+              type="text" 
+              value={newQuestion} 
+              onChange={e => setNewQuestion(e.target.value)} 
+              placeholder="e.g. What is AWS Certified Cloud Practitioner?"
+              className="faq-input"
+            />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted2, textTransform: "uppercase", letterSpacing: "0.05em" }}>Answer</label>
-            <textarea value={newAnswer} onChange={e => setNewAnswer(e.target.value)} placeholder="Provide the official response..." rows={5}
-              style={{ width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, outline: "none", resize: "vertical", fontFamily: "inherit", minHeight: 120, boxSizing: "border-box", transition: "border-color .2s" }}
-              onFocus={e => { e.target.style.borderColor = T.accent; }}
-              onBlur={e => { e.target.style.borderColor = T.border; }} />
+            <label style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase", letterSpacing: "0.05em" }}>Answer</label>
+            <textarea 
+              value={newAnswer} 
+              onChange={e => setNewAnswer(e.target.value)} 
+              placeholder="Provide the official response..." 
+              rows={5}
+              className="faq-textarea"
+            />
           </div>
-          <button type="submit" disabled={adding || !newQuestion.trim() || !newAnswer.trim()}
-            style={{ background: T.accent, border: "none", padding: "12px", color: "#fff", fontWeight: 700, borderRadius: 8, fontSize: 13, cursor: adding || !newQuestion.trim() || !newAnswer.trim() ? "not-allowed" : "pointer", opacity: adding || !newQuestion.trim() || !newAnswer.trim() ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, transition: "background .15s", marginTop: 8 }}
-            onMouseEnter={e => { if (!adding && newQuestion.trim() && newAnswer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accentHov; }}
-            onMouseLeave={e => { if (!adding && newQuestion.trim() && newAnswer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accent; }}
+          <button 
+            type="submit" 
+            disabled={adding || !newQuestion.trim() || !newAnswer.trim()}
+            className="faq-submit-btn"
           >
             <Plus size={14} /> {adding ? "Adding Chip…" : "Add FAQ Chip"}
           </button>
@@ -337,46 +346,64 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: { query: Query | n
   const { color: stColor, label: stLabel } = statusMeta(query.status);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, background: T.surface, padding: "24px 32px", flex: 1 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, background: T.surface, padding: "28px 32px", flex: 1, minHeight: 0 }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <SlidersHorizontal size={14} color={T.accent} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: T.text }}>CMS Editor</span>
-          <span style={{ fontSize: 10, color: T.muted, fontFamily: "monospace" }}>#{query.id.slice(-8)}</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <SlidersHorizontal size={14} color={T.accent} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: 13, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>CMS Editor</span>
+            <span style={{ fontSize: 9, color: T.muted, fontFamily: "monospace" }}>#{query.id.slice(-8)}</span>
+          </div>
         </div>
-        <span style={{ padding: "4px 10px", borderRadius: 99, background: `${stColor}12`, color: stColor, fontSize: 10, fontWeight: 700, textTransform: "capitalize", border: `1px solid ${stColor}20` }}>
+        <span style={{
+          padding: "3px 10px",
+          borderRadius: 99,
+          background: `${stColor}10`,
+          color: stColor,
+          fontSize: 10,
+          fontWeight: 800,
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+          border: `1px solid ${stColor}20`,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4
+        }}>
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: stColor }} />
           {stLabel}
         </span>
       </div>
 
       {/* Question card */}
-      <div style={{ background: T.surface2, borderRadius: 8, border: `1px solid ${T.border}`, padding: 16 }}>
+      <div style={{ background: "#F8FAFC", borderRadius: 10, border: `1px solid ${T.border}`, borderLeft: `4px solid ${T.accent}`, padding: "16px 20px" }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: "0.08em", marginBottom: 8, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
           <MessageSquare size={12} /> User Question
         </div>
-        <div style={{ fontSize: 14, color: T.text, lineHeight: 1.6, fontWeight: 500 }}>{query.message}</div>
-        <div style={{ marginTop: 12, display: "flex", gap: 14, fontSize: 10, color: T.muted, alignItems: "center" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={10} /> {relativeTime(query.timestamp)}</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Zap size={10} color={T.accent} /> Match: {simPct(query.bestSimilarity)}</span>
-        </div>
+        <div style={{ fontSize: 13.5, color: T.text, lineHeight: 1.6, fontWeight: 500 }}>{query.message}</div>
       </div>
 
       {query.bestMatchDoc && (
-        <details style={{ background: T.surface2, borderRadius: 8, border: `1px solid ${T.border}`, padding: "10px 14px" }}>
-          <summary style={{ cursor: "pointer", fontSize: 12, color: T.text, fontWeight: 600, userSelect: "none", listStyle: "none", display: "flex", alignItems: "center", gap: 6 }}>
-            <Database size={12} color={T.accent} /> Closest KB match (Auto-Reply Source)
+        <details className="kb-match-details" style={{ background: "#FFFFFF", borderRadius: 10, border: `1px solid ${T.border}`, padding: "12px 16px", cursor: "pointer", transition: "all 0.2s ease" }}>
+          <summary style={{ fontSize: "12px", color: T.text, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "space-between", outline: "none", listStyle: "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Database size={13} color={T.accent} />
+              <span>Closest KB Match (Auto-Reply Source)</span>
+            </div>
+            <ChevronDown size={14} color={T.muted} className="kb-match-chevron" style={{ transition: "transform .2s" }} />
           </summary>
-          <div style={{ marginTop: 10, fontSize: 11.5, color: T.muted2, lineHeight: 1.6, maxHeight: 150, overflowY: "auto" }}>
+          <div style={{ marginTop: 12, fontSize: 12, color: T.muted2, lineHeight: 1.6, borderTop: `1px dashed ${T.border}`, paddingTop: 10, maxHeight: 150, overflowY: "auto", fontFamily: "inherit" }}>
             {query.bestMatchDoc}
           </div>
         </details>
       )}
 
-      <div style={{ height: 1, background: T.border }} />
+      <div style={{ height: 1, background: T.border, margin: "4px 0" }} />
 
       {saveResult ? (
-        <div style={{ background: `${T.success}12`, border: `1px solid ${T.success}25`, borderRadius: 8, padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ background: `${T.success}12`, border: `1px solid ${T.success}25`, borderRadius: 10, padding: 16, display: "flex", alignItems: "center", gap: 12 }}>
           <CheckCircle2 size={20} color={T.success} />
           <div>
             <div style={{ fontSize: 13, color: T.success, fontWeight: 700 }}>Saved to ChromaDB</div>
@@ -389,24 +416,22 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: { query: Query | n
             value={answer} onChange={e => setAnswer(e.target.value)}
             placeholder="Write the correct answer to save to the knowledge base…"
             rows={6} disabled={saving !== ""}
-            style={{ width: "100%", background: "#FFFFFF", border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, outline: "none", resize: "vertical", fontFamily: "inherit", minHeight: 120, boxSizing: "border-box", transition: "border-color .2s" }}
-            onFocus={e => { e.target.style.borderColor = T.accent; }}
-            onBlur={e => { e.target.style.borderColor = T.border; }}
+            className="faq-textarea"
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
             {query.status === "live" && (
-              <button onClick={handleDismiss} disabled={saving !== ""}
-                style={{ background: "transparent", border: `1px solid ${T.danger}30`, borderRadius: 8, padding: "8px 16px", color: T.danger, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "background .15s" }}
-                onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = `${T.danger}0d`}
-                onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
+              <button 
+                onClick={handleDismiss} 
+                disabled={saving !== ""}
+                className="btn-danger-outline"
               >
                 <XCircle size={13} /> {saving === "dismissing" ? "Dismissing…" : "Dismiss"}
               </button>
             )}
-            <button onClick={handleSave} disabled={saving !== "" || !answer.trim()}
-              style={{ background: T.accent, border: "none", borderRadius: 8, padding: "8px 20px", color: "#fff", fontWeight: 700, fontSize: 12, cursor: saving !== "" || !answer.trim() ? "not-allowed" : "pointer", opacity: saving !== "" || !answer.trim() ? 0.55 : 1, display: "flex", alignItems: "center", gap: 6, transition: "background .15s" }}
-              onMouseEnter={e => { if (saving === "" && answer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accentHov; }}
-              onMouseLeave={e => { if (saving === "" && answer.trim()) (e.currentTarget as HTMLButtonElement).style.background = T.accent; }}
+            <button 
+              onClick={handleSave} 
+              disabled={saving !== "" || !answer.trim()}
+              className="btn-primary"
             >
               <Database size={13} /> {saving === "saving" ? "Saving…" : "Save to KB"}
             </button>
@@ -707,6 +732,170 @@ export default function CoreChatPage() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 99px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.16); }
+
+        .faq-input {
+          width: 100%;
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
+          border-radius: 10px;
+          padding: 11px 15px;
+          color: #0F172A;
+          font-size: 13px;
+          outline: none;
+          box-sizing: border-box;
+          font-family: inherit;
+          transition: all 0.2s ease-in-out;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+        }
+        .faq-input:hover {
+          border-color: #CBD5E1;
+        }
+        .faq-input:focus {
+          border-color: #FF9900;
+          box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.12), 0 1px 2px rgba(15, 23, 42, 0.05);
+        }
+        .faq-textarea {
+          width: 100%;
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
+          border-radius: 10px;
+          padding: 12px 15px;
+          color: #0F172A;
+          font-size: 13px;
+          outline: none;
+          box-sizing: border-box;
+          font-family: inherit;
+          transition: all 0.2s ease-in-out;
+          min-height: 120px;
+          resize: vertical;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+        }
+        .faq-textarea:hover {
+          border-color: #CBD5E1;
+        }
+        .faq-textarea:focus {
+          border-color: #FF9900;
+          box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.12), 0 1px 2px rgba(15, 23, 42, 0.05);
+        }
+        .faq-submit-btn {
+          background: linear-gradient(135deg, #FF9900 0%, #FF8800 100%);
+          border: none;
+          padding: 12px;
+          color: #fff;
+          font-weight: 700;
+          border-radius: 10px;
+          font-size: 13px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
+          margin-top: 8px;
+        }
+        .faq-submit-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(255, 153, 0, 0.25);
+          background: linear-gradient(135deg, #FF9900 0%, #FF7700 100%);
+        }
+        .faq-submit-btn:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 8px rgba(255, 153, 0, 0.15);
+        }
+        .faq-submit-btn:disabled {
+          background: #E2E8F0;
+          color: #94A3B8;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+        @keyframes pulse {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+          70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(22, 163, 74, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        }
+        .online-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #16A34A;
+          animation: pulse 2s infinite;
+        }
+
+        .btn-primary {
+          background: linear-gradient(135deg, #FF9900 0%, #FF8800 100%);
+          border: none;
+          padding: 10px 22px;
+          color: #fff;
+          font-weight: 700;
+          border-radius: 10px;
+          font-size: 13px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
+        }
+        .btn-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(255, 153, 0, 0.25);
+          background: linear-gradient(135deg, #FF9900 0%, #FF7700 100%);
+        }
+        .btn-primary:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 8px rgba(255, 153, 0, 0.15);
+        }
+        .btn-primary:disabled {
+          background: #E2E8F0;
+          color: #94A3B8;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .btn-danger-outline {
+          background: #FFFFFF;
+          border: 1px solid rgba(220, 38, 38, 0.25);
+          padding: 10px 20px;
+          color: #dc2626;
+          font-weight: 700;
+          border-radius: 10px;
+          font-size: 13px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: all 0.2s ease;
+        }
+        .btn-danger-outline:hover {
+          background: rgba(220, 38, 38, 0.05);
+          border-color: rgba(220, 38, 38, 0.4);
+          transform: translateY(-1px);
+        }
+        .btn-danger-outline:active {
+          transform: translateY(0);
+        }
+        .btn-danger-outline:disabled {
+          border-color: #E2E8F0;
+          color: #94A3B8;
+          cursor: not-allowed;
+          transform: none;
+          background: none;
+        }
+
+        .kb-match-details[open] .kb-match-chevron {
+          transform: rotate(180deg);
+        }
+        .kb-match-details summary::-webkit-details-marker {
+          display: none;
+        }
+        .kb-match-details:hover {
+          border-color: #CBD5E1 !important;
+        }
       `}</style>
 
       {/* ── Header ── */}
@@ -759,10 +948,19 @@ export default function CoreChatPage() {
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden", padding: "20px 24px 24px 24px" }}>
         {activeView === "crew_chats" ? (
           <div style={{ display: "flex", flexDirection: "column", height: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflow: "hidden" }}>
-            <div style={{ background: T.surface2, color: T.text, padding: "12px 32px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", gap: 8 }}>
-              <MessageSquare size={14} color={T.accent} />
-              <span style={{ fontSize: 13, fontWeight: 700 }}>AWS Club · Core–Crew Chat</span>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: T.success, marginLeft: 4, boxShadow: `0 0 6px ${T.success}` }} />
+            <div style={{ background: T.surface, color: T.text, padding: "16px 28px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accentLow, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Users size={15} color={T.accent} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: "14px", fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>AWS Club · Core–Crew Chat</span>
+                  </div>
+                  <span style={{ fontSize: 10, color: T.muted, fontWeight: 500 }}>Private communication channel for club operations</span>
+                </div>
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, background: T.surface2, padding: "3px 8px", borderRadius: 6, textTransform: "uppercase", letterSpacing: "0.03em", userSelect: "none" }}>Operations</span>
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
               <GroupChatPanel user={user} />
@@ -839,7 +1037,7 @@ export default function CoreChatPage() {
             </div>
 
             {/* Right: CMS Panel Only */}
-            <div style={{ flex: "1 1 40%", display: "flex", flexDirection: "column", height: "100%", maxHeight: "100%", overflowY: "auto", minHeight: 0, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ flex: "1 1 40%", display: "flex", flexDirection: "column", height: "100%", maxHeight: "100%", minHeight: 0, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflowX: "hidden", overflowY: "auto" }}>
               <CMSPanel query={selectedQuery} onSaved={handleSaved} onDismissed={handleDismissed} showToast={showToast} />
             </div>
           </div>

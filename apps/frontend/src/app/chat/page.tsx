@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Bot, 
-  Send, 
+  SendHorizontal, 
   HelpCircle, 
   Sparkles, 
   AlertCircle, 
@@ -41,6 +41,7 @@ interface Message {
   isAdminReply?: boolean;
   isConfirmation?: boolean;
   status?: string;
+  escalated?: boolean;
 }
 
 // LiveChat Escalation Button Component
@@ -104,8 +105,6 @@ const AWSBrandLogo = ({ className }: { className?: string }) => (
 // ChatTab component
 const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   const [isCustomTyping, setIsCustomTyping] = useState(false);
-  const [escalatedMsgs, setEscalatedMsgs] = useState<Set<number>>(new Set());
-  const [isWaitingForAdmin, setIsWaitingForAdmin] = useState(false);
   const [showGuideDialog, setShowGuideDialog] = useState(false);
   const guideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -116,13 +115,79 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     guideTimerRef.current = setTimeout(() => setShowGuideDialog(false), 5000);
   };
 
-  // Persistent session ID
+  const [user, setUser] = useState<any>(null);
+  const [userLoaded, setUserLoaded] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
+  const [systemMessages, setSystemMessages] = useState<Message[]>([]);
+  const [activePollsCount, setActivePollsCount] = useState(0);
+  const isWaitingForAdmin = activePollsCount > 0;
 
   useEffect(() => {
-    const sId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    let currentUser = null;
+    try {
+      const raw = localStorage.getItem("aws_sgb_rec_user");
+      if (raw) {
+        currentUser = JSON.parse(raw);
+        setUser(currentUser);
+      }
+    } catch (err) {
+      console.error("Error parsing user from localStorage:", err);
+    }
+
+    const userIdKey = currentUser ? currentUser.id : "guest";
+    
+    // Set stable session ID
+    let sId = "";
+    if (currentUser) {
+      sId = `session_user_${currentUser.id}`;
+    } else {
+      const savedGuestSession = localStorage.getItem("aws_sgb_rec_guest_session_id");
+      if (savedGuestSession) {
+        sId = savedGuestSession;
+      } else {
+        sId = `session_guest_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        localStorage.setItem("aws_sgb_rec_guest_session_id", sId);
+      }
+    }
     setSessionId(sId);
+
+    // Load Chat History
+    const historyKey = `aws_sgb_rec_chat_messages_${userIdKey}`;
+    const savedHistory = localStorage.getItem(historyKey);
+    if (savedHistory) {
+      try {
+        setSystemMessages(JSON.parse(savedHistory));
+      } catch {
+        setSystemMessages([
+          {
+            role: "bot",
+            text: "Hi! I'm Chat Box. I can help you with AWS certification questions, study tips, or anything cloud-related. What would you like to know?",
+            timestamp: Date.now() - 1000,
+            showEscalate: false,
+          }
+        ]);
+      }
+    } else {
+      setSystemMessages([
+        {
+          role: "bot",
+          text: "Hi! I'm Chat Box. I can help you with AWS certification questions, study tips, or anything cloud-related. What would you like to know?",
+          timestamp: Date.now() - 1000,
+          showEscalate: false,
+        }
+      ]);
+    }
+
+    setUserLoaded(true);
   }, []);
+
+  // Save Chat History whenever it changes
+  useEffect(() => {
+    if (!userLoaded) return;
+    const userIdKey = user ? user.id : "guest";
+    const historyKey = `aws_sgb_rec_chat_messages_${userIdKey}`;
+    localStorage.setItem(historyKey, JSON.stringify(systemMessages));
+  }, [systemMessages, user, userLoaded]);
 
   const fallbackChips: FAQChip[] = [
     { id: "f1", question: "Which AWS certification is best for beginners?", answer: "The AWS Certified Cloud Practitioner is the best starting point for beginners without prior IT or cloud experience." },
@@ -135,14 +200,6 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   const [faqChips, setFaqChips] = useState<FAQChip[]>(fallbackChips);
   const [faqLoading, setFaqLoading] = useState(true);
 
-  const [systemMessages, setSystemMessages] = useState<Message[]>([
-    {
-      role: "bot",
-      text: "Hi! I'm Chat Box. I can help you with AWS certification questions, study tips, or anything cloud-related. What would you like to know?",
-      timestamp: Date.now() - 1000,
-      showEscalate: false,
-    }
-  ]);
   const [userPendingMessages, setUserPendingMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -194,25 +251,57 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     fetchFaqChips();
   }, []);
 
+  const addPendingQuery = (unhandledId: string) => {
+    const userIdKey = user ? user.id : "guest";
+    const key = `aws_sgb_rec_pending_queries_${userIdKey}`;
+    try {
+      const existing = localStorage.getItem(key);
+      const list = existing ? JSON.parse(existing) : [];
+      if (!list.includes(unhandledId)) {
+        list.push(unhandledId);
+        localStorage.setItem(key, JSON.stringify(list));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const removePendingQuery = (unhandledId: string) => {
+    const userIdKey = user ? user.id : "guest";
+    const key = `aws_sgb_rec_pending_queries_${userIdKey}`;
+    try {
+      const existing = localStorage.getItem(key);
+      if (existing) {
+        const list = JSON.parse(existing);
+        const filtered = list.filter((id: string) => id !== unhandledId);
+        localStorage.setItem(key, JSON.stringify(filtered));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Polling helper for admin response
   const startAdminReplyPolling = (unhandledId: string) => {
-    setIsWaitingForAdmin(true);
+    setActivePollsCount(c => c + 1);
     const pollInterval = setInterval(async () => {
       try {
         const pollRes = await fetch(`/api/chat/poll/${unhandledId}`);
         if (!pollRes.ok) {
           clearInterval(pollInterval);
-          setIsWaitingForAdmin(false);
+          setActivePollsCount(c => Math.max(0, c - 1));
+          removePendingQuery(unhandledId);
           return;
         }
         const pollData = await pollRes.json();
         if (pollData.status === "replied") {
           clearInterval(pollInterval);
-          setIsWaitingForAdmin(false);
+          setActivePollsCount(c => Math.max(0, c - 1));
+          removePendingQuery(unhandledId);
           setSystemMessages(prev => [
             ...prev,
             {
-              role: "bot",
+              role: "bot" as const,
               text: `🧑‍💼 Core replied: ${pollData.answer}`,
               timestamp: Date.now(),
               showEscalate: false,
@@ -221,11 +310,12 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
           ]);
         } else if (pollData.status === "dismissed" || pollData.status === "timeout") {
           clearInterval(pollInterval);
-          setIsWaitingForAdmin(false);
+          setActivePollsCount(c => Math.max(0, c - 1));
+          removePendingQuery(unhandledId);
           setSystemMessages(prev => [
             ...prev,
             {
-              role: "bot",
+              role: "bot" as const,
               text: pollData.status === "dismissed"
                 ? "Core team dismissed the query. Your question has been saved — we'll follow up via email!"
                 : "Core team is currently unavailable. Your question has been saved — we'll follow up via email!",
@@ -236,12 +326,33 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
           ]);
         }
       } catch (_) {
-        clearInterval(pollInterval);
-        setIsWaitingForAdmin(false);
+        // ignore transient errors
       }
     }, 3000);
     pollingIntervalsRef.current.push(pollInterval);
   };
+
+  // Resume polling for existing pending queries on load or user change
+  useEffect(() => {
+    if (!userLoaded) return;
+    pollingIntervalsRef.current.forEach(clearInterval);
+    pollingIntervalsRef.current = [];
+    setActivePollsCount(0);
+
+    const userIdKey = user ? user.id : "guest";
+    const key = `aws_sgb_rec_pending_queries_${userIdKey}`;
+    try {
+      const existing = localStorage.getItem(key);
+      if (existing) {
+        const list = JSON.parse(existing);
+        list.forEach((unhandledId: string) => {
+          startAdminReplyPolling(unhandledId);
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [userLoaded, user]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,7 +367,6 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
       timestamp: time
     };
 
-    setIsWaitingForAdmin(true);
     setUserPendingMessages(prev => [...prev, newPendingMsg]);
     setInput("");
     if (inputRef.current) inputRef.current.style.height = "auto";
@@ -272,42 +382,41 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
       const data = await res.json();
 
       setUserPendingMessages(prev => prev.filter(m => m.timestamp !== time));
-      setSystemMessages(prev => [...prev, { role: "user", text: msg, timestamp: time }]);
 
-      if (data.status === "answered") {
-        setIsWaitingForAdmin(false);
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            role: "bot",
+      setSystemMessages(prev => {
+        const nextMsgs: Message[] = [...prev, { role: "user" as const, text: msg, timestamp: time }];
+        if (data.status === "answered") {
+          nextMsgs.push({
+            role: "bot" as const,
             text: data.answer,
             timestamp: Date.now(),
             showEscalate: true
-          }
-        ]);
-      } else if (data.status === "unhandled") {
-        setSystemMessages(prev => [
-          ...prev,
-          {
-            role: "bot",
+          });
+        } else if (data.status === "unhandled") {
+          nextMsgs.push({
+            role: "bot" as const,
             text: "✅ Your question has been sent to the Core team! A team member will reply here shortly. You can continue browsing while you wait.",
             timestamp: Date.now(),
             showEscalate: false,
             isConfirmation: true
-          }
-        ]);
+          });
+        }
+        return nextMsgs;
+      });
+
+      if (data.status === "unhandled") {
         if (data.unhandled_id) {
+          addPendingQuery(data.unhandled_id);
           startAdminReplyPolling(data.unhandled_id);
-        } else {
-          setIsWaitingForAdmin(false);
         }
       }
     } catch (err) {
       console.error("Failed to send custom chat message:", err);
-      setIsWaitingForAdmin(false);
-      setUserPendingMessages(prev =>
-        prev.map(m => m.timestamp === time ? { ...m, status: "Failed to send" } : m)
-      );
+      setUserPendingMessages(prev => prev.filter(m => m.timestamp !== time));
+      setSystemMessages(prev => [
+        ...prev,
+        { role: "user" as const, text: msg, timestamp: time, status: "Failed to send" }
+      ]);
     }
   };
 
@@ -316,8 +425,8 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     const botTimestamp = time + 10;
     setSystemMessages(prev => [
       ...prev,
-      { role: "user", text: chip.question, timestamp: time },
-      { role: "bot", text: chip.answer, timestamp: botTimestamp, showEscalate: true }
+      { role: "user" as const, text: chip.question, timestamp: time },
+      { role: "bot" as const, text: chip.answer, timestamp: botTimestamp, showEscalate: true }
     ]);
   };
 
@@ -328,7 +437,6 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     const doubt = userMsg ? userMsg.text : "User requested live chat assistance";
 
     let unhandledId = null;
-    setIsWaitingForAdmin(true);
 
     try {
       const res = await fetch("/api/chat", {
@@ -344,23 +452,23 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
       // ignore
     }
 
-    setEscalatedMsgs(prev => new Set([...prev, msgTimestamp]));
-
-    setSystemMessages(prev => [
-      ...prev,
-      {
-        role: "bot",
-        text: "✅ Your question has been sent to the Core team! A team member will reply here shortly. You can continue browsing while you wait.",
-        timestamp: Date.now(),
-        showEscalate: false,
-        isConfirmation: true,
-      }
-    ]);
+    setSystemMessages(prev => {
+      const updated = prev.map(m => m.timestamp === msgTimestamp ? { ...m, escalated: true } : m);
+      return [
+        ...updated,
+        {
+          role: "bot" as const,
+          text: "✅ Your question has been sent to the Core team! A team member will reply here shortly. You can continue browsing while you wait.",
+          timestamp: Date.now(),
+          showEscalate: false,
+          isConfirmation: true,
+        }
+      ];
+    });
 
     if (unhandledId) {
+      addPendingQuery(unhandledId);
       startAdminReplyPolling(unhandledId);
-    } else {
-      setIsWaitingForAdmin(false);
     }
   };
 
@@ -459,7 +567,7 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
                         <LiveChatEscalationBtn 
                           msgTimestamp={m.timestamp} 
                           onEscalate={handleEscalate} 
-                          escalated={escalatedMsgs.has(m.timestamp)} 
+                          escalated={!!m.escalated} 
                         />
                       </div>
                     )}
@@ -546,9 +654,9 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
                   <button
                     type="submit"
                     disabled={isWaitingForAdmin}
-                    className="flex items-center justify-center w-9 h-9 bg-[#232F3E] hover:bg-[#FF9900] text-white rounded-xl shadow-sm hover:shadow transition-all duration-150 disabled:bg-slate-350 disabled:cursor-not-allowed cursor-pointer hover:scale-102"
+                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#232F3E] to-[#1A222D] hover:from-[#FF9900] hover:to-[#FF7700] text-white rounded-xl border border-slate-200/10 shadow-[0_3px_8px_rgba(35,47,62,0.12)] hover:shadow-[0_4px_16px_rgba(255,153,0,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none cursor-pointer transition-all duration-300 ease-out"
                   >
-                    <Send className="w-4 h-4" />
+                    <SendHorizontal className="w-4.5 h-4.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                   </button>
                   
                   <button
