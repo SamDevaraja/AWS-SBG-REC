@@ -129,6 +129,172 @@ const oppVariants = {
   }),
 };
 
+const ROLE_DETAILS: Record<string, { role: string; path: string[]; salary: string }> = {
+  "cloud-architect": {
+    role: "A Cloud Architect designs and manages cloud infrastructure. They select suitable AWS services, ensure scalability, security, reliability, and optimize cloud costs for organizations.",
+    path: [
+      "AWS Certified Cloud Practitioner (recommended for beginners)",
+      "AWS Certified Solutions Architect – Associate",
+      "AWS Certified Solutions Architect – Professional"
+    ],
+    salary: "₹15 LPA – ₹35 LPA"
+  },
+  "devops-engineer": {
+    role: "A DevOps Engineer automates software development and deployment processes, manages CI/CD pipelines, monitors applications, and improves collaboration between development and operations teams.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Developer – Associate or AWS Certified SysOps Administrator – Associate",
+      "AWS Certified DevOps Engineer – Professional"
+    ],
+    salary: "₹6 LPA – ₹20 LPA"
+  },
+  "security-specialist": {
+    role: "A Security Specialist protects cloud environments from cyber threats by implementing security policies, managing access controls, monitoring vulnerabilities, and ensuring compliance.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Solutions Architect – Associate or AWS Certified SysOps Administrator – Associate",
+      "AWS Certified Security – Specialty"
+    ],
+    salary: "₹8 LPA – ₹25 LPA"
+  },
+  "data-engineer": {
+    role: "A Data Engineer builds and maintains data pipelines, processes large volumes of data, and prepares data for analytics and business insights.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Data Engineer – Associate"
+    ],
+    salary: "₹7 LPA – ₹22 LPA"
+  },
+  "ml-engineer": {
+    role: "An ML Engineer develops, trains, test, deploys, and maintains machine learning models for various applications.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Solutions Architect – Associate or AWS Certified Data Engineer – Associate",
+      "AWS Certified Machine Learning – Specialty"
+    ],
+    salary: "₹8 LPA – ₹25 LPA"
+  },
+  "ai-engineer": {
+    role: "An AI Engineer designs and develops AI-powered applications using technologies such as Generative AI, Natural Language Processing, and Computer Vision.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified AI Practitioner",
+      "AWS Certified Machine Learning – Specialty"
+    ],
+    salary: "₹10 LPA – ₹30 LPA"
+  },
+  "cloud-developer": {
+    role: "A Cloud Developer develops, tests, and deploys cloud-native applications using AWS services while ensuring scalability and performance.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Developer – Associate"
+    ],
+    salary: "₹5 LPA – ₹18 LPA"
+  },
+  "networking-engineer": {
+    role: "A Networking Engineer designs, configures, and maintains network infrastructure, VPNs, routers, switches, and cloud networking services.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Solutions Architect – Associate or AWS Certified SysOps Administrator – Associate",
+      "AWS Certified Advanced Networking – Specialty"
+    ],
+    salary: "₹4 LPA – ₹15 LPA"
+  },
+  "cloud-support-engineer": {
+    role: "A Cloud Support Engineer troubleshoots issues related to cloud infrastructure, networking, storage, and applications, ensuring smooth cloud operations.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified SysOps Administrator – Associate"
+    ],
+    salary: "₹4 LPA – ₹12 LPA"
+  },
+  "site-reliability-engineer": {
+    role: "A Site Reliability Engineer ensures that applications and services are highly available, reliable, and scalable through automation and monitoring.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified SysOps Administrator – Associate",
+      "AWS Certified DevOps Engineer – Professional"
+    ],
+    salary: "₹10 LPA – ₹28 LPA"
+  },
+  "cloud-systems-administrator": {
+    role: "A Cloud Systems Administrator manages cloud servers, operating systems, backups, monitoring tools, and system performance.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified SysOps Administrator – Associate"
+    ],
+    salary: "₹5 LPA – ₹15 LPA"
+  },
+  "cloud-consultant": {
+    role: "A Cloud Consultant advises organizations on cloud adoption, migration strategies, architecture design, and cost optimization.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Solutions Architect – Associate",
+      "AWS Certified Solutions Architect – Professional"
+    ],
+    salary: "₹10 LPA – ₹30 LPA"
+  },
+  "cloud-migration-engineer": {
+    role: "A Cloud Migration Engineer plans and executes the migration of applications, databases, and workloads from on-premises infrastructure to AWS cloud.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Solutions Architect – Associate"
+    ],
+    salary: "₹7 LPA – ₹18 LPA"
+  },
+  "database-administrator": {
+    role: "A Cloud Database Administrator manages cloud databases, performs backups and recovery, optimizes performance, and ensures database security.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Solutions Architect – Associate or AWS Certified Data Engineer – Associate",
+      "AWS Certified Database – Specialty"
+    ],
+    salary: "₹6 LPA – ₹20 LPA"
+  },
+  "cloud-operations-engineer": {
+    role: "A Cloud Operations Engineer monitors cloud infrastructure, automates operational tasks, and ensures smooth day-to-day cloud operations.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified SysOps Administrator – Associate"
+    ],
+    salary: "₹6 LPA – ₹18 LPA"
+  },
+  "finops-engineer": {
+    role: "A FinOps Engineer monitors and optimizes cloud spending, analyzes cloud usage, and helps organizations reduce cloud costs efficiently.",
+    path: [
+      "AWS Certified Cloud Practitioner",
+      "AWS Certified Solutions Architect – Associate"
+    ],
+    salary: "₹8 LPA – ₹20 LPA"
+  }
+};
+
+function getRoleDetails(name: string) {
+  const norm = name.toLowerCase();
+  if (norm.includes("architect")) return ROLE_DETAILS["cloud-architect"];
+  if (norm.includes("devops")) return ROLE_DETAILS["devops-engineer"];
+  if (norm.includes("security")) return ROLE_DETAILS["security-specialist"];
+  if (norm.includes("data")) return ROLE_DETAILS["data-engineer"];
+  if (norm.includes("machine learning") || norm.includes("ml-engineer") || norm.includes("ml engineer") || norm.includes("ml")) return ROLE_DETAILS["ml-engineer"];
+  if (norm.includes("ai engineer") || norm.includes("ai-engineer") || norm.includes("ai")) return ROLE_DETAILS["ai-engineer"];
+  if (norm.includes("developer")) return ROLE_DETAILS["cloud-developer"];
+  if (norm.includes("networking")) return ROLE_DETAILS["networking-engineer"];
+  if (norm.includes("support")) return ROLE_DETAILS["cloud-support-engineer"];
+  if (norm.includes("reliability") || norm.includes("sre")) return ROLE_DETAILS["site-reliability-engineer"];
+  if (norm.includes("systems administrator") || norm.includes("sysadmin")) return ROLE_DETAILS["cloud-systems-administrator"];
+  if (norm.includes("consultant")) return ROLE_DETAILS["cloud-consultant"];
+  if (norm.includes("migration")) return ROLE_DETAILS["cloud-migration-engineer"];
+  if (norm.includes("database") || norm.includes("dba")) return ROLE_DETAILS["database-administrator"];
+  if (norm.includes("operations")) return ROLE_DETAILS["cloud-operations-engineer"];
+  if (norm.includes("finops")) return ROLE_DETAILS["finops-engineer"];
+  
+  return {
+    role: "A cloud computing specialist focused on design, implementation, and optimization of cloud infrastructure and services.",
+    path: [],
+    salary: "N/A"
+  };
+}
+
 function RoleSection({
   path,
   dbBadgeMap,
@@ -136,91 +302,87 @@ function RoleSection({
   path: LearnerPathwayDetail;
   dbBadgeMap: Record<string, string>;
 }) {
+  const [isFlipped, setIsFlipped] = useState(false);
   const certs = path.pathway as any[];
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const details = getRoleDetails(path.name);
 
   return (
-    <motion.section
-      className="flex flex-col items-center bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm transition-all duration-300 w-full"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: false, margin: "-120px" }}
-      variants={sectionVariants}
-    >
-      <div className="text-center mb-8 w-full">
-        <h3 className="text-xl font-black text-slate-800 tracking-tight leading-tight">
-          {path.name}
-        </h3>
-        <p className="mt-2 text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
-          {path.description}
-        </p>
-      </div>
-
-      <div 
-        className={cn(
-          "flex flex-nowrap items-start gap-2 sm:gap-3 w-full overflow-x-auto py-2.5 px-1",
-          certs.length <= 2 
-            ? "justify-center" 
-            : certs.length === 3 
-              ? "justify-start lg:justify-center" 
-              : "justify-start"
-        )}
+    <div className="w-full [perspective:1200px] min-h-[460px] sm:min-h-[440px] relative">
+      <motion.div
+        className="w-full h-full relative"
+        style={{ transformStyle: "preserve-3d" }}
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       >
-        {certs.map((pathItem: any, i: number) => {
-          const cert = pathItem.certification;
-          const tierColor = getTierColor(cert.level.name);
-          const badgeUrl = cert.badgeImageUrl || dbBadgeMap[cert.slug];
-          return (
-            <React.Fragment key={cert.id}>
-              {i > 0 && (
-                <motion.div
-                  className="flex items-start justify-center w-6 sm:w-8 shrink-0 select-none h-[100px] sm:h-[120px]"
-                  variants={connectorVariants}
-                  custom={i}
-                >
-                  <motion.span
-                    className="flex h-full items-center justify-center text-slate-300"
-                    variants={arrowVariants}
-                    custom={i}
-                  >
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-50 border border-slate-200/60 text-slate-400 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-                      <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                    </div>
-                  </motion.span>
-                </motion.div>
-              )}
-              
-              <Link 
-                href={`/certifications/${cert.slug}`} 
-                className="group/cert w-full max-w-[100px] sm:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0"
-                onMouseEnter={() => setHoveredIdx(i)}
-                onMouseLeave={() => setHoveredIdx(null)}
-              >
-                <motion.div
-                  className="w-full flex flex-col items-center gap-2"
-                  variants={certItemVariants}
-                  custom={i}
-                >
-                  {/* Flip Container Wrapper */}
-                  <div 
-                    className="w-full aspect-square relative"
-                    style={{ perspective: "1000px" }}
-                  >
-                    <div 
-                      className="w-full h-full transition-transform duration-500 relative"
-                      style={{ 
-                        transformStyle: "preserve-3d",
-                        transform: hoveredIdx === i ? "rotateY(180deg)" : "rotateY(0deg)"
-                      }}
+        {/* FRONT FACE */}
+        <div 
+          className={cn(
+            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col items-center transition-all duration-300 h-full",
+            isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
+          )}
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          <div className="text-center mb-8 w-full relative">
+            <button
+              onClick={() => setIsFlipped(true)}
+              className="absolute -top-2 -right-2 p-2 rounded-xl bg-slate-50 border border-slate-250 text-slate-500 hover:bg-orange-50 hover:text-[#FF9900] hover:border-[#FF9900]/25 transition-all flex items-center gap-1.5 text-[10px] font-black tracking-wide shadow-[0_1px_3px_rgba(0,0,0,0.02)] cursor-pointer"
+              title="View Role Details"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-[#FF9900]" />
+              <span>ROLE INFO</span>
+            </button>
+            
+            <h3 className="text-xl font-black text-slate-800 tracking-tight leading-tight pr-16 pl-16">
+              {path.name}
+            </h3>
+            <p className="mt-2 text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
+              {path.description}
+            </p>
+          </div>
+
+          <div 
+            className={cn(
+              "flex flex-nowrap items-start gap-2 sm:gap-3 w-full overflow-x-auto py-2.5 px-1",
+              certs.length <= 2 
+                ? "justify-center" 
+                : certs.length === 3 
+                  ? "justify-start lg:justify-center" 
+                  : "justify-start"
+            )}
+          >
+            {certs.map((pathItem: any, i: number) => {
+              const cert = pathItem.certification;
+              const tierColor = getTierColor(cert.level.name);
+              const badgeUrl = cert.badgeImageUrl || dbBadgeMap[cert.slug];
+              return (
+                <React.Fragment key={cert.id}>
+                  {i > 0 && (
+                    <motion.div
+                      className="flex items-start justify-center w-6 sm:w-8 shrink-0 select-none h-[100px] sm:h-[120px]"
+                      variants={connectorVariants}
+                      custom={i}
                     >
-                      {/* Front Side */}
+                      <motion.span
+                        className="flex h-full items-center justify-center text-slate-300"
+                        variants={arrowVariants}
+                        custom={i}
+                      >
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-50 border border-slate-200/60 text-slate-400 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+                          <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                        </div>
+                      </motion.span>
+                    </motion.div>
+                  )}
+                  
+                  <Link href={`/certifications/${cert.slug}`} className="group/cert w-full max-w-[100px] sm:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0">
+                    <motion.div
+                      className="w-full flex flex-col items-center gap-2"
+                      variants={certItemVariants}
+                      custom={i}
+                    >
                       <div
-                        className="absolute inset-0 rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden transition-all duration-300 shadow-sm relative group-hover/cert:border-[var(--tier-color)] group-hover/cert:shadow-md"
-                        style={{ 
-                          "--tier-color": tierColor,
-                          backfaceVisibility: "hidden",
-                          WebkitBackfaceVisibility: "hidden"
-                        } as React.CSSProperties}
+                        className="w-full aspect-square rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer shadow-sm relative group-hover/cert:border-[var(--tier-color)] group-hover/cert:-translate-y-0.5 group-hover/cert:scale-[1.02] group-hover/cert:shadow-md"
+                        style={{ "--tier-color": tierColor } as React.CSSProperties}
                       >
                         <div className="w-[75%] h-[75%] flex items-center justify-center">
                           {badgeUrl ? (
@@ -234,64 +396,111 @@ function RoleSection({
                           )}
                         </div>
                       </div>
-
-                      {/* Back Side */}
-                      <div 
-                        className={cn(
-                          "absolute inset-0 rounded-xl border flex items-center justify-center p-2 text-center shadow-sm transition-all duration-300",
-                          getCertTheme(cert.examCode, cert.level.name).badgeClass
-                        )}
-                        style={{ 
-                          backfaceVisibility: "hidden",
-                          WebkitBackfaceVisibility: "hidden",
-                          transform: "rotateY(180deg)" 
-                        }}
-                      >
-                        <span className="text-[8px] sm:text-[9.5px] font-semibold leading-normal line-clamp-5">
-                          {getCertSummary(cert.slug)}
+                      <div className="flex flex-col items-center gap-0.5 w-full">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 leading-snug line-clamp-2 min-h-[32px] flex items-center justify-center">
+                          {shortenName(cert.title)}
+                        </span>
+                        <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: tierColor }}>
+                          {getTierLabel(cert.level.name)}
                         </span>
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center gap-0.5 w-full">
-                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 leading-snug line-clamp-2 min-h-[32px] flex items-center justify-center">
-                      {shortenName(cert.title)}
-                    </span>
-                    <span className="text-[8px] font-black uppercase tracking-widest" style={{ color: tierColor }}>
-                      {getTierLabel(cert.level.name)}
-                    </span>
-                  </div>
-                </motion.div>
-              </Link>
-            </React.Fragment>
-          );
-        })}
-      </div>
-
-      <motion.div
-        className="w-full mt-6 pt-5 border-t border-slate-100"
-        variants={careerVariants}
-      >
-        <div className="flex flex-col items-center">
-          <div className="flex items-center gap-1.5 mb-3">
-            <BriefcaseBusiness size={13} className="text-slate-400" />
-            <span className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Career Opportunities</span>
+                    </motion.div>
+                  </Link>
+                </React.Fragment>
+              );
+            })}
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-1.5">
-            {path.opportunities.map((opp: any, i: number) => (
-              <motion.span
-                key={opp.id}
-                variants={oppVariants}
-                custom={i}
-                className="inline-flex items-center rounded-full bg-slate-50 border border-slate-200 px-3 py-1 text-[10px] font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-100/80 cursor-default"
-              >
-                {opp.title}
-              </motion.span>
-            ))}
+
+          <motion.div
+            className="w-full mt-6 pt-5 border-t border-slate-100"
+            variants={careerVariants}
+          >
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1.5 mb-3">
+                <BriefcaseBusiness size={13} className="text-slate-400" />
+                <span className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Career Opportunities</span>
+              </div>
+              <div className="flex flex-wrap justify-center items-center gap-1.5">
+                {path.opportunities.map((opp: any, i: number) => (
+                  <motion.span
+                    key={opp.id}
+                    variants={oppVariants}
+                    custom={i}
+                    className="inline-flex items-center rounded-full bg-slate-50 border border-slate-200 px-3 py-1 text-[10px] font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-100/80 cursor-default"
+                  >
+                    {opp.title}
+                  </motion.span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* BACK FACE */}
+        <div 
+          className={cn(
+            "absolute inset-0 w-full h-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between transition-all duration-300",
+            isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
+          )}
+          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+        >
+          <div className="w-full relative flex items-start justify-between">
+            <div className="flex-1 text-left">
+              <span className="text-[9px] font-black text-slate-400 tracking-wider uppercase">Role Profile</span>
+              <h3 className="text-lg font-black text-slate-800 tracking-tight leading-tight mt-0.5">
+                {path.name}
+              </h3>
+            </div>
+            
+            <button
+              onClick={() => setIsFlipped(false)}
+              className="p-2 rounded-xl bg-slate-50 border border-slate-250 text-slate-500 hover:bg-orange-50 hover:text-[#FF9900] hover:border-[#FF9900]/25 transition-all flex items-center gap-1.5 text-[10px] font-black tracking-wide shadow-[0_1px_3px_rgba(0,0,0,0.02)] cursor-pointer"
+              title="Show Certification Pathway"
+            >
+              <ArrowRight className="h-3.5 w-3.5 text-[#FF9900] rotate-180" />
+              <span>SHOW PATH</span>
+            </button>
+          </div>
+
+          <div className="mt-4 flex-1 flex flex-col gap-4 text-left overflow-y-auto premium-scrollbar pr-1 max-h-[220px] sm:max-h-[240px]">
+            <div className="space-y-1">
+              <span className="text-[9px] font-black text-slate-400 tracking-wider uppercase">Description</span>
+              <p className="text-xs text-slate-650 leading-relaxed font-semibold">
+                {details.role}
+              </p>
+            </div>
+
+            {details.path.length > 0 && (
+              <div className="space-y-1.5">
+                <span className="text-[9px] font-black text-slate-400 tracking-wider uppercase">Recommended Certifications</span>
+                <ul className="space-y-1.5">
+                  {details.path.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-[11px] text-slate-700 font-bold leading-normal">
+                      <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+                <DollarSign className="h-4.5 w-4.5 text-emerald-600" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">Average Salary in India</span>
+                <span className="text-[13px] font-extrabold text-slate-800 leading-none">
+                  {details.salary}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>
-    </motion.section>
+    </div>
   );
 }
 
@@ -328,35 +537,6 @@ function getTargetRoles(slug: string): string {
     "aws-security-specialty": "Security analyst, security engineer, compliance specialist",
   };
   return roles[slug] ?? "Cloud professionals, IT specialists";
-}
-
-// Get brief summaries for pathway card flips
-function getCertSummary(slug: string): string {
-  const summaries: Record<string, string> = {
-    "aws-cloud-practitioner": "Broad introduction to AWS cloud concepts, pricing, architecture, and security basics.",
-    "aws-ai-practitioner": "Intended for individuals familiar with AI/ML concepts on AWS (non-builders).",
-    "aws-machine-learning-engineer-associate": "Build, operationalize, and monitor ML solutions on AWS.",
-    "aws-solutions-architect-associate": "Design secure, resilient, high-performing AWS solutions.",
-    "aws-developer-associate": "Build, deploy, and debug cloud-native applications on AWS.",
-    "aws-data-engineer-associate": "Build data pipelines, storage layers, and analytics solutions on AWS.",
-    "aws-cloudops-engineer-associate": "Deploy, manage, and operate workloads on AWS.",
-    "aws-generative-ai-developer-professional": "Design and build generative AI applications using foundation models on AWS.",
-    "aws-solutions-architect-professional": "Enterprise-scale architecture design, migration, and governance.",
-    "aws-devops-engineer-professional": "Automate SDLC, IaC, CI/CD, resilience and monitoring at scale.",
-    "aws-advanced-networking-specialty": "Deep expertise in hybrid and global networking on AWS.",
-    "aws-security-specialty": "Expertise in threat detection, incident response, and security governance.",
-  };
-
-  const s = slug.toLowerCase();
-  if (summaries[s]) return summaries[s];
-
-  // Try parsing key
-  const cleaned = s.replace(/^aws-/, "").replace(/-associate$/, "").replace(/-professional$/, "").replace(/-specialty$/, "");
-  for (const [k, v] of Object.entries(summaries)) {
-    if (k.includes(cleaned)) return v;
-  }
-
-  return "Explore syllabus, exam domains, weights, and detailed guidelines.";
 }
 
 // Styling/theme config mapping based on level or examCode
