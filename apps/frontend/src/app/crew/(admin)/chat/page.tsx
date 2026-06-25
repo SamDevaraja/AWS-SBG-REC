@@ -67,43 +67,37 @@ export default function CrewChatPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 h-[calc(100vh-32px)] md:h-[calc(100vh-48px)] w-full box-border select-none flex flex-col overflow-hidden">
-      <div className="relative flex flex-col overflow-hidden bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] font-sans shadow-lg border border-slate-200/80 rounded-2xl w-full flex-1">
-        <style>{`
-          .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-          .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
-          .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
-          .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
-        `}</style>
+    <div className="h-screen w-full box-border select-none flex flex-col overflow-hidden pl-4 md:pl-6 bg-[#F8FAFC]">
+      <style>{`
+        .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
+        .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
+      `}</style>
 
-        {/* Background ambient glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.06)_0%,rgba(255,153,0,0.02)_40%,transparent_70%)] pointer-events-none z-0" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(35,47,62,0.04)_0%,rgba(35,47,62,0.01)_40%,transparent_70%)] pointer-events-none z-0" />
-
-        {/* Main Glass Panel */}
-        <div className="relative flex-1 flex flex-col bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden z-10">
-          
-          {/* Header bar with role indication and chat room info */}
-          <div className="flex items-center justify-between flex-wrap gap-4 px-6 py-4 border-b border-slate-200/60 bg-white/40 backdrop-blur-xs select-none">
-            <div className="flex items-center gap-3.5">
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#232F3E] to-[#1A222D] flex items-center justify-center border border-slate-200/50 shadow-xs">
-                <AWSBrandLogo className="w-8 h-[19px]" />
-              </div>
-              <div>
-                <h3 className="font-bold text-[#232F3E] text-[15px] tracking-tight leading-none">
-                  Crew General Room
-                </h3>
-                <span className="text-[11px] text-slate-500 font-semibold mt-1.5 inline-block">
-                  Shared workspace for all core & crew members · Online
-                </span>
-              </div>
+      {/* Main Glass Panel */}
+      <div className="relative flex-1 flex flex-col bg-white overflow-hidden z-10">
+        
+        {/* Header bar with role indication and chat room info */}
+        <div className="flex items-center justify-between flex-wrap gap-4 px-6 py-4 border-b border-slate-200 bg-white select-none">
+          <div className="flex items-center gap-3.5">
+            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#232F3E] to-[#1A222D] flex items-center justify-center border border-slate-200/50 shadow-xs">
+              <AWSBrandLogo className="w-8 h-[19px]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-[#232F3E] text-[15px] tracking-tight leading-none">
+                Crew General Room
+              </h3>
+              <span className="text-[11px] text-slate-500 font-semibold mt-1.5 inline-block">
+                Shared workspace for all core & crew members · Online
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Main Panel View */}
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
-            <GroupChatPanel user={user} />
-          </div>
+        {/* Main Panel View */}
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
+          <GroupChatPanel user={user} />
         </div>
       </div>
     </div>
