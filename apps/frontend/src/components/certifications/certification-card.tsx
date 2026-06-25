@@ -172,7 +172,10 @@ export function CertificationCard({ certification, onDelete }: CertificationCard
         </div>
 
         {/* Title */}
-        <h3 className="mt-3 text-lg font-bold text-slate-800 tracking-tight leading-tight pr-8">
+        <h3 className={cn(
+          "mt-3 text-lg font-bold text-slate-800 tracking-tight leading-tight pr-8 transition-colors duration-300",
+          theme.hoverText
+        )}>
           {certification.title}
         </h3>
 
