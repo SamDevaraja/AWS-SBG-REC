@@ -16,7 +16,7 @@ import {
   Zap,
   Layers,
   Lock,
-  Settings,
+  Home,
   Users
 } from 'lucide-react';
 import { learningService, progressService, TopicSummary } from '@/services/roadmap.api';
@@ -538,7 +538,7 @@ export default function LearnPage() {
                 className="p-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-600 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
                 title={userRole === 'core' ? "Admin Portal" : userRole === 'crew' ? "Crew Portal" : "Events Dashboard"}
               >
-                <Settings className="w-4 h-4" />
+                <Home className="w-4 h-4" />
               </Link>
 
               <AnimatePresence>
