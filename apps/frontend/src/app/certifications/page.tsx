@@ -316,23 +316,15 @@ function RoleSection({
       >
         {/* FRONT FACE */}
         <div 
+          onClick={() => setIsFlipped(true)}
           className={cn(
-            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col items-center transition-all duration-300 h-full",
+            "w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col items-center transition-all duration-300 h-full cursor-pointer hover:shadow-md hover:border-slate-300/80",
             isFlipped ? "pointer-events-none opacity-0" : "opacity-100"
           )}
           style={{ backfaceVisibility: "hidden" }}
         >
           <div className="text-center mb-8 w-full relative">
-            <button
-              onClick={() => setIsFlipped(true)}
-              className="absolute -top-2 -right-2 p-2 rounded-xl bg-slate-50 border border-slate-250 text-slate-500 hover:bg-orange-50 hover:text-[#FF9900] hover:border-[#FF9900]/25 transition-all flex items-center gap-1.5 text-[10px] font-black tracking-wide shadow-[0_1px_3px_rgba(0,0,0,0.02)] cursor-pointer"
-              title="View Role Details"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-[#FF9900]" />
-              <span>ROLE INFO</span>
-            </button>
-            
-            <h3 className="text-xl font-black text-slate-800 tracking-tight leading-tight pr-16 pl-16">
+            <h3 className="text-xl font-black text-slate-800 tracking-tight leading-tight">
               {path.name}
             </h3>
             <p className="mt-2 text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
@@ -374,7 +366,11 @@ function RoleSection({
                     </motion.div>
                   )}
                   
-                  <Link href={`/certifications/${cert.slug}`} className="group/cert w-full max-w-[100px] sm:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0">
+                  <Link 
+                    href={`/certifications/${cert.slug}`} 
+                    onClick={(e) => e.stopPropagation()}
+                    className="group/cert w-full max-w-[100px] sm:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0"
+                  >
                     <motion.div
                       className="w-full flex flex-col items-center gap-2"
                       variants={certItemVariants}
@@ -438,8 +434,9 @@ function RoleSection({
 
         {/* BACK FACE */}
         <div 
+          onClick={() => setIsFlipped(false)}
           className={cn(
-            "absolute inset-0 w-full h-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between transition-all duration-300",
+            "absolute inset-0 w-full h-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between transition-all duration-300 cursor-pointer hover:shadow-md",
             isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
           )}
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
@@ -451,15 +448,6 @@ function RoleSection({
                 {path.name}
               </h3>
             </div>
-            
-            <button
-              onClick={() => setIsFlipped(false)}
-              className="p-2 rounded-xl bg-slate-50 border border-slate-250 text-slate-500 hover:bg-orange-50 hover:text-[#FF9900] hover:border-[#FF9900]/25 transition-all flex items-center gap-1.5 text-[10px] font-black tracking-wide shadow-[0_1px_3px_rgba(0,0,0,0.02)] cursor-pointer"
-              title="Show Certification Pathway"
-            >
-              <ArrowRight className="h-3.5 w-3.5 text-[#FF9900] rotate-180" />
-              <span>SHOW PATH</span>
-            </button>
           </div>
 
           <div className="mt-4 flex-1 flex flex-col gap-4 text-left overflow-y-auto premium-scrollbar pr-1 max-h-[220px] sm:max-h-[240px]">
