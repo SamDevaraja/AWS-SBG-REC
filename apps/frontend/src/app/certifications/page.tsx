@@ -137,6 +137,7 @@ function RoleSection({
   dbBadgeMap: Record<string, string>;
 }) {
   const certs = path.pathway as any[];
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
     <motion.section
@@ -189,26 +190,67 @@ function RoleSection({
                 </motion.div>
               )}
               
-              <Link href={`/certifications/${cert.slug}`} className="group/cert w-full max-w-[100px] sm:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0">
+              <Link 
+                href={`/certifications/${cert.slug}`} 
+                className="group/cert w-full max-w-[100px] sm:max-w-[120px] flex flex-col items-center gap-2 text-center no-underline text-inherit shrink-0"
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+              >
                 <motion.div
                   className="w-full flex flex-col items-center gap-2"
                   variants={certItemVariants}
                   custom={i}
                 >
-                  <div
-                    className="w-full aspect-square rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer shadow-sm relative group-hover/cert:border-[var(--tier-color)] group-hover/cert:-translate-y-0.5 group-hover/cert:scale-[1.02] group-hover/cert:shadow-md"
-                    style={{ "--tier-color": tierColor } as React.CSSProperties}
+                  {/* Flip Container Wrapper */}
+                  <div 
+                    className="w-full aspect-square relative"
+                    style={{ perspective: "1000px" }}
                   >
-                    <div className="w-[75%] h-[75%] flex items-center justify-center">
-                      {badgeUrl ? (
-                        <img
-                          src={badgeUrl}
-                          alt={cert.title}
-                          className="w-full h-full object-contain block transition-transform duration-300 group-hover/cert:scale-[1.08]"
-                        />
-                      ) : (
-                        <GraduationCap size={32} style={{ color: tierColor }} />
-                      )}
+                    <div 
+                      className="w-full h-full transition-transform duration-500 relative"
+                      style={{ 
+                        transformStyle: "preserve-3d",
+                        transform: hoveredIdx === i ? "rotateY(180deg)" : "rotateY(0deg)"
+                      }}
+                    >
+                      {/* Front Side */}
+                      <div
+                        className="absolute inset-0 rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden transition-all duration-300 shadow-sm relative group-hover/cert:border-[var(--tier-color)] group-hover/cert:shadow-md"
+                        style={{ 
+                          "--tier-color": tierColor,
+                          backfaceVisibility: "hidden",
+                          WebkitBackfaceVisibility: "hidden"
+                        } as React.CSSProperties}
+                      >
+                        <div className="w-[75%] h-[75%] flex items-center justify-center">
+                          {badgeUrl ? (
+                            <img
+                              src={badgeUrl}
+                              alt={cert.title}
+                              className="w-full h-full object-contain block transition-transform duration-300 group-hover/cert:scale-[1.08]"
+                            />
+                          ) : (
+                            <GraduationCap size={32} style={{ color: tierColor }} />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Back Side */}
+                      <div 
+                        className={cn(
+                          "absolute inset-0 rounded-xl border flex items-center justify-center p-2 text-center shadow-sm transition-all duration-300",
+                          getCertTheme(cert.examCode, cert.level.name).badgeClass
+                        )}
+                        style={{ 
+                          backfaceVisibility: "hidden",
+                          WebkitBackfaceVisibility: "hidden",
+                          transform: "rotateY(180deg)" 
+                        }}
+                      >
+                        <span className="text-[8px] sm:text-[9.5px] font-semibold leading-normal line-clamp-5">
+                          {getCertSummary(cert.slug)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex flex-col items-center gap-0.5 w-full">
@@ -286,6 +328,35 @@ function getTargetRoles(slug: string): string {
     "aws-security-specialty": "Security analyst, security engineer, compliance specialist",
   };
   return roles[slug] ?? "Cloud professionals, IT specialists";
+}
+
+// Get brief summaries for pathway card flips
+function getCertSummary(slug: string): string {
+  const summaries: Record<string, string> = {
+    "aws-cloud-practitioner": "Broad introduction to AWS cloud concepts, pricing, architecture, and security basics.",
+    "aws-ai-practitioner": "Intended for individuals familiar with AI/ML concepts on AWS (non-builders).",
+    "aws-machine-learning-engineer-associate": "Build, operationalize, and monitor ML solutions on AWS.",
+    "aws-solutions-architect-associate": "Design secure, resilient, high-performing AWS solutions.",
+    "aws-developer-associate": "Build, deploy, and debug cloud-native applications on AWS.",
+    "aws-data-engineer-associate": "Build data pipelines, storage layers, and analytics solutions on AWS.",
+    "aws-cloudops-engineer-associate": "Deploy, manage, and operate workloads on AWS.",
+    "aws-generative-ai-developer-professional": "Design and build generative AI applications using foundation models on AWS.",
+    "aws-solutions-architect-professional": "Enterprise-scale architecture design, migration, and governance.",
+    "aws-devops-engineer-professional": "Automate SDLC, IaC, CI/CD, resilience and monitoring at scale.",
+    "aws-advanced-networking-specialty": "Deep expertise in hybrid and global networking on AWS.",
+    "aws-security-specialty": "Expertise in threat detection, incident response, and security governance.",
+  };
+
+  const s = slug.toLowerCase();
+  if (summaries[s]) return summaries[s];
+
+  // Try parsing key
+  const cleaned = s.replace(/^aws-/, "").replace(/-associate$/, "").replace(/-professional$/, "").replace(/-specialty$/, "");
+  for (const [k, v] of Object.entries(summaries)) {
+    if (k.includes(cleaned)) return v;
+  }
+
+  return "Explore syllabus, exam domains, weights, and detailed guidelines.";
 }
 
 // Styling/theme config mapping based on level or examCode
