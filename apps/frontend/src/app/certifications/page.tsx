@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   Clock,
   DollarSign,
+  IndianRupee,
   Loader2,
   User,
   FileText,
@@ -476,7 +477,7 @@ function RoleSection({
           <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-                <DollarSign className="h-4.5 w-4.5 text-emerald-600" />
+                <IndianRupee className="h-4.5 w-4.5 text-emerald-600" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">Average Salary in India</span>
