@@ -178,7 +178,7 @@ function CertCard({
           </span>
         </div>
 
-        <h3 className="mt-3 text-lg font-semibold text-slate-800 tracking-tight leading-tight pr-8">
+        <h3 className={cn("mt-3 text-lg font-semibold text-slate-800 tracking-tight leading-tight pr-8 transition-colors duration-300", theme.hoverText)}>
           {cert.title}
         </h3>
 
