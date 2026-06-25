@@ -154,13 +154,15 @@ export default function SidebarLayout({
     return false;
   }, [pathname, homeHref]);
 
+  const isRoadmapPage = pathname && (pathname.startsWith('/learn') || pathname.startsWith('/roadmap'));
+
   // Desktop: current width; Mobile: 0 (sidebar overlays, no margin)
-  const mainMargin = isMobile ? 0 : isOpen ? SIDEBAR_OPEN_W : SIDEBAR_COLLAPSED_W;
+  const mainMargin = isRoadmapPage ? 0 : (isMobile ? 0 : isOpen ? SIDEBAR_OPEN_W : SIDEBAR_COLLAPSED_W);
 
   return (
     <div className="h-screen w-full bg-[#F9FAFB] overflow-hidden flex">
       {/* Mobile hamburger — outside sidebar so it shows even when drawer is closed */}
-      {isMobile && !isMobileOpen && (
+      {isMobile && !isMobileOpen && !isRoadmapPage && (
         <button
           onClick={() => setIsMobileOpen(true)}
           className="fixed top-4 left-4 z-50 flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-md"
@@ -172,23 +174,25 @@ export default function SidebarLayout({
         </button>
       )}
 
-      <Sidebar
-        isOpen={isOpen}
-        isMobile={isMobile}
-        isMobileOpen={isMobileOpen}
-        onToggle={() => setIsOpen((v) => !v)}
-        onMobileClose={() => setIsMobileOpen(false)}
-        currentPath={pathname}
-        onNavigate={handleNavigate}
-        navItems={navItems}
-        bottomNavItems={bottomNavItems}
-        user={user}
-        homeHref={homeHref}
-        signOutLabel={signOutLabel}
-        onSignOut={handleSignOut}
-        brandTitle={brandTitle}
-        brandSubtitle={brandSubtitle}
-      />
+      {!isRoadmapPage && (
+        <Sidebar
+          isOpen={isOpen}
+          isMobile={isMobile}
+          isMobileOpen={isMobileOpen}
+          onToggle={() => setIsOpen((v) => !v)}
+          onMobileClose={() => setIsMobileOpen(false)}
+          currentPath={pathname}
+          onNavigate={handleNavigate}
+          navItems={navItems}
+          bottomNavItems={bottomNavItems}
+          user={user}
+          homeHref={homeHref}
+          signOutLabel={signOutLabel}
+          onSignOut={handleSignOut}
+          brandTitle={brandTitle}
+          brandSubtitle={brandSubtitle}
+        />
+      )}
 
       <main
         className="h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-[#F8FAFC] relative"

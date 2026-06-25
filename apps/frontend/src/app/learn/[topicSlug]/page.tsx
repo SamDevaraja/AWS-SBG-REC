@@ -35,13 +35,10 @@ export default function TopicRoadmapPage() {
       if (!mounted) {
         return <div className="min-h-screen bg-[#bae6fd]" />;
       }
-      if (userRole === 'core') {
-        return <CoreSidebarShell>{children}</CoreSidebarShell>;
-      }
-      // Hiding the sidebar for crew and enthusiasts on the roadmap screen
+      // Hiding the sidebar for all roles on the roadmap screen
       return <>{children}</>;
     };
-  }, [mounted, userRole]);
+  }, [mounted]);
 
   // NOTE: We do NOT redirect to /login here — AuthWrapper already protects /learn/*.
   // A redundant redirect here (checking getAuthSession().isAuthenticated) caused an
