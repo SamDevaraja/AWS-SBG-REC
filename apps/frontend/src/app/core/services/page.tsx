@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Cpu, Database, RefreshCw } from 'lucide-react';
+import { Plus, Cpu, Database, Star } from 'lucide-react';
 import { AWSServiceSummary, AWSServiceCategory, fetchServices, fetchServiceCategories, fetchServiceDetails, createService, updateService, deleteService } from '@/lib/api';
 import ServiceTable from '@/components/ServiceManagement/ServiceTable';
 import ServiceForm from '@/components/ServiceManagement/ServiceForm';
@@ -190,40 +190,66 @@ export default function CoreServicesManagementPage() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={loadData}
-            disabled={loading}
-            className="p-3 border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 rounded-xl transition-all shadow-sm"
-            title="Refresh"
-          >
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          </button>
-          <button
             onClick={() => { setEditingService(null); setFormMode('create'); }}
-            className="flex items-center gap-2 px-5 py-3 bg-[#FF9900] hover:bg-[#E08800] text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-md hover:shadow-lg hover:shadow-orange-500/10"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-[#232F3E] hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
           >
-            <Plus size={16} /> Add New Service
+            <Plus size={14} />
+            <span>Add New Service</span>
           </button>
         </div>
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
         {[
-          { label: 'Total Services', value: totalServices, color: 'text-slate-800', icon: <Database size={18} className="text-slate-400" /> },
-          { label: 'Active Services', value: activeServices, color: 'text-emerald-600', icon: <Database size={18} className="text-emerald-400" /> },
-          { label: 'Featured', value: featuredServices, color: 'text-amber-500', icon: <Database size={18} className="text-amber-400" /> },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center justify-between"
-          >
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{stat.label}</p>
-              <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
+          {
+            label: 'Total Services',
+            value: totalServices,
+            subtext: 'Registered catalog entries',
+            icon: Database,
+            iconColor: 'text-[#0073BB]',
+            iconBg: 'bg-[#0073BB]/10 border border-[#0073BB]/20',
+          },
+          {
+            label: 'Active Services',
+            value: activeServices,
+            subtext: 'Active operational workloads',
+            icon: Cpu,
+            iconColor: 'text-emerald-600',
+            iconBg: 'bg-emerald-50 border border-emerald-100',
+          },
+          {
+            label: 'Featured Services',
+            value: featuredServices,
+            subtext: 'Featured showcase resources',
+            icon: Star,
+            iconColor: 'text-amber-500',
+            iconBg: 'bg-amber-50 border border-amber-100',
+          },
+        ].map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={stat.label}
+              className="bg-white border border-slate-200/60 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between hover:shadow-md hover:border-[#FF9900]/30 hover:-translate-y-0.5 transition-all duration-300 ease-out group"
+            >
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-455 font-heading">
+                  {stat.label}
+                </span>
+                <span className="text-3xl font-bold text-slate-850 font-display tracking-tight my-0.5">
+                  {stat.value}
+                </span>
+                <span className="text-[11px] font-medium text-slate-500 truncate">
+                  {stat.subtext}
+                </span>
+              </div>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 ${stat.iconBg}`}>
+                <Icon className={`w-5 h-5 ${stat.iconColor}`} />
+              </div>
             </div>
-            {stat.icon}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Main Content: Table or Form */}

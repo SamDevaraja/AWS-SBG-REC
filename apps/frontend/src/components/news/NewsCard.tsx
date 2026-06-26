@@ -167,7 +167,7 @@ export const NewsCard = memo(function NewsCard({
     );
   }
  
-  // ─── FLAT HORIZONTAL CARD (Side-by-side, no card borders/backgrounds) ───
+  // ─── FLAT HORIZONTAL CARD (Side-by-side, image fills left, text on right) ───
   if (variant === "flat-horizontal") {
     return (
       <button
@@ -175,34 +175,37 @@ export const NewsCard = memo(function NewsCard({
         aria-label={`Open article: ${article.title}`}
         onClick={() => onClick(article.id)}
         className={cn(
-          "group flex w-full gap-3.5 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
+          "group flex w-full min-h-[120px] overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card text-left [box-shadow:var(--shadow-soft)] transition-all duration-300 ease-out hover:-translate-y-[2px] hover:bg-white/92 hover:shadow-[var(--shadow-hover)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9900]",
           className,
         )}
       >
-        <div className="relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-lg sm:w-32">
+        {/* Left: image fills full card height */}
+        <div className="relative w-28 shrink-0 self-stretch sm:w-36">
           <NewsImage
             src={article.imageUrl}
             category={article.category}
             articleId={article.id}
             alt={article.title}
-            sizes="128px"
+            sizes="144px"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
           />
         </div>
-        <div className="flex min-w-0 flex-col justify-center">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[color:var(--accent)]">
+        {/* Right: text */}
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 px-3.5 py-3">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[color:var(--accent)]">
             {getCategoryLabel(article.category)}
           </span>
-          <h2 className="mt-0.5 break-words font-display text-[15px] sm:text-[16.5px] font-bold leading-[1.3] tracking-tight text-foreground transition-colors duration-200 group-hover:text-[color:var(--accent)] line-clamp-2">
+          <h2 className="break-words font-display text-[13.5px] font-semibold leading-[1.4] tracking-tight text-foreground transition-colors duration-200 group-hover:text-[color:var(--accent)]">
             {article.title}
           </h2>
-          <p className="mt-1.5 text-[11px] font-semibold text-muted/60">
+          <p className="text-[11px] text-muted/70">
             {article.sourceName} · {formatPublishedDate(article.publishedAt)}
           </p>
         </div>
       </button>
     );
   }
+
  
   // ─── EDITORIAL QUOTE CARD (Typography-focused statement box) ───
   if (variant === "quote") {

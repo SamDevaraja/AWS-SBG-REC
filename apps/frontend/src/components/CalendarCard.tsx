@@ -82,17 +82,65 @@ export default function CalendarCard() {
   /* ── day grid ── */
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const cells: (number | null)[] = [
-    ...Array(firstDay).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  while (cells.length < 42) cells.push(null);
+  
+  // Previous month details
+  const prevMonthYear = viewMonth === 0 ? viewYear - 1 : viewYear;
+  const prevMonthIdx = viewMonth === 0 ? 11 : viewMonth - 1;
+  const daysInPrevMonth = new Date(prevMonthYear, prevMonthIdx + 1, 0).getDate();
+
+  // Day interface
+  interface CalendarDayInfo {
+    day: number;
+    month: number;
+    year: number;
+    isCurrentMonth: boolean;
+  }
+
+  const cells: CalendarDayInfo[] = [];
+
+  // Add previous month days
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells.push({
+      day: daysInPrevMonth - i,
+      month: prevMonthIdx,
+      year: prevMonthYear,
+      isCurrentMonth: false,
+    });
+  }
+
+  // Add current month days
+  for (let i = 1; i <= daysInMonth; i++) {
+    cells.push({
+      day: i,
+      month: viewMonth,
+      year: viewYear,
+      isCurrentMonth: true,
+    });
+  }
+
+  // Add next month days to fill grid (42 cells)
+  const nextMonthYear = viewMonth === 11 ? viewYear + 1 : viewYear;
+  const nextMonthIdx = viewMonth === 11 ? 0 : viewMonth + 1;
+  let nextMonthDay = 1;
+  while (cells.length < 42) {
+    cells.push({
+      day: nextMonthDay++,
+      month: nextMonthIdx,
+      year: nextMonthYear,
+      isCurrentMonth: false,
+    });
+  }
 
   /* ── filtered events for current month ── */
   const monthEvents = realEvents.filter(evt => {
     const d = parseEventDate(evt.start_datetime);
     return d.getFullYear() === viewYear && d.getMonth() === viewMonth;
   });
+
+  // Filter events by selected day if one is active, otherwise show all month events
+  const displayedEvents = selectedDay !== null
+    ? monthEvents.filter(evt => parseEventDate(evt.start_datetime).getDate() === selectedDay)
+    : monthEvents;
 
   /* ── open/close ── */
   const openModal = () => { setSelectedDay(null); setIsOpen(true); };
@@ -106,7 +154,7 @@ export default function CalendarCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
         onClick={openModal}
-        className="glass-panel rounded-[22px] overflow-hidden p-6 border border-white/25 cursor-pointer select-none transition-all duration-[250ms] ease-out"
+        className="glass-panel rounded-[22px] overflow-hidden p-4 border border-white/25 cursor-pointer select-none transition-all duration-[250ms] ease-out"
         style={{ background: "rgba(255, 255, 255, 0.92)" }}
         whileHover={{
           y: -3,
@@ -118,25 +166,19 @@ export default function CalendarCard() {
       >
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-sm font-medium text-foreground/60 tracking-wide uppercase">Calendar</span>
-            <span className="text-3xl font-semibold text-foreground font-display tracking-tight mt-1">
+            <span className="text-xs font-bold text-foreground/50 tracking-wider uppercase">Calendar</span>
+            <span className="text-xl font-bold text-foreground font-display tracking-tight mt-1">
               {MONTHS[today.getMonth()].slice(0, 3)} {today.getFullYear()}
             </span>
-            <span className="text-xs font-semibold text-foreground/50 mt-1">
+            <span className="text-xs font-semibold text-brand-orange mt-1">
               {upcomingCount} upcoming event{upcomingCount !== 1 ? "s" : ""}
             </span>
           </div>
           <div
-            className="relative"
             onMouseEnter={() => setIconHovered(true)}
             onMouseLeave={() => setIconHovered(false)}
           >
-            <AwsCloudWatchIcon className={`w-21 h-21 transition-transform duration-200 ${iconHovered ? "scale-110" : ""}`} />
-            {iconHovered && (
-              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/85 backdrop-blur-sm text-white text-[9px] font-semibold rounded-md shadow-lg border border-white/10 whitespace-nowrap pointer-events-none tracking-wider uppercase z-30">
-                CloudWatch
-              </div>
-            )}
+            <AwsCloudWatchIcon className={`w-18 h-18 transition-transform duration-200 ${iconHovered ? "scale-110" : ""}`} />
           </div>
         </div>
       </motion.div>
@@ -154,114 +196,114 @@ export default function CalendarCard() {
             onClick={e => { if (e.target === e.currentTarget) closeModal(); }}
           >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
             {/* Panel */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              initial={{ opacity: 0, scale: 0.96, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 20 }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              className="relative z-10 w-full max-w-[500px] rounded-[24px] overflow-hidden shadow-2xl flex flex-col max-h-[92vh] glass-panel"
-              style={{
-                background: "rgba(255, 255, 255, 0.75)",
-                backdropFilter: "blur(32px) saturate(180%)",
-                WebkitBackdropFilter: "blur(32px) saturate(180%)",
-              }}
+              exit={{ opacity: 0, scale: 0.96, y: 15 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              className="relative z-10 w-full max-w-[430px] rounded-[20px] overflow-hidden shadow-2xl flex flex-col max-h-[88vh] bg-white border border-slate-200/80"
             >
               {/* ── Header ── */}
-              <div className="flex items-center justify-between px-8 pt-6 pb-5 border-b border-black/[0.06] flex-shrink-0">
-                <div className="flex items-center gap-3.5">
-                  <AwsCloudWatchIcon className="w-10 h-10" />
+              <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100 flex-shrink-0 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <AwsCloudWatchIcon className="w-9 h-9" />
                   <div>
-                    <h2 className="text-xl font-semibold text-foreground font-display leading-none">
+                    <h2 className="text-base font-bold text-slate-800 leading-none">
                       Community Calendar
                     </h2>
-                    <p className="text-xs text-foreground/50 mt-1">
-                      Click a highlighted date to view its event
+                    <p className="text-[11px] text-slate-400 mt-1 font-semibold">
+                      Click a highlighted date to filter events
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={closeModal}
-                  className="p-2.5 rounded-xl hover:bg-black/5 text-foreground/50 hover:text-foreground transition-colors cursor-pointer"
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 border border-transparent hover:border-slate-200/40 transition-all cursor-pointer"
                   aria-label="Close calendar"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* ── Month / Year navigation ── */}
-              <div className="flex items-center justify-between px-8 py-5 flex-shrink-0">
+              <div className="flex items-center justify-between px-6 py-4 flex-shrink-0">
                 <button
                   onClick={prevMonth}
-                  className="p-2 rounded-xl hover:bg-black/5 transition-colors text-foreground/70 cursor-pointer"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200/60 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 shadow-sm transition-all cursor-pointer"
                   aria-label="Previous month"
                 >
-                  <ChevronLeft className="w-6 h-6" />
+                  <ChevronLeft className="w-4.5 h-4.5" />
                 </button>
 
                 {/* Month + Year shown together */}
-                <span className="text-lg font-medium text-foreground font-display tracking-tight">
+                <span className="text-[15px] font-bold text-slate-700 font-display tracking-tight">
                   {MONTHS[viewMonth]} {viewYear}
                 </span>
 
                 <button
                   onClick={nextMonth}
-                  className="p-2 rounded-xl hover:bg-black/5 transition-colors text-foreground/70 cursor-pointer"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200/60 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 shadow-sm transition-all cursor-pointer"
                   aria-label="Next month"
                 >
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-4.5 h-4.5" />
                 </button>
               </div>
 
               {/* ── Day-of-week headers ── */}
-              <div className="grid grid-cols-7 px-8 pb-2 flex-shrink-0">
+              <div className="grid grid-cols-7 px-6 pb-2.5 border-b border-slate-100 flex-shrink-0">
                 {DAYS.map(d => (
-                  <div key={d} className="text-center text-xs font-medium text-foreground/40 uppercase tracking-wider py-1">
+                  <div key={d} className="text-center text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     {d}
                   </div>
                 ))}
               </div>
 
               {/* ── Day grid ── */}
-              <div className="grid grid-cols-7 px-8 pb-4 gap-y-2 flex-shrink-0">
-                {cells.map((day, idx) => {
-                  if (!day) return <div key={`empty-${idx}`} />;
-
-                  const key = `${viewYear}-${viewMonth}-${day}`;
+              <div className="grid grid-cols-7 px-6 py-4 gap-y-2.5 gap-x-1.5 flex-shrink-0">
+                {cells.map((cell, idx) => {
+                  const { day, month, year, isCurrentMonth } = cell;
+                  const key = `${year}-${month}-${day}`;
                   const dayEvents = eventMap[key] ?? [];
                   const hasEvent = dayEvents.length > 0;
                   const isToday =
                     day === today.getDate() &&
-                    viewMonth === today.getMonth() &&
-                    viewYear === today.getFullYear();
-                  const isSelected = selectedDay === day && hasEvent;
+                    month === today.getMonth() &&
+                    year === today.getFullYear();
+                  const isSelected = selectedDay === day && hasEvent && isCurrentMonth;
 
                   return (
-                    <div key={key} className="relative flex flex-col items-center">
+                    <div key={`${key}-${idx}`} className="relative flex flex-col items-center">
                       <button
                         onClick={() => {
+                          if (!isCurrentMonth) return;
                           if (!hasEvent) return;
                           setSelectedDay(prev => (prev === day ? null : day));
                         }}
+                        disabled={!isCurrentMonth}
                         className={[
-                          "w-10 h-10 flex flex-col items-center justify-center rounded-full text-sm font-medium transition-all duration-200 select-none",
-                          isSelected
-                            ? "bg-brand-orange text-white shadow-md shadow-brand-orange/30 ring-2 ring-brand-orange/40 scale-110"
-                            : isToday
-                              ? "bg-brand-blue/10 text-brand-blue ring-1 ring-brand-blue/30 font-semibold"
-                              : hasEvent
-                                ? "text-slate-800 hover:bg-slate-100 hover:text-slate-900 cursor-pointer"
-                                : "text-slate-500 hover:bg-slate-50 cursor-default",
+                          "w-9 h-9 flex flex-col items-center justify-center rounded-full text-xs font-semibold transition-all duration-150 select-none relative",
+                          !isCurrentMonth
+                            ? "text-slate-300 opacity-40 cursor-default"
+                            : isSelected
+                              ? "bg-brand-orange text-white shadow-sm shadow-brand-orange/40 scale-105"
+                              : isToday
+                                ? "bg-brand-blue/10 text-brand-blue border border-brand-blue/30 font-bold"
+                                : hasEvent
+                                  ? "text-brand-orange bg-brand-orange/5 hover:bg-brand-orange/10 border border-brand-orange/20 cursor-pointer"
+                                  : "text-slate-500 hover:bg-slate-50 cursor-default",
                         ].join(" ")}
-                        aria-label={hasEvent ? `View events on ${MONTHS[viewMonth]} ${day}` : undefined}
+                        aria-label={hasEvent ? `View events on ${MONTHS[month]} ${day}` : undefined}
                       >
-                        <span className="mt-0.5">{day}</span>
+                        <span>{day}</span>
                         {/* Event Dot */}
-                        <span 
-                          className={`mt-0.5 w-1 h-1 rounded-full ${isSelected ? "bg-white" : hasEvent ? "bg-brand-orange" : "bg-transparent"}`}
-                        />
+                        {hasEvent && (
+                          <span 
+                            className={`absolute bottom-1 w-1 h-1 rounded-full ${isSelected ? "bg-white" : "bg-brand-orange"}`}
+                          />
+                        )}
                       </button>
                     </div>
                   );
@@ -269,50 +311,71 @@ export default function CalendarCard() {
               </div>
 
               {/* ── Events list for the current month ── */}
-              <div className="overflow-y-auto flex-1 px-8 py-6 space-y-3 bg-gradient-to-b from-slate-50/50 to-slate-100/50 border-t border-slate-200/60 custom-scrollbar">
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">
-                  Events this Month
-                </p>
-                {isLoading ? (
-                  <p className="text-xs text-slate-400 py-2">Loading events...</p>
-                ) : monthEvents.length > 0 ? (
-                  monthEvents.map(evt => {
-                    const d = parseEventDate(evt.start_datetime);
-                    const isHighlighted = selectedDay !== null && d.getDate() === selectedDay;
-                    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                    const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    return (
-                      <button
-                        key={evt.event_id}
-                        onClick={() => {
-                          closeModal();
-                          const basePath = pathname.startsWith('/crew') ? '/crew/events' : pathname.startsWith('/core') ? '/core/events' : '/events';
-                          router.push(`${basePath}/${evt.event_id || (evt as any).id}`);
-                        }}
-                        className={`flex items-start gap-3.5 w-full text-left rounded-[14px] px-4 py-3.5 transition-all duration-300 cursor-pointer ${isHighlighted
-                            ? "bg-white border border-brand-orange/40 shadow-md shadow-brand-orange/5 translate-x-1"
-                            : "bg-white/60 border border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm"
-                          }`}
-                      >
-                        <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 transition-transform duration-300 ${isHighlighted ? "bg-brand-orange scale-125 shadow-sm shadow-brand-orange/50" : "bg-brand-orange/40"}`} />
-                        <div className="flex-1 min-w-0">
-                          <span className={`font-semibold text-sm truncate block transition-colors duration-200 ${isHighlighted ? "text-brand-orange" : "text-slate-800"}`}>
-                            {evt.title}
-                          </span>
-                          <span className="text-[11px] text-slate-500 mt-1 block flex items-center gap-1.5 font-medium">
-                            <CalendarDays className="w-3 h-3 text-slate-400" />
-                            {dateStr} · {timeStr}
-                          </span>
-                        </div>
-                        <ArrowRight className={`w-4 h-4 self-center transition-all duration-300 ${isHighlighted ? "text-brand-orange translate-x-0.5" : "text-slate-300 -translate-x-1 opacity-0 group-hover:opacity-100"}`} />
-                      </button>
-                    );
-                  })
-                ) : (
-                  <p className="text-xs text-foreground/40 italic py-2">
-                    No events scheduled for this month.
+              <div className="overflow-y-auto flex-1 px-6 py-5 bg-[#F8FAFC] border-t border-slate-100 custom-scrollbar">
+                <div className="flex items-center justify-between mb-3 flex-shrink-0">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {selectedDay !== null ? `Events on ${MONTHS[viewMonth]} ${selectedDay}` : "Events this Month"}
                   </p>
-                )}
+                  {selectedDay !== null && (
+                    <button
+                      onClick={() => setSelectedDay(null)}
+                      className="text-[10px] font-bold text-brand-orange hover:text-[#FFA524] hover:underline uppercase tracking-wider cursor-pointer border-none bg-transparent p-0"
+                    >
+                      Clear Filter
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-2.5">
+                  {isLoading ? (
+                    <p className="text-xs text-slate-400 py-2">Loading events...</p>
+                  ) : displayedEvents.length > 0 ? (
+                    displayedEvents.map(evt => {
+                      const d = parseEventDate(evt.start_datetime);
+                      const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                      return (
+                        <button
+                          key={evt.event_id}
+                          onClick={() => {
+                            closeModal();
+                            const basePath = pathname.startsWith('/crew') ? '/crew/events' : pathname.startsWith('/core') ? '/core/events' : '/events';
+                            router.push(`${basePath}/${evt.event_id || (evt as any).id}`);
+                          }}
+                          className="group flex items-center justify-between gap-4 w-full text-left rounded-[12px] p-3 transition-all duration-200 cursor-pointer bg-white border border-slate-100 shadow-sm hover:border-brand-orange/40 hover:shadow-md hover:shadow-brand-orange/5"
+                        >
+                          <div className="flex items-start gap-3 min-w-0">
+                            <div className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 bg-brand-orange" />
+                            <div className="min-w-0">
+                              <span className="font-bold text-sm text-slate-700 block truncate group-hover:text-brand-orange transition-colors leading-tight">
+                                {evt.title}
+                              </span>
+                              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
+                                  <Clock className="w-3.5 h-3.5 text-slate-300" />
+                                  {timeStr}
+                                </span>
+                                <span className="text-slate-200 text-[10px]">•</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase bg-slate-50 border border-slate-200/50 px-1.5 py-0.5 rounded-[4px]">
+                                  {evt.mode || "In-Person"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-brand-orange/10 group-hover:border-brand-orange/20 group-hover:text-brand-orange transition-all flex-shrink-0">
+                            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                          </div>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center bg-white border border-dashed border-slate-200 rounded-[12px]">
+                      <CalendarDays className="w-7 h-7 text-slate-300 mb-2 stroke-[1.5]" />
+                      <p className="text-xs text-slate-400 italic font-medium">
+                        No events scheduled for this period.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </motion.div>

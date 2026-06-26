@@ -413,7 +413,7 @@ export default function OurTeamShowcase() {
           letterSpacing: "-0.025em",
           lineHeight: 1.2
         }}>
-          Meet the Innovators
+          Meet the Team
         </h2>
         <p style={{
           fontSize: "15px",

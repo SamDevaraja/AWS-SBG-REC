@@ -48,13 +48,13 @@ function mapBackendTicketToFrontend(t: any): Ticket {
     event_id: t.eventId,
     ticket_status: t.status,
     ticket_code: t.ticketCode,
-    event_title: t.eventTitle,
-    event_date: t.eventDate,
-    event_time: t.eventTime,
-    event_venue: t.eventVenue,
-    user_name: t.userName,
-    user_roll: t.userRoll,
-    user_email: t.userEmail,
+    event_title: t.eventTitle || t.event?.title || 'Event Ticket',
+    event_date: t.eventDate || (t.event?.date ? new Date(t.event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''),
+    event_time: t.eventTime || (t.event?.date ? new Date(t.event.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''),
+    event_venue: t.eventVenue || t.event?.venue || '',
+    user_name: t.userName || (t.registration?.user ? `${t.registration.user.firstName} ${t.registration.user.lastName}` : ''),
+    user_roll: t.userRoll || '',
+    user_email: t.userEmail || t.registration?.user?.email || '',
     qr_code_url: t.qrCodeUrl,
     scanned_at: t.scannedAt,
     scanner_id: t.scannerId,
@@ -162,8 +162,40 @@ export const apiService = {
 
   async getMyTickets(): Promise<Ticket[]> {
     try {
-      // For attendees, we rely on local storage because we don't have a session-based backend endpoint
-      const rawTickets = localStorage.getItem('cloud_enthusiasts_tickets') || localStorage.getItem('aws_sgb_rec_tickets');
+      let loggedInUser = null;
+      if (typeof window !== 'undefined') {
+        const userJson = localStorage.getItem('aws_sgb_rec_user');
+        if (userJson) {
+          try {
+            loggedInUser = JSON.parse(userJson);
+          } catch (e) {
+            console.error('Failed to parse logged-in user:', e);
+          }
+        }
+      }
+
+      if (loggedInUser && loggedInUser.id) {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        // Fetch tickets from the backend database for the logged-in user
+        const res = await fetch(`/api/tickets/user/${loggedInUser.id}`, { headers });
+        if (res.ok) {
+          const resJson = await res.json();
+          // Extract data array from PaginatedResponseDto wrapped in success wrapper
+          const backendData = resJson.data?.data || resJson.data || [];
+          const ticketsArray = Array.isArray(backendData) ? backendData : [];
+          return ticketsArray.map(mapBackendTicketToFrontend);
+        } else {
+          console.warn('[apiService.getMyTickets] Backend fetch failed, falling back to local storage.');
+        }
+      }
+
+      // Fallback: For guests or when backend fetch fails, rely on local storage
+      const rawTickets = typeof window !== 'undefined' ? (localStorage.getItem('cloud_enthusiasts_tickets') || localStorage.getItem('aws_sgb_rec_tickets')) : null;
       const localTickets = rawTickets ? JSON.parse(rawTickets) : [];
       return localTickets.map((t: any) => ({
         ticket_id: t.ticketId,
@@ -179,7 +211,7 @@ export const apiService = {
         qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${t.ticketId}`,
       }));
     } catch (error) {
-      console.error('Failed to parse local tickets:', error);
+      console.error('Failed to get tickets:', error);
       return [];
     }
   },

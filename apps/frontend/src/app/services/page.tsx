@@ -249,7 +249,7 @@ export default function Home() {
             <header className="absolute top-0 left-0 right-0 z-50 p-10 flex items-center justify-between pointer-events-none">
               <div className="flex items-center gap-4 pointer-events-auto">
                 <div>
-                  <h1 className="text-[32px] font-semibold tracking-tighter leading-none text-[#1A1C1E]">
+                  <h1 className="text-[32px] font-semibold tracking-tight leading-none text-[#1A1C1E]" style={{ fontFamily: "var(--font-plus-jakarta), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
                     AWS Region Intelligence
                   </h1>
                   <p className="text-slate-400 text-[10px] font-medium tracking-[0.05em] uppercase mt-2">

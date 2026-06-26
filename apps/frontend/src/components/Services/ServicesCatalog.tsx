@@ -74,51 +74,13 @@ export default function ServicesCatalog() {
     loadData();
   }, []);
 
-  // Allowed major services list for Enthusiasts (30 major services requested by the user)
-  const allowedEnthusiastServices = useMemo(() => new Set([
-    "amazon-ec2", "ec2",
-    "aws-lambda", "lambda",
-    "aws-auto-scaling-ec2", "ec2autoscaling",
-    "amazon-s3", "s3",
-    "amazon-ebs", "ebs",
-    "amazon-rds", "rds",
-    "amazon-dynamodb", "dynamodb",
-    "amazon-aurora", "aurora",
-    "amazon-vpc", "vpc",
-    "amazon-route-53", "route53",
-    "amazon-cloudfront", "cloudfront",
-    "elastic-load-balancing", "elb", "elasticloadbalancing",
-    "aws-iam", "iam",
-    "aws-kms", "kms",
-    "aws-secrets-manager", "secretsmanager",
-    "aws-waf", "waf",
-    "amazon-cloudwatch", "cloudwatch",
-    "aws-systems-manager", "ssm", "systemsmanager",
-    "aws-cloudtrail", "cloudtrail",
-    "amazon-ecs", "ecs",
-    "amazon-eks", "eks",
-    "amazon-sqs", "sqs",
-    "amazon-sns", "sns",
-    "amazon-eventbridge", "eventbridge",
-    "aws-step-functions", "stepfunctions",
-    "aws-cloudformation", "cloudformation",
-    "amazon-api-gateway", "apigateway", "apigw",
-    "amazon-kinesis", "amazon-kinesis-data-streams", "amazon-kinesis-data-firehose", "amazon-kinesis-data-analytics", "amazon-kinesis-video-streams", "kinesis", "kinesisstreams", "kinesisfirehose", "kinesisanalytics", "kinesisvideo",
-    "amazon-redshift", "redshift",
-    "aws-glue", "glue"
-  ]), []);
-
   // Filter services by role restriction first
   const servicesForRole = useMemo(() => {
     const isEnthusiast = userRole !== "core" && userRole !== "crew";
     if (!isEnthusiast) return services;
     
-    return services.filter(service => {
-      const slugLower = service.slug.toLowerCase();
-      const codeLower = service.serviceCode.toLowerCase();
-      return allowedEnthusiastServices.has(slugLower) || allowedEnthusiastServices.has(codeLower);
-    });
-  }, [services, userRole, allowedEnthusiastServices]);
+    return services.filter(service => service.isVisibleToEnthusiasts);
+  }, [services, userRole]);
 
   // Responsive columns logic based on container width
   useEffect(() => {
@@ -342,8 +304,6 @@ export default function ServicesCatalog() {
               >
                 <option value="all">All Launch Statuses</option>
                 <option value="GA">General Availability (GA)</option>
-                <option value="Preview">Preview</option>
-                <option value="Beta">Beta</option>
                 <option value="Deprecated">Deprecated</option>
               </select>
             </div>

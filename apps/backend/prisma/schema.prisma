@@ -417,6 +417,7 @@ model UnhandledQuery {
   adminReply     String?   @map("admin_reply")
   adminDocId     String?   @map("admin_doc_id")
   resolvedAt     DateTime? @map("resolved_at")
+  adminName      String?   @map("admin_name")
 
   @@map("unhandled_queries")
 }
@@ -642,6 +643,7 @@ model AWSService {
   keywords            String[]
   awsDocumentationUrl String?
   isFeatured          Boolean            @default(false)
+  isVisibleToEnthusiasts Boolean         @default(false)
   status              String             @default("GA") // GA, Preview, Beta, Deprecated, Retired
   lastAwsUpdate       DateTime?
   comparisonTags      String[]
@@ -1139,3 +1141,16 @@ model ConversationMemory {
   @@map("conversation_memory")
 }
 
+model ChatReport {
+  id        String   @id @default(uuid())
+  sessionId String   @map("session_id")
+  reason    String
+  details   String?  @db.Text
+  userAgent String?  @map("user_agent")
+  status    String   @default("open")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([sessionId])
+  @@index([status])
+  @@map("chat_reports")
+}

@@ -104,6 +104,32 @@ interface VisualNode {
   iconName?: string;
 }
 
+const PremiumHomeIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    className={className} 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path 
+      d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      fill="rgba(255, 255, 255, 0.05)"
+    />
+    <path 
+      d="M9 22v-4a3 3 0 016 0v4" 
+      stroke="#FF9900" 
+      strokeWidth="2.5" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      fill="rgba(255, 153, 0, 0.15)"
+    />
+  </svg>
+);
+
 export const RoadmapScreen: React.FC<{ topicSlug: string }> = ({ topicSlug }) => {
   const router = useRouter();
   const [modules, setModules] = useState<any[]>([]);

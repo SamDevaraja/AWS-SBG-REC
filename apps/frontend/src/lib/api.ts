@@ -312,6 +312,7 @@ export interface AWSServiceSummary {
   iconUrl: string;
   shortDescription: string;
   isFeatured: boolean;
+  isVisibleToEnthusiasts: boolean;
   status: string; // "GA" | "Preview" | "Beta" | "Deprecated" | "Retired"
   displayOrder: number;
   isActive: boolean;

@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService, RegisterPayload } from '../services/apiService';
+import { LeaderboardApiService } from '@/services/leaderboard.api';
+
+const leaderboardApi = new LeaderboardApiService();
 
 export function useEvents(filters?: {
   search?: string;
@@ -37,5 +40,14 @@ export function useTickets() {
   return useQuery({
     queryKey: ['tickets'],
     queryFn: () => apiService.getMyTickets(),
+  });
+}
+
+export function useLeaderboardMe() {
+  return useQuery({
+    queryKey: ['leaderboard-me'],
+    queryFn: () => leaderboardApi.getMe(),
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('accessToken'),
+    retry: false,
   });
 }

@@ -39,8 +39,16 @@ export default function HeroBanner() {
       const raw = localStorage.getItem("aws_sgb_rec_user");
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed.fullName) setUserName(parsed.fullName);
-        else if (parsed.email) setUserName(parsed.email);
+        let nameToFormat = "Neil Daniel";
+        if (parsed.fullName) nameToFormat = parsed.fullName;
+        else if (parsed.email) nameToFormat = parsed.email;
+        
+        const cleanName = nameToFormat.includes('@') ? nameToFormat.split('@')[0] : nameToFormat;
+        const formatted = cleanName
+          .split(/[\s._-]+/)
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+        setUserName(formatted);
       }
     } catch { /* ignore */ }
   }, []);
@@ -83,7 +91,7 @@ export default function HeroBanner() {
             </motion.div>
 
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight font-display text-black drop-shadow-sm mb-3">
-              {greeting}, {userName}!
+              {greeting}, <span className="capitalize font-bold text-black inline-block">{userName}</span>!
             </h1>
 
             <p className="text-black/80 max-w-xl text-[14px] md:text-base leading-relaxed mb-6">

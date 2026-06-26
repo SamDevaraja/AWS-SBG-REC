@@ -333,7 +333,7 @@ export default function PathwayBuilderPage({
                 id="edit-name"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="h-10 bg-slate-50/40 border border-slate-200 rounded-[10px] px-3.5 text-slate-800 placeholder:text-slate-400/80 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-sm"
+                className="h-10 bg-slate-50/40 border border-slate-200 rounded-[10px] px-3.5 text-slate-800 placeholder:text-slate-400/80 placeholder:text-[11.5px] placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-xs"
               />
             </div>
             <div className="space-y-1.5">
@@ -345,7 +345,7 @@ export default function PathwayBuilderPage({
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={3}
-                className="bg-slate-50/40 border border-slate-200 rounded-[10px] p-3 text-slate-800 placeholder:text-slate-400/80 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-sm resize-none"
+                className="bg-slate-50/40 border border-slate-200 rounded-[10px] p-3 text-slate-800 placeholder:text-slate-400/80 placeholder:text-[11.5px] placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-xs resize-none"
               />
             </div>
           </div>

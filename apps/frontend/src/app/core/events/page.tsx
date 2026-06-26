@@ -27,6 +27,7 @@ import {
   Ticket,
   ClipboardList,
   CheckCircle,
+  RotateCcw,
 } from 'lucide-react';
 import type { Event, EventStatus, EventMode } from '@/lib/types';
 import { getPosterSrcAndPosition } from '@/lib/utils';
@@ -99,6 +100,7 @@ function ActionsDropdown({
   const canArchive = !['ARCHIVED', 'COMPLETED', 'DRAFT'].includes(event.status);
   const canDelete = ['DRAFT', 'ARCHIVED'].includes(event.status);
   const canComplete = !['COMPLETED', 'ARCHIVED', 'DRAFT'].includes(event.status);
+  const canRevert = event.status === 'COMPLETED';
 
   return (
     <div className="relative" ref={ref}>
@@ -148,6 +150,16 @@ function ActionsDropdown({
               <Archive className="h-3.5 w-3.5 text-slate-400" />
               Archive
             </button>
+          )}
+          {canRevert && (
+            <>
+              <div className="border-t border-slate-100 my-1" />
+              <button onClick={() => { onAction('revert', event.id); setOpen(false); }}
+                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12px] font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                <RotateCcw className="h-3.5 w-3.5 text-slate-400" />
+                Reopen Event
+              </button>
+            </>
           )}
           {canDelete && (
             <>
@@ -270,19 +282,31 @@ export default function EventsPage() {
   const publishMutation = useMutation({ mutationFn: (id: string) => api.publishEvent(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
   const closeRegistrationMutation = useMutation({ mutationFn: (id: string) => api.closeRegistration(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
   const completeMutation = useMutation({ mutationFn: (id: string) => api.updateEvent(id, { status: 'COMPLETED' }), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
+  const revertMutation = useMutation({ mutationFn: (id: string) => api.updateEvent(id, { status: 'REGISTRATION_OPEN' }), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['events'] }) });
 
   const handleAction = useCallback((action: string, eventId: string) => {
     switch (action) {
       case 'edit': router.push(`/core/events/edit/${eventId}`); break;
-      case 'publish': publishMutation.mutate(eventId); break;
-      case 'archive': archiveMutation.mutate(eventId); break;
-      case 'closeRegistration': closeRegistrationMutation.mutate(eventId); break;
-      case 'complete': completeMutation.mutate(eventId); break;
+      case 'publish':
+        if (window.confirm('Are you sure you want to publish this event? It will be visible to attendees.')) publishMutation.mutate(eventId);
+        break;
+      case 'archive':
+        if (window.confirm('Are you sure you want to archive this event?')) archiveMutation.mutate(eventId);
+        break;
+      case 'closeRegistration':
+        if (window.confirm('Are you sure you want to close registration for this event? No new registrations will be accepted.')) closeRegistrationMutation.mutate(eventId);
+        break;
+      case 'complete':
+        if (window.confirm('Are you sure you want to mark this event as completed?')) completeMutation.mutate(eventId);
+        break;
+      case 'revert':
+        if (window.confirm('Revert this event back to Ongoing (Registration Open) status?')) revertMutation.mutate(eventId);
+        break;
       case 'delete':
         if (window.confirm('Are you sure you want to delete this event?')) deleteEventMutation.mutate(eventId);
         break;
     }
-  }, [router, publishMutation, archiveMutation, closeRegistrationMutation, deleteEventMutation, completeMutation]);
+  }, [router, publishMutation, archiveMutation, closeRegistrationMutation, deleteEventMutation, completeMutation, revertMutation]);
 
   const events = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;

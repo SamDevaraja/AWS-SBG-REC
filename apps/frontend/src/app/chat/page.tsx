@@ -1,31 +1,25 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { 
-  Bot, 
-  SendHorizontal, 
-  HelpCircle, 
-  Sparkles, 
-  AlertCircle, 
-  Check, 
-  MessageSquare, 
-  RefreshCw, 
-  X,
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  SendHorizontal,
+  HelpCircle,
+  Check,
+  MessageSquare,
+  RefreshCw,
   User,
-  CheckCheck
+  ChevronDown,
+  MoreVertical,
+  Flag,
+  Trash2,
+  RotateCcw,
+  X,
+  AlertTriangle,
+  CheckCircle,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-    const handler = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
-  }, []);
-  return isMobile;
-};
 
 interface FAQChip {
   id: string;
@@ -42,16 +36,16 @@ interface Message {
   isConfirmation?: boolean;
   status?: string;
   escalated?: boolean;
+  adminName?: string;
 }
 
-// LiveChat Escalation Button Component
-function LiveChatEscalationBtn({ 
-  msgTimestamp, 
-  onEscalate, 
-  escalated 
-}: { 
-  msgTimestamp: number; 
-  onEscalate: (ts: number) => Promise<void>; 
+function LiveChatEscalationBtn({
+  msgTimestamp,
+  onEscalate,
+  escalated,
+}: {
+  msgTimestamp: number;
+  onEscalate: (ts: number) => Promise<void>;
   escalated: boolean;
 }) {
   const [loading, setLoading] = useState(false);
@@ -65,9 +59,9 @@ function LiveChatEscalationBtn({
 
   if (escalated) {
     return (
-      <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200/60 rounded-xl text-emerald-700 shadow-xs">
-        <Check className="w-3.5 h-3.5 text-emerald-500" />
-        <span className="text-[11px] font-bold tracking-wide">Doubt Sent to Team!</span>
+      <div className="inline-flex items-center gap-1 mt-1.5 px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-400 text-[10px] font-semibold">
+        <Check className="w-3 h-3" />
+        Sent to Core Team!
       </div>
     );
   }
@@ -76,17 +70,14 @@ function LiveChatEscalationBtn({
     <button
       onClick={handleClick}
       disabled={loading}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-350 text-slate-650 hover:text-slate-800 font-bold rounded-lg text-[10.5px] uppercase tracking-wider shadow-sm transition-all duration-150 cursor-pointer group mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 bg-white/10 hover:bg-white/15 border border-white/20 rounded-full text-white/60 hover:text-white text-[10px] font-semibold transition-all cursor-pointer disabled:opacity-40"
     >
-      {loading ? (
-        <RefreshCw className="w-3 h-3 text-[#FF9900] animate-spin" />
-      ) : (
-        <MessageSquare className="w-3 h-3 text-slate-400 group-hover:text-[#FF9900] transition-colors" />
-      )}
-      <span>{loading ? "Connecting..." : "Not satisfied? Ask Live Team"}</span>
+      {loading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <MessageSquare className="w-3 h-3" />}
+      {loading ? "Connecting..." : "Still confused? Ask Core Team"}
     </button>
   );
 }
+
 
 // AWS Brand Logo Component (Standalone Orange Smile)
 const AWSBrandLogo = ({ className }: { className?: string }) => (
@@ -103,17 +94,8 @@ const AWSBrandLogo = ({ className }: { className?: string }) => (
 );
 
 // ChatTab component
-const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
+const ChatTab = () => {
   const [isCustomTyping, setIsCustomTyping] = useState(false);
-  const [showGuideDialog, setShowGuideDialog] = useState(false);
-  const guideTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const openCustomTyping = () => {
-    setIsCustomTyping(true);
-    setShowGuideDialog(true);
-    if (guideTimerRef.current) clearTimeout(guideTimerRef.current);
-    guideTimerRef.current = setTimeout(() => setShowGuideDialog(false), 5000);
-  };
 
   const [user, setUser] = useState<any>(null);
   const [userLoaded, setUserLoaded] = useState(false);
@@ -189,6 +171,77 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     localStorage.setItem(historyKey, JSON.stringify(systemMessages));
   }, [systemMessages, user, userLoaded]);
 
+  // Fetch resolved/replied session queries from backend to merge into history on load
+  useEffect(() => {
+    if (!userLoaded || !sessionId) return;
+
+    const fetchSessionReplies = async () => {
+      try {
+        const res = await fetch(`/api/chat/session-queries/${sessionId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const queriesList = data.data?.queries ?? data.queries ?? [];
+        if (queriesList && queriesList.length > 0) {
+          setSystemMessages(prev => {
+            // Filter out any "Your question has been sent..." confirmation messages since we have replies
+            const hasAnyReply = queriesList.some((q: any) => q.adminReply);
+            const baseMsgs = hasAnyReply ? prev.filter(m => !m.isConfirmation) : prev;
+            const updated = [...baseMsgs];
+            let changed = hasAnyReply;
+            queriesList.forEach((q: any) => {
+              const hasQuestion = updated.some(m => m.role === "user" && m.text === q.message);
+              const replyText = q.adminReply;
+              const formattedReply = replyText;
+              const hasReply = updated.some(m => 
+                m.role === "bot" && 
+                (m.text === formattedReply || m.text.includes(replyText) || replyText.includes(m.text))
+              );
+
+              if (!hasQuestion) {
+                updated.push({
+                  role: "user" as const,
+                  text: q.message,
+                  timestamp: new Date(q.timestamp).getTime(),
+                });
+                changed = true;
+              }
+              if (replyText && !hasReply) {
+                updated.push({
+                  role: "bot" as const,
+                  text: formattedReply,
+                  timestamp: q.resolvedAt ? new Date(q.resolvedAt).getTime() : Date.now(),
+                  isAdminReply: true,
+                  adminName: q.adminName,
+                });
+                changed = true;
+              }
+            });
+            if (changed) {
+              const sorted = updated.sort((a, b) => a.timestamp - b.timestamp);
+              // Deduplicate admin replies to avoid duplicates from legacy local storage prefixes
+              const unique: Message[] = [];
+              const seenReplies = new Set<string>();
+              sorted.forEach(m => {
+                if (m.role === "bot" && m.isAdminReply) {
+                  const cleanText = m.text.replace(/[\s\p{Emoji}]/gu, '').toLowerCase();
+                  if (seenReplies.has(cleanText)) return;
+                  seenReplies.add(cleanText);
+                }
+                unique.push(m);
+              });
+              return unique;
+            }
+            return prev;
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching session replies:", err);
+      }
+    };
+
+    fetchSessionReplies();
+  }, [userLoaded, sessionId]);
+
   const fallbackChips: FAQChip[] = [
     { id: "f1", question: "Which AWS certification is best for beginners?", answer: "The AWS Certified Cloud Practitioner is the best starting point for beginners without prior IT or cloud experience." },
     { id: "f2", question: "How should I study for the Cloud Practitioner exam?", answer: "Use the official AWS Skill Builder courses, read the whitepapers, and take practice exams to familiarize yourself with the question formats." },
@@ -217,13 +270,19 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
   const allMessages = [...systemMessages, ...userPendingMessages].sort((a, b) => a.timestamp - b.timestamp);
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
-        top: scrollContainerRef.current.scrollHeight,
-        behavior: "smooth"
-      });
-    }
+    const scrollToBottom = () => {
+      if (bottomRef.current) {
+        bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      } else if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      }
+    };
+    // Fire immediately and again after paint to handle async height changes
+    scrollToBottom();
+    const t = setTimeout(scrollToBottom, 60);
+    return () => clearTimeout(t);
   }, [allMessages]);
+
 
   useEffect(() => {
     return () => {
@@ -238,8 +297,9 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
         const res = await fetch("/api/faq-chips");
         if (res.ok) {
           const data = await res.json();
-          if (data.chips && data.chips.length > 0) {
-            setFaqChips(data.chips);
+          const chipsList = data.data?.chips ?? data.chips ?? [];
+          if (chipsList && chipsList.length > 0) {
+            setFaqChips(chipsList);
           }
         }
       } catch (err) {
@@ -293,37 +353,45 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
           removePendingQuery(unhandledId);
           return;
         }
-        const pollData = await pollRes.json();
+        const pollResData = await pollRes.json();
+        const pollData = pollResData.data ?? pollResData;
         if (pollData.status === "replied") {
           clearInterval(pollInterval);
           setActivePollsCount(c => Math.max(0, c - 1));
           removePendingQuery(unhandledId);
-          setSystemMessages(prev => [
-            ...prev,
-            {
-              role: "bot" as const,
-              text: `🧑‍💼 Core replied: ${pollData.answer}`,
-              timestamp: Date.now(),
-              showEscalate: false,
-              isAdminReply: true,
-            }
-          ]);
+          setSystemMessages(prev => {
+            const filtered = prev.filter(m => !m.isConfirmation);
+            return [
+              ...filtered,
+              {
+                role: "bot" as const,
+                text: pollData.answer,
+                timestamp: Date.now(),
+                showEscalate: false,
+                isAdminReply: true,
+                adminName: pollData.adminName,
+              }
+            ];
+          });
         } else if (pollData.status === "dismissed" || pollData.status === "timeout") {
           clearInterval(pollInterval);
           setActivePollsCount(c => Math.max(0, c - 1));
           removePendingQuery(unhandledId);
-          setSystemMessages(prev => [
-            ...prev,
-            {
-              role: "bot" as const,
-              text: pollData.status === "dismissed"
-                ? "Core team dismissed the query. Your question has been saved — we'll follow up via email!"
-                : "Core team is currently unavailable. Your question has been saved — we'll follow up via email!",
-              timestamp: Date.now(),
-              showEscalate: false,
-              isConfirmation: true,
-            }
-          ]);
+          setSystemMessages(prev => {
+            const filtered = prev.filter(m => !m.isConfirmation);
+            return [
+              ...filtered,
+              {
+                role: "bot" as const,
+                text: pollData.status === "dismissed"
+                  ? "Core team dismissed the query. Your question has been saved — we'll follow up via email!"
+                  : "Core team is currently unavailable. Your question has been saved — we'll follow up via email!",
+                timestamp: Date.now(),
+                showEscalate: false,
+                isConfirmation: true,
+              }
+            ];
+          });
         }
       } catch (_) {
         // ignore transient errors
@@ -379,18 +447,21 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
       });
 
       if (!res.ok) throw new Error("Server error");
-      const data = await res.json();
+      const resData = await res.json();
+      const data = resData.data ?? resData;
 
       setUserPendingMessages(prev => prev.filter(m => m.timestamp !== time));
 
       setSystemMessages(prev => {
         const nextMsgs: Message[] = [...prev, { role: "user" as const, text: msg, timestamp: time }];
-        if (data.status === "answered") {
+         if (data.status === "answered") {
           nextMsgs.push({
             role: "bot" as const,
             text: data.answer,
             timestamp: Date.now(),
-            showEscalate: true
+            showEscalate: true,
+            isAdminReply: data.source === "admin_answer",
+            adminName: data.adminName,
           });
         } else if (data.status === "unhandled") {
           nextMsgs.push({
@@ -445,7 +516,8 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
         body: JSON.stringify({ message: doubt, session_id: sessionId, force_live: true })
       });
       if (res.ok) {
-        const data = await res.json();
+        const resData = await res.json();
+        const data = resData.data ?? resData;
         unhandledId = data.unhandled_id ?? null;
       }
     } catch (_) {
@@ -472,215 +544,404 @@ const ChatTab = ({ isMobile }: { isMobile: boolean }) => {
     }
   };
 
+  const [showFaqs, setShowFaqs] = useState(false);
+
+  // ── Three-dot menu state ──────────────────────────────────────────────────
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
+
+  // ── Report modal state ─────────────────────────────────────────────────────
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportToast, setReportToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+
+  const showToast = (type: "success" | "error", msg: string) => {
+    setReportToast({ type, msg });
+    setTimeout(() => setReportToast(null), 4000);
+  };
+
+  const submitReport = async () => {
+    if (!reportReason) return;
+    setReportSubmitting(true);
+    try {
+      const res = await fetch("/api/chat/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId || `session_anon_${Date.now()}`,
+          reason: reportReason,
+          details: reportDetails.trim() || undefined,
+          user_agent: navigator.userAgent,
+        }),
+      });
+      if (res.ok) {
+        setShowReportModal(false);
+        setReportReason("");
+        setReportDetails("");
+        showToast("success", "Report submitted — thank you! The Core team will review it.");
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast("error", err?.error || err?.message || "Failed to submit report. Please try again.");
+      }
+    } catch {
+      showToast("error", "Network error. Please check your connection and try again.");
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
+
+  // ── Clear chat ────────────────────────────────────────────────────────────
+  const clearChat = () => {
+    const userIdKey = user ? user.id : "guest";
+    const historyKey = `aws_sgb_rec_chat_messages_${userIdKey}`;
+    localStorage.removeItem(historyKey);
+    setSystemMessages([
+      {
+        role: "bot",
+        text: "Chat history cleared. How can I help you?",
+        timestamp: Date.now(),
+        showEscalate: false,
+      },
+    ]);
+    setUserPendingMessages([]);
+    setMenuOpen(false);
+  };
+
+  // ── New conversation ──────────────────────────────────────────────────────
+  const newConversation = () => {
+    const userIdKey = user ? user.id : "guest";
+    const historyKey = `aws_sgb_rec_chat_messages_${userIdKey}`;
+    localStorage.removeItem(historyKey);
+    // Fresh session ID for guest
+    let newSid = sessionId;
+    if (!user) {
+      newSid = `session_guest_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      localStorage.setItem("aws_sgb_rec_guest_session_id", newSid);
+      setSessionId(newSid);
+    }
+    setSystemMessages([
+      {
+        role: "bot",
+        text: "Hi! I'm Chat Box. I can help you with AWS certification questions, study tips, or anything cloud-related. What would you like to know?",
+        timestamp: Date.now(),
+        showEscalate: false,
+      },
+    ]);
+    setUserPendingMessages([]);
+    setMenuOpen(false);
+  };
+
   return (
-    <div 
-      className="relative flex flex-col overflow-hidden bg-gradient-to-br from-[#FAF8F5] via-[#F4F6F9] to-[#EDF0F5] text-[#1A1C1E] font-sans shadow-lg border border-slate-200/80 rounded-2xl w-full flex-1"
-    >
+    <>
       <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.985) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes countdown { from { width: 100%; } to { width: 0%; } }
-        .animate-fadeIn { animation: fadeIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-        .animate-slideUp { animation: slideUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-        .animate-countdown { animation: countdown 5s linear forwards; }
-        
-        .premium-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .premium-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(35, 47, 62, 0.12); border-radius: 99px; }
-        .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(35, 47, 62, 0.25); }
+        @keyframes msgIn { from { opacity:0; transform:translateY(6px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .msg-in { animation: msgIn 0.18s cubic-bezier(0.2,0.8,0.2,1) both; }
+        .chat-light-scroll::-webkit-scrollbar { width: 4px; }
+        .chat-light-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-light-scroll::-webkit-scrollbar-thumb { background: rgba(35,47,62,0.12); border-radius: 99px; }
+        .chat-light-scroll::-webkit-scrollbar-thumb:hover { background: rgba(35,47,62,0.25); }
       `}</style>
 
-      {/* Background ambient glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,153,0,0.06)_0%,rgba(255,153,0,0.02)_40%,transparent_70%)] pointer-events-none z-0" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(35,47,62,0.04)_0%,rgba(35,47,62,0.01)_40%,transparent_70%)] pointer-events-none z-0" />
-
-      {/* Main Glass Panel */}
-      <div className="relative flex-1 flex flex-col bg-white/70 backdrop-blur-md rounded-2xl overflow-hidden z-10">
-        
-        {/* Header */}
-        <div className="flex items-center gap-3.5 px-6 py-4 border-b border-slate-200/60 bg-white/40 backdrop-blur-xs select-none">
-          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#232F3E] to-[#1A222D] flex items-center justify-center border border-slate-200/50 shadow-xs">
-            <AWSBrandLogo className="w-8 h-[19px]" />
-          </div>
-          <div>
-            <h3 className="font-bold text-[#232F3E] text-[15px] tracking-tight leading-none">Cloud Chat Assistant</h3>
-            <span className="text-[11px] text-slate-500 font-semibold mt-1.5 inline-block">Online • Powered by AWS Q Agent</span>
-          </div>
+      {/* ── TOAST ── */}
+      {reportToast && (
+        <div
+          className={`absolute top-14 right-4 z-50 flex items-start gap-2.5 px-4 py-3 rounded-xl shadow-lg text-[12.5px] font-medium max-w-xs animate-in ${
+            reportToast.type === "success"
+              ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+              : "bg-red-50 border border-red-200 text-red-800"
+          }`}
+        >
+          {reportToast.type === "success" ? (
+            <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+          ) : (
+            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          )}
+          <span>{reportToast.msg}</span>
         </div>
+      )}
 
-        {/* Content Feed/Chat */}
-        <div className="flex-1 flex flex-col min-h-0 relative">
-          <div 
-            ref={scrollContainerRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 p-5 sm:p-6 bg-transparent premium-scrollbar"
-          >
-            <div className="flex flex-col justify-end min-h-full gap-4">
-              {allMessages.map((m, i) => {
-                const isUser = m.role === "user";
-                return (
-                  <div 
-                    key={i} 
-                    className={cn(
-                      "flex flex-col w-full animate-fadeIn",
-                      isUser ? "items-end" : "items-start"
-                    )}
+      {/* ── REPORT MODAL ── */}
+      {showReportModal && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center">
+                  <Flag className="w-4 h-4 text-red-500" />
+                </div>
+                <div>
+                  <p className="text-[14px] font-bold text-slate-900 leading-none">Report an Issue</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Help us improve Chat Assistant</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setShowReportModal(false); setReportReason(""); setReportDetails(""); }}
+                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Reason Picker */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Reason *</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {["Bad Response", "Inappropriate Content", "Not Helpful", "Technical Issue", "Other"].map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setReportReason(r)}
+                    className={`px-3 py-2 rounded-lg text-[12px] font-medium border transition-all text-left cursor-pointer ${
+                      reportReason === r
+                        ? "bg-[#FF9900]/10 border-[#FF9900] text-[#FF9900]"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
+                    }`}
                   >
-                    <div 
-                      className={cn(
-                        "relative max-w-[78%] px-4 py-3 rounded-2xl shadow-xs text-xs sm:text-[13px] leading-relaxed transition-all",
-                        isUser 
-                          ? "bg-[#232F3E] text-white rounded-tr-none border border-slate-800" 
-                          : cn(
-                              "bg-white text-slate-800 rounded-tl-none border border-slate-200/60",
-                              m.isAdminReply && "border-l-4 border-l-[#FF9900]"
-                            )
-                      )}
-                    >
-                      <div 
-                        className={cn(
-                          "font-semibold text-[12px] tracking-tight mb-1 font-sans",
-                          isUser 
-                            ? "text-[#FF9900]" 
-                            : m.isAdminReply 
-                              ? "text-[#FF9900]" 
-                              : "text-[#0073BB]"
-                        )}
-                      >
-                        {isUser ? "You" : m.isAdminReply ? "Core Team" : "Chat Assistant"}
-                      </div>
-                      <div className="word-break whitespace-pre-wrap">{m.text}</div>
-                      
-                      <div className="flex items-center justify-end mt-1.5 text-[9px] text-slate-450 gap-1 select-none">
-                        <span>{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        {isUser && (
-                          <CheckCheck 
-                            className={cn(
-                              "w-3.5 h-3.5",
-                              m.status === "Sending..." ? "text-slate-400 opacity-50" : "text-sky-450"
-                            )} 
-                          />
-                        )}
-                      </div>
-                    </div>
-                    {m.role === "bot" && m.showEscalate && (
-                      <div className="pl-3 mt-1.5 mb-2.5">
-                        <LiveChatEscalationBtn 
-                          msgTimestamp={m.timestamp} 
-                          onEscalate={handleEscalate} 
-                          escalated={!!m.escalated} 
-                        />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-              <div ref={bottomRef} />
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Details */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Details <span className="normal-case font-normal">(optional)</span></label>
+              <textarea
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+                placeholder="Describe what happened..."
+                rows={3}
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#FF9900]/60 resize-none leading-relaxed"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => { setShowReportModal(false); setReportReason(""); setReportDetails(""); }}
+                className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-semibold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitReport}
+                disabled={!reportReason || reportSubmitting}
+                className="flex-1 py-2.5 rounded-xl bg-[#FF9900] hover:bg-[#e68a00] disabled:bg-slate-200 disabled:text-slate-400 text-white disabled:cursor-not-allowed text-[13px] font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {reportSubmitting ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Submitting…</> : "Submit Report"}
+              </button>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Guide Dialog Overlay */}
-          {showGuideDialog && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-32px)] max-w-sm bg-[#1A222D]/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-700 p-4 animate-slideUp">
-              <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-3">
-                <div className="h-full bg-[#FF9900] w-full animate-countdown" />
-              </div>
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#FF9900]" />
-                  <span className="text-xs font-bold text-white uppercase tracking-wider font-sans">Structured Questions Only</span>
+      {/* ── HEADER ── */}
+      <div className="relative flex items-center gap-2.5 px-5 py-3 bg-white shrink-0 select-none z-10 border-b border-slate-200">
+        <div className="relative w-9 h-9 rounded-full bg-[#232F3E] flex items-center justify-center shrink-0 shadow-xs">
+          <AWSBrandLogo className="w-6 h-[14.5px]" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-base sm:text-[17px] font-bold text-slate-900 leading-none tracking-tight">Cloud Chat Assistant</p>
+        </div>
+        {isWaitingForAdmin && (
+          <div className="flex items-center gap-1 px-2.5 py-0.5 bg-amber-50 border border-amber-200 rounded-full text-amber-700 text-[9.5px] font-bold uppercase tracking-wider shrink-0">
+            <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+            Core Team Replying...
+          </div>
+        )}
+
+        {/* Three-dot menu */}
+        <div ref={menuRef} className="relative shrink-0">
+          <button
+            id="chat-menu-btn"
+            onClick={() => setMenuOpen(v => !v)}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+            aria-label="Chat options"
+          >
+            <MoreVertical className="w-4.5 h-4.5" />
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-50 overflow-hidden" style={{ animation: 'menuDrop 0.15s cubic-bezier(0.2,0.8,0.2,1) both' }}>
+              <style>{`@keyframes menuDrop { from { opacity:0; transform:translateY(-6px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }`}</style>
+
+              {/* Report */}
+              <button
+                id="chat-menu-report"
+                onClick={() => { setMenuOpen(false); setShowReportModal(true); }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-[13px] text-slate-700 hover:text-red-600 transition-colors cursor-pointer group"
+              >
+                <Flag className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors" />
+                <div className="text-left">
+                  <p className="font-medium leading-none">Report an Issue</p>
+                  <p className="text-[10.5px] text-slate-400 mt-0.5">Flag a problem to Core team</p>
                 </div>
-                <button 
-                  onClick={() => { setShowGuideDialog(false); if (guideTimerRef.current) clearTimeout(guideTimerRef.current); }}
-                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <p className="text-[11px] text-slate-350 mt-2 leading-relaxed font-sans">
-                Please ask clear, specific questions to get the best answers from the Core team. Avoid vague or one-word messages.
-              </p>
-              <div className="mt-3 p-2.5 bg-white/5 rounded-lg border border-white/10 font-sans">
-                <span className="text-[9px] font-bold text-[#FF9900] uppercase tracking-wider block">Example Query</span>
-                <span className="text-xs text-white italic mt-1 block">"What is the difference between Associate and Pro certs?"</span>
-              </div>
+              </button>
+
+              <div className="h-px bg-slate-100 mx-3 my-0.5" />
+
+              {/* Clear Chat */}
+              <button
+                id="chat-menu-clear"
+                onClick={clearChat}
+                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-[13px] text-slate-700 transition-colors cursor-pointer group"
+              >
+                <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                <div className="text-left">
+                  <p className="font-medium leading-none">Clear Chat</p>
+                  <p className="text-[10.5px] text-slate-400 mt-0.5">Remove this chat history</p>
+                </div>
+              </button>
+
+              {/* New Conversation */}
+              <button
+                id="chat-menu-new"
+                onClick={newConversation}
+                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-[13px] text-slate-700 transition-colors cursor-pointer group"
+              >
+                <RotateCcw className="w-4 h-4 text-slate-400 group-hover:text-[#FF9900] transition-colors" />
+                <div className="text-left">
+                  <p className="font-medium leading-none">New Conversation</p>
+                  <p className="text-[10.5px] text-slate-400 mt-0.5">Start fresh with a new session</p>
+                </div>
+              </button>
             </div>
           )}
-
-          {/* Input bar */}
-          <div className="p-4 border-t border-slate-200/60 bg-white/40 backdrop-blur-xs flex-shrink-0">
-            {!isCustomTyping ? (
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {faqChips.map((chip) => (
-                    <button
-                      key={chip.id}
-                      onClick={() => handleQueryClick(chip)}
-                      disabled={isWaitingForAdmin}
-                      className="flex items-start gap-2 px-3.5 py-3 bg-white hover:bg-slate-50/50 border border-slate-200/80 hover:border-[#FF9900] text-slate-700 hover:text-[#232F3E] rounded-xl text-left text-xs font-bold shadow-xs hover:shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
-                    >
-                      <HelpCircle className="w-4 h-4 text-slate-400 group-hover:text-[#FF9900] shrink-0 mt-0.5 transition-colors" />
-                      <span className="leading-snug">{chip.question}</span>
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={openCustomTyping}
-                  disabled={isWaitingForAdmin}
-                  className="w-full flex items-center justify-center gap-1.5 px-4 py-3 bg-[#232F3E] hover:bg-[#FF9900] text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-sm hover:shadow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  <MessageSquare className="w-4.5 h-4.5" />
-                  <span>Other (Custom Doubt)</span>
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={send} className="flex gap-3 items-center">
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={handleTextareaChange}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      send(e);
-                    }
-                  }}
-                  disabled={isWaitingForAdmin}
-                  placeholder={isWaitingForAdmin ? "Waiting for Core response..." : "Type your custom doubt..."}
-                  rows={1}
-                  className="flex-1 bg-white border border-slate-250/80 focus:border-[#FF9900] rounded-xl px-4 py-2.5 text-xs text-[#232F3E] placeholder-slate-400 shadow-inner focus:outline-none resize-none max-h-36 leading-relaxed transition-all"
-                />
-                
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    type="submit"
-                    disabled={isWaitingForAdmin}
-                    className="group flex items-center justify-center w-10 h-10 bg-gradient-to-br from-[#232F3E] to-[#1A222D] hover:from-[#FF9900] hover:to-[#FF7700] text-white rounded-xl border border-slate-200/10 shadow-[0_3px_8px_rgba(35,47,62,0.12)] hover:shadow-[0_4px_16px_rgba(255,153,0,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none cursor-pointer transition-all duration-300 ease-out"
-                  >
-                    <SendHorizontal className="w-4.5 h-4.5 transition-transform duration-300 group-hover:translate-x-0.5" />
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomTyping(false)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs shadow-sm transition-all duration-150 cursor-pointer uppercase tracking-wider"
-                  >
-                    Back
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
         </div>
       </div>
-    </div>
+
+      {/* ── MESSAGE FEED ── */}
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto chat-light-scroll bg-[#F0F2F5] min-h-0">
+        <div className="px-4 sm:px-6 py-5 flex flex-col gap-1.5">
+          {allMessages.map((m, i) => {
+            const isUser = m.role === "user";
+            const prevMsg = allMessages[i - 1];
+            const showSenderLabel = !isUser && (!prevMsg || prevMsg.role === "user" || prevMsg.isAdminReply !== m.isAdminReply);
+            return (
+              <div
+                key={i}
+                className={cn(
+                  "flex flex-col msg-in",
+                  isUser ? "items-end" : "items-start",
+                  prevMsg && prevMsg.role !== m.role ? "mt-3" : "mt-0.5"
+                )}
+              >
+                {showSenderLabel && (
+                  <span className={cn("text-[11px] font-semibold mb-1 ml-1", m.isAdminReply ? "text-[#FF9900]" : "text-slate-500")}>
+                    {m.isAdminReply
+                      ? m.adminName && m.adminName !== "Core Team"
+                        ? `${m.adminName} (Core Team)`
+                        : "Core Team"
+                      : "Chat Assistant"}
+                  </span>
+                )}
+                <div className={cn(
+                  "relative max-w-[75%] sm:max-w-[60%] px-3.5 py-2.5 text-[13.5px] leading-relaxed shadow-sm",
+                  isUser
+                    ? "bg-[#232F3E] text-white rounded-[12px] rounded-tr-[4px]"
+                    : m.isAdminReply
+                      ? "bg-white text-slate-800 rounded-[12px] rounded-tl-[4px] border border-slate-200 border-l-[3px] border-l-[#FF9900]"
+                      : m.isConfirmation
+                        ? "bg-white text-slate-800 rounded-[12px] rounded-tl-[4px] border border-emerald-200"
+                        : "bg-white text-slate-800 rounded-[12px] rounded-tl-[4px] border border-slate-200"
+                )}>
+                  <div className="whitespace-pre-wrap break-words">{m.text}</div>
+                  <div className={cn("flex items-center gap-1 mt-1.5 select-none", isUser ? "justify-end" : "justify-start")}>
+                    <span className={cn("text-[10px]", isUser ? "text-white/50" : "text-slate-400")}>
+                      {new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    {isUser && (
+                      m.status === "Sending..."
+                        ? <span className="text-[9px] text-white/40">sending</span>
+                        : <Check className="w-3.5 h-3.5 text-white/60" />
+                    )}
+                  </div>
+                </div>
+                {m.role === "bot" && m.showEscalate && (
+                  <div className="ml-1">
+                    <LiveChatEscalationBtn msgTimestamp={m.timestamp} onEscalate={handleEscalate} escalated={!!m.escalated} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <div ref={bottomRef} />
+        </div>
+      </div>
+
+      {/* ── FAQ CHIPS (collapsible) ── */}
+      <div className="shrink-0 bg-[#F0F2F5] border-t border-slate-200">
+        <button
+          onClick={() => setShowFaqs(v => !v)}
+          className="w-full flex items-center justify-between px-5 py-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 text-[11px] font-semibold uppercase tracking-wider transition-colors cursor-pointer select-none"
+        >
+          <div className="flex items-center gap-1.5">
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>Quick Questions</span>
+          </div>
+          <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", showFaqs && "rotate-180")} />
+        </button>
+        {showFaqs && (
+          <div className="px-4 pb-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            {faqChips.map((chip) => (
+              <button
+                key={chip.id}
+                onClick={(e) => { (e.currentTarget as HTMLButtonElement).blur(); setShowFaqs(false); handleQueryClick(chip); }}
+                disabled={isWaitingForAdmin}
+                className="flex items-start gap-2 px-3 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-[#FF9900]/50 text-left text-[12px] text-slate-700 hover:text-slate-900 rounded-[8px] transition-all duration-150 focus:outline-none focus:border-slate-200 disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#FF9900] shrink-0 mt-0.5 transition-colors" />
+                <span className="leading-snug">{chip.question}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── INPUT BAR ── */}
+      <div className="shrink-0 bg-[#F0F2F5] px-3 py-3 flex items-end gap-2">
+        <div className="flex-1 flex items-end bg-white rounded-full px-4 py-2.5 border border-slate-200 focus-within:border-[#FF9900]/60 focus-within:shadow-sm transition-all">
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={handleTextareaChange}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(e); } }}
+            disabled={isWaitingForAdmin}
+            placeholder={isWaitingForAdmin ? "Waiting for Core Team..." : "Type a message"}
+            rows={1}
+            className="flex-1 bg-transparent text-[13.5px] text-slate-800 placeholder-slate-400 focus:outline-none resize-none max-h-36 leading-relaxed py-0"
+          />
+        </div>
+        <button
+          onClick={send as any}
+          disabled={isWaitingForAdmin || !input.trim()}
+          className="group w-11 h-11 rounded-full bg-[#232F3E] hover:bg-[#FF9900] flex items-center justify-center shrink-0 transition-all duration-200 active:scale-90 disabled:bg-slate-200 disabled:cursor-not-allowed cursor-pointer shadow-sm hover:shadow-md"
+        >
+          <SendHorizontal className="w-5 h-5 text-white transition-transform group-hover:translate-x-0.5" />
+        </button>
+      </div>
+    </>
   );
 };
 
 export default function ChatPage() {
-  const isMobile = useIsMobile();
   return (
-    <div className="p-4 md:p-6 h-[calc(100vh-32px)] md:h-[calc(100vh-48px)] w-full box-border select-none flex flex-col overflow-hidden">
-      <ChatTab isMobile={isMobile} />
+    <div className="relative h-full w-full flex flex-col overflow-hidden bg-white">
+      <ChatTab />
     </div>
   );
 }

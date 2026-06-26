@@ -32,6 +32,53 @@ import CoreSidebarShell from '@/app/core/CoreSidebarShell';
 import CrewSidebarShell from '@/app/crew/(admin)/CrewSidebarShell';
 import EventsSidebarShell from '@/app/events/EventsSidebarShell';
 
+const AWSSmile = ({ 
+  className = "w-10 h-auto", 
+  progress = 100, 
+  id 
+}: { 
+  className?: string; 
+  progress?: number; 
+  id: string; 
+}) => {
+  const clipWidth = Math.round((progress / 100) * 310);
+  const clipId = `smile-clip-${id}`;
+
+  return (
+    <svg viewBox="0 0 310 190" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id={clipId}>
+          <rect x="0" y="0" width={clipWidth} height="190" />
+        </clipPath>
+      </defs>
+      
+      {/* Background/Track (Empty smile) */}
+      <g className="opacity-20">
+        <path
+          fill="#0073BB"
+          d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z"
+        />
+        <path
+          fill="#0073BB"
+          d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z"
+        />
+      </g>
+
+      {/* Foreground/Progress (Filled orange smile) */}
+      <g clipPath={`url(#${clipId})`}>
+        <path
+          fill="#FF9900"
+          d="M273.5,143.7c-32.9,24.3-80.7,37.2-121.8,37.2c-57.6,0-109.5-21.3-148.7-56.7c-3.1-2.8-0.3-6.6,3.4-4.4c42.4,24.6,94.7,39.5,148.8,39.5c36.5,0,76.6-7.6,113.5-23.2C274.2,133.6,278.9,139.7,273.5,143.7z"
+        />
+        <path
+          fill="#FF9900"
+          d="M287.2,128.1c-4.2-5.4-27.8-2.6-38.5-1.3c-3.2,0.4-3.7-2.4-0.8-4.5c18.8-13.2,49.7-9.4,53.3-5c3.6,4.5-1,35.4-18.6,50.2c-2.7,2.3-5.3,1.1-4.1-1.9C282.5,155.7,291.4,133.4,287.2,128.1z"
+        />
+      </g>
+    </svg>
+  );
+};
+
 export default function LearnPage() {
   const router = useRouter();
 
@@ -680,29 +727,38 @@ export default function LearnPage() {
                                 )}
                               >
                                 <div className="w-full">
-                                   <span className={cn(
-                                     "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
-                                     topic.id === animatingTopicId && isArrowSuccessVisual
-                                       ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
-                                       : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
-                                   )}>
-                                     Current
-                                   </span>
+                                   <div className="flex justify-between items-start gap-4">
+                                     <div className="flex-1">
+                                       <span className={cn(
+                                         "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-[4px] mb-2.5 transition-colors duration-600",
+                                         topic.id === animatingTopicId && isArrowSuccessVisual
+                                           ? "bg-emerald-500/10 text-emerald-650 border border-emerald-500/20"
+                                           : "bg-[#FF9900]/10 text-[#FF9900] border border-[#FF9900]/20"
+                                       )}>
+                                         Current
+                                       </span>
 
-                                   <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-tight">
-                                     {topic.name}
-                                   </h2>
+                                       <h2 className="text-xl font-semibold text-slate-900 tracking-tight leading-tight">
+                                         {topic.name}
+                                       </h2>
 
-                                   {/* Details Row: No time estimate */}
-                                   <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
-                                     <span>{completedModulesToRender} / {topic.totalModules} Modules</span>
-                                     <span className="text-slate-350 font-semibold">•</span>
-                                     <span className={cn(
-                                       "font-semibold transition-colors duration-600",
-                                       topic.id === animatingTopicId && isArrowSuccessVisual ? "text-emerald-600" : "text-[#FF9900]"
-                                     )}>
-                                       {currentModuleLabel}
-                                     </span>
+                                       {/* Details Row: No time estimate */}
+                                       <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
+                                         <span>{completedModulesToRender} / {topic.totalModules} Modules</span>
+                                         <span className="text-slate-350 font-semibold">•</span>
+                                         <span className={cn(
+                                           "font-semibold transition-colors duration-600",
+                                           topic.id === animatingTopicId && isArrowSuccessVisual ? "text-emerald-600" : "text-[#FF9900]"
+                                         )}>
+                                           {currentModuleLabel}
+                                         </span>
+                                       </div>
+                                     </div>
+
+                                     {/* AWS Smile Badge */}
+                                     <div className="px-4 py-3 bg-sky-100 border border-[#FF9900]/35 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+                                       <AWSSmile className="w-16 h-auto" progress={progressPercentToRender} id={topic.id} />
+                                     </div>
                                    </div>
 
                                    {/* Progress bar and numeric percentage */}
@@ -754,26 +810,32 @@ export default function LearnPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.45 }}
-                                className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-[20px] py-3.5 px-6 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-emerald-500 text-left"
+                                className="w-full bg-white/[0.15] backdrop-blur-[20px] border border-white/25 rounded-xl py-3.5 px-6 flex items-center justify-between shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_30px_rgba(0,0,0,0.08)] select-none border-l-4 border-l-emerald-500 text-left"
                               >
                                 <div className="flex items-center gap-3">
+                                  {/* Green checkmark circle icon */}
                                   <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                                    <CheckCircle2 className="w-4.5 h-4.5 stroke-[2.5]" />
                                   </div>
-                                  <span className="font-semibold text-slate-800 text-sm md:text-base leading-none">
+                                  
+                                  {/* Topic Title */}
+                                  <h2 className="text-sm md:text-base font-semibold text-slate-800 tracking-tight leading-none">
                                     {topic.name}
-                                  </span>
-                                  <span className="text-[10px] font-extrabold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-0.5 ml-2 uppercase tracking-wide">
+                                  </h2>
+                                  
+                                  {/* Modules Pill */}
+                                  <span className="text-[9px] font-extrabold text-emerald-650 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2.5 py-0.5 ml-2.5 uppercase tracking-wide">
                                     {topic.totalModules} {topic.totalModules === 1 ? 'Module' : 'Modules'}
                                   </span>
                                 </div>
 
+                                {/* Review Button */}
                                 <Link
                                   href={`/learn/${topic.slug}`}
-                                  className="border border-emerald-500/40 text-emerald-600 bg-emerald-500/5 hover:bg-emerald-500/15 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center justify-center gap-1 transition-all active:scale-[0.98] cursor-pointer"
+                                  className="px-4.5 py-2 rounded-full text-xs font-black border border-emerald-500/25 text-emerald-650 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
                                 >
                                   <span>Review</span>
-                                  <span className="text-sm">→</span>
+                                  <span className="text-xs">→</span>
                                 </Link>
                               </motion.div>
                             )}

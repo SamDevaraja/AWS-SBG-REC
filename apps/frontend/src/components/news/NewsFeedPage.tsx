@@ -257,7 +257,7 @@ function CloudSpotlightCollage({
   articles: NewsArticle[];
   onArticleClick: (id: string) => void;
 }) {
-  const [lead, item1, item2, item3, item4] = articles;
+  const [lead, item1, item2, item3] = articles;
   if (!lead) return null;
 
   return (
@@ -307,15 +307,6 @@ function CloudSpotlightCollage({
           </div>
         ) : null}
       </div>
-      {/* Optional 5th item: horizontal strip underneath */}
-      {item4 ? (
-        <NewsCard
-          article={item4}
-          onClick={onArticleClick}
-          variant="flat-horizontal"
-          className="mt-3 border-t border-border/40 pt-3 hidden md:flex"
-        />
-      ) : null}
 
       {/* Mobile: stacked editorial layout */}
       <div className="grid gap-4 md:hidden">
@@ -332,15 +323,14 @@ function CloudSpotlightCollage({
             variant="flat-editorial"
           />
         ) : null}
-        {item2 || item3 || item4 ? (
+        {item2 || item3 ? (
           <div className="flex flex-col gap-3">
-            {([item2, item3, item4].filter(Boolean) as NewsArticle[]).map((article) => (
+            {([item2, item3].filter(Boolean) as NewsArticle[]).map((article) => (
               <NewsCard
                 key={article.id}
                 article={article}
                 onClick={onArticleClick}
                 variant="flat-horizontal"
-                className="border-b border-border/40 pb-3 last:border-b-0 last:pb-0"
               />
             ))}
           </div>
@@ -421,7 +411,6 @@ function AiEmergingLayout({
                     article={article}
                     onClick={onArticleClick}
                     variant="flat-horizontal"
-                    className="border-b border-border/40 pb-3.5 last:border-b-0 last:pb-0"
                   />
                 ))}
               </div>
@@ -450,7 +439,6 @@ function AiEmergingLayout({
             article={article}
             onClick={onArticleClick}
             variant="flat-horizontal"
-            className="border-b border-border/40 pb-3 last:border-b-0 last:pb-0"
           />
         )) : null}
       </div>
@@ -837,25 +825,13 @@ function buildBalancedMasonryColumns(
   columnCount: number,
 ) {
   const columns = Array.from({ length: columnCount }, () => [] as MasonryItem[]);
-  const columnWeights = Array.from({ length: columnCount }, () => 0);
 
-  // Map to items with weight
-  const itemsWithWeight = articles.map((article, index) => {
+  // Simple round-robin: articles alternate columns top-to-bottom
+  // This keeps column heights naturally balanced without bin-packing skew
+  articles.forEach((article, index) => {
+    const columnIndex = index % columnCount;
     const variant = getMasonryVariant(article, index);
-    const weight = estimateMasonryWeight(article, variant);
-    return { article, variant, weight };
-  });
-
-  // Sort descending by weight (LPT bin-packing)
-  itemsWithWeight.sort((a, b) => b.weight - a.weight);
-
-  itemsWithWeight.forEach((item) => {
-    const targetColumnIndex = getLightestColumnIndex(columnWeights);
-    columns[targetColumnIndex].push({
-      article: item.article,
-      variant: item.variant,
-    });
-    columnWeights[targetColumnIndex] += item.weight;
+    columns[columnIndex].push({ article, variant });
   });
 
   return columns;
@@ -892,7 +868,7 @@ function buildNewsroomSections(articles: NewsArticle[]) {
   const cloudSpotlight = selectArticles({
     articles,
     usedArticleIds,
-    limit: 5,
+    limit: 4,
     predicate: (article) => isCloudCategory(article.category),
     fillWithLatest: true,
   });
@@ -1046,9 +1022,9 @@ function getMasonryVariant(
   if (cycle === 2) return "quote";
   if (cycle === 3) return "compact";
   if (cycle === 4) return hasImage ? "flat-horizontal" : "quote";
-  if (cycle === 5) return hasImage ? "overlay" : "headline";
+  if (cycle === 5) return "standard";
   if (cycle === 6) return "headline";
-  return isLargeCardCandidate(article) ? "large" : "standard";
+  return hasImage ? "flat-editorial" : "standard";
 }
 
 function estimateMasonryWeight(

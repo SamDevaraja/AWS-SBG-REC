@@ -443,15 +443,15 @@ function RoleSection({
         <div 
           onClick={() => setIsFlipped(false)}
           className={cn(
-            "absolute inset-0 w-full h-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between transition-all duration-300 cursor-pointer hover:shadow-md",
+            "absolute inset-0 w-full h-full bg-[#0B0F19] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-[#FF9900]/40 hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.3),0_0_15px_rgba(255,153,0,0.15)]",
             isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
           )}
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="w-full relative flex items-start justify-between">
             <div className="flex-1 text-left">
-              <span className="text-[9px] font-black text-slate-400 tracking-wider uppercase">Role Profile</span>
-              <h3 className="text-lg font-black text-slate-800 tracking-tight leading-tight mt-0.5">
+              <span className="text-[9px] font-black text-slate-500 tracking-wider uppercase">Role Profile</span>
+              <h3 className="text-lg font-black text-white tracking-tight leading-tight mt-0.5">
                 {path.name}
               </h3>
             </div>
@@ -459,19 +459,19 @@ function RoleSection({
 
           <div className="mt-4 flex-1 flex flex-col gap-4 text-left overflow-y-auto premium-scrollbar pr-1 max-h-[220px] sm:max-h-[240px]">
             <div className="space-y-1">
-              <span className="text-[9px] font-black text-slate-400 tracking-wider uppercase">Description</span>
-              <p className="text-xs text-slate-650 leading-relaxed font-semibold">
+              <span className="text-[9px] font-black text-slate-500 tracking-wider uppercase">Description</span>
+              <p className="text-xs text-slate-300 leading-relaxed font-semibold">
                 {details.role}
               </p>
             </div>
 
             {details.path.length > 0 && (
               <div className="space-y-1.5">
-                <span className="text-[9px] font-black text-slate-400 tracking-wider uppercase">Recommended Certifications</span>
+                <span className="text-[9px] font-black text-slate-500 tracking-wider uppercase">Recommended Certifications</span>
                 <ul className="space-y-1.5">
                   {details.path.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-[11px] text-slate-700 font-bold leading-normal">
-                      <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <li key={idx} className="flex items-start gap-2 text-[11px] text-slate-300 font-semibold leading-normal">
+                      <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -480,14 +480,14 @@ function RoleSection({
             )}
           </div>
 
-          <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-                <IndianRupee className="h-4.5 w-4.5 text-emerald-600" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-sm">
+                <IndianRupee className="h-4.5 w-4.5 text-emerald-400" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase leading-none mb-1">Average Salary in India</span>
-                <span className="text-[13px] font-extrabold text-slate-800 leading-none">
+                <span className="text-[8px] font-black text-slate-500 tracking-wider uppercase leading-none mb-1">Average Salary in India</span>
+                <span className="text-[13px] font-extrabold text-white leading-none">
                   {details.salary}
                 </span>
               </div>
@@ -1026,11 +1026,43 @@ function CertificationsPageContent() {
                     No certifications available for this level.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <motion.div
+                    key={selectedLevel}
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: {
+                        opacity: 1,
+                        transition: {
+                          staggerChildren: 0.04,
+                        },
+                      },
+                    }}
+                    className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                  >
                     {filteredCertifications.map((cert) => (
-                      <CertCard key={cert.id} cert={cert} />
+                      <motion.div
+                        key={cert.id}
+                        variants={{
+                          hidden: { opacity: 0, y: -24 },
+                          visible: { 
+                            opacity: 1, 
+                            y: 0,
+                            transition: {
+                              type: "spring",
+                              stiffness: 120,
+                              damping: 14,
+                              mass: 0.6,
+                            }
+                          },
+                        }}
+                        className="h-full"
+                      >
+                        <CertCard cert={cert} />
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
               </div>
             </motion.div>

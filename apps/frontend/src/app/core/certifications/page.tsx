@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { certificationsService } from "@/services/certifications";
@@ -669,15 +670,46 @@ function CertificationsPageContent() {
                 }
               />
             ) : (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <motion.div
+                key={selectedLevel}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.04,
+                    },
+                  },
+                }}
+                className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+              >
                 {filteredCertifications.map((cert) => (
-                  <CertCard 
-                    key={cert.id} 
-                    cert={cert} 
-                    onDelete={() => setDeleteTarget(cert)}
-                  />
+                  <motion.div
+                    key={cert.id}
+                    variants={{
+                      hidden: { opacity: 0, y: -24 },
+                      visible: { 
+                        opacity: 1, 
+                        y: 0,
+                        transition: {
+                          type: "spring",
+                          stiffness: 120,
+                          damping: 14,
+                          mass: 0.6,
+                        }
+                      },
+                    }}
+                    className="h-full"
+                  >
+                    <CertCard 
+                      cert={cert} 
+                      onDelete={() => setDeleteTarget(cert)}
+                    />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
           </section>
         </>

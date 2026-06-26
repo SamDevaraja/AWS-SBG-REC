@@ -31,6 +31,7 @@ export default function ServiceForm({
   const [iconUrl, setIconUrl] = useState("");
   const [awsDocumentationUrl, setAwsDocumentationUrl] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isVisibleToEnthusiasts, setIsVisibleToEnthusiasts] = useState(false);
   const [status, setStatus] = useState("GA");
   const [displayOrder, setDisplayOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
@@ -72,6 +73,7 @@ export default function ServiceForm({
       setIconUrl(editingService.iconUrl || "");
       setAwsDocumentationUrl(editingService.awsDocumentationUrl || "");
       setIsFeatured(editingService.isFeatured ?? false);
+      setIsVisibleToEnthusiasts(editingService.isVisibleToEnthusiasts ?? false);
       setStatus(editingService.status || "GA");
       setDisplayOrder(editingService.displayOrder ?? 0);
       setIsActive(editingService.isActive ?? true);
@@ -97,6 +99,7 @@ export default function ServiceForm({
       setIconUrl("");
       setAwsDocumentationUrl("");
       setIsFeatured(false);
+      setIsVisibleToEnthusiasts(false);
       setStatus("GA");
       setDisplayOrder(0);
       setIsActive(true);
@@ -194,6 +197,7 @@ export default function ServiceForm({
         iconUrl: iconUrl || `https://raw.githubusercontent.com/SamDevaraja/AWS-SBG-REC/cbf1e2065c9a67ce4e1da4ffb83bf5a143780d74/apps/backend/uploads/services/${slug}.svg`, // Default mapping
         awsDocumentationUrl: awsDocumentationUrl.trim(),
         isFeatured,
+        isVisibleToEnthusiasts,
         status,
         displayOrder: Number(displayOrder),
         isActive,
@@ -579,7 +583,7 @@ export default function ServiceForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -603,6 +607,19 @@ export default function ServiceForm({
               <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                 <CheckCircle size={12} className="text-emerald-500" />
                 Active in Catalog
+              </span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isVisibleToEnthusiasts}
+                onChange={e => setIsVisibleToEnthusiasts(e.target.checked)}
+                className="w-4 h-4 text-[#FF9900] focus:ring-[#FF9900] border-slate-300 rounded cursor-pointer"
+              />
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <HelpCircle size={12} className="text-blue-500" />
+                Visible to Enthusiasts
               </span>
             </label>
           </div>

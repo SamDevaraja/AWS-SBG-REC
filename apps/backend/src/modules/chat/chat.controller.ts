@@ -46,6 +46,10 @@ export class ReplyLiveRequestDto {
   @IsString()
   @IsNotEmpty()
   answer: string;
+
+  @IsString()
+  @IsOptional()
+  adminName?: string;
 }
 
 export class SaveToKBRequestDto {
@@ -56,12 +60,34 @@ export class SaveToKBRequestDto {
   @IsString()
   @IsNotEmpty()
   answer: string;
+
+  @IsString()
+  @IsOptional()
+  adminName?: string;
 }
 
 export class AdminReplyRequestDto {
   @IsString()
   @IsNotEmpty()
   reply: string;
+}
+
+export class ChatReportDto {
+  @IsString()
+  @IsNotEmpty()
+  session_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  reason: string;
+
+  @IsString()
+  @IsOptional()
+  details?: string;
+
+  @IsString()
+  @IsOptional()
+  user_agent?: string;
 }
 
 export class SendCrewMessageDto {
@@ -238,6 +264,95 @@ export class ChatController {
     }
   }
 
+  // ── Chat Reports ───────────────────────────────────────────────────────────
+
+  @Post('chat/report')
+  async submitChatReport(@Body() body: ChatReportDto) {
+    if (!body.session_id?.trim()) {
+      throw new HttpException('session_id is required.', HttpStatus.BAD_REQUEST);
+    }
+    const validReasons = [
+      'Bad Response',
+      'Inappropriate Content',
+      'Not Helpful',
+      'Technical Issue',
+      'Other',
+    ];
+    if (!validReasons.includes(body.reason)) {
+      throw new HttpException(
+        `reason must be one of: ${validReasons.join(', ')}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const report = await this.prisma.chatReport.create({
+      data: {
+        sessionId: body.session_id.trim(),
+        reason: body.reason,
+        details: body.details?.trim() || null,
+        userAgent: body.user_agent?.trim() || null,
+        status: 'open',
+      },
+    });
+
+    return {
+      success: true,
+      report_id: report.id,
+      message: 'Thank you — your report has been submitted to the Core team.',
+    };
+  }
+
+  @Get('admin/chat/reports')
+  async listChatReports(
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const where = status ? { status } : {};
+    const take = limit ? Math.min(parseInt(limit, 10), 200) : 50;
+
+    const reports = await this.prisma.chatReport.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take,
+    });
+
+    return {
+      total: reports.length,
+      reports: reports.map((r) => ({
+        id: r.id,
+        session_id: r.sessionId,
+        reason: r.reason,
+        details: r.details,
+        user_agent: r.userAgent,
+        status: r.status,
+        created_at: r.createdAt.toISOString(),
+      })),
+    };
+  }
+
+  @Put('admin/chat/reports/:report_id')
+  async updateReportStatus(
+    @Param('report_id') reportId: string,
+    @Body() body: { status: string },
+  ) {
+    const validStatuses = ['open', 'reviewed', 'dismissed'];
+    if (!validStatuses.includes(body.status)) {
+      throw new HttpException(
+        `status must be one of: ${validStatuses.join(', ')}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    try {
+      const report = await this.prisma.chatReport.update({
+        where: { id: reportId },
+        data: { status: body.status },
+      });
+      return { success: true, id: report.id, status: report.status };
+    } catch {
+      throw new HttpException(`Report ${reportId} not found.`, HttpStatus.NOT_FOUND);
+    }
+  }
+
   // ── Chat Flow ──────────────────────────────────────────────────────────────
 
   @Post('chat')
@@ -276,6 +391,7 @@ export class ChatController {
     let similarity = 0.0;
     let docText = null;
     let docSource = null;
+    let adminName = 'Core Team';
 
     if (docs.length > 0) {
       const topDoc = docs[0];
@@ -284,6 +400,9 @@ export class ChatController {
       docSource = meta.category || 'knowledge_base';
       if (docSource === 'admin_answer' && meta.answer) {
         docText = meta.answer;
+        if (meta.admin_name) {
+          adminName = meta.admin_name;
+        }
       } else {
         docText = topDoc.text;
       }
@@ -305,6 +424,7 @@ export class ChatController {
         source: docSource,
         similarity: similarity,
         session_id: sessionId,
+        adminName: adminName,
       };
     } else {
       // Below threshold -> live chat
@@ -345,6 +465,7 @@ export class ChatController {
         status: 'replied',
         answer: query.adminReply,
         doc_id: query.adminDocId,
+        adminName: query.adminName || 'Core Team',
       };
     }
 
@@ -360,6 +481,18 @@ export class ChatController {
     }
 
     return { status: 'waiting' };
+  }
+
+  @Get('chat/session-queries/:session_id')
+  async getSessionQueries(@Param('session_id') sessionId: string) {
+    const queries = await this.prisma.unhandledQuery.findMany({
+      where: {
+        sessionId,
+        status: { in: ['replied', 'resolved'] },
+      },
+      orderBy: { timestamp: 'asc' },
+    });
+    return { queries };
   }
 
   // ── Admin Dashboard ────────────────────────────────────────────────────────
@@ -404,12 +537,13 @@ export class ChatController {
     if (!row) {
       throw new HttpException(`Query ${queryId} not found.`, HttpStatus.NOT_FOUND);
     }
-    if (row.status !== 'live' && row.status !== 'pending') {
+    const allowedStatuses = ['live', 'pending', 'replied', 'resolved'];
+    if (!allowedStatuses.includes(row.status)) {
       throw new HttpException(`Query already ${row.status}.`, HttpStatus.CONFLICT);
     }
 
     const tsMs = Date.now();
-    const docId = `admin_${queryId}_${tsMs}`;
+    const docId = row.adminDocId || `admin_${queryId}_${tsMs}`;
     const question = row.message;
     const answer = body.answer.trim();
 
@@ -423,6 +557,7 @@ export class ChatController {
         category: 'admin_answer',
         source_query_id: queryId,
         answer: answer,
+        admin_name: body.adminName || 'Core Team',
       }
     );
 
@@ -434,6 +569,7 @@ export class ChatController {
         adminReply: answer,
         adminDocId: docId,
         resolvedAt: new Date(),
+        adminName: body.adminName || 'Core Team',
       },
     });
 
@@ -466,6 +602,7 @@ export class ChatController {
         category: 'admin_answer',
         source_query_id: queryId,
         answer: body.answer.trim(),
+        admin_name: body.adminName || 'Core Team',
       }
     );
 
@@ -476,6 +613,7 @@ export class ChatController {
         adminReply: body.answer.trim(),
         adminDocId: docId,
         resolvedAt: new Date(),
+        adminName: body.adminName || 'Core Team',
       },
     });
 

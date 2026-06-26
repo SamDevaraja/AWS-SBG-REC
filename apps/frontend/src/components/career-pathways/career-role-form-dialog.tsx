@@ -66,7 +66,7 @@ export function CareerRoleFormDialog({
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Cloud Architect"
               required
-              className="h-10 bg-slate-50/40 border border-slate-200 rounded-[10px] px-3.5 text-slate-800 placeholder:text-slate-400/80 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-sm"
+              className="h-10 bg-slate-50/40 border border-slate-200 rounded-[10px] px-3.5 text-slate-800 placeholder:text-slate-400/80 placeholder:text-[11.5px] placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-xs"
             />
             <p className="text-[10px] font-semibold text-slate-400">
               Slug will be auto-generated from the name.
@@ -84,7 +84,7 @@ export function CareerRoleFormDialog({
               placeholder="e.g., Design and guide structural blueprints for cloud deployment."
               rows={3}
               required
-              className="bg-slate-50/40 border border-slate-200 rounded-[10px] p-3 text-slate-800 placeholder:text-slate-400/80 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-sm resize-none"
+              className="bg-slate-50/40 border border-slate-200 rounded-[10px] p-3 text-slate-800 placeholder:text-slate-400/80 placeholder:text-[11.5px] placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-[#ff9900]/15 focus:border-[#ff9900] focus-visible:ring-2 focus-visible:ring-[#ff9900]/15 focus-visible:border-[#ff9900] transition-all font-normal text-xs resize-none"
             />
           </div>
 

@@ -20,7 +20,7 @@ export const CloudHeadlines = memo(function CloudHeadlines({
   onArticleClick,
   className,
 }: CloudHeadlinesProps) {
-  const headlines = getCloudHeadlines(articles, 7);
+  const headlines = getCloudHeadlines(articles, 6);
 
   return (
     <aside

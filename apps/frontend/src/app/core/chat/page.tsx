@@ -93,6 +93,7 @@ interface Query {
   id: string; sessionId: string; message: string;
   bestSimilarity: number; bestMatchDoc?: string | null;
   timestamp: string; status: string;
+  adminReply?: string | null;
 }
 
 // ─── Query Row ────────────────────────────────────────────────────────────────
@@ -292,13 +293,13 @@ function Avatar({ initials, color, photo, size = 36 }: { initials: string; color
 }
 
 // ─── CMS Panel ────────────────────────────────────────────────────────────────
-function CMSPanel({ query, onSaved, onDismissed, showToast }: { query: Query | null; onSaved: (id: string) => void; onDismissed: (id: string) => void; showToast: (t: any) => void }) {
+function CMSPanel({ query, onSaved, onDismissed, showToast, user }: { query: Query | null; onSaved: (id: string) => void; onDismissed: (id: string) => void; showToast: (t: any) => void; user: any }) {
   const [answer, setAnswer] = useState("");
   const [saving, setSaving] = useState("");
   const [saveResult, setSaveResult] = useState<{ doc_id: string; total: number } | null>(null);
 
   useEffect(() => {
-    setAnswer("");
+    setAnswer(query?.adminReply || "");
     setSaveResult(null);
   }, [query]);
 
@@ -308,7 +309,7 @@ function CMSPanel({ query, onSaved, onDismissed, showToast }: { query: Query | n
     try {
       const res = await fetch(`/api/admin/reply-live/${query.id}`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answer: answer.trim() }),
+        body: JSON.stringify({ answer: answer.trim(), adminName: user?.fullName || "Core Team" }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -663,6 +664,7 @@ export default function CoreChatPage() {
         bestSimilarity: q.bestSimilarity || q.best_similarity || 0,
         bestMatchDoc: q.bestMatchDoc || q.best_match_doc || null,
         timestamp: q.timestamp, status: q.status,
+        adminReply: q.adminReply || q.admin_reply || null,
       })));
       setStats(statsObj);
     } catch { showToast({ type: "error", title: "Failed to load data" }); }
@@ -1027,10 +1029,31 @@ export default function CoreChatPage() {
               {/* List body */}
               <div style={{ overflowY: "auto", flex: 1, background: "#FFFFFF", maxHeight: "480px" }}>
                 {visible.length === 0 ? (
-                  <div style={{ padding: 48, textAlign: "center", color: T.muted, fontSize: 13 }}>
-                    <CheckCircle2 size={36} color={T.muted} style={{ marginBottom: 12, opacity: 0.4 }} />
-                    <div style={{ fontWeight: 600, color: T.text }}>No queries found</div>
-                    <div style={{ fontSize: 11, marginTop: 4 }}>All clear for this filter.</div>
+                  <div style={{ 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    padding: "80px 24px", 
+                    color: T.muted, 
+                    fontSize: 13,
+                    background: "#FFFFFF"
+                  }}>
+                    <div style={{ 
+                      width: 48, 
+                      height: 48, 
+                      borderRadius: "50%", 
+                      background: "rgba(241, 245, 249, 0.8)", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center",
+                      marginBottom: 16,
+                      border: `1px solid ${T.border}`
+                    }}>
+                      <CheckCircle2 size={20} color={T.muted} style={{ opacity: 0.8 }} />
+                    </div>
+                    <div style={{ fontWeight: 700, color: T.text, fontSize: 14, letterSpacing: "-0.01em" }}>No queries found</div>
+                    <div style={{ fontSize: 11, marginTop: 4, color: T.muted }}>All clear for this filter.</div>
                   </div>
                 ) : visible.map(q => <QueryRow key={q.id} q={q} isSelected={selectedQuery?.id === q.id} onSelect={setSelectedQuery} />)}
               </div>
@@ -1038,7 +1061,7 @@ export default function CoreChatPage() {
 
             {/* Right: CMS Panel Only */}
             <div style={{ flex: "1 1 40%", display: "flex", flexDirection: "column", height: "100%", maxHeight: "100%", minHeight: 0, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, overflowX: "hidden", overflowY: "auto" }}>
-              <CMSPanel query={selectedQuery} onSaved={handleSaved} onDismissed={handleDismissed} showToast={showToast} />
+              <CMSPanel query={selectedQuery} onSaved={handleSaved} onDismissed={handleDismissed} showToast={showToast} user={user} />
             </div>
           </div>
         )}

@@ -55,6 +55,7 @@ export class AwsServicesService {
         iconUrl: true,
         shortDescription: true,
         isFeatured: true,
+        isVisibleToEnthusiasts: true,
         status: true,
         displayOrder: true,
         isActive: true,

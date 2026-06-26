@@ -61,23 +61,17 @@ export default function StatsCard({
         </div>
       ) : bareIcon ? (
         <div
-          className="relative"
           onMouseEnter={() => setIconHovered(true)}
           onMouseLeave={() => setIconHovered(false)}
         >
-          <Icon className={cn("w-20 h-20 transition-transform duration-200", iconClass, iconHovered && "scale-110")} />
-          {iconLabel && iconHovered && (
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/85 backdrop-blur-sm text-white text-[9px] font-semibold rounded-md shadow-lg border border-white/10 whitespace-nowrap pointer-events-none tracking-wider uppercase z-30">
-              {iconLabel}
-            </div>
-          )}
+          <Icon className={cn("w-18 h-18 transition-transform duration-200", iconClass, iconHovered && "scale-110")} />
         </div>
       ) : (
         <div className={cn(
-          "w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner",
+          "w-12 h-12 rounded-xl flex items-center justify-center shadow-inner",
           iconBgClass
         )}>
-          <Icon className={cn("w-20 h-20", iconClass)} />
+          <Icon className={cn("w-8 h-8", iconClass)} />
         </div>
       )}
     </div>
@@ -86,7 +80,7 @@ export default function StatsCard({
   if (onClick) {
     return (
       <div className="block w-full">
-        <GlassCard onClick={onClick} delay={delay} style={style} className="!p-5 border border-white/30 cursor-pointer">
+        <GlassCard onClick={onClick} delay={delay} style={style} className="!p-4 border border-white/30 cursor-pointer">
           <CardContent />
         </GlassCard>
       </div>
@@ -96,7 +90,7 @@ export default function StatsCard({
   if (href) {
     return (
       <Link href={href} className="block w-full">
-        <GlassCard delay={delay} style={style} className="!p-5 border border-white/30 cursor-pointer">
+        <GlassCard delay={delay} style={style} className="!p-4 border border-white/30 cursor-pointer">
           <CardContent />
         </GlassCard>
       </Link>
@@ -104,7 +98,7 @@ export default function StatsCard({
   }
 
   return (
-    <GlassCard delay={delay} style={style} hoverEffect={false} className="!p-5 border border-white/20 select-none">
+    <GlassCard delay={delay} style={style} hoverEffect={false} className="!p-4 border border-white/20 select-none">
       <CardContent />
     </GlassCard>
   );

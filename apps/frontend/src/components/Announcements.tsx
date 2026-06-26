@@ -33,74 +33,80 @@ export default function Announcements() {
   const { data: announcements = [], isLoading } = useAnnouncements();
 
   return (
-    <GlassCard className="flex flex-col h-full border border-white/20 min-h-[300px]" hoverEffect={false} style={{ background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(35, 47, 62, 0.06))" }}>
+    <GlassCard
+      className="flex flex-col h-full border border-orange-100/70 shadow-sm rounded-xl !p-5 min-h-[300px]"
+      hoverEffect={false}
+      style={{
+        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%)"
+      }}
+    >
       {/* Panel Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-black/5 mb-4">
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-brand-orange/10 flex items-center justify-center text-brand-orange">
+          <div className="w-8 h-8 rounded-lg bg-white/70 border border-orange-100/50 flex items-center justify-center text-slate-500">
             <Bell className="w-4 h-4" />
           </div>
-          <h3 className="text-xl font-medium text-foreground font-display">
+          <h3 className="text-base font-bold text-slate-800 font-display">
             Community Announcements
           </h3>
         </div>
-        <span className="text-sm text-foreground/50 font-medium">
+        <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
           {announcements.length} updates
         </span>
       </div>
 
       {/* Content Area */}
       {isLoading ? (
-        <div className="flex-1 space-y-4 pr-1 max-h-[380px] overflow-y-auto">
+        <div className="flex-1 space-y-3 pr-1 max-h-[380px] overflow-y-auto">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-4 rounded-xl border border-black/5 bg-white/30 animate-pulse">
+            <div key={i} className="p-3 rounded-lg border border-slate-100 bg-slate-50 animate-pulse">
               <div className="flex items-center justify-between mb-2">
-                <div className="h-4 w-20 bg-black/10 rounded" />
-                <div className="h-3 w-16 bg-black/10 rounded" />
+                <div className="h-4 w-20 bg-slate-250 rounded" />
+                <div className="h-3 w-16 bg-slate-250 rounded" />
               </div>
-              <div className="h-4 w-3/4 bg-black/10 rounded mb-2" />
-              <div className="h-3 w-full bg-black/10 rounded" />
+              <div className="h-4 w-3/4 bg-slate-250 rounded mb-2" />
+              <div className="h-3 w-full bg-slate-250 rounded" />
             </div>
           ))}
         </div>
       ) : announcements.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60 mt-4">
-          <Bell className="w-8 h-8 text-foreground/30 mb-2" />
-          <h4 className="text-base font-medium text-foreground">No Announcements Yet</h4>
-          <p className="text-sm text-foreground/70 mt-1 max-w-[200px]">
+        <div className="flex-1 flex flex-col items-center justify-center text-center mt-4">
+          <Bell className="w-7 h-7 text-slate-300 mb-2" />
+          <h4 className="text-[13.5px] font-bold text-slate-700">No Announcements Yet</h4>
+          <p className="text-xs text-slate-400 mt-1 max-w-[210px] leading-relaxed">
             Watch this space for the latest updates.
           </p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto pr-1 max-h-[380px] custom-scrollbar space-y-4">
+        <div className="flex-1 overflow-y-auto pr-1 max-h-[380px] custom-scrollbar space-y-3">
           {announcements.map((ann) => (
             <div
               key={ann.id}
-              className="group p-4 rounded-xl transition-all relative border border-white/30 bg-white/20 hover:bg-white/30 hover:border-brand-orange/40 hover:shadow-sm"
+              className="group p-3.5 rounded-lg transition-all relative border border-slate-100 bg-white/50 hover:bg-white hover:border-orange-200/50 hover:shadow-sm"
             >
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className={cn("inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase border", typeBadge(ann.type))}>
                     {typeLabel(ann.type)}
                   </span>
                   {ann.event?.title && (
-                    <span className="text-[10px] font-semibold text-foreground/60">
+                    <span className="text-[10px] font-semibold text-slate-500">
                       @{ann.event.title}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] text-foreground/45 flex items-center gap-1 font-medium">
+                <span className="text-[10px] text-slate-400 flex items-center gap-1 font-medium">
                   <Calendar className="h-3 w-3" />
                   {formatDate(ann.createdAt)}
                 </span>
               </div>
 
-              <h4 className="text-[15px] font-bold text-foreground group-hover:text-brand-orange transition-colors flex items-center gap-1">
+              <h4 className="text-sm font-bold text-slate-800 group-hover:text-[#FF9900] transition-colors flex items-center gap-1">
                 <span>{ann.title}</span>
-                <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 text-brand-orange" />
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 text-[#FF9900]" />
               </h4>
 
-              <p className="text-xs text-foreground/85 leading-relaxed mt-2.5 whitespace-pre-line">
+              <p className="text-xs text-slate-500 leading-relaxed mt-2 whitespace-pre-line">
                 {ann.message}
               </p>
             </div>

@@ -195,7 +195,7 @@ export default function SidebarLayout({
       )}
 
       <main
-        className="h-screen overflow-y-auto overflow-x-hidden flex flex-col bg-[#F8FAFC] relative"
+        className="h-screen overflow-hidden flex flex-col bg-white relative"
         style={{
           marginLeft: mainMargin,
           width: `calc(100% - ${mainMargin}px)`,
@@ -215,7 +215,11 @@ export default function SidebarLayout({
             </button>
           </div>
         )}
-        <div className={shouldShowBack() ? "flex-1 pt-12" : "flex-1"}>
+        <div className={
+          pathname && pathname.includes('/chat')
+            ? (shouldShowBack() ? "h-full pt-12 overflow-hidden" : "h-full overflow-hidden")
+            : (shouldShowBack() ? "h-full pt-12 overflow-y-auto overflow-x-hidden" : "h-full overflow-y-auto overflow-x-hidden")
+        }>
           {children}
         </div>
 

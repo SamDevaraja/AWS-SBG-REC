@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import OurTeamShowcase from "@/components/CommunityStoryCarousel";
+import FacultyCoordinator from "@/components/FacultyCoordinator";
 import Gallery from "@/components/Gallery";
 import ReviewsMarquee from "@/components/ReviewsMarquee";
 import ScrollTransitionSection from "@/components/ScrollTransitionSection";
@@ -20,6 +21,7 @@ export default function Home() {
         <ServicesMarquee />
         <Gallery />
         <ReviewsMarquee />
+        <FacultyCoordinator />
         <OurTeamShowcase />
       </main>
       <Footer />

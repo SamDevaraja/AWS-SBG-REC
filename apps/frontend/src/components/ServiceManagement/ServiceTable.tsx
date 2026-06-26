@@ -219,9 +219,9 @@ export default function ServiceTable({
                 <th className="py-4 px-6">Code</th>
                 <th className="py-4 px-6">Service Name</th>
                 <th className="py-4 px-6">Category</th>
-                <th className="py-4 px-6">Launch Status</th>
+                <th className="py-4 px-6 text-center">Launch Status</th>
                 <th className="py-4 px-6 text-center">Featured</th>
-                <th className="py-4 px-6 text-center">Active</th>
+                <th className="py-4 px-6 text-center">Enthusiasts</th>
                 <th className="py-4 px-8 text-right">Actions</th>
               </tr>
             </thead>
@@ -265,7 +265,7 @@ export default function ServiceTable({
                   </td>
 
                   {/* Launch Status */}
-                  <td className="py-3.5 px-6">
+                  <td className="py-3.5 px-6 text-center">
                     <span className={`px-2 py-0.5 text-[9px] font-semibold uppercase rounded border ${
                       service.status === "GA"
                         ? "bg-emerald-50 text-emerald-600 border-emerald-100"
@@ -288,13 +288,15 @@ export default function ServiceTable({
                     </div>
                   </td>
 
-                  {/* Active */}
+
+
+                  {/* Enthusiasts */}
                   <td className="py-3.5 px-6 text-center">
                     <div className="flex justify-center">
-                      {service.isActive ? (
-                        <CheckCircle size={15} className="text-emerald-500" />
+                      {service.isVisibleToEnthusiasts ? (
+                        <CheckCircle size={15} className="text-[#FF9900]" />
                       ) : (
-                        <XCircle size={15} className="text-slate-300" />
+                        <span className="text-slate-300">-</span>
                       )}
                     </div>
                   </td>
